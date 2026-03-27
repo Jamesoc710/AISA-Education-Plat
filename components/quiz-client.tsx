@@ -594,7 +594,11 @@ function ModeSelection({
           transition: "opacity 0.12s",
         }}
       >
-        Start Quiz
+        {mode === "mixed"
+          ? "Start Quiz (~10 questions)"
+          : mode === "concept" && selectedId
+            ? `Start Quiz (${concepts.find((c) => c.id === selectedId)?.questionCount ?? "?"} questions)`
+            : "Start Quiz"}
       </button>
     </div>
   );

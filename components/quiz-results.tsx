@@ -478,6 +478,7 @@ function SectionAccordion({
     >
       <button
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
         style={{
           display: "flex",
           alignItems: "center",
@@ -569,6 +570,7 @@ function ConceptAccordion({
     >
       <button
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
         style={{
           display: "flex",
           alignItems: "center",

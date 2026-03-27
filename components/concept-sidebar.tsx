@@ -115,6 +115,7 @@ export function ConceptSidebar({
               {/* Section header button */}
               <button
                 onClick={() => toggleSection(section.id)}
+                aria-expanded={isExpanded}
                 style={{
                   display: "flex",
                   alignItems: "center",

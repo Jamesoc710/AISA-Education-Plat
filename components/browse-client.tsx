@@ -274,6 +274,13 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
                     padding: "2px 4px",
                     flexShrink: 0,
                     lineHeight: 1,
+                    transition: "color 0.12s",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-2)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-3)";
                   }}
                   aria-label="Dismiss welcome banner"
                 >
@@ -316,6 +323,7 @@ function FilterTab({
   return (
     <button
       onClick={onClick}
+      aria-pressed={active}
       style={{
         display: "flex",
         alignItems: "center",
