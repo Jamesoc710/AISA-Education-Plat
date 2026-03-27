@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { ConceptCard } from "@/components/concept-card";
 import { SearchBar } from "@/components/search-bar";
 import type { SectionGroup, ConceptData } from "@/lib/types";
@@ -148,6 +149,53 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
             }
           />
         </nav>
+
+        {/* Divider before Quiz link */}
+        <div style={{ width: "1px", height: "20px", backgroundColor: "var(--color-border)" }} />
+
+        {/* Quiz nav link */}
+        <Link
+          href="/quiz"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "4px 12px",
+            borderRadius: "6px",
+            fontSize: "13px",
+            fontWeight: 500,
+            color: "var(--color-text-2)",
+            textDecoration: "none",
+            height: "28px",
+            lineHeight: 1,
+            transition: "background-color 0.1s, color 0.1s",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "var(--color-surface)";
+            (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent";
+            (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-2)";
+          }}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ color: "var(--color-accent)", flexShrink: 0 }}
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          Quiz
+        </Link>
 
         {/* Spacer */}
         <div style={{ flex: 1 }} />
