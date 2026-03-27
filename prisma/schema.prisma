@@ -65,9 +65,10 @@ model Concept {
   slug         String   @unique
   subtitle     String
   difficulty   String   // FUNDAMENTALS | INTERMEDIATE | ADVANCED
-  whatItIs     String
-  whyItMatters String
-  goDeeper     String?
+  whatItIs           String
+  simpleExplanation  String?
+  whyItMatters       String
+  goDeeper           String?
   sortOrder    Int
 
   section      Section           @relation(fields: [sectionId], references: [id])

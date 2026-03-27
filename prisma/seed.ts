@@ -2,9 +2,11 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import path from "path";
+import fs from "fs";
 import { TIERS, SECTIONS, CONCEPTS, CONCEPT_RELATIONS } from "./seed-data/curriculum";
 import { QUESTIONS } from "./seed-data/questions";
 import { RESOURCES } from "./seed-data/resources";
+import { SIMPLE_EXPLANATIONS } from "./seed-data/simple-explanations";
 
 const DATABASE_URL = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
 // Resolve to absolute path with file: prefix
@@ -51,17 +53,28 @@ async function main() {
     console.log(`    ✓ Section: ${section.name}`);
   }
 
-  // ── Concepts ──────────────────────────────────────────────────────────────
+  // ── Concepts (with simple explanations) ──────────────────────────────────
   console.log("  Seeding concepts...");
   const conceptMap: Record<string, string> = {};
   for (const concept of CONCEPTS) {
     const { sectionSlug, ...rest } = concept;
+    const simpleExplanation = SIMPLE_EXPLANATIONS[concept.slug] ?? null;
     const created = await prisma.concept.create({
-      data: { ...rest, sectionId: sectionMap[sectionSlug] },
+      data: { ...rest, simpleExplanation, sectionId: sectionMap[sectionSlug] },
     });
     conceptMap[concept.slug] = created.id;
-    console.log(`    ✓ Concept: ${concept.name}`);
+    console.log(`    ✓ Concept: ${concept.name}${simpleExplanation ? " (+simple)" : ""}`);
   }
+
+  // ── Output simple explanations for review ───────────────────────────────
+  const reviewData = CONCEPTS.map((c) => ({
+    slug: c.slug,
+    name: c.name,
+    simpleExplanation: SIMPLE_EXPLANATIONS[c.slug] ?? null,
+  }));
+  const reviewPath = path.resolve(__dirname, "seed-data/simple-explanations-review.json");
+  fs.writeFileSync(reviewPath, JSON.stringify(reviewData, null, 2));
+  console.log(`  📝 Simple explanations written to: ${reviewPath}`);
 
   // ── Concept Relations (bidirectional) ─────────────────────────────────────
   console.log("  Seeding concept relations...");

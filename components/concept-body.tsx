@@ -30,7 +30,9 @@ export function ConceptBody({
 }) {
   const [deeperOpen, setDeeperOpen] = useState(false);
   const [bookmarkHovered, setBookmarkHovered] = useState(false);
+  const [explanationMode, setExplanationMode] = useState<"detailed" | "simple">("detailed");
   const tier = TIER_STYLES[concept.section.tier.slug] ?? TIER_STYLES.fundamentals;
+  const hasSimple = Boolean(concept.simpleExplanation);
 
   return (
     <div
@@ -162,9 +164,80 @@ export function ConceptBody({
       <div style={{ height: "1px", backgroundColor: "var(--color-border)", marginBottom: "36px" }} />
 
       {/* ── What it is ───────────────────────────────────────── */}
-      <Section label="What it is">
-        <MarkdownBody content={concept.whatItIs} />
-      </Section>
+      <div style={{ marginBottom: "40px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "14px",
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--color-text-3)",
+            }}
+          >
+            What it is
+          </h2>
+
+          {/* Simple / Detailed toggle */}
+          {hasSimple && (
+            <div
+              style={{
+                display: "flex",
+                backgroundColor: "var(--color-surface-2)",
+                borderRadius: "5px",
+                padding: "2px",
+                gap: "2px",
+              }}
+            >
+              {(["simple", "detailed"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setExplanationMode(mode)}
+                  style={{
+                    padding: "3px 10px",
+                    fontSize: "11px",
+                    fontWeight: 500,
+                    fontFamily: "inherit",
+                    color:
+                      explanationMode === mode
+                        ? "var(--color-text)"
+                        : "var(--color-text-3)",
+                    backgroundColor:
+                      explanationMode === mode
+                        ? "var(--color-surface-3)"
+                        : "transparent",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    textTransform: "capitalize",
+                    transition: "background-color 0.15s, color 0.15s",
+                  }}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div key={explanationMode} className="animate-fade-in">
+          <MarkdownBody
+            content={
+              explanationMode === "simple" && concept.simpleExplanation
+                ? concept.simpleExplanation
+                : concept.whatItIs
+            }
+          />
+        </div>
+      </div>
 
       {/* ── Why it matters ───────────────────────────────────── */}
       <Section label="Why it matters">
