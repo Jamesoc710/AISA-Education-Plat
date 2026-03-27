@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── Core Tables ─────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String   @default("RECRUIT") // RECRUIT | MENTOR | ADMIN | CURRICULUM_LEAD | PROJECT_LEAD
+  cohort    String?  // [FUTURE] e.g. "Spring 2026"
+  mentorId  String?  // [FUTURE] self-referential FK
+  createdAt DateTime @default(now())
+
+  mentor    User?  @relation("MentorRecruits", fields: [mentorId], references: [id])
+  recruits  User[] @relation("MentorRecruits")
+
+  bookmarks              Bookmark[]
+  suggestedResources     Resource[]
+  quizAttempts           QuizAttempt[]
+  homeworkSubmissions    HomeworkSubmission[]
+  mentorNotesGiven       MentorNote[]        @relation("MentorNoteGiver")
+  mentorNotesReceived    MentorNote[]        @relation("MentorNoteRecruit")
+  projectAssignments     ProjectAssignment[]
+
+  @@map("users")
+}
+
+model Tier {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String
+  sortOrder   Int
+  color       String
+
+  sections    Section[]
+
+  @@map("tiers")
+}
+
+model Section {
+  id          String    @id @default(cuid())
+  tierId      String
+  name        String
+  slug        String    @unique
+  description String
+  sortOrder   Int
+
+  tier        Tier      @relation(fields: [tierId], references: [id])
+  concepts    Concept[]
+
+  @@map("sections")
+}
+
+model Concept {
+  id           String   @id @default(cuid())
+  sectionId    String
+  name         String
+  slug         String   @unique
+  subtitle     String
+  difficulty   String   // FUNDAMENTALS | INTERMEDIATE | ADVANCED
+  whatItIs     String
+  whyItMatters String
+  goDeeper     String?
+  sortOrder    Int
+
+  section      Section           @relation(fields: [sectionId], references: [id])
+  questions    Question[]
+  resources    Resource[]
+  bookmarks    Bookmark[]
+  relatedFrom  ConceptRelation[] @relation("ConceptFrom")
+  relatedTo    ConceptRelation[] @relation("ConceptTo")
+
+  @@map("concepts")
+}
+
+model ConceptRelation {
+  conceptId        String
+  relatedConceptId String
+
+  concept        Concept @relation("ConceptFrom", fields: [conceptId], references: [id])
+  relatedConcept Concept @relation("ConceptTo", fields: [relatedConceptId], references: [id])
+
+  @@id([conceptId, relatedConceptId])
+  @@map("concept_relations")
+}
+
+model Resource {
+  id               String  @id @default(cuid())
+  conceptId        String
+  title            String
+  url              String
+  sourceDomain     String
+  type             String  // VIDEO | ARTICLE | PAPER | TUTORIAL
+  estimatedMinutes Int?
+  description      String?
+  sortOrder        Int
+  suggestedById    String? // [FUTURE]
+
+  concept     Concept @relation(fields: [conceptId], references: [id])
+  suggestedBy User?   @relation(fields: [suggestedById], references: [id])
+
+  @@map("resources")
+}
+
+model Question {
+  id                String  @id @default(cuid())
+  conceptId         String
+  type              String  // MC | SHORT_ANSWER
+  questionText      String
+  options           String? // JSON array [{text, isCorrect}] — null for SHORT_ANSWER
+  answerExplanation String
+  difficulty        String  // FUNDAMENTALS | INTERMEDIATE | ADVANCED
+
+  concept  Concept       @relation(fields: [conceptId], references: [id])
+  attempts QuizAttempt[]
+
+  @@map("questions")
+}
+
+model Bookmark {
+  userId    String
+  conceptId String
+  status    String   @default("bookmarked") // [FUTURE]: in_progress | confident
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  concept Concept @relation(fields: [conceptId], references: [id])
+
+  @@id([userId, conceptId])
+  @@map("bookmarks")
+}
+
+// ─── Future Tables (schema only — no MVP UI/routes built) ────────────────────
+
+model QuizAttempt {
+  id             String   @id @default(cuid())
+  userId         String
+  questionId     String
+  selectedAnswer String?
+  isCorrect      Boolean?
+  attemptedAt    DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  question Question @relation(fields: [questionId], references: [id])
+
+  @@map("quiz_attempts")
+}
+
+model HomeworkSubmission {
+  id           String   @id @default(cuid())
+  userId       String
+  assignmentId String
+  content      String
+  submittedAt  DateTime @default(now())
+  grade        String?
+  feedback     String?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("homework_submissions")
+}
+
+model MentorNote {
+  id        String   @id @default(cuid())
+  mentorId  String
+  recruitId String
+  note      String
+  createdAt DateTime @default(now())
+
+  mentor  User @relation("MentorNoteGiver", fields: [mentorId], references: [id])
+  recruit User @relation("MentorNoteRecruit", fields: [recruitId], references: [id])
+
+  @@map("mentor_notes")
+}
+
+model ProjectAssignment {
+  id         String   @id @default(cuid())
+  userId     String
+  projectId  String
+  role       String
+  assignedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("project_assignments")
+}
