@@ -14,15 +14,11 @@ export default function NotFound() {
         textAlign: "center",
       }}
     >
-      <div
-        style={{
-          width: "48px",
-          height: "48px",
-          borderRadius: "12px",
-          background: "linear-gradient(135deg, #5e6ad2 0%, #6b9bd2 100%)",
-          marginBottom: "24px",
-          opacity: 0.5,
-        }}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/assets/aisa-logo.png"
+        alt="AISA Atlas"
+        style={{ width: "48px", height: "48px", marginBottom: "24px", opacity: 0.5 }}
       />
 
       <h1

@@ -108,14 +108,10 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
       >
         {/* Logo / wordmark */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginRight: "8px" }}>
-          <div
-            style={{
-              width: "24px",
-              height: "24px",
-              borderRadius: "6px",
-              background: "linear-gradient(135deg, #5e6ad2 0%, #6b9bd2 100%)",
-              flexShrink: 0,
-            }}
+          <img
+            src="/assets/aisa-logo.png"
+            alt="AISA"
+            style={{ width: "28px", height: "28px", flexShrink: 0 }}
           />
           <span style={{ fontWeight: 600, fontSize: "14px", color: "var(--color-text)", letterSpacing: "-0.01em" }}>
             AISA Atlas

@@ -86,14 +86,10 @@ export function ConceptSidebar({
             textDecoration: "none",
           }}
         >
-          <div
-            style={{
-              width: "24px",
-              height: "24px",
-              borderRadius: "6px",
-              background: "linear-gradient(135deg, #5e6ad2 0%, #6b9bd2 100%)",
-              flexShrink: 0,
-            }}
+          <img
+            src="/assets/aisa-logo.png"
+            alt="AISA"
+            style={{ width: "24px", height: "24px", flexShrink: 0 }}
           />
           <span
             style={{
