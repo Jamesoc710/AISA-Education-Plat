@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function QuizPage() {
-  const [concepts, sections] = await Promise.all([
+  const [concepts, sections, tiers] = await Promise.all([
     prisma.concept.findMany({
       select: {
         id: true,
@@ -34,9 +34,25 @@ export default async function QuizPage() {
       },
       orderBy: [{ tier: { sortOrder: "asc" } }, { sortOrder: "asc" }],
     }),
+    prisma.tier.findMany({
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        sections: {
+          select: {
+            concepts: {
+              select: {
+                _count: { select: { questions: true } },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { sortOrder: "asc" },
+    }),
   ]);
 
-  // Only include concepts/sections that actually have questions
   const conceptOptions = concepts
     .filter((c) => c._count.questions > 0)
     .map((c) => ({
@@ -53,5 +69,22 @@ export default async function QuizPage() {
     conceptCount: s._count.concepts,
   }));
 
-  return <QuizClient concepts={conceptOptions} sections={sectionOptions} />;
+  const tierOptions = tiers.map((t) => ({
+    id: t.id,
+    name: t.name,
+    slug: t.slug,
+    questionCount: t.sections.reduce(
+      (sum, s) =>
+        sum + s.concepts.reduce((cSum, c) => cSum + c._count.questions, 0),
+      0,
+    ),
+  }));
+
+  return (
+    <QuizClient
+      concepts={conceptOptions}
+      sections={sectionOptions}
+      tiers={tierOptions}
+    />
+  );
 }

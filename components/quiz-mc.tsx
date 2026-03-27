@@ -9,7 +9,7 @@ type MCQuestionProps = {
     options: { text: string; isCorrect: boolean }[];
     answerExplanation: string;
   };
-  onAnswer: (correct: boolean) => void;
+  onAnswer: (correct: boolean, selectedIndex: number) => void;
 };
 
 export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
@@ -19,7 +19,7 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
   const handleSelect = (index: number) => {
     if (answered) return;
     setSelectedIndex(index);
-    onAnswer(question.options[index].isCorrect);
+    onAnswer(question.options[index].isCorrect, index);
   };
 
   return (

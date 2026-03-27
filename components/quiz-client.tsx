@@ -4,18 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { MCQuestion } from "@/components/quiz-mc";
 import { ShortAnswerQuestion } from "@/components/quiz-short-answer";
+import { QuizResults } from "@/components/quiz-results";
+import type {
+  QuizQuestion,
+  MCAnswer,
+} from "@/components/quiz-results";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-
-type QuizQuestion = {
-  id: string;
-  type: "MC" | "SHORT_ANSWER";
-  questionText: string;
-  options: { text: string; isCorrect: boolean }[] | null;
-  answerExplanation: string;
-  conceptName: string;
-  conceptSlug: string;
-};
 
 type ConceptOption = { id: string; name: string; questionCount: number };
 type SectionOption = {
@@ -25,18 +20,22 @@ type SectionOption = {
   tierSlug: string;
   conceptCount: number;
 };
+type TierOption = {
+  id: string;
+  name: string;
+  slug: string;
+  questionCount: number;
+};
 
-type QuizMode = "concept" | "section" | "mixed";
+type QuizMode = "concept" | "section" | "tier" | "mixed";
 type Phase = "select" | "loading" | "quiz" | "summary";
-
-type MCAnswer = { questionId: string; correct: boolean };
 
 // ── Tier color helper ─────────────────────────────────────────────────────────
 
 const TIER_COLOR: Record<string, string> = {
-  fundamentals: "#e8b54a",
-  intermediate: "#6b9bd2",
-  advanced: "#8b8b9e",
+  fundamentals: "var(--color-gold)",
+  intermediate: "var(--color-blue)",
+  advanced: "var(--color-slate)",
 };
 
 // ── Main Component ────────────────────────────────────────────────────────────
@@ -44,9 +43,11 @@ const TIER_COLOR: Record<string, string> = {
 export function QuizClient({
   concepts,
   sections,
+  tiers,
 }: {
   concepts: ConceptOption[];
   sections: SectionOption[];
+  tiers: TierOption[];
 }) {
   const [phase, setPhase] = useState<Phase>("select");
   const [mode, setMode] = useState<QuizMode | null>(null);
@@ -60,7 +61,7 @@ export function QuizClient({
 
   const startQuiz = async () => {
     if (!mode) return;
-    if ((mode === "concept" || mode === "section") && !selectedId) return;
+    if ((mode === "concept" || mode === "section" || mode === "tier") && !selectedId) return;
 
     setPhase("loading");
     setError(null);
@@ -91,8 +92,8 @@ export function QuizClient({
 
   // ── Handlers ────────────────────────────────────────────────────────────
 
-  const handleMCAnswer = (questionId: string, correct: boolean) => {
-    setMcAnswers((prev) => [...prev, { questionId, correct }]);
+  const handleMCAnswer = (questionId: string, correct: boolean, selectedIndex: number) => {
+    setMcAnswers((prev) => [...prev, { questionId, correct, selectedIndex }]);
   };
 
   const handleNext = () => {
@@ -114,7 +115,6 @@ export function QuizClient({
   };
 
   const retakeQuiz = () => {
-    // Reshuffle the same questions
     const shuffled = [...questions];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -214,6 +214,7 @@ export function QuizClient({
           display: "flex",
           justifyContent: "center",
           padding: "48px 24px 80px",
+          overflowY: "auto",
         }}
       >
         <div style={{ width: "100%", maxWidth: "640px" }}>
@@ -225,6 +226,7 @@ export function QuizClient({
               setSelectedId={setSelectedId}
               concepts={concepts}
               sections={sections}
+              tiers={tiers}
               onStart={startQuiz}
               error={error}
             />
@@ -243,9 +245,10 @@ export function QuizClient({
           )}
 
           {phase === "summary" && (
-            <QuizSummary
+            <QuizResults
               questions={questions}
               mcAnswers={mcAnswers}
+              mode={mode!}
               onRetake={retakeQuiz}
               onNewQuiz={resetQuiz}
             />
@@ -265,6 +268,7 @@ function ModeSelection({
   setSelectedId,
   concepts,
   sections,
+  tiers,
   onStart,
   error,
 }: {
@@ -274,6 +278,7 @@ function ModeSelection({
   setSelectedId: (id: string) => void;
   concepts: ConceptOption[];
   sections: SectionOption[];
+  tiers: TierOption[];
   onStart: () => void;
   error: string | null;
 }) {
@@ -289,6 +294,11 @@ function ModeSelection({
       desc: "Mixed questions across all concepts in a section",
     },
     {
+      key: "tier",
+      label: "By Tier",
+      desc: "All questions from a difficulty tier",
+    },
+    {
       key: "mixed",
       label: "Mixed / All Topics",
       desc: "Randomized questions across every topic",
@@ -297,6 +307,24 @@ function ModeSelection({
 
   const canStart =
     mode === "mixed" || (mode && selectedId);
+
+  // Custom select dropdown SVG
+  const selectChevron = `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a5a6a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`;
+
+  const selectStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "10px 14px",
+    backgroundColor: "var(--color-surface)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "6px",
+    fontSize: "13px",
+    fontFamily: "inherit",
+    cursor: "pointer",
+    appearance: "none" as const,
+    backgroundImage: selectChevron,
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "right 14px center",
+  };
 
   return (
     <div>
@@ -393,12 +421,7 @@ function ModeSelection({
                 >
                   {m.label}
                 </div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: "var(--color-text-3)",
-                  }}
-                >
+                <div style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
                   {m.desc}
                 </div>
               </div>
@@ -407,7 +430,7 @@ function ModeSelection({
         })}
       </div>
 
-      {/* Concept/Section selector */}
+      {/* Concept selector */}
       {mode === "concept" && (
         <div style={{ marginBottom: "28px" }}>
           <label
@@ -425,19 +448,8 @@ function ModeSelection({
             value={selectedId}
             onChange={(e) => setSelectedId(e.target.value)}
             style={{
-              width: "100%",
-              padding: "10px 14px",
-              backgroundColor: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "6px",
+              ...selectStyle,
               color: selectedId ? "var(--color-text)" : "var(--color-text-3)",
-              fontSize: "13px",
-              fontFamily: "inherit",
-              cursor: "pointer",
-              appearance: "none",
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a5a6a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 14px center",
             }}
           >
             <option value="">Choose a concept…</option>
@@ -450,6 +462,7 @@ function ModeSelection({
         </div>
       )}
 
+      {/* Section selector */}
       {mode === "section" && (
         <div style={{ marginBottom: "28px" }}>
           <label
@@ -467,19 +480,8 @@ function ModeSelection({
             value={selectedId}
             onChange={(e) => setSelectedId(e.target.value)}
             style={{
-              width: "100%",
-              padding: "10px 14px",
-              backgroundColor: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "6px",
+              ...selectStyle,
               color: selectedId ? "var(--color-text)" : "var(--color-text-3)",
-              fontSize: "13px",
-              fontFamily: "inherit",
-              cursor: "pointer",
-              appearance: "none",
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a5a6a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 14px center",
             }}
           >
             <option value="">Choose a section…</option>
@@ -489,6 +491,78 @@ function ModeSelection({
               </option>
             ))}
           </select>
+        </div>
+      )}
+
+      {/* Tier selector */}
+      {mode === "tier" && (
+        <div style={{ marginBottom: "28px" }}>
+          <label
+            style={{
+              display: "block",
+              fontSize: "12px",
+              fontWeight: 500,
+              color: "var(--color-text-2)",
+              marginBottom: "8px",
+            }}
+          >
+            Select a tier
+          </label>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {tiers.map((t) => {
+              const isSelected = selectedId === t.id;
+              const tierColor = TIER_COLOR[t.slug] ?? "var(--color-text-3)";
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setSelectedId(t.id)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    padding: "12px 14px",
+                    backgroundColor: isSelected
+                      ? "var(--color-surface-2)"
+                      : "var(--color-surface)",
+                    border: `1px solid ${isSelected ? tierColor : "var(--color-border)"}`,
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    textAlign: "left",
+                    transition: "border-color 0.12s, background-color 0.12s",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor: tierColor,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span
+                    style={{
+                      flex: 1,
+                      fontSize: "13px",
+                      fontWeight: 500,
+                      color: "var(--color-text)",
+                    }}
+                  >
+                    {t.name}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      color: "var(--color-text-3)",
+                    }}
+                  >
+                    {t.questionCount} questions
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -557,7 +631,7 @@ function QuizFlow({
   question: QuizQuestion;
   index: number;
   total: number;
-  onMCAnswer: (questionId: string, correct: boolean) => void;
+  onMCAnswer: (questionId: string, correct: boolean, selectedIndex: number) => void;
   onNext: () => void;
 }) {
   const [answered, setAnswered] = useState(false);
@@ -632,8 +706,8 @@ function QuizFlow({
         <MCQuestion
           key={question.id}
           question={{ ...question, options: question.options }}
-          onAnswer={(correct) => {
-            onMCAnswer(question.id, correct);
+          onAnswer={(correct, selectedIndex) => {
+            onMCAnswer(question.id, correct, selectedIndex);
             handleAnswered();
           }}
         />
@@ -666,155 +740,6 @@ function QuizFlow({
           </button>
         </div>
       )}
-    </div>
-  );
-}
-
-// ── Summary Screen ────────────────────────────────────────────────────────────
-
-function QuizSummary({
-  questions,
-  mcAnswers,
-  onRetake,
-  onNewQuiz,
-}: {
-  questions: QuizQuestion[];
-  mcAnswers: MCAnswer[];
-  onRetake: () => void;
-  onNewQuiz: () => void;
-}) {
-  const totalMC = questions.filter((q) => q.type === "MC").length;
-  const correctMC = mcAnswers.filter((a) => a.correct).length;
-  const totalSA = questions.filter((q) => q.type === "SHORT_ANSWER").length;
-  const percentage = totalMC > 0 ? Math.round((correctMC / totalMC) * 100) : 0;
-
-  const scoreColor =
-    percentage >= 80
-      ? "var(--color-correct)"
-      : percentage >= 50
-        ? "var(--color-gold)"
-        : "var(--color-incorrect)";
-
-  return (
-    <div className="animate-fade-in">
-      <h1
-        style={{
-          margin: "0 0 8px",
-          fontSize: "24px",
-          fontWeight: 600,
-          color: "var(--color-text)",
-          letterSpacing: "-0.02em",
-        }}
-      >
-        Quiz Complete
-      </h1>
-      <p
-        style={{
-          margin: "0 0 36px",
-          fontSize: "14px",
-          color: "var(--color-text-2)",
-          lineHeight: "1.6",
-        }}
-      >
-        Here's how you did.
-      </p>
-
-      {/* Score card */}
-      <div
-        style={{
-          padding: "32px",
-          backgroundColor: "var(--color-surface)",
-          border: "1px solid var(--color-border)",
-          borderRadius: "10px",
-          textAlign: "center",
-          marginBottom: "24px",
-        }}
-      >
-        {totalMC > 0 && (
-          <>
-            <div
-              style={{
-                fontSize: "48px",
-                fontWeight: 700,
-                color: scoreColor,
-                letterSpacing: "-0.03em",
-                lineHeight: 1,
-                marginBottom: "8px",
-              }}
-            >
-              {percentage}%
-            </div>
-            <div
-              style={{
-                fontSize: "15px",
-                color: "var(--color-text-2)",
-                marginBottom: "6px",
-              }}
-            >
-              {correctMC} of {totalMC} multiple choice correct
-            </div>
-          </>
-        )}
-
-        {totalSA > 0 && (
-          <div
-            style={{
-              fontSize: "13px",
-              color: "var(--color-text-3)",
-              marginTop: totalMC > 0 ? "12px" : "0",
-              padding: totalMC > 0 ? "12px 0 0" : "0",
-              borderTop: totalMC > 0
-                ? "1px solid var(--color-border)"
-                : "none",
-            }}
-          >
-            {totalSA} short answer question{totalSA !== 1 ? "s" : ""}{" "}
-            (self-assessed)
-          </div>
-        )}
-      </div>
-
-      {/* Actions */}
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-        <button
-          onClick={onRetake}
-          style={{
-            flex: 1,
-            minWidth: "160px",
-            padding: "12px 20px",
-            fontSize: "13px",
-            fontWeight: 500,
-            fontFamily: "inherit",
-            color: "var(--color-text)",
-            backgroundColor: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "8px",
-            cursor: "pointer",
-            transition: "background-color 0.12s, border-color 0.12s",
-          }}
-        >
-          Retake Quiz
-        </button>
-        <button
-          onClick={onNewQuiz}
-          style={{
-            flex: 1,
-            minWidth: "160px",
-            padding: "12px 20px",
-            fontSize: "13px",
-            fontWeight: 500,
-            fontFamily: "inherit",
-            color: "#fff",
-            backgroundColor: "var(--color-accent)",
-            border: "1px solid var(--color-accent)",
-            borderRadius: "8px",
-            cursor: "pointer",
-            transition: "opacity 0.12s",
-          }}
-        >
-          Choose Another Quiz
-        </button>
-      </div>
     </div>
   );
 }
