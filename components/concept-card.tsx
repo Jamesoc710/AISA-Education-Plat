@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { ConceptData } from "@/lib/types";
 
 const TIER_STYLES: Record<string, { color: string; bg: string; label: string }> = {
@@ -30,18 +31,12 @@ export function ConceptCard({
         backgroundColor: hovered ? "var(--color-surface)" : "var(--color-bg)",
         border: `1px solid ${hovered ? "var(--color-border)" : "var(--color-border-subtle)"}`,
         borderRadius: "8px",
-        padding: "14px 16px 13px",
-        cursor: "default",
         transition: "background-color 0.12s, border-color 0.12s",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
         minHeight: "120px",
       }}
     >
-      {/* ── Top row: tier badge + bookmark ─────────────────── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <TierBadge tier={concept.tier.slug} styles={tier} />
+      {/* Bookmark button — positioned absolutely so it doesn't sit inside the Link */}
+      <div style={{ position: "absolute", top: "14px", right: "16px", zIndex: 1 }}>
         <BookmarkButton
           bookmarked={bookmarked}
           visible={hovered || bookmarked}
@@ -49,97 +44,116 @@ export function ConceptCard({
         />
       </div>
 
-      {/* ── Name ───────────────────────────────────────────── */}
-      <h3
+      <Link
+        href={`/concepts/${concept.slug}`}
         style={{
-          margin: 0,
-          fontSize: "13.5px",
-          fontWeight: 500,
-          color: "var(--color-text)",
-          lineHeight: "1.35",
-          letterSpacing: "-0.01em",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          padding: "14px 16px 13px",
+          textDecoration: "none",
+          color: "inherit",
+          height: "100%",
         }}
       >
-        {concept.name}
-      </h3>
+        {/* ── Top row: tier badge (bookmark is absolute-positioned above) ── */}
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <TierBadge tier={concept.tier.slug} styles={tier} />
+        </div>
 
-      {/* ── Subtitle ────────────────────────────────────────── */}
-      <p
-        style={{
-          margin: 0,
-          fontSize: "12px",
-          color: "var(--color-text-2)",
-          lineHeight: "1.5",
-          flex: 1,
-        }}
-      >
-        {concept.subtitle}
-      </p>
+        {/* ── Name ───────────────────────────────────────────── */}
+        <h3
+          style={{
+            margin: 0,
+            fontSize: "13.5px",
+            fontWeight: 500,
+            color: "var(--color-text)",
+            lineHeight: "1.35",
+            letterSpacing: "-0.01em",
+            paddingRight: "28px",
+          }}
+        >
+          {concept.name}
+        </h3>
 
-      {/* ── Footer: related tags + meta ─────────────────────── */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "auto" }}>
-        {/* Related concept tags */}
-        {concept.relatedConcepts.length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-            {concept.relatedConcepts.slice(0, 4).map((r) => (
-              <span
-                key={r.slug}
-                style={{
-                  fontSize: "11px",
-                  color: "var(--color-text-3)",
-                  backgroundColor: "var(--color-surface-2)",
-                  border: "1px solid var(--color-border-subtle)",
-                  borderRadius: "4px",
-                  padding: "1px 6px",
-                  lineHeight: "1.6",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {r.name}
-              </span>
-            ))}
-            {concept.relatedConcepts.length > 4 && (
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: "var(--color-text-3)",
-                  padding: "1px 4px",
-                  lineHeight: "1.6",
-                }}
-              >
-                +{concept.relatedConcepts.length - 4}
-              </span>
+        {/* ── Subtitle ────────────────────────────────────────── */}
+        <p
+          style={{
+            margin: 0,
+            fontSize: "12px",
+            color: "var(--color-text-2)",
+            lineHeight: "1.5",
+            flex: 1,
+          }}
+        >
+          {concept.subtitle}
+        </p>
+
+        {/* ── Footer: related tags + meta ─────────────────────── */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "auto" }}>
+          {/* Related concept tags */}
+          {concept.relatedConcepts.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+              {concept.relatedConcepts.slice(0, 4).map((r) => (
+                <span
+                  key={r.slug}
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--color-text-3)",
+                    backgroundColor: "var(--color-surface-2)",
+                    border: "1px solid var(--color-border-subtle)",
+                    borderRadius: "4px",
+                    padding: "1px 6px",
+                    lineHeight: "1.6",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {r.name}
+                </span>
+              ))}
+              {concept.relatedConcepts.length > 4 && (
+                <span
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--color-text-3)",
+                    padding: "1px 4px",
+                    lineHeight: "1.6",
+                  }}
+                >
+                  +{concept.relatedConcepts.length - 4}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Resource + question counts */}
+          <div style={{ display: "flex", gap: "10px" }}>
+            {concept.resourceCount > 0 && (
+              <MetaPill
+                icon={
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                  </svg>
+                }
+                label={`${concept.resourceCount} resource${concept.resourceCount !== 1 ? "s" : ""}`}
+              />
+            )}
+            {concept.questionCount > 0 && (
+              <MetaPill
+                icon={
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                }
+                label={`${concept.questionCount} question${concept.questionCount !== 1 ? "s" : ""}`}
+              />
             )}
           </div>
-        )}
-
-        {/* Resource + question counts */}
-        <div style={{ display: "flex", gap: "10px" }}>
-          {concept.resourceCount > 0 && (
-            <MetaPill
-              icon={
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                </svg>
-              }
-              label={`${concept.resourceCount} resource${concept.resourceCount !== 1 ? "s" : ""}`}
-            />
-          )}
-          {concept.questionCount > 0 && (
-            <MetaPill
-              icon={
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                  <line x1="12" y1="17" x2="12.01" y2="17" />
-                </svg>
-              }
-              label={`${concept.questionCount} question${concept.questionCount !== 1 ? "s" : ""}`}
-            />
-          )}
         </div>
-      </div>
+      </Link>
     </div>
   );
 }
