@@ -88,9 +88,9 @@ export function ConceptSidebar({
         >
           <div
             style={{
-              width: "22px",
-              height: "22px",
-              borderRadius: "5px",
+              width: "24px",
+              height: "24px",
+              borderRadius: "6px",
               background: "linear-gradient(135deg, #5e6ad2 0%, #6b9bd2 100%)",
               flexShrink: 0,
             }}

@@ -160,9 +160,9 @@ export function QuizClient({
         >
           <div
             style={{
-              width: "22px",
-              height: "22px",
-              borderRadius: "5px",
+              width: "24px",
+              height: "24px",
+              borderRadius: "6px",
               background:
                 "linear-gradient(135deg, #5e6ad2 0%, #6b9bd2 100%)",
               flexShrink: 0,
@@ -170,7 +170,7 @@ export function QuizClient({
           />
           <span
             style={{
-              fontSize: "13px",
+              fontSize: "14px",
               fontWeight: 600,
               color: "var(--color-text)",
               letterSpacing: "-0.01em",
