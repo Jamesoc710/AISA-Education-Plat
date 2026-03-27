@@ -121,7 +121,7 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
         <div style={{ width: "1px", height: "20px", backgroundColor: "var(--color-border)", marginRight: "8px" }} />
 
         {/* Filter tabs */}
-        <nav style={{ display: "flex", alignItems: "center", gap: "2px" }}>
+        <nav className="browse-nav-filters">
           <FilterTab
             label="All"
             count={allConcepts.length}
@@ -151,7 +151,7 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
         </nav>
 
         {/* Divider before Quiz link */}
-        <div style={{ width: "1px", height: "20px", backgroundColor: "var(--color-border)" }} />
+        <div className="browse-nav-quiz-divider" style={{ width: "1px", height: "20px", backgroundColor: "var(--color-border)" }} />
 
         {/* Quiz nav link */}
         <Link
@@ -205,7 +205,7 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
 
         {/* Result count */}
         {(query || activeFilter !== "all") && (
-          <span style={{ fontSize: "12px", color: "var(--color-text-3)", whiteSpace: "nowrap" }}>
+          <span className="browse-nav-count" style={{ fontSize: "12px", color: "var(--color-text-3)", whiteSpace: "nowrap" }}>
             {totalVisible} concept{totalVisible !== 1 ? "s" : ""}
           </span>
         )}
@@ -213,6 +213,7 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
 
       {/* ── Content ─────────────────────────────────────────── */}
       <main
+        className="browse-content"
         style={{
           flex: 1,
           overflowY: "auto",
@@ -419,13 +420,7 @@ function SectionGroup({
 
       {/* Concept grid */}
       {!collapsed && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: "10px",
-          }}
-        >
+        <div className="browse-grid">
           {section.concepts.map((concept) => (
             <ConceptCard
               key={concept.id}

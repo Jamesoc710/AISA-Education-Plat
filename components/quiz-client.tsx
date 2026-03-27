@@ -497,7 +497,7 @@ function ModeSelection({
         <p
           style={{
             fontSize: "13px",
-            color: "#e06c75",
+            color: "var(--color-incorrect)",
             marginBottom: "16px",
           }}
         >
@@ -535,17 +535,12 @@ function ModeSelection({
 
 function LoadingState() {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "200px",
-        color: "var(--color-text-3)",
-        fontSize: "14px",
-      }}
-    >
-      Loading questions…
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingTop: "16px" }}>
+      <div className="skeleton" style={{ height: "20px", width: "40%" }} />
+      <div className="skeleton" style={{ height: "48px", width: "100%", borderRadius: "8px" }} />
+      <div className="skeleton" style={{ height: "48px", width: "100%", borderRadius: "8px" }} />
+      <div className="skeleton" style={{ height: "48px", width: "100%", borderRadius: "8px" }} />
+      <div className="skeleton" style={{ height: "48px", width: "100%", borderRadius: "8px" }} />
     </div>
   );
 }
@@ -652,7 +647,7 @@ function QuizFlow({
 
       {/* Next / Finish button */}
       {answered && (
-        <div style={{ marginTop: "24px" }}>
+        <div className="animate-fade-in" style={{ marginTop: "24px" }}>
           <button
             onClick={handleNext}
             style={{
@@ -695,13 +690,13 @@ function QuizSummary({
 
   const scoreColor =
     percentage >= 80
-      ? "#4ade80"
+      ? "var(--color-correct)"
       : percentage >= 50
-        ? "#e8b54a"
-        : "#e06c75";
+        ? "var(--color-gold)"
+        : "var(--color-incorrect)";
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <h1
         style={{
           margin: "0 0 8px",
@@ -780,11 +775,12 @@ function QuizSummary({
       </div>
 
       {/* Actions */}
-      <div style={{ display: "flex", gap: "10px" }}>
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
         <button
           onClick={onRetake}
           style={{
             flex: 1,
+            minWidth: "160px",
             padding: "12px 20px",
             fontSize: "13px",
             fontWeight: 500,
@@ -794,6 +790,7 @@ function QuizSummary({
             border: "1px solid var(--color-border)",
             borderRadius: "8px",
             cursor: "pointer",
+            transition: "background-color 0.12s, border-color 0.12s",
           }}
         >
           Retake Quiz
@@ -802,6 +799,7 @@ function QuizSummary({
           onClick={onNewQuiz}
           style={{
             flex: 1,
+            minWidth: "160px",
             padding: "12px 20px",
             fontSize: "13px",
             fontWeight: 500,
@@ -811,6 +809,7 @@ function QuizSummary({
             border: "1px solid var(--color-accent)",
             borderRadius: "8px",
             cursor: "pointer",
+            transition: "opacity 0.12s",
           }}
         >
           Choose Another Quiz

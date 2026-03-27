@@ -44,7 +44,6 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
           const isSelected = selectedIndex === i;
           const isCorrectOption = opt.isCorrect;
 
-          // Determine border/background based on state
           let borderColor = "var(--color-border)";
           let bgColor = "var(--color-surface)";
           let textColor = "var(--color-text)";
@@ -53,16 +52,16 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
 
           if (answered) {
             if (isCorrectOption) {
-              borderColor = "rgba(74, 222, 128, 0.4)";
-              bgColor = "rgba(74, 222, 128, 0.06)";
-              indicatorBg = "#4ade80";
-              indicatorBorder = "#4ade80";
+              borderColor = "var(--color-correct-border)";
+              bgColor = "var(--color-correct-dim)";
+              indicatorBg = "var(--color-correct)";
+              indicatorBorder = "var(--color-correct)";
             } else if (isSelected && !isCorrectOption) {
-              borderColor = "rgba(224, 108, 117, 0.4)";
-              bgColor = "rgba(224, 108, 117, 0.06)";
+              borderColor = "var(--color-incorrect-border)";
+              bgColor = "var(--color-incorrect-dim)";
               textColor = "var(--color-text-2)";
-              indicatorBg = "#e06c75";
-              indicatorBorder = "#e06c75";
+              indicatorBg = "var(--color-incorrect)";
+              indicatorBorder = "var(--color-incorrect)";
             } else {
               textColor = "var(--color-text-3)";
               borderColor = "var(--color-border-subtle)";
@@ -86,15 +85,16 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
                 cursor: answered ? "default" : "pointer",
                 textAlign: "left",
                 fontFamily: "inherit",
-                transition: "border-color 0.12s, background-color 0.12s",
+                transition:
+                  "border-color 0.2s ease, background-color 0.2s ease",
                 width: "100%",
               }}
             >
               {/* Letter indicator */}
               <span
                 style={{
-                  width: "22px",
-                  height: "22px",
+                  width: "24px",
+                  height: "24px",
                   borderRadius: "50%",
                   border: `2px solid ${indicatorBorder}`,
                   backgroundColor: indicatorBg,
@@ -108,7 +108,7 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
                     answered && (isCorrectOption || isSelected)
                       ? "#fff"
                       : "var(--color-text-3)",
-                  transition: "all 0.12s",
+                  transition: "all 0.2s ease",
                   marginTop: "1px",
                 }}
               >
@@ -125,7 +125,7 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
                   fontSize: "14px",
                   color: textColor,
                   lineHeight: "1.5",
-                  transition: "color 0.12s",
+                  transition: "color 0.2s ease",
                 }}
               >
                 {opt.text}
@@ -138,6 +138,7 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
       {/* Explanation — shown after answering */}
       {answered && (
         <div
+          className="animate-fade-in"
           style={{
             marginTop: "20px",
             padding: "16px 18px",

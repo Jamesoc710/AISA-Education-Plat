@@ -74,7 +74,8 @@ export function ShortAnswerQuestion({
             fontFamily: "inherit",
             lineHeight: "1.6",
             resize: "vertical",
-            opacity: revealed ? 0.6 : 1,
+            opacity: revealed ? 0.5 : 1,
+            transition: "opacity 0.2s ease, background-color 0.2s ease",
           }}
         />
       </div>
@@ -93,6 +94,7 @@ export function ShortAnswerQuestion({
             border: "none",
             borderRadius: "6px",
             cursor: "pointer",
+            transition: "opacity 0.15s",
           }}
         >
           Reveal Answer
@@ -102,6 +104,7 @@ export function ShortAnswerQuestion({
       {/* Model answer */}
       {revealed && (
         <div
+          className="animate-fade-in"
           style={{
             marginTop: "4px",
             padding: "16px 18px",
@@ -138,16 +141,16 @@ export function ShortAnswerQuestion({
             style={{
               display: "flex",
               gap: "8px",
+              flexWrap: "wrap",
               paddingTop: "12px",
               borderTop: "1px solid var(--color-border)",
+              alignItems: "center",
             }}
           >
             <span
               style={{
                 fontSize: "12px",
                 color: "var(--color-text-3)",
-                display: "flex",
-                alignItems: "center",
                 marginRight: "4px",
               }}
             >
@@ -164,16 +167,16 @@ export function ShortAnswerQuestion({
                   selfAssessment === "got-it" ? "#fff" : "var(--color-text-2)",
                 backgroundColor:
                   selfAssessment === "got-it"
-                    ? "rgba(74, 222, 128, 0.25)"
+                    ? "var(--color-correct-dim)"
                     : "var(--color-surface)",
                 border: `1px solid ${
                   selfAssessment === "got-it"
-                    ? "rgba(74, 222, 128, 0.4)"
+                    ? "var(--color-correct-border)"
                     : "var(--color-border)"
                 }`,
                 borderRadius: "5px",
                 cursor: "pointer",
-                transition: "all 0.1s",
+                transition: "all 0.15s ease",
               }}
             >
               Got it
@@ -191,16 +194,16 @@ export function ShortAnswerQuestion({
                     : "var(--color-text-2)",
                 backgroundColor:
                   selfAssessment === "needs-review"
-                    ? "rgba(232, 181, 74, 0.25)"
+                    ? "var(--color-gold-dim)"
                     : "var(--color-surface)",
                 border: `1px solid ${
                   selfAssessment === "needs-review"
-                    ? "rgba(232, 181, 74, 0.4)"
+                    ? "rgba(232, 181, 74, 0.35)"
                     : "var(--color-border)"
                 }`,
                 borderRadius: "5px",
                 cursor: "pointer",
-                transition: "all 0.1s",
+                transition: "all 0.15s ease",
               }}
             >
               Needs review

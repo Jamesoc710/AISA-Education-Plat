@@ -24,6 +24,14 @@
   --color-slate:         #8b8b9e;
   --color-slate-dim:     rgba(139, 139, 158, 0.12);
 
+  /* Quiz feedback — intentional, not default */
+  --color-correct:       #4ade80;
+  --color-correct-dim:   rgba(74, 222, 128, 0.08);
+  --color-correct-border:rgba(74, 222, 128, 0.3);
+  --color-incorrect:     #e5716f;
+  --color-incorrect-dim: rgba(229, 113, 111, 0.08);
+  --color-incorrect-border:rgba(229, 113, 111, 0.3);
+
   /* ── Typography ─────────────────────────────────────────────── */
   --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
@@ -45,10 +53,14 @@ body {
   margin: 0;
 }
 
+/* ── Scrollbars ────────────────────────────────────────────────── */
+
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-surface-3); }
+
+/* ── Focus ─────────────────────────────────────────────────────── */
 
 :focus-visible {
   outline: 2px solid var(--color-accent);
@@ -56,25 +68,41 @@ body {
   border-radius: 4px;
 }
 
-/* ── Concept detail page responsive layout ───────────────────── */
+/* ── Placeholder text ──────────────────────────────────────────── */
 
-/* Desktop: sidebar always visible, mobile drawer hidden */
+::placeholder {
+  color: var(--color-text-3);
+  opacity: 1;
+}
+
+/* ── Dark-mode select/textarea ─────────────────────────────────── */
+
+select option {
+  background-color: #1a1a1e;
+  color: #e2e2e6;
+}
+
+textarea:focus,
+select:focus,
+input:focus {
+  outline: none;
+}
+
+/* ── Concept detail — responsive layout ────────────────────────── */
+
 .concept-sidebar-desktop { display: block; }
 .concept-sidebar-mobile  { display: none; }
 .concept-mobile-bar      { display: none !important; }
-
-@media (max-width: 1023px) {
-  /* Tablet/mobile: hide desktop sidebar, show mobile drawer + top bar */
-  .concept-sidebar-desktop { display: none; }
-  .concept-sidebar-mobile  { display: block; }
-  .concept-mobile-bar      { display: flex !important; }
-}
 
 .concept-body-padding {
   padding: 48px 56px;
 }
 
 @media (max-width: 1023px) {
+  .concept-sidebar-desktop { display: none; }
+  .concept-sidebar-mobile  { display: block; }
+  .concept-mobile-bar      { display: flex !important; }
+
   .concept-body-padding {
     padding: 32px 24px;
   }
@@ -86,7 +114,7 @@ body {
   }
 }
 
-/* ── Quiz page responsive ────────────────────────────────────── */
+/* ── Quiz — responsive ─────────────────────────────────────────── */
 
 @media (max-width: 640px) {
   .quiz-content-padding {
@@ -94,8 +122,94 @@ body {
   }
 }
 
-/* Dark-mode select dropdowns */
-select option {
-  background-color: #1a1a1e;
-  color: #e2e2e6;
+/* ── Browse page — responsive ──────────────────────────────────── */
+
+.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .browse-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .browse-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .browse-content {
+    padding: 0 16px 40px !important;
+  }
+}
+
+/* ── Browse nav — responsive ───────────────────────────────────── */
+
+.browse-nav-filters {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.browse-nav-quiz-divider,
+.browse-nav-quiz {
+  display: flex;
+}
+
+.browse-nav-search {
+  display: flex;
+  align-items: center;
+}
+
+.browse-nav-count {
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .browse-nav-count {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .browse-nav-filters {
+    overflow-x: auto;
+    flex-shrink: 0;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .browse-nav-filters::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ── Utility: fade-in animation ────────────────────────────────── */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out both;
+}
+
+/* ── Utility: skeleton pulse ───────────────────────────────────── */
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.15; }
+}
+
+.skeleton {
+  background-color: var(--color-surface-2);
+  border-radius: 6px;
+  animation: pulse 1.8s ease-in-out infinite;
 }
