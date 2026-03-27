@@ -236,6 +236,7 @@ export function ConceptBody({
 
           {deeperOpen && (
             <div
+              className="animate-fade-in"
               style={{
                 padding: "16px 20px",
                 backgroundColor: "var(--color-surface)",
