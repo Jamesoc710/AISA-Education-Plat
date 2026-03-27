@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/search-bar";
 import type { SectionGroup, ConceptData } from "@/lib/types";
 
 const BOOKMARKS_KEY = "aisa-atlas-bookmarks";
+const BANNER_DISMISSED_KEY = "aisa-atlas-welcome-dismissed";
 
 const TIERS = [
   { slug: "fundamentals", label: "Fundamentals", color: "#e8b54a" },
@@ -20,12 +21,16 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
+  const [bannerDismissed, setBannerDismissed] = useState(true); // default true to avoid flash
 
-  // Load bookmarks from localStorage on mount
+  // Load bookmarks + banner state from localStorage on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem(BOOKMARKS_KEY);
       if (stored) setBookmarks(new Set(JSON.parse(stored)));
+    } catch {}
+    try {
+      setBannerDismissed(localStorage.getItem(BANNER_DISMISSED_KEY) === "true");
     } catch {}
   }, []);
 
@@ -224,6 +229,62 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
           <EmptyState query={query} filter={activeFilter} />
         ) : (
           <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+            {/* Welcome banner */}
+            {!bannerDismissed && (
+              <div
+                className="animate-fade-in"
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "12px",
+                  padding: "14px 16px",
+                  backgroundColor: "var(--color-surface)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "8px",
+                  margin: "16px 0 8px",
+                }}
+              >
+                {/* Info icon */}
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--color-accent)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ flexShrink: 0, marginTop: "1px" }}
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                <div style={{ flex: 1, fontSize: "13px", lineHeight: "1.55", color: "var(--color-text-2)" }}>
+                  <strong style={{ color: "var(--color-text)", fontWeight: 600 }}>Welcome to Atlas!</strong>{" "}
+                  We recommend starting with Core Architecture and working through sections in order, but feel free to explore at your own pace. Use the tier filters above to focus your study, and bookmark anything you want to revisit.
+                </div>
+                <button
+                  onClick={() => {
+                    setBannerDismissed(true);
+                    try { localStorage.setItem(BANNER_DISMISSED_KEY, "true"); } catch {}
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--color-text-3)",
+                    fontSize: "14px",
+                    padding: "2px 4px",
+                    flexShrink: 0,
+                    lineHeight: 1,
+                  }}
+                  aria-label="Dismiss welcome banner"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
             {filteredSections.map((section) => (
               <SectionGroup
                 key={section.id}
