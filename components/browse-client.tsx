@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { ConceptCard } from "@/components/concept-card";
 import { SearchBar } from "@/components/search-bar";
+import { UserNav } from "@/components/user-nav";
 import type { SectionGroup, ConceptData } from "@/lib/types";
 
 const BOOKMARKS_KEY = "aisa-atlas-bookmarks";
@@ -210,6 +211,9 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
             {totalVisible} concept{totalVisible !== 1 ? "s" : ""}
           </span>
         )}
+
+        {/* User nav */}
+        <UserNav />
       </header>
 
       {/* ── Content ─────────────────────────────────────────── */}

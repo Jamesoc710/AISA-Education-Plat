@@ -9,7 +9,7 @@ datasource db {
 // ─── Core Tables ─────────────────────────────────────────────────────────────
 
 model User {
-  id        String   @id @default(cuid())
+  id        String   @id // Supabase auth UUID — no auto-generate
   email     String   @unique
   name      String
   role      String   @default("RECRUIT") // RECRUIT | MENTOR | ADMIN | CURRICULUM_LEAD | PROJECT_LEAD

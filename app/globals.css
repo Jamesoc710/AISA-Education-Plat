@@ -123,6 +123,15 @@ input:focus {
   .quiz-mode-grid {
     grid-template-columns: 1fr !important;
   }
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 /* ── Browse page — responsive ──────────────────────────────────── */

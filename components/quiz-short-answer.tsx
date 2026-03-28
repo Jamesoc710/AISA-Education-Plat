@@ -9,11 +9,13 @@ type ShortAnswerProps = {
     answerExplanation: string;
   };
   onRevealed: () => void;
+  onSelfAssess?: (questionId: string, gotIt: boolean) => void;
 };
 
 export function ShortAnswerQuestion({
   question,
   onRevealed,
+  onSelfAssess,
 }: ShortAnswerProps) {
   const [userAnswer, setUserAnswer] = useState("");
   const [revealed, setRevealed] = useState(false);
@@ -157,7 +159,10 @@ export function ShortAnswerQuestion({
               How'd you do?
             </span>
             <button
-              onClick={() => setSelfAssessment("got-it")}
+              onClick={() => {
+                setSelfAssessment("got-it");
+                onSelfAssess?.(question.id, true);
+              }}
               style={{
                 padding: "5px 14px",
                 fontSize: "12px",
@@ -182,7 +187,10 @@ export function ShortAnswerQuestion({
               Got it
             </button>
             <button
-              onClick={() => setSelfAssessment("needs-review")}
+              onClick={() => {
+                setSelfAssessment("needs-review");
+                onSelfAssess?.(question.id, false);
+              }}
               style={{
                 padding: "5px 14px",
                 fontSize: "12px",

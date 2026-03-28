@@ -104,6 +104,9 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mcAnswers, setMcAnswers] = useState<MCAnswer[]>([]);
+  const [saAnswers, setSaAnswers] = useState<
+    { questionId: string; gotIt: boolean }[]
+  >([]);
   const [error, setError] = useState<string | null>(null);
 
   // ── Fetch questions and start quiz ──────────────────────────────────────
@@ -163,10 +166,58 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
     setMcAnswers((prev) => [...prev, { questionId, correct, selectedIndex }]);
   };
 
+  const handleSelfAssess = (questionId: string, gotIt: boolean) => {
+    setSaAnswers((prev) => [...prev, { questionId, gotIt }]);
+  };
+
+  // Save quiz attempts to the database (fire-and-forget for logged-in users)
+  const saveAttempts = (
+    qs: QuizQuestion[],
+    mc: MCAnswer[],
+    sa: { questionId: string; gotIt: boolean }[],
+  ) => {
+    const answers = qs.map((q) => {
+      const mcAnswer = mc.find((a) => a.questionId === q.id);
+      const saAnswer = sa.find((a) => a.questionId === q.id);
+
+      if (mcAnswer) {
+        const selectedText = q.options?.[mcAnswer.selectedIndex]?.text ?? null;
+        return {
+          questionId: q.id,
+          selectedAnswer: selectedText,
+          isCorrect: mcAnswer.correct,
+        };
+      }
+      if (saAnswer) {
+        return {
+          questionId: q.id,
+          selectedAnswer: null,
+          isCorrect: saAnswer.gotIt,
+        };
+      }
+      // Unanswered short answer (revealed but no self-assessment)
+      return {
+        questionId: q.id,
+        selectedAnswer: null,
+        isCorrect: null,
+      };
+    });
+
+    fetch("/api/quiz/attempts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers }),
+    }).catch(() => {
+      // Silently fail — user may not be logged in
+    });
+  };
+
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((i) => i + 1);
     } else {
+      // Save attempts before showing summary
+      saveAttempts(questions, mcAnswers, saAnswers);
       setPhase("summary");
     }
   };
@@ -178,6 +229,7 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
     setQuestions([]);
     setCurrentIndex(0);
     setMcAnswers([]);
+    setSaAnswers([]);
     setError(null);
   };
 
@@ -190,6 +242,7 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
     setQuestions(shuffled);
     setCurrentIndex(0);
     setMcAnswers([]);
+    setSaAnswers([]);
     setPhase("quiz");
   };
 
@@ -319,6 +372,7 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
               index={currentIndex}
               total={questions.length}
               onMCAnswer={handleMCAnswer}
+              onSelfAssess={handleSelfAssess}
               onNext={handleNext}
             />
           )}
@@ -1282,6 +1336,7 @@ function QuizFlow({
   index,
   total,
   onMCAnswer,
+  onSelfAssess,
   onNext,
 }: {
   question: QuizQuestion;
@@ -1292,6 +1347,7 @@ function QuizFlow({
     correct: boolean,
     selectedIndex: number,
   ) => void;
+  onSelfAssess: (questionId: string, gotIt: boolean) => void;
   onNext: () => void;
 }) {
   const [answered, setAnswered] = useState(false);
@@ -1376,6 +1432,7 @@ function QuizFlow({
           key={question.id}
           question={question}
           onRevealed={handleAnswered}
+          onSelfAssess={onSelfAssess}
         />
       )}
 
