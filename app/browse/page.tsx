@@ -55,7 +55,7 @@ async function getConcepts(): Promise<SectionGroup[]> {
       sortOrder: c.sortOrder,
       resourceCount: c.resources.length,
       questionCount: c.questions.length,
-      relatedConcepts: c.relatedFrom.map((r) => ({
+      relatedConcepts: c.relatedFrom.map((r: typeof c.relatedFrom[number]) => ({
         slug: r.relatedConcept.slug,
         name: r.relatedConcept.name,
       })),
