@@ -62,18 +62,27 @@ export async function GET(req: NextRequest) {
     // Cap at 10 for mixed mode to keep quizzes digestible
     const capped = mode === "mixed" ? questions.slice(0, 10) : questions;
 
-    // Parse options JSON for MC questions
-    const parsed = capped.map((q: typeof questions[number]) => ({
-      id: q.id,
-      type: q.type,
-      questionText: q.questionText,
-      options: q.options ? JSON.parse(q.options) : null,
-      answerExplanation: q.answerExplanation,
-      conceptName: q.concept.name,
-      conceptSlug: q.concept.slug,
-      sectionName: q.concept.section.name,
-      sectionId: q.concept.section.id,
-    }));
+    // Parse options JSON for MC questions and shuffle option order
+    const parsed = capped.map((q: typeof questions[number]) => {
+      let options = q.options ? JSON.parse(q.options) : null;
+      if (options && Array.isArray(options)) {
+        for (let i = options.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [options[i], options[j]] = [options[j], options[i]];
+        }
+      }
+      return {
+        id: q.id,
+        type: q.type,
+        questionText: q.questionText,
+        options,
+        answerExplanation: q.answerExplanation,
+        conceptName: q.concept.name,
+        conceptSlug: q.concept.slug,
+        sectionName: q.concept.section.name,
+        sectionId: q.concept.section.id,
+      };
+    });
 
     return NextResponse.json({ questions: parsed });
   } catch (error) {

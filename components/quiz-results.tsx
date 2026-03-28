@@ -258,7 +258,7 @@ export function QuizResults({
           onClick={onRetake}
           style={{
             flex: 1,
-            minWidth: "160px",
+            minWidth: "140px",
             padding: "12px 20px",
             fontSize: "13px",
             fontWeight: 500,
@@ -277,7 +277,7 @@ export function QuizResults({
           onClick={onNewQuiz}
           style={{
             flex: 1,
-            minWidth: "160px",
+            minWidth: "140px",
             padding: "12px 20px",
             fontSize: "13px",
             fontWeight: 500,
@@ -292,6 +292,46 @@ export function QuizResults({
         >
           Choose Another Quiz
         </button>
+      </div>
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
+        <Link
+          href="/browse"
+          style={{
+            flex: 1,
+            minWidth: "140px",
+            padding: "12px 20px",
+            fontSize: "13px",
+            fontWeight: 500,
+            color: "var(--color-text-2)",
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "8px",
+            textDecoration: "none",
+            textAlign: "center",
+            transition: "background-color 0.12s",
+          }}
+        >
+          Browse Concepts
+        </Link>
+        <Link
+          href="/dashboard"
+          style={{
+            flex: 1,
+            minWidth: "140px",
+            padding: "12px 20px",
+            fontSize: "13px",
+            fontWeight: 500,
+            color: "var(--color-text-2)",
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "8px",
+            textDecoration: "none",
+            textAlign: "center",
+            transition: "background-color 0.12s",
+          }}
+        >
+          Dashboard
+        </Link>
       </div>
     </div>
   );
