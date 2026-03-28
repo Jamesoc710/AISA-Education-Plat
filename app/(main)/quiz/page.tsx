@@ -35,16 +35,16 @@ export default async function QuizPage() {
     orderBy: { sortOrder: "asc" },
   });
 
-  const tierData = tiers.map((t) => ({
+  const tierData = tiers.map((t: typeof tiers[number]) => ({
     id: t.id,
     name: t.name,
     slug: t.slug,
-    sections: t.sections.map((s) => ({
+    sections: t.sections.map((s: typeof tiers[number]["sections"][number]) => ({
       id: s.id,
       name: s.name,
       concepts: s.concepts
-        .filter((c) => c._count.questions > 0)
-        .map((c) => ({
+        .filter((c: typeof s.concepts[number]) => c._count.questions > 0)
+        .map((c: typeof s.concepts[number]) => ({
           id: c.id,
           name: c.name,
           slug: c.slug,
