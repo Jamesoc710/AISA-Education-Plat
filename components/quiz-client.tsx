@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { MCQuestion } from "@/components/quiz-mc";
 import { ShortAnswerQuestion } from "@/components/quiz-short-answer";
@@ -12,23 +12,26 @@ import type {
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type ConceptOption = { id: string; name: string; questionCount: number };
-type SectionOption = {
-  id: string;
-  name: string;
-  tierName: string;
-  tierSlug: string;
-  conceptCount: number;
-};
-type TierOption = {
+type ConceptOption = {
   id: string;
   name: string;
   slug: string;
   questionCount: number;
 };
+type SectionOption = {
+  id: string;
+  name: string;
+  concepts: ConceptOption[];
+};
+type TierOption = {
+  id: string;
+  name: string;
+  slug: string;
+  sections: SectionOption[];
+};
 
 type QuizMode = "concept" | "section" | "tier" | "mixed";
-type Phase = "select" | "loading" | "quiz" | "summary";
+type Phase = "select-mode" | "select-target" | "loading" | "quiz" | "summary";
 
 // ── Tier color helper ─────────────────────────────────────────────────────────
 
@@ -38,18 +41,64 @@ const TIER_COLOR: Record<string, string> = {
   advanced: "var(--color-slate)",
 };
 
+const TIER_DIM: Record<string, string> = {
+  fundamentals: "var(--color-gold-dim)",
+  intermediate: "var(--color-blue-dim)",
+  advanced: "var(--color-slate-dim)",
+};
+
+// ── Back button ───────────────────────────────────────────────────────────────
+
+function BackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "6px",
+        padding: "6px 0",
+        marginBottom: "24px",
+        fontSize: "13px",
+        fontWeight: 500,
+        fontFamily: "inherit",
+        color: "var(--color-text-3)",
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        transition: "color 0.12s",
+      }}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.color = "var(--color-text-2)")
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.color = "var(--color-text-3)")
+      }
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 16 16"
+        fill="none"
+        style={{ flexShrink: 0 }}
+      >
+        <path
+          d="M10 12L6 8l4-4"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      Back
+    </button>
+  );
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export function QuizClient({
-  concepts,
-  sections,
-  tiers,
-}: {
-  concepts: ConceptOption[];
-  sections: SectionOption[];
-  tiers: TierOption[];
-}) {
-  const [phase, setPhase] = useState<Phase>("select");
+export function QuizClient({ tiers }: { tiers: TierOption[] }) {
+  const [phase, setPhase] = useState<Phase>("select-mode");
   const [mode, setMode] = useState<QuizMode | null>(null);
   const [selectedId, setSelectedId] = useState<string>("");
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -59,16 +108,16 @@ export function QuizClient({
 
   // ── Fetch questions and start quiz ──────────────────────────────────────
 
-  const startQuiz = async () => {
-    if (!mode) return;
-    if ((mode === "concept" || mode === "section" || mode === "tier") && !selectedId) return;
-
+  const startQuiz = async (
+    quizMode: QuizMode,
+    targetId?: string,
+  ) => {
     setPhase("loading");
     setError(null);
 
     try {
-      const params = new URLSearchParams({ mode });
-      if (selectedId) params.set("id", selectedId);
+      const params = new URLSearchParams({ mode: quizMode });
+      if (targetId) params.set("id", targetId);
 
       const res = await fetch(`/api/quiz?${params}`);
       if (!res.ok) throw new Error("Failed to fetch questions");
@@ -76,7 +125,7 @@ export function QuizClient({
       const data = await res.json();
       if (!data.questions?.length) {
         setError("No questions found for this selection.");
-        setPhase("select");
+        setPhase(quizMode === "mixed" ? "select-mode" : "select-target");
         return;
       }
 
@@ -86,13 +135,31 @@ export function QuizClient({
       setPhase("quiz");
     } catch {
       setError("Something went wrong loading the quiz. Please try again.");
-      setPhase("select");
+      setPhase(quizMode === "mixed" ? "select-mode" : "select-target");
+    }
+  };
+
+  // ── Mode selected handler ─────────────────────────────────────────────
+
+  const handleModeSelect = (m: QuizMode) => {
+    setMode(m);
+    setSelectedId("");
+    setError(null);
+
+    if (m === "mixed") {
+      startQuiz("mixed");
+    } else {
+      setPhase("select-target");
     }
   };
 
   // ── Handlers ────────────────────────────────────────────────────────────
 
-  const handleMCAnswer = (questionId: string, correct: boolean, selectedIndex: number) => {
+  const handleMCAnswer = (
+    questionId: string,
+    correct: boolean,
+    selectedIndex: number,
+  ) => {
     setMcAnswers((prev) => [...prev, { questionId, correct, selectedIndex }]);
   };
 
@@ -105,7 +172,7 @@ export function QuizClient({
   };
 
   const resetQuiz = () => {
-    setPhase("select");
+    setPhase("select-mode");
     setMode(null);
     setSelectedId("");
     setQuestions([]);
@@ -124,6 +191,13 @@ export function QuizClient({
     setCurrentIndex(0);
     setMcAnswers([]);
     setPhase("quiz");
+  };
+
+  const goBackToModeSelect = () => {
+    setPhase("select-mode");
+    setMode(null);
+    setSelectedId("");
+    setError(null);
   };
 
   // ── Render ──────────────────────────────────────────────────────────────
@@ -212,17 +286,27 @@ export function QuizClient({
           overflowY: "auto",
         }}
       >
-        <div style={{ width: "100%", maxWidth: "640px" }}>
-          {phase === "select" && (
-            <ModeSelection
+        <div
+          style={{
+            width: "100%",
+            maxWidth: phase === "select-target" && mode === "concept"
+              ? "720px"
+              : "640px",
+          }}
+        >
+          {phase === "select-mode" && (
+            <ModeSelect onSelect={handleModeSelect} error={error} />
+          )}
+
+          {phase === "select-target" && mode && (
+            <TargetSelect
               mode={mode}
-              setMode={setMode}
-              selectedId={selectedId}
-              setSelectedId={setSelectedId}
-              concepts={concepts}
-              sections={sections}
               tiers={tiers}
-              onStart={startQuiz}
+              onBack={goBackToModeSelect}
+              onStart={(id) => {
+                setSelectedId(id);
+                startQuiz(mode, id);
+              }}
               error={error}
             />
           )}
@@ -254,75 +338,95 @@ export function QuizClient({
   );
 }
 
-// ── Mode Selection Screen ─────────────────────────────────────────────────────
+// ── Screen 1: Mode Selection ─────────────────────────────────────────────────
 
-function ModeSelection({
-  mode,
-  setMode,
-  selectedId,
-  setSelectedId,
-  concepts,
-  sections,
-  tiers,
-  onStart,
+const MODE_CARDS: {
+  key: QuizMode;
+  label: string;
+  desc: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    key: "concept",
+    label: "By Concept",
+    desc: "Quiz yourself on a single topic",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect
+          x="3"
+          y="3"
+          width="14"
+          height="14"
+          rx="3"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M7 10h6M10 7v6"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    key: "section",
+    label: "By Section",
+    desc: "Questions across a full section",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path
+          d="M4 6h12M4 10h12M4 14h8"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    key: "tier",
+    label: "By Tier",
+    desc: "Cover everything in a tier",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path
+          d="M4 14h12M6 10h8M8 6h4"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    key: "mixed",
+    label: "Mixed",
+    desc: "Random questions from all topics",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path
+          d="M4 5h3l3 10h3l3-10"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+];
+
+function ModeSelect({
+  onSelect,
   error,
 }: {
-  mode: QuizMode | null;
-  setMode: (m: QuizMode) => void;
-  selectedId: string;
-  setSelectedId: (id: string) => void;
-  concepts: ConceptOption[];
-  sections: SectionOption[];
-  tiers: TierOption[];
-  onStart: () => void;
+  onSelect: (m: QuizMode) => void;
   error: string | null;
 }) {
-  const modes: { key: QuizMode; label: string; desc: string }[] = [
-    {
-      key: "concept",
-      label: "By Concept",
-      desc: "Pick a specific concept and get its questions",
-    },
-    {
-      key: "section",
-      label: "By Section",
-      desc: "Mixed questions across all concepts in a section",
-    },
-    {
-      key: "tier",
-      label: "By Tier",
-      desc: "All questions from a difficulty tier",
-    },
-    {
-      key: "mixed",
-      label: "Mixed / All Topics",
-      desc: "Randomized questions across every topic",
-    },
-  ];
-
-  const canStart =
-    mode === "mixed" || (mode && selectedId);
-
-  // Custom select dropdown SVG
-  const selectChevron = `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a5a6a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`;
-
-  const selectStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "10px 14px",
-    backgroundColor: "var(--color-surface)",
-    border: "1px solid var(--color-border)",
-    borderRadius: "6px",
-    fontSize: "13px",
-    fontFamily: "inherit",
-    cursor: "pointer",
-    appearance: "none" as const,
-    backgroundImage: selectChevron,
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "right 14px center",
-  };
-
   return (
-    <div>
+    <div className="animate-fade-in">
       <h1
         style={{
           margin: "0 0 8px",
@@ -342,226 +446,10 @@ function ModeSelection({
           lineHeight: "1.6",
         }}
       >
-        Test your understanding of AI concepts. Choose a quiz mode to get started.
+        Test your understanding of AI concepts. Choose how you&apos;d like to
+        be quizzed.
       </p>
 
-      {/* Mode cards */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-          marginBottom: "28px",
-        }}
-      >
-        {modes.map((m) => {
-          const isSelected = mode === m.key;
-          return (
-            <button
-              key={m.key}
-              onClick={() => {
-                setMode(m.key);
-                setSelectedId("");
-              }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "14px",
-                padding: "16px 18px",
-                backgroundColor: isSelected
-                  ? "var(--color-surface-2)"
-                  : "var(--color-surface)",
-                border: `1px solid ${isSelected ? "var(--color-accent)" : "var(--color-border)"}`,
-                borderRadius: "8px",
-                cursor: "pointer",
-                textAlign: "left",
-                fontFamily: "inherit",
-                transition: "border-color 0.12s, background-color 0.12s",
-              }}
-            >
-              {/* Radio circle */}
-              <span
-                style={{
-                  width: "16px",
-                  height: "16px",
-                  borderRadius: "50%",
-                  border: `2px solid ${isSelected ? "var(--color-accent)" : "var(--color-border)"}`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  transition: "border-color 0.12s",
-                }}
-              >
-                {isSelected && (
-                  <span
-                    style={{
-                      width: "8px",
-                      height: "8px",
-                      borderRadius: "50%",
-                      backgroundColor: "var(--color-accent)",
-                    }}
-                  />
-                )}
-              </span>
-
-              <div>
-                <div
-                  style={{
-                    fontSize: "14px",
-                    fontWeight: 500,
-                    color: "var(--color-text)",
-                    marginBottom: "2px",
-                  }}
-                >
-                  {m.label}
-                </div>
-                <div style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
-                  {m.desc}
-                </div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Concept selector */}
-      {mode === "concept" && (
-        <div style={{ marginBottom: "28px" }}>
-          <label
-            style={{
-              display: "block",
-              fontSize: "12px",
-              fontWeight: 500,
-              color: "var(--color-text-2)",
-              marginBottom: "8px",
-            }}
-          >
-            Select a concept
-          </label>
-          <select
-            value={selectedId}
-            onChange={(e) => setSelectedId(e.target.value)}
-            style={{
-              ...selectStyle,
-              color: selectedId ? "var(--color-text)" : "var(--color-text-3)",
-            }}
-          >
-            <option value="">Choose a concept…</option>
-            {concepts.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} ({c.questionCount} questions)
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* Section selector */}
-      {mode === "section" && (
-        <div style={{ marginBottom: "28px" }}>
-          <label
-            style={{
-              display: "block",
-              fontSize: "12px",
-              fontWeight: 500,
-              color: "var(--color-text-2)",
-              marginBottom: "8px",
-            }}
-          >
-            Select a section
-          </label>
-          <select
-            value={selectedId}
-            onChange={(e) => setSelectedId(e.target.value)}
-            style={{
-              ...selectStyle,
-              color: selectedId ? "var(--color-text)" : "var(--color-text-3)",
-            }}
-          >
-            <option value="">Choose a section…</option>
-            {sections.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.tierName} › {s.name} ({s.conceptCount} concepts)
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* Tier selector */}
-      {mode === "tier" && (
-        <div style={{ marginBottom: "28px" }}>
-          <label
-            style={{
-              display: "block",
-              fontSize: "12px",
-              fontWeight: 500,
-              color: "var(--color-text-2)",
-              marginBottom: "8px",
-            }}
-          >
-            Select a tier
-          </label>
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            {tiers.map((t) => {
-              const isSelected = selectedId === t.id;
-              const tierColor = TIER_COLOR[t.slug] ?? "var(--color-text-3)";
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setSelectedId(t.id)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    padding: "12px 14px",
-                    backgroundColor: isSelected
-                      ? "var(--color-surface-2)"
-                      : "var(--color-surface)",
-                    border: `1px solid ${isSelected ? tierColor : "var(--color-border)"}`,
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                    textAlign: "left",
-                    transition: "border-color 0.12s, background-color 0.12s",
-                  }}
-                >
-                  <span
-                    style={{
-                      width: "8px",
-                      height: "8px",
-                      borderRadius: "50%",
-                      backgroundColor: tierColor,
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span
-                    style={{
-                      flex: 1,
-                      fontSize: "13px",
-                      fontWeight: 500,
-                      color: "var(--color-text)",
-                    }}
-                  >
-                    {t.name}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      color: "var(--color-text-3)",
-                    }}
-                  >
-                    {t.questionCount} questions
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Error */}
       {error && (
         <p
           style={{
@@ -574,32 +462,782 @@ function ModeSelection({
         </p>
       )}
 
-      {/* Start button */}
-      <button
-        onClick={onStart}
-        disabled={!canStart}
+      <div
         style={{
-          width: "100%",
-          padding: "12px 20px",
-          fontSize: "14px",
-          fontWeight: 500,
-          fontFamily: "inherit",
-          color: canStart ? "#fff" : "var(--color-text-3)",
-          backgroundColor: canStart
-            ? "var(--color-accent)"
-            : "var(--color-surface-2)",
-          border: `1px solid ${canStart ? "var(--color-accent)" : "var(--color-border)"}`,
-          borderRadius: "8px",
-          cursor: canStart ? "pointer" : "not-allowed",
-          transition: "opacity 0.12s",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "10px",
+        }}
+        className="quiz-mode-grid"
+      >
+        {MODE_CARDS.map((m) => (
+          <button
+            key={m.key}
+            onClick={() => onSelect(m.key)}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: "12px",
+              padding: "20px",
+              backgroundColor: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+              borderRadius: "10px",
+              cursor: "pointer",
+              textAlign: "left",
+              fontFamily: "inherit",
+              transition:
+                "border-color 0.15s, background-color 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "var(--color-accent)";
+              e.currentTarget.style.backgroundColor =
+                "var(--color-surface-2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "var(--color-border)";
+              e.currentTarget.style.backgroundColor =
+                "var(--color-surface)";
+            }}
+          >
+            <span style={{ color: "var(--color-accent)" }}>{m.icon}</span>
+            <div>
+              <div
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  color: "var(--color-text)",
+                  marginBottom: "4px",
+                }}
+              >
+                {m.label}
+              </div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "var(--color-text-3)",
+                  lineHeight: "1.4",
+                }}
+              >
+                {m.desc}
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Screen 2: Target Selection ───────────────────────────────────────────────
+
+function TargetSelect({
+  mode,
+  tiers,
+  onBack,
+  onStart,
+  error,
+}: {
+  mode: QuizMode;
+  tiers: TierOption[];
+  onBack: () => void;
+  onStart: (id: string) => void;
+  error: string | null;
+}) {
+  return (
+    <div className="animate-fade-in">
+      <BackButton onClick={onBack} />
+
+      {error && (
+        <p
+          style={{
+            fontSize: "13px",
+            color: "var(--color-incorrect)",
+            marginBottom: "16px",
+          }}
+        >
+          {error}
+        </p>
+      )}
+
+      {mode === "concept" && (
+        <ConceptPicker tiers={tiers} onSelect={onStart} />
+      )}
+      {mode === "section" && (
+        <SectionPicker tiers={tiers} onSelect={onStart} />
+      )}
+      {mode === "tier" && <TierPicker tiers={tiers} onSelect={onStart} />}
+    </div>
+  );
+}
+
+// ── Concept Picker (search + tier accordion) ─────────────────────────────────
+
+function ConceptPicker({
+  tiers,
+  onSelect,
+}: {
+  tiers: TierOption[];
+  onSelect: (id: string) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [expandedTiers, setExpandedTiers] = useState<Set<string>>(
+    () => new Set(tiers.map((t) => t.id)),
+  );
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    () => new Set(),
+  );
+
+  const query = search.toLowerCase().trim();
+
+  // When searching, auto-expand everything; otherwise use manual state
+  const filteredTiers = useMemo(() => {
+    return tiers
+      .map((tier) => ({
+        ...tier,
+        sections: tier.sections
+          .map((section) => ({
+            ...section,
+            concepts: section.concepts.filter(
+              (c) =>
+                !query || c.name.toLowerCase().includes(query),
+            ),
+          }))
+          .filter((s) => s.concepts.length > 0),
+      }))
+      .filter((t) => t.sections.length > 0);
+  }, [tiers, query]);
+
+  const toggleTier = (id: string) => {
+    setExpandedTiers((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSection = (id: string) => {
+    setExpandedSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  return (
+    <div>
+      <h2
+        style={{
+          margin: "0 0 8px",
+          fontSize: "20px",
+          fontWeight: 600,
+          color: "var(--color-text)",
+          letterSpacing: "-0.02em",
         }}
       >
-        {mode === "mixed"
-          ? "Start Quiz (~10 questions)"
-          : mode === "concept" && selectedId
-            ? `Start Quiz (${concepts.find((c) => c.id === selectedId)?.questionCount ?? "?"} questions)`
-            : "Start Quiz"}
-      </button>
+        Choose a concept
+      </h2>
+      <p
+        style={{
+          margin: "0 0 24px",
+          fontSize: "13px",
+          color: "var(--color-text-3)",
+        }}
+      >
+        Pick a topic to quiz yourself on.
+      </p>
+
+      {/* Search bar */}
+      <div style={{ position: "relative", marginBottom: "20px" }}>
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 16 16"
+          fill="none"
+          style={{
+            position: "absolute",
+            left: "12px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            pointerEvents: "none",
+          }}
+        >
+          <circle
+            cx="7"
+            cy="7"
+            r="5"
+            stroke="var(--color-text-3)"
+            strokeWidth="1.5"
+          />
+          <path
+            d="M11 11l3 3"
+            stroke="var(--color-text-3)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
+        <input
+          type="text"
+          placeholder="Search concepts…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "10px 14px 10px 36px",
+            fontSize: "13px",
+            fontFamily: "inherit",
+            color: "var(--color-text)",
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "8px",
+            outline: "none",
+            boxSizing: "border-box",
+          }}
+          onFocus={(e) =>
+            (e.currentTarget.style.borderColor = "var(--color-accent)")
+          }
+          onBlur={(e) =>
+            (e.currentTarget.style.borderColor = "var(--color-border)")
+          }
+        />
+      </div>
+
+      {/* Tier accordion */}
+      {filteredTiers.length === 0 && (
+        <p
+          style={{
+            fontSize: "13px",
+            color: "var(--color-text-3)",
+            textAlign: "center",
+            padding: "32px 0",
+          }}
+        >
+          No concepts match &ldquo;{search}&rdquo;
+        </p>
+      )}
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+        }}
+      >
+        {filteredTiers.map((tier) => {
+          const tierColor = TIER_COLOR[tier.slug] ?? "var(--color-text-3)";
+          const isTierOpen = query.length > 0 || expandedTiers.has(tier.id);
+
+          return (
+            <div
+              key={tier.id}
+              style={{
+                border: "1px solid var(--color-border)",
+                borderRadius: "10px",
+                overflow: "hidden",
+              }}
+            >
+              {/* Tier header */}
+              <button
+                onClick={() => toggleTier(tier.id)}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "14px 16px",
+                  backgroundColor: "var(--color-surface)",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  textAlign: "left",
+                }}
+              >
+                <span
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    backgroundColor: tierColor,
+                    flexShrink: 0,
+                  }}
+                />
+                <span
+                  style={{
+                    flex: 1,
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: "var(--color-text)",
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {tier.name}
+                </span>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  style={{
+                    transition: "transform 0.15s",
+                    transform: isTierOpen
+                      ? "rotate(90deg)"
+                      : "rotate(0deg)",
+                    flexShrink: 0,
+                  }}
+                >
+                  <path
+                    d="M4.5 2.5l3.5 3.5-3.5 3.5"
+                    stroke="var(--color-text-3)"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+
+              {/* Sections under tier */}
+              {isTierOpen && (
+                <div
+                  style={{
+                    borderTop: "1px solid var(--color-border-subtle)",
+                  }}
+                >
+                  {tier.sections.map((section, sIdx) => {
+                    const isSectionOpen =
+                      query.length > 0 || expandedSections.has(section.id);
+
+                    return (
+                      <div key={section.id}>
+                        {sIdx > 0 && (
+                          <div
+                            style={{
+                              height: "1px",
+                              backgroundColor:
+                                "var(--color-border-subtle)",
+                              marginLeft: "16px",
+                            }}
+                          />
+                        )}
+                        {/* Section header */}
+                        <button
+                          onClick={() => toggleSection(section.id)}
+                          style={{
+                            width: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "10px 16px 10px 28px",
+                            backgroundColor: "transparent",
+                            border: "none",
+                            cursor: "pointer",
+                            fontFamily: "inherit",
+                            textAlign: "left",
+                          }}
+                        >
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 10 10"
+                            fill="none"
+                            style={{
+                              transition: "transform 0.15s",
+                              transform: isSectionOpen
+                                ? "rotate(90deg)"
+                                : "rotate(0deg)",
+                              flexShrink: 0,
+                            }}
+                          >
+                            <path
+                              d="M3.5 1.5l3 3-3 3"
+                              stroke="var(--color-text-3)"
+                              strokeWidth="1.3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          <span
+                            style={{
+                              flex: 1,
+                              fontSize: "12px",
+                              fontWeight: 500,
+                              color: "var(--color-text-2)",
+                            }}
+                          >
+                            {section.name}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              color: "var(--color-text-3)",
+                            }}
+                          >
+                            {section.concepts.length}
+                          </span>
+                        </button>
+
+                        {/* Concepts under section */}
+                        {isSectionOpen && (
+                          <div style={{ paddingBottom: "4px" }}>
+                            {section.concepts.map((concept) => (
+                              <button
+                                key={concept.id}
+                                onClick={() => onSelect(concept.id)}
+                                style={{
+                                  width: "100%",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                  padding: "8px 16px 8px 48px",
+                                  backgroundColor: "transparent",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontFamily: "inherit",
+                                  textAlign: "left",
+                                  transition: "background-color 0.1s",
+                                }}
+                                onMouseEnter={(e) =>
+                                  (e.currentTarget.style.backgroundColor =
+                                    "var(--color-surface-2)")
+                                }
+                                onMouseLeave={(e) =>
+                                  (e.currentTarget.style.backgroundColor =
+                                    "transparent")
+                                }
+                              >
+                                <span
+                                  style={{
+                                    flex: 1,
+                                    fontSize: "13px",
+                                    color: "var(--color-text)",
+                                  }}
+                                >
+                                  {concept.name}
+                                </span>
+                                <span
+                                  style={{
+                                    fontSize: "11px",
+                                    color: "var(--color-text-3)",
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  {concept.questionCount}{" "}
+                                  {concept.questionCount === 1 ? "q" : "q\u2019s"}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Section Picker ───────────────────────────────────────────────────────────
+
+function SectionPicker({
+  tiers,
+  onSelect,
+}: {
+  tiers: TierOption[];
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div>
+      <h2
+        style={{
+          margin: "0 0 8px",
+          fontSize: "20px",
+          fontWeight: 600,
+          color: "var(--color-text)",
+          letterSpacing: "-0.02em",
+        }}
+      >
+        Choose a section
+      </h2>
+      <p
+        style={{
+          margin: "0 0 28px",
+          fontSize: "13px",
+          color: "var(--color-text-3)",
+        }}
+      >
+        All questions from every concept in the section.
+      </p>
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "24px",
+        }}
+      >
+        {tiers.map((tier) => {
+          const tierColor = TIER_COLOR[tier.slug] ?? "var(--color-text-3)";
+          const tierDim = TIER_DIM[tier.slug] ?? "rgba(139,139,158,0.08)";
+
+          return (
+            <div key={tier.id}>
+              {/* Tier label */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  marginBottom: "10px",
+                }}
+              >
+                <span
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    backgroundColor: tierColor,
+                    flexShrink: 0,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: tierColor,
+                    letterSpacing: "0.03em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {tier.name}
+                </span>
+              </div>
+
+              {/* Section cards */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "6px",
+                }}
+              >
+                {tier.sections.map((section) => {
+                  const totalQuestions = section.concepts.reduce(
+                    (sum, c) => sum + c.questionCount,
+                    0,
+                  );
+
+                  return (
+                    <button
+                      key={section.id}
+                      onClick={() => onSelect(section.id)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        padding: "14px 16px",
+                        backgroundColor: "var(--color-surface)",
+                        border: "1px solid var(--color-border)",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        textAlign: "left",
+                        transition:
+                          "border-color 0.15s, background-color 0.15s",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = tierColor;
+                        e.currentTarget.style.backgroundColor = tierDim;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor =
+                          "var(--color-border)";
+                        e.currentTarget.style.backgroundColor =
+                          "var(--color-surface)";
+                      }}
+                    >
+                      <div style={{ flex: 1 }}>
+                        <div
+                          style={{
+                            fontSize: "13px",
+                            fontWeight: 500,
+                            color: "var(--color-text)",
+                            marginBottom: "2px",
+                          }}
+                        >
+                          {section.name}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            color: "var(--color-text-3)",
+                          }}
+                        >
+                          {section.concepts.length} concepts ·{" "}
+                          {totalQuestions} questions
+                        </div>
+                      </div>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        style={{ flexShrink: 0 }}
+                      >
+                        <path
+                          d="M6 4l4 4-4 4"
+                          stroke="var(--color-text-3)"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Tier Picker ──────────────────────────────────────────────────────────────
+
+function TierPicker({
+  tiers,
+  onSelect,
+}: {
+  tiers: TierOption[];
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div>
+      <h2
+        style={{
+          margin: "0 0 8px",
+          fontSize: "20px",
+          fontWeight: 600,
+          color: "var(--color-text)",
+          letterSpacing: "-0.02em",
+        }}
+      >
+        Choose a tier
+      </h2>
+      <p
+        style={{
+          margin: "0 0 28px",
+          fontSize: "13px",
+          color: "var(--color-text-3)",
+        }}
+      >
+        Every question from all sections in the tier.
+      </p>
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+        }}
+      >
+        {tiers.map((tier) => {
+          const tierColor = TIER_COLOR[tier.slug] ?? "var(--color-text-3)";
+          const tierDim = TIER_DIM[tier.slug] ?? "rgba(139,139,158,0.08)";
+          const totalQuestions = tier.sections.reduce(
+            (sum, s) =>
+              sum + s.concepts.reduce((cSum, c) => cSum + c.questionCount, 0),
+            0,
+          );
+          const totalConcepts = tier.sections.reduce(
+            (sum, s) => sum + s.concepts.length,
+            0,
+          );
+
+          return (
+            <button
+              key={tier.id}
+              onClick={() => onSelect(tier.id)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "16px",
+                padding: "24px 20px",
+                backgroundColor: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "10px",
+                cursor: "pointer",
+                fontFamily: "inherit",
+                textAlign: "left",
+                transition:
+                  "border-color 0.15s, background-color 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = tierColor;
+                e.currentTarget.style.backgroundColor = tierDim;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-border)";
+                e.currentTarget.style.backgroundColor =
+                  "var(--color-surface)";
+              }}
+            >
+              <span
+                style={{
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "50%",
+                  backgroundColor: tierColor,
+                  flexShrink: 0,
+                }}
+              />
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: "15px",
+                    fontWeight: 600,
+                    color: "var(--color-text)",
+                    marginBottom: "4px",
+                  }}
+                >
+                  {tier.name}
+                </div>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "var(--color-text-3)",
+                  }}
+                >
+                  {tier.sections.length} sections · {totalConcepts}{" "}
+                  concepts · {totalQuestions} questions
+                </div>
+              </div>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                style={{ flexShrink: 0 }}
+              >
+                <path
+                  d="M6 4l4 4-4 4"
+                  stroke="var(--color-text-3)"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -608,12 +1246,31 @@ function ModeSelection({
 
 function LoadingState() {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingTop: "16px" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "12px",
+        paddingTop: "16px",
+      }}
+    >
       <div className="skeleton" style={{ height: "20px", width: "40%" }} />
-      <div className="skeleton" style={{ height: "48px", width: "100%", borderRadius: "8px" }} />
-      <div className="skeleton" style={{ height: "48px", width: "100%", borderRadius: "8px" }} />
-      <div className="skeleton" style={{ height: "48px", width: "100%", borderRadius: "8px" }} />
-      <div className="skeleton" style={{ height: "48px", width: "100%", borderRadius: "8px" }} />
+      <div
+        className="skeleton"
+        style={{ height: "48px", width: "100%", borderRadius: "8px" }}
+      />
+      <div
+        className="skeleton"
+        style={{ height: "48px", width: "100%", borderRadius: "8px" }}
+      />
+      <div
+        className="skeleton"
+        style={{ height: "48px", width: "100%", borderRadius: "8px" }}
+      />
+      <div
+        className="skeleton"
+        style={{ height: "48px", width: "100%", borderRadius: "8px" }}
+      />
     </div>
   );
 }
@@ -630,7 +1287,11 @@ function QuizFlow({
   question: QuizQuestion;
   index: number;
   total: number;
-  onMCAnswer: (questionId: string, correct: boolean, selectedIndex: number) => void;
+  onMCAnswer: (
+    questionId: string,
+    correct: boolean,
+    selectedIndex: number,
+  ) => void;
   onNext: () => void;
 }) {
   const [answered, setAnswered] = useState(false);

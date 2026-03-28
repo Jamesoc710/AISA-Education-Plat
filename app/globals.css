@@ -120,6 +120,9 @@ input:focus {
   .quiz-content-padding {
     padding: 24px 16px 60px !important;
   }
+  .quiz-mode-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 /* ── Browse page — responsive ──────────────────────────────────── */

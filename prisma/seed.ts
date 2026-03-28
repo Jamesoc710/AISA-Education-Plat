@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 import path from "path";
 import fs from "fs";
 import { TIERS, SECTIONS, CONCEPTS, CONCEPT_RELATIONS } from "./seed-data/curriculum";
@@ -8,10 +8,10 @@ import { QUESTIONS } from "./seed-data/questions";
 import { RESOURCES } from "./seed-data/resources";
 import { SIMPLE_EXPLANATIONS } from "./seed-data/simple-explanations";
 
-const DATABASE_URL = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
-// Resolve to absolute path with file: prefix
-const resolvedUrl = `file:${path.resolve(DATABASE_URL.replace(/^file:/, ""))}`;
-const adapter = new PrismaBetterSqlite3({ url: resolvedUrl });
+// Use DIRECT_URL (session-mode pooler) for seeding — supports transactions
+const url = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
+if (!url) throw new Error("DIRECT_URL or DATABASE_URL must be set");
+const adapter = new PrismaPg({ connectionString: url });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {

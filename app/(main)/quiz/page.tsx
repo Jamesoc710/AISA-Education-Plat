@@ -10,81 +10,48 @@ export const metadata: Metadata = {
 };
 
 export default async function QuizPage() {
-  const [concepts, sections, tiers] = await Promise.all([
-    prisma.concept.findMany({
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        sectionId: true,
-        _count: { select: { questions: true } },
-      },
-      orderBy: [
-        { section: { tier: { sortOrder: "asc" } } },
-        { section: { sortOrder: "asc" } },
-        { sortOrder: "asc" },
-      ],
-    }),
-    prisma.section.findMany({
-      select: {
-        id: true,
-        name: true,
-        tier: { select: { name: true, slug: true } },
-        _count: { select: { concepts: true } },
-      },
-      orderBy: [{ tier: { sortOrder: "asc" } }, { sortOrder: "asc" }],
-    }),
-    prisma.tier.findMany({
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        sections: {
-          select: {
-            concepts: {
-              select: {
-                _count: { select: { questions: true } },
-              },
+  const tiers = await prisma.tier.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      sections: {
+        select: {
+          id: true,
+          name: true,
+          concepts: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              _count: { select: { questions: true } },
             },
+            orderBy: { sortOrder: "asc" },
           },
         },
+        orderBy: { sortOrder: "asc" },
       },
-      orderBy: { sortOrder: "asc" },
-    }),
-  ]);
+    },
+    orderBy: { sortOrder: "asc" },
+  });
 
-  const conceptOptions = concepts
-    .filter((c) => c._count.questions > 0)
-    .map((c) => ({
-      id: c.id,
-      name: c.name,
-      questionCount: c._count.questions,
-    }));
-
-  const sectionOptions = sections.map((s) => ({
-    id: s.id,
-    name: s.name,
-    tierName: s.tier.name,
-    tierSlug: s.tier.slug,
-    conceptCount: s._count.concepts,
-  }));
-
-  const tierOptions = tiers.map((t) => ({
+  const tierData = tiers.map((t) => ({
     id: t.id,
     name: t.name,
     slug: t.slug,
-    questionCount: t.sections.reduce(
-      (sum, s) =>
-        sum + s.concepts.reduce((cSum, c) => cSum + c._count.questions, 0),
-      0,
-    ),
+    sections: t.sections.map((s) => ({
+      id: s.id,
+      name: s.name,
+      concepts: s.concepts
+        .filter((c) => c._count.questions > 0)
+        .map((c) => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          questionCount: c._count.questions,
+        })),
+    })),
   }));
 
-  return (
-    <QuizClient
-      concepts={conceptOptions}
-      sections={sectionOptions}
-      tiers={tierOptions}
-    />
-  );
+  return <QuizClient tiers={tierData} />;
 }
