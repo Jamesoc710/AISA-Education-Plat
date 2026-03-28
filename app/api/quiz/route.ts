@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
     const capped = mode === "mixed" ? questions.slice(0, 10) : questions;
 
     // Parse options JSON for MC questions
-    const parsed = capped.map((q) => ({
+    const parsed = capped.map((q: typeof questions[number]) => ({
       id: q.id,
       type: q.type,
       questionText: q.questionText,
