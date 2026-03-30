@@ -66,6 +66,38 @@ export default async function DashboardPage() {
     orderBy: { attemptedAt: "desc" },
   });
 
+  // Fetch active formal quizzes the user hasn't completed
+  const formalQuizzes = await prisma.formalQuiz.findMany({
+    where: { status: "active" },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      timeLimit: true,
+      dueDate: true,
+      _count: { select: { questions: true } },
+      attempts: {
+        where: { userId: authUser.id },
+        select: { submittedAt: true, score: true },
+      },
+    },
+  });
+
+  // Fetch homework assignments with user's submission status
+  const assignments = await prisma.assignment.findMany({
+    select: {
+      id: true,
+      title: true,
+      dueDate: true,
+      concept: { select: { name: true } },
+      submissions: {
+        where: { userId: authUser.id },
+        select: { submittedAt: true, grade: true, feedback: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
   // Aggregate: per-concept best score
   const conceptStats = new Map<
     string,
@@ -119,6 +151,27 @@ export default async function DashboardPage() {
     ),
   );
 
+  const pendingAssessments = formalQuizzes.map((q: typeof formalQuizzes[number]) => ({
+    id: q.id,
+    title: q.title,
+    description: q.description,
+    timeLimit: q.timeLimit,
+    dueDate: q.dueDate?.toISOString() ?? null,
+    questionCount: q._count.questions,
+    completed: q.attempts.length > 0 && q.attempts[0].submittedAt !== null,
+    score: q.attempts[0]?.score ?? null,
+  }));
+
+  const homeworkItems = assignments.map((a: typeof assignments[number]) => ({
+    id: a.id,
+    title: a.title,
+    dueDate: a.dueDate?.toISOString() ?? null,
+    conceptName: a.concept?.name ?? null,
+    submitted: a.submissions.length > 0,
+    submittedAt: a.submissions[0]?.submittedAt?.toISOString() ?? null,
+    grade: a.submissions[0]?.grade ?? null,
+  }));
+
   const tierData = tiers.map((t: typeof tiers[number]) => ({
     id: t.id,
     name: t.name,
@@ -159,6 +212,8 @@ export default async function DashboardPage() {
       }}
       tiers={tierData}
       conceptScores={conceptScores}
+      pendingAssessments={pendingAssessments}
+      homeworkItems={homeworkItems}
     />
   );
 }

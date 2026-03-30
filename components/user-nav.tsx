@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 
 export function UserNav() {
   const [user, setUser] = useState<{ email: string } | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
@@ -16,6 +17,12 @@ export function UserNav() {
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user ? { email: data.user.email ?? "" } : null);
       setLoading(false);
+      if (data.user) {
+        fetch("/api/auth/me")
+          .then((r) => r.json())
+          .then((d) => setRole(d.role))
+          .catch(() => {});
+      }
     });
   }, []);
 
@@ -139,6 +146,33 @@ export function UserNav() {
               >
                 {user.email}
               </div>
+              {role === "ADMIN" && (
+                <Link
+                  href="/admin"
+                  onClick={() => setMenuOpen(false)}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    padding: "8px 12px",
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: "var(--color-accent)",
+                    backgroundColor: "transparent",
+                    borderRadius: "6px",
+                    textDecoration: "none",
+                    transition: "background-color 0.1s",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      "var(--color-surface-2)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "transparent")
+                  }
+                >
+                  Admin Dashboard
+                </Link>
+              )}
               <button
                 onClick={handleSignOut}
                 style={{

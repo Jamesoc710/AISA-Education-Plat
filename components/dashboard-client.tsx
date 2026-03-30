@@ -26,6 +26,16 @@ type Overview = {
   avgScore: number;
   quizSessions: number;
 };
+type PendingAssessment = {
+  id: string; title: string; description: string | null;
+  timeLimit: number | null; dueDate: string | null;
+  questionCount: number; completed: boolean; score: number | null;
+};
+type HomeworkItem = {
+  id: string; title: string; dueDate: string | null;
+  conceptName: string | null; submitted: boolean;
+  submittedAt: string | null; grade: string | null;
+};
 
 const TIER_COLOR: Record<string, string> = {
   fundamentals: "var(--color-gold)",
@@ -58,11 +68,15 @@ export function DashboardClient({
   overview,
   tiers,
   conceptScores,
+  pendingAssessments,
+  homeworkItems,
 }: {
   userName: string;
   overview: Overview;
   tiers: TierInfo[];
   conceptScores: Record<string, ConceptScore>;
+  pendingAssessments: PendingAssessment[];
+  homeworkItems: HomeworkItem[];
 }) {
   return (
     <div
@@ -163,6 +177,239 @@ export function DashboardClient({
 
           {/* Zone 1: Overview Stats */}
           <OverviewStrip overview={overview} />
+
+          {/* Pending Assessments */}
+          {pendingAssessments.length > 0 && (
+            <div style={{ marginBottom: "36px" }}>
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: "var(--color-text-3)",
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  marginBottom: "12px",
+                }}
+              >
+                ASSESSMENTS
+              </div>
+              {pendingAssessments.map((a) => {
+                const scoreColor =
+                  a.score !== null
+                    ? a.score >= 80
+                      ? "var(--color-correct)"
+                      : a.score >= 50
+                        ? "var(--color-gold)"
+                        : "var(--color-incorrect)"
+                    : "var(--color-text-3)";
+                const scoreBg =
+                  a.score !== null
+                    ? a.score >= 80
+                      ? "var(--color-correct-dim)"
+                      : a.score >= 50
+                        ? "var(--color-gold-dim)"
+                        : "var(--color-incorrect-dim)"
+                    : "transparent";
+
+                return (
+                  <div
+                    key={a.id}
+                    style={{
+                      backgroundColor: "var(--color-surface)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "8px",
+                      padding: "16px",
+                      marginBottom: "8px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: "14px",
+                          fontWeight: 500,
+                          color: "var(--color-text)",
+                        }}
+                      >
+                        {a.title}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "var(--color-text-3)",
+                          marginTop: "4px",
+                          display: "flex",
+                          gap: "8px",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <span>{a.questionCount} questions</span>
+                        {a.timeLimit !== null && (
+                          <span>{a.timeLimit} min</span>
+                        )}
+                        {a.dueDate !== null && (
+                          <span>
+                            Due{" "}
+                            {new Date(a.dueDate).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                      {a.completed ? (
+                        <>
+                          {a.score !== null && (
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                fontWeight: 600,
+                                color: scoreColor,
+                                backgroundColor: scoreBg,
+                                padding: "4px 10px",
+                                borderRadius: "6px",
+                              }}
+                            >
+                              {a.score}%
+                            </span>
+                          )}
+                          <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
+                            Completed
+                          </span>
+                        </>
+                      ) : (
+                        <Link
+                          href={`/assessment/${a.id}`}
+                          style={{
+                            backgroundColor: "var(--color-accent)",
+                            color: "#fff",
+                            fontSize: "12px",
+                            fontWeight: 500,
+                            borderRadius: "6px",
+                            padding: "6px 14px",
+                            textDecoration: "none",
+                          }}
+                        >
+                          Start
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Homework */}
+          {homeworkItems.length > 0 && (
+            <div style={{ marginBottom: "36px" }}>
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: "var(--color-text-3)",
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  marginBottom: "12px",
+                }}
+              >
+                HOMEWORK
+              </div>
+              {homeworkItems.map((h) => (
+                <div
+                  key={h.id}
+                  style={{
+                    backgroundColor: "var(--color-surface)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "8px",
+                    padding: "16px",
+                    marginBottom: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "12px",
+                  }}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        color: "var(--color-text)",
+                      }}
+                    >
+                      {h.title}
+                    </div>
+                    {h.conceptName && (
+                      <div style={{ fontSize: "12px", color: "var(--color-text-3)", marginTop: "2px" }}>
+                        {h.conceptName}
+                      </div>
+                    )}
+                    {h.dueDate !== null && (
+                      <div style={{ fontSize: "12px", color: "var(--color-text-3)", marginTop: "2px" }}>
+                        Due{" "}
+                        {new Date(h.dueDate).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                    {!h.submitted ? (
+                      <Link
+                        href={`/homework/${h.id}`}
+                        style={{
+                          border: "1px solid var(--color-accent)",
+                          color: "var(--color-accent)",
+                          backgroundColor: "transparent",
+                          fontSize: "12px",
+                          fontWeight: 500,
+                          borderRadius: "6px",
+                          padding: "6px 14px",
+                          textDecoration: "none",
+                        }}
+                      >
+                        Submit
+                      </Link>
+                    ) : h.grade !== null ? (
+                      <>
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            color: "#fff",
+                            backgroundColor: "var(--color-correct)",
+                            padding: "4px 10px",
+                            borderRadius: "6px",
+                          }}
+                        >
+                          {h.grade}
+                        </span>
+                        <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
+                          Graded
+                        </span>
+                      </>
+                    ) : (
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
+                          Submitted
+                        </div>
+                        <div style={{ fontSize: "11px", color: "var(--color-text-3)" }}>
+                          Awaiting review
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Zone 2: Tier Completion Map */}
           <TierMap

@@ -24,9 +24,12 @@ model User {
   suggestedResources     Resource[]
   quizAttempts           QuizAttempt[]
   homeworkSubmissions    HomeworkSubmission[]
-  mentorNotesGiven       MentorNote[]        @relation("MentorNoteGiver")
-  mentorNotesReceived    MentorNote[]        @relation("MentorNoteRecruit")
+  mentorNotesGiven       MentorNote[]          @relation("MentorNoteGiver")
+  mentorNotesReceived    MentorNote[]          @relation("MentorNoteRecruit")
   projectAssignments     ProjectAssignment[]
+  createdAssignments     Assignment[]          @relation("AssignmentCreator")
+  createdFormalQuizzes   FormalQuiz[]          @relation("FormalQuizCreator")
+  formalQuizAttempts     FormalQuizAttempt[]
 
   @@map("users")
 }
@@ -75,6 +78,7 @@ model Concept {
   questions    Question[]
   resources    Resource[]
   bookmarks    Bookmark[]
+  assignments  Assignment[]
   relatedFrom  ConceptRelation[] @relation("ConceptFrom")
   relatedTo    ConceptRelation[] @relation("ConceptTo")
 
@@ -119,8 +123,10 @@ model Question {
   answerExplanation String
   difficulty        String  // FUNDAMENTALS | INTERMEDIATE | ADVANCED
 
-  concept  Concept       @relation(fields: [conceptId], references: [id])
-  attempts QuizAttempt[]
+  concept             Concept              @relation(fields: [conceptId], references: [id])
+  attempts            QuizAttempt[]
+  formalQuizQuestions  FormalQuizQuestion[]
+  formalQuizAnswers   FormalQuizAnswer[]
 
   @@map("questions")
 }
@@ -160,11 +166,14 @@ model HomeworkSubmission {
   assignmentId String
   content      String
   submittedAt  DateTime @default(now())
-  grade        String?
+  grade        String?  // e.g. "A", "B+", "Pass", "Fail"
   feedback     String?
+  gradedAt     DateTime?
 
-  user User @relation(fields: [userId], references: [id])
+  user       User       @relation(fields: [userId], references: [id])
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
 
+  @@unique([userId, assignmentId]) // One submission per recruit per assignment
   @@map("homework_submissions")
 }
 
@@ -191,4 +200,86 @@ model ProjectAssignment {
   user User @relation(fields: [userId], references: [id])
 
   @@map("project_assignments")
+}
+
+// ─── Assignment (Homework) ──────────────────────────────────────────────────
+
+model Assignment {
+  id          String    @id @default(cuid())
+  title       String
+  description String    // Markdown instructions
+  conceptId   String?   // Optional tie to a concept
+  dueDate     DateTime?
+  createdById String
+  createdAt   DateTime  @default(now())
+
+  concept     Concept?             @relation(fields: [conceptId], references: [id])
+  createdBy   User                 @relation("AssignmentCreator", fields: [createdById], references: [id])
+  submissions HomeworkSubmission[]
+
+  @@map("assignments")
+}
+
+// ─── Formal Quiz System ─────────────────────────────────────────────────────
+
+model FormalQuiz {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  createdById String
+  timeLimit   Int?      // Minutes, null = no limit
+  availableAt DateTime? // When recruits can start
+  dueDate     DateTime? // Deadline
+  status      String    @default("draft") // draft | active | closed
+  createdAt   DateTime  @default(now())
+
+  createdBy  User                @relation("FormalQuizCreator", fields: [createdById], references: [id])
+  questions  FormalQuizQuestion[]
+  attempts   FormalQuizAttempt[]
+
+  @@map("formal_quizzes")
+}
+
+model FormalQuizQuestion {
+  id           String @id @default(cuid())
+  formalQuizId String
+  questionId   String
+  sortOrder    Int
+
+  formalQuiz FormalQuiz @relation(fields: [formalQuizId], references: [id], onDelete: Cascade)
+  question   Question   @relation(fields: [questionId], references: [id])
+
+  @@unique([formalQuizId, questionId])
+  @@map("formal_quiz_questions")
+}
+
+model FormalQuizAttempt {
+  id           String    @id @default(cuid())
+  userId       String
+  formalQuizId String
+  score        Float?    // Calculated on submit (MC only)
+  startedAt    DateTime  @default(now())
+  submittedAt  DateTime?
+
+  user       User              @relation(fields: [userId], references: [id])
+  formalQuiz FormalQuiz        @relation(fields: [formalQuizId], references: [id])
+  answers    FormalQuizAnswer[]
+
+  @@unique([userId, formalQuizId]) // One attempt per recruit per quiz
+  @@map("formal_quiz_attempts")
+}
+
+model FormalQuizAnswer {
+  id         String   @id @default(cuid())
+  attemptId  String
+  questionId String
+  selected   String?  // The text they chose (MC) or typed (SA)
+  isCorrect  Boolean? // Auto-graded for MC, null for SA until admin grades
+  gradedAt   DateTime?
+
+  attempt  FormalQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question Question          @relation(fields: [questionId], references: [id])
+
+  @@unique([attemptId, questionId])
+  @@map("formal_quiz_answers")
 }
