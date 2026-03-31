@@ -34,19 +34,53 @@ export async function GET(request: NextRequest) {
   const attempts = await prisma.formalQuizAttempt.findMany({
     where: { formalQuizId: quizId },
     select: {
+      id: true,
       score: true,
       submittedAt: true,
       user: { select: { name: true } },
+      answers: {
+        select: {
+          id: true,
+          questionId: true,
+          selected: true,
+          isCorrect: true,
+          llmScore: true,
+          llmReasoning: true,
+          llmGradedAt: true,
+          gradedAt: true,
+          question: {
+            select: {
+              questionText: true,
+              type: true,
+              answerExplanation: true,
+            },
+          },
+        },
+      },
     },
     orderBy: { startedAt: "desc" },
   });
 
   type AttemptRow = (typeof attempts)[number];
+  type AnswerRow = AttemptRow["answers"][number];
 
   const mapped = attempts.map((a: AttemptRow) => ({
+    id: a.id,
     name: a.user.name,
     score: a.score ?? 0,
     submittedAt: a.submittedAt ? a.submittedAt.toISOString() : null,
+    answers: a.answers.map((ans: AnswerRow) => ({
+      id: ans.id,
+      questionId: ans.questionId,
+      questionText: ans.question.questionText,
+      type: ans.question.type,
+      modelAnswer: ans.question.answerExplanation,
+      selected: ans.selected,
+      isCorrect: ans.isCorrect,
+      llmScore: ans.llmScore,
+      llmReasoning: ans.llmReasoning,
+      llmGradedAt: ans.llmGradedAt?.toISOString() ?? null,
+    })),
   }));
 
   const scores = mapped.filter((a) => a.score > 0).map((a) => a.score);
@@ -111,13 +145,45 @@ export async function POST(request: NextRequest) {
   });
 }
 
-// ── PATCH — update status ────────────────────────────────────────────────────
+// ── PATCH — update status or override answer grade ──────────────────────────
 
 export async function PATCH(request: NextRequest) {
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await request.json();
+
+  // Override a specific answer's grade
+  if (body.answerId) {
+    const { answerId, isCorrect } = body as {
+      answerId: string;
+      isCorrect: boolean;
+    };
+
+    const answer = await prisma.formalQuizAnswer.update({
+      where: { id: answerId },
+      data: {
+        isCorrect,
+        gradedAt: new Date(),
+      },
+    });
+
+    // Recalculate attempt score
+    const allAnswers = await prisma.formalQuizAnswer.findMany({
+      where: { attemptId: answer.attemptId },
+    });
+    const correctCount = allAnswers.filter((a) => a.isCorrect === true).length;
+    const newScore = Math.round((correctCount / allAnswers.length) * 100);
+
+    await prisma.formalQuizAttempt.update({
+      where: { id: answer.attemptId },
+      data: { score: newScore },
+    });
+
+    return NextResponse.json({ id: answerId, isCorrect, newScore });
+  }
+
+  // Update quiz status
   const { quizId, status } = body as { quizId: string; status: string };
 
   if (!quizId || !["draft", "active", "closed"].includes(status)) {

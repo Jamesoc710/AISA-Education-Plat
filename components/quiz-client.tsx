@@ -105,7 +105,7 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mcAnswers, setMcAnswers] = useState<MCAnswer[]>([]);
   const [saAnswers, setSaAnswers] = useState<
-    { questionId: string; gotIt: boolean }[]
+    { questionId: string; score: string; gotIt: boolean }[]
   >([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -166,8 +166,15 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
     setMcAnswers((prev) => [...prev, { questionId, correct, selectedIndex }]);
   };
 
-  const handleSelfAssess = (questionId: string, gotIt: boolean) => {
-    setSaAnswers((prev) => [...prev, { questionId, gotIt }]);
+  const handleGraded = (questionId: string, result: { score: string }) => {
+    setSaAnswers((prev) => [
+      ...prev,
+      {
+        questionId,
+        score: result.score,
+        gotIt: result.score === "correct",
+      },
+    ]);
   };
 
   // Save quiz attempts to the database (fire-and-forget for logged-in users)
@@ -195,7 +202,6 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
           isCorrect: saAnswer.gotIt,
         };
       }
-      // Unanswered short answer (revealed but no self-assessment)
       return {
         questionId: q.id,
         selectedAnswer: null,
@@ -372,7 +378,7 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
               index={currentIndex}
               total={questions.length}
               onMCAnswer={handleMCAnswer}
-              onSelfAssess={handleSelfAssess}
+              onGraded={handleGraded}
               onNext={handleNext}
             />
           )}
@@ -1336,7 +1342,7 @@ function QuizFlow({
   index,
   total,
   onMCAnswer,
-  onSelfAssess,
+  onGraded,
   onNext,
 }: {
   question: QuizQuestion;
@@ -1347,7 +1353,7 @@ function QuizFlow({
     correct: boolean,
     selectedIndex: number,
   ) => void;
-  onSelfAssess: (questionId: string, gotIt: boolean) => void;
+  onGraded: (questionId: string, result: { score: string }) => void;
   onNext: () => void;
 }) {
   const [answered, setAnswered] = useState(false);
@@ -1432,7 +1438,7 @@ function QuizFlow({
           key={question.id}
           question={question}
           onRevealed={handleAnswered}
-          onSelfAssess={onSelfAssess}
+          onGraded={onGraded}
         />
       )}
 

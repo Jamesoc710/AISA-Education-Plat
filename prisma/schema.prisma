@@ -153,6 +153,9 @@ model QuizAttempt {
   selectedAnswer String?
   isCorrect      Boolean?
   attemptedAt    DateTime @default(now())
+  llmScore       String?  // "correct" | "partial" | "incorrect" — null for MC
+  llmReasoning   String?  // LLM explanation of grade
+  llmGradedAt    DateTime?
 
   user     User     @relation(fields: [userId], references: [id])
   question Question @relation(fields: [questionId], references: [id])
@@ -276,6 +279,9 @@ model FormalQuizAnswer {
   selected   String?  // The text they chose (MC) or typed (SA)
   isCorrect  Boolean? // Auto-graded for MC, null for SA until admin grades
   gradedAt   DateTime?
+  llmScore       String?  // "correct" | "partial" | "incorrect" — null for MC
+  llmReasoning   String?  // LLM explanation of grade
+  llmGradedAt    DateTime?
 
   attempt  FormalQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
   question Question          @relation(fields: [questionId], references: [id])

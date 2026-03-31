@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { gradeShortAnswer } from "@/lib/grading";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -93,9 +94,46 @@ export async function POST(req: NextRequest) {
         isCorrect = false;
       }
     } else if (question.type === "SHORT_ANSWER") {
-      // SA: leave isCorrect null for admin review
-      isCorrect = null;
       saCount++;
+      // LLM grade short answers
+      if (ans.selected?.trim()) {
+        try {
+          const concept = await prisma.concept.findFirst({
+            where: { questions: { some: { id: ans.questionId } } },
+            select: { name: true },
+          });
+          const gradeResult = await gradeShortAnswer({
+            questionText: question.questionText,
+            modelAnswer: question.answerExplanation,
+            studentAnswer: ans.selected,
+            conceptName: concept?.name,
+          });
+          isCorrect =
+            gradeResult.score === "correct"
+              ? true
+              : gradeResult.score === "incorrect"
+                ? false
+                : null;
+
+          await prisma.formalQuizAnswer.create({
+            data: {
+              attemptId: attempt.id,
+              questionId: ans.questionId,
+              selected: ans.selected,
+              isCorrect,
+              llmScore: gradeResult.score,
+              llmReasoning: gradeResult.reasoning,
+              llmGradedAt: new Date(),
+            },
+          });
+          continue;
+        } catch {
+          // Fallback: save without LLM grade
+          isCorrect = null;
+        }
+      } else {
+        isCorrect = null;
+      }
     }
 
     await prisma.formalQuizAnswer.create({
@@ -108,8 +146,16 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Calculate score and finalize
-  const score = mcTotal > 0 ? Math.round((mcCorrect / mcTotal) * 100) : 0;
+  // Calculate score: include both MC and LLM-graded SA
+  const allAnswers = await prisma.formalQuizAnswer.findMany({
+    where: { attemptId: attempt.id },
+  });
+  const gradedAnswers = allAnswers.filter((a) => a.isCorrect !== null);
+  const correctAnswers = allAnswers.filter((a) => a.isCorrect === true);
+  const score =
+    gradedAnswers.length > 0
+      ? Math.round((correctAnswers.length / allAnswers.length) * 100)
+      : 0;
 
   await prisma.formalQuizAttempt.update({
     where: { id: attempt.id },

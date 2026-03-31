@@ -134,16 +134,62 @@ export function AdminAssessments({
   const [assessments, setAssessments] =
     useState<AssessmentData[]>(initialAssessments);
   const [expandedResults, setExpandedResults] = useState<string | null>(null);
+  type AnswerDetail = {
+    id: string;
+    questionId: string;
+    questionText: string;
+    type: string;
+    modelAnswer: string;
+    selected: string | null;
+    isCorrect: boolean | null;
+    llmScore: string | null;
+    llmReasoning: string | null;
+    llmGradedAt: string | null;
+  };
+  type AttemptResult = {
+    id: string;
+    name: string;
+    score: number;
+    submittedAt: string;
+    answers: AnswerDetail[];
+  };
   const [results, setResults] = useState<
-    Record<
-      string,
-      {
-        average: number;
-        attempts: { name: string; score: number; submittedAt: string }[];
-      }
-    >
+    Record<string, { average: number; attempts: AttemptResult[] }>
   >({});
   const [loadingResults, setLoadingResults] = useState<string | null>(null);
+  const [expandedAttempt, setExpandedAttempt] = useState<string | null>(null);
+
+  async function handleOverrideGrade(
+    quizId: string,
+    answerId: string,
+    isCorrect: boolean,
+  ) {
+    const res = await fetch("/api/admin/assessments", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answerId, isCorrect }),
+    });
+    if (!res.ok) return;
+    const { newScore } = await res.json();
+    // Update local state
+    setResults((prev) => {
+      const quizResults = prev[quizId];
+      if (!quizResults) return prev;
+      return {
+        ...prev,
+        [quizId]: {
+          ...quizResults,
+          attempts: quizResults.attempts.map((att) => ({
+            ...att,
+            score: att.answers.some((a) => a.id === answerId) ? newScore : att.score,
+            answers: att.answers.map((a) =>
+              a.id === answerId ? { ...a, isCorrect } : a,
+            ),
+          })),
+        },
+      };
+    });
+  }
 
   // ── Create form state ────────────────────────────────────
   const [title, setTitle] = useState("");
@@ -744,44 +790,301 @@ export function AdminAssessments({
                       ) : (
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                           {results[a.id].attempts.map(
-                            (
-                              att: { name: string; score: number; submittedAt: string },
-                              i: number
-                            ) => (
-                              <div
-                                key={i}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "space-between",
-                                  padding: "6px 10px",
-                                  backgroundColor: "var(--color-surface)",
-                                  borderRadius: "6px",
-                                  fontSize: "13px",
-                                }}
-                              >
-                                <span style={{ color: "var(--color-text)" }}>{att.name}</span>
-                                <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-                                  <span
+                            (att: AttemptResult) => (
+                              <div key={att.id}>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setExpandedAttempt(
+                                      expandedAttempt === att.id ? null : att.id,
+                                    )
+                                  }
+                                  style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    padding: "8px 10px",
+                                    backgroundColor: "var(--color-surface)",
+                                    borderRadius: "6px",
+                                    fontSize: "13px",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    color: "var(--color-text)",
+                                    fontFamily: "inherit",
+                                  }}
+                                >
+                                  <span>{att.name}</span>
+                                  <div
                                     style={{
-                                      fontWeight: 600,
-                                      color:
-                                        att.score >= 70 ? "#34c759" : "#ff453a",
+                                      display: "flex",
+                                      gap: "16px",
+                                      alignItems: "center",
                                     }}
                                   >
-                                    {Math.round(att.score)}%
-                                  </span>
-                                  <span
+                                    {att.answers.some(
+                                      (ans) =>
+                                        ans.type === "SHORT_ANSWER" &&
+                                        ans.llmScore,
+                                    ) && (
+                                      <span
+                                        style={{
+                                          fontSize: "10px",
+                                          padding: "2px 6px",
+                                          borderRadius: "3px",
+                                          backgroundColor: "#1b2a3a",
+                                          color: "#5ac8fa",
+                                          fontWeight: 600,
+                                        }}
+                                      >
+                                        AI Graded
+                                      </span>
+                                    )}
+                                    <span
+                                      style={{
+                                        fontWeight: 600,
+                                        color:
+                                          att.score >= 70
+                                            ? "#34c759"
+                                            : "#ff453a",
+                                      }}
+                                    >
+                                      {Math.round(att.score)}%
+                                    </span>
+                                    <span
+                                      style={{
+                                        fontSize: "11px",
+                                        color: "var(--color-text-3)",
+                                      }}
+                                    >
+                                      {formatDate(att.submittedAt)}
+                                    </span>
+                                  </div>
+                                </button>
+
+                                {/* Expanded answer details */}
+                                {expandedAttempt === att.id && (
+                                  <div
                                     style={{
-                                      fontSize: "11px",
-                                      color: "var(--color-text-3)",
+                                      padding: "12px",
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      gap: "10px",
                                     }}
                                   >
-                                    {formatDate(att.submittedAt)}
-                                  </span>
-                                </div>
+                                    {att.answers.map((ans: AnswerDetail) => (
+                                      <div
+                                        key={ans.id}
+                                        style={{
+                                          padding: "12px",
+                                          backgroundColor:
+                                            "var(--color-surface)",
+                                          border:
+                                            "1px solid var(--color-border-subtle)",
+                                          borderRadius: "8px",
+                                        }}
+                                      >
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "8px",
+                                            marginBottom: "6px",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              fontSize: "10px",
+                                              fontWeight: 600,
+                                              padding: "1px 6px",
+                                              borderRadius: "3px",
+                                              backgroundColor:
+                                                "var(--color-surface-2)",
+                                              color: "var(--color-text-3)",
+                                            }}
+                                          >
+                                            {ans.type === "MC" ? "MC" : "SA"}
+                                          </span>
+                                          <span
+                                            style={{
+                                              fontSize: "12px",
+                                              fontWeight: 600,
+                                              color: "var(--color-text)",
+                                            }}
+                                          >
+                                            {ans.questionText}
+                                          </span>
+                                        </div>
+
+                                        {/* Student answer */}
+                                        <div
+                                          style={{
+                                            fontSize: "12px",
+                                            color: "var(--color-text-2)",
+                                            marginBottom: "4px",
+                                          }}
+                                        >
+                                          <strong>Answer:</strong>{" "}
+                                          {ans.selected || (
+                                            <em style={{ color: "var(--color-text-3)" }}>
+                                              No answer
+                                            </em>
+                                          )}
+                                        </div>
+
+                                        {/* Model answer */}
+                                        <div
+                                          style={{
+                                            fontSize: "11px",
+                                            color: "var(--color-text-3)",
+                                            marginBottom: "6px",
+                                          }}
+                                        >
+                                          <strong>Expected:</strong>{" "}
+                                          {ans.modelAnswer}
+                                        </div>
+
+                                        {/* LLM reasoning */}
+                                        {ans.llmScore && (
+                                          <div
+                                            style={{
+                                              fontSize: "11px",
+                                              padding: "6px 8px",
+                                              borderRadius: "4px",
+                                              backgroundColor:
+                                                ans.llmScore === "correct"
+                                                  ? "rgba(52,199,89,0.08)"
+                                                  : ans.llmScore === "partial"
+                                                    ? "rgba(232,181,74,0.08)"
+                                                    : "rgba(255,69,58,0.08)",
+                                              color: "var(--color-text-2)",
+                                              marginBottom: "6px",
+                                            }}
+                                          >
+                                            <span
+                                              style={{
+                                                fontWeight: 600,
+                                                color:
+                                                  ans.llmScore === "correct"
+                                                    ? "#34c759"
+                                                    : ans.llmScore ===
+                                                        "partial"
+                                                      ? "#e8b54a"
+                                                      : "#ff453a",
+                                              }}
+                                            >
+                                              AI:{" "}
+                                              {ans.llmScore
+                                                .charAt(0)
+                                                .toUpperCase() +
+                                                ans.llmScore.slice(1)}
+                                            </span>
+                                            {" — "}
+                                            {ans.llmReasoning}
+                                          </div>
+                                        )}
+
+                                        {/* Grade status + override */}
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "8px",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              fontSize: "11px",
+                                              fontWeight: 600,
+                                              color:
+                                                ans.isCorrect === true
+                                                  ? "#34c759"
+                                                  : ans.isCorrect === false
+                                                    ? "#ff453a"
+                                                    : "#e8b54a",
+                                            }}
+                                          >
+                                            {ans.isCorrect === true
+                                              ? "Correct"
+                                              : ans.isCorrect === false
+                                                ? "Incorrect"
+                                                : "Ungraded"}
+                                          </span>
+                                          {ans.type === "SHORT_ANSWER" && (
+                                            <>
+                                              <button
+                                                type="button"
+                                                onClick={() =>
+                                                  handleOverrideGrade(
+                                                    a.id,
+                                                    ans.id,
+                                                    true,
+                                                  )
+                                                }
+                                                style={{
+                                                  fontSize: "10px",
+                                                  fontWeight: 600,
+                                                  padding: "2px 8px",
+                                                  borderRadius: "4px",
+                                                  border:
+                                                    ans.isCorrect === true
+                                                      ? "2px solid #34c759"
+                                                      : "1px solid var(--color-border)",
+                                                  backgroundColor:
+                                                    ans.isCorrect === true
+                                                      ? "rgba(52,199,89,0.15)"
+                                                      : "transparent",
+                                                  color:
+                                                    ans.isCorrect === true
+                                                      ? "#34c759"
+                                                      : "var(--color-text-3)",
+                                                  cursor: "pointer",
+                                                  fontFamily: "inherit",
+                                                }}
+                                              >
+                                                Mark Correct
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={() =>
+                                                  handleOverrideGrade(
+                                                    a.id,
+                                                    ans.id,
+                                                    false,
+                                                  )
+                                                }
+                                                style={{
+                                                  fontSize: "10px",
+                                                  fontWeight: 600,
+                                                  padding: "2px 8px",
+                                                  borderRadius: "4px",
+                                                  border:
+                                                    ans.isCorrect === false
+                                                      ? "2px solid #ff453a"
+                                                      : "1px solid var(--color-border)",
+                                                  backgroundColor:
+                                                    ans.isCorrect === false
+                                                      ? "rgba(255,69,58,0.15)"
+                                                      : "transparent",
+                                                  color:
+                                                    ans.isCorrect === false
+                                                      ? "#ff453a"
+                                                      : "var(--color-text-3)",
+                                                  cursor: "pointer",
+                                                  fontFamily: "inherit",
+                                                }}
+                                              >
+                                                Mark Incorrect
+                                              </button>
+                                            </>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
-                            )
+                            ),
                           )}
                         </div>
                       )}
