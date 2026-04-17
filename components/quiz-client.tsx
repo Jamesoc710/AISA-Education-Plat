@@ -341,16 +341,20 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
           flex: 1,
           display: "flex",
           justifyContent: "center",
-          padding: "48px 24px 80px",
+          alignItems: "flex-start",
+          padding: phase === "select-mode" ? "72px 24px 48px" : "48px 24px 80px",
           overflowY: "auto",
         }}
       >
         <div
           style={{
             width: "100%",
-            maxWidth: phase === "select-target" && mode === "concept"
-              ? "720px"
-              : "640px",
+            maxWidth:
+              phase === "select-mode"
+                ? "780px"
+                : phase === "select-target" && mode === "concept"
+                ? "720px"
+                : "640px",
           }}
         >
           {phase === "select-mode" && (
@@ -489,8 +493,8 @@ function ModeSelect({
     <div className="animate-fade-in">
       <h1
         style={{
-          margin: "0 0 8px",
-          fontSize: "24px",
+          margin: "0 0 10px",
+          fontSize: "36px",
           fontWeight: 600,
           color: "var(--color-text)",
           letterSpacing: "-0.02em",
@@ -500,10 +504,10 @@ function ModeSelect({
       </h1>
       <p
         style={{
-          margin: "0 0 32px",
-          fontSize: "14px",
+          margin: "0 0 40px",
+          fontSize: "16px",
           color: "var(--color-text-2)",
-          lineHeight: "1.6",
+          lineHeight: "1.55",
         }}
       >
         Test your understanding of AI concepts. Choose how you&apos;d like to
@@ -526,7 +530,7 @@ function ModeSelect({
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          gap: "10px",
+          gap: "14px",
         }}
         className="quiz-mode-grid"
       >
@@ -538,11 +542,11 @@ function ModeSelect({
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
-              gap: "12px",
-              padding: "20px",
+              gap: "16px",
+              padding: "28px 28px 26px",
               backgroundColor: "var(--color-surface)",
               border: "1px solid var(--color-border)",
-              borderRadius: "10px",
+              borderRadius: "12px",
               cursor: "pointer",
               textAlign: "left",
               fontFamily: "inherit",
@@ -560,23 +564,34 @@ function ModeSelect({
                 "var(--color-surface)";
             }}
           >
-            <span style={{ color: "var(--color-accent)" }}>{m.icon}</span>
+            <span
+              style={{
+                color: "var(--color-accent)",
+                display: "inline-flex",
+                transform: "scale(1.4)",
+                transformOrigin: "top left",
+                marginBottom: "4px",
+              }}
+            >
+              {m.icon}
+            </span>
             <div>
               <div
                 style={{
-                  fontSize: "14px",
-                  fontWeight: 500,
+                  fontSize: "17px",
+                  fontWeight: 600,
                   color: "var(--color-text)",
-                  marginBottom: "4px",
+                  marginBottom: "6px",
+                  letterSpacing: "-0.01em",
                 }}
               >
                 {m.label}
               </div>
               <div
                 style={{
-                  fontSize: "12px",
+                  fontSize: "13.5px",
                   color: "var(--color-text-3)",
-                  lineHeight: "1.4",
+                  lineHeight: "1.5",
                 }}
               >
                 {m.desc}

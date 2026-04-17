@@ -35,6 +35,7 @@ async function getConcepts(): Promise<SectionGroup[]> {
         id: section.id,
         name: section.name,
         slug: section.slug,
+        description: section.description,
         sortOrder: section.sortOrder,
         tier: {
           name: tier.name,

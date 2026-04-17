@@ -1,30 +1,34 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ConceptCard } from "@/components/concept-card";
 import { SearchBar } from "@/components/search-bar";
 import { UserNav } from "@/components/user-nav";
-import type { SectionGroup, ConceptData } from "@/lib/types";
+import type { SectionGroup } from "@/lib/types";
 
 const BOOKMARKS_KEY = "aisa-atlas-bookmarks";
 const BANNER_DISMISSED_KEY = "aisa-atlas-welcome-dismissed";
+const EXPANDED_KEY = "aisa-atlas-browse-expanded";
 
-const TIERS = [
-  { slug: "fundamentals", label: "Fundamentals", color: "#e8b54a" },
-  { slug: "intermediate", label: "Intermediate", color: "#6b9bd2" },
-  { slug: "advanced", label: "Advanced", color: "#8b8b9e" },
-] as const;
-
-type ActiveFilter = "all" | "fundamentals" | "intermediate" | "advanced" | "bookmarked";
+type ActiveFilter = "all" | "bookmarked";
 
 export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
-  const [query, setQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Initialize from URL synchronously so first paint matches deep link.
+  const [query, setQuery] = useState(() => searchParams?.get("q") ?? "");
+  const [activeFilter, setActiveFilter] = useState<ActiveFilter>(() =>
+    searchParams?.get("filter") === "bookmarked" ? "bookmarked" : "all"
+  );
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
   const [bannerDismissed, setBannerDismissed] = useState(true); // default true to avoid flash
+  // User's manual expand state (persisted). Collapsed by default.
+  const [userExpanded, setUserExpanded] = useState<Set<string>>(new Set());
 
-  // Load bookmarks + banner state from localStorage on mount
+  // Load bookmarks + banner + expand state from localStorage on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem(BOOKMARKS_KEY);
@@ -33,7 +37,26 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
     try {
       setBannerDismissed(localStorage.getItem(BANNER_DISMISSED_KEY) === "true");
     } catch {}
+    try {
+      const stored = localStorage.getItem(EXPANDED_KEY);
+      if (stored) setUserExpanded(new Set(JSON.parse(stored)));
+    } catch {}
   }, []);
+
+  // Keep URL in sync with query + filter (shareable deep-links, non-history-polluting)
+  const didMountRef = useRef(false);
+  useEffect(() => {
+    // Skip first render — URL already reflects initial state
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("q", query.trim());
+    if (activeFilter !== "all") params.set("filter", activeFilter);
+    const qs = params.toString();
+    router.replace(qs ? `/browse?${qs}` : "/browse", { scroll: false });
+  }, [query, activeFilter, router]);
 
   // Persist bookmarks
   const toggleBookmark = (conceptId: string) => {
@@ -46,6 +69,35 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
       } catch {}
       return next;
     });
+  };
+
+  // Expand-state persistence helper
+  const persistExpanded = (next: Set<string>) => {
+    try {
+      localStorage.setItem(EXPANDED_KEY, JSON.stringify([...next]));
+    } catch {}
+  };
+
+  const toggleSection = (id: string) => {
+    setUserExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      persistExpanded(next);
+      return next;
+    });
+  };
+
+  const expandAll = () => {
+    const next = new Set(sections.map((s) => s.id));
+    setUserExpanded(next);
+    persistExpanded(next);
+  };
+
+  const collapseAll = () => {
+    const next = new Set<string>();
+    setUserExpanded(next);
+    persistExpanded(next);
   };
 
   // All concepts flat for counting
@@ -61,16 +113,8 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
     return sections
       .map((section) => {
         const concepts = section.concepts.filter((c) => {
-          // Tier filter
           if (activeFilter === "bookmarked" && !bookmarks.has(c.id)) return false;
-          if (
-            activeFilter !== "all" &&
-            activeFilter !== "bookmarked" &&
-            c.tier.slug !== activeFilter
-          )
-            return false;
 
-          // Search filter
           if (q) {
             const haystack = `${c.name} ${c.subtitle} ${c.section.name}`.toLowerCase();
             if (!haystack.includes(q)) return false;
@@ -90,6 +134,16 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
   );
 
   const bookmarkCount = allConcepts.filter((c) => bookmarks.has(c.id)).length;
+
+  // Effective expand set: during search, auto-expand all filtered sections.
+  // Otherwise, use user's persisted manual state.
+  const isSearching = query.trim().length > 0;
+  const displayExpanded = useMemo(() => {
+    if (isSearching) return new Set(filteredSections.map((s) => s.id));
+    return userExpanded;
+  }, [isSearching, filteredSections, userExpanded]);
+
+  const allCollapsed = displayExpanded.size === 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
@@ -130,15 +184,6 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
             active={activeFilter === "all"}
             onClick={() => setActiveFilter("all")}
           />
-          {TIERS.map((t) => (
-            <FilterTab
-              key={t.slug}
-              label={t.label}
-              active={activeFilter === t.slug}
-              onClick={() => setActiveFilter(t.slug as ActiveFilter)}
-              color={t.color}
-            />
-          ))}
           <FilterTab
             label="Bookmarked"
             count={bookmarkCount}
@@ -228,7 +273,7 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
         {filteredSections.length === 0 ? (
           <EmptyState query={query} filter={activeFilter} />
         ) : (
-          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ maxWidth: "1040px", margin: "0 auto" }}>
             {/* Welcome banner */}
             {!bannerDismissed && (
               <div
@@ -262,7 +307,7 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
                 </svg>
                 <div style={{ flex: 1, fontSize: "13px", lineHeight: "1.55", color: "var(--color-text-2)" }}>
                   <strong style={{ color: "var(--color-text)", fontWeight: 600 }}>Welcome to Atlas!</strong>{" "}
-                  We recommend starting with Core Architecture and working through sections in order, but feel free to explore at your own pace. Use the tier filters above to focus your study, and bookmark anything you want to revisit.
+                  We recommend starting with Core Architecture and working through sections in order, but feel free to explore at your own pace. Click any section to expand it, and bookmark anything you want to revisit.
                 </div>
                 <button
                   onClick={() => {
@@ -292,12 +337,58 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
                 </button>
               </div>
             )}
+            {/* Expand / Collapse all */}
+            {filteredSections.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: "20px",
+                  marginBottom: "-8px",
+                }}
+              >
+                <button
+                  onClick={allCollapsed ? expandAll : collapseAll}
+                  disabled={isSearching}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: "4px 8px",
+                    fontSize: "12px",
+                    fontFamily: "inherit",
+                    color: "var(--color-text-3)",
+                    cursor: isSearching ? "default" : "pointer",
+                    opacity: isSearching ? 0.4 : 1,
+                    transition: "color 0.12s",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSearching)
+                      (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-2)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSearching)
+                      (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-3)";
+                  }}
+                  title={
+                    isSearching
+                      ? "Disabled while searching"
+                      : allCollapsed
+                      ? "Expand all sections"
+                      : "Collapse all sections"
+                  }
+                >
+                  {allCollapsed ? "Expand all" : "Collapse all"}
+                </button>
+              </div>
+            )}
             {filteredSections.map((section) => (
               <SectionGroup
                 key={section.id}
                 section={section}
                 bookmarks={bookmarks}
                 onToggleBookmark={toggleBookmark}
+                expanded={displayExpanded.has(section.id)}
+                onToggleExpanded={() => toggleSection(section.id)}
               />
             ))}
           </div>
@@ -314,14 +405,12 @@ function FilterTab({
   count,
   active,
   onClick,
-  color,
   icon,
 }: {
   label: string;
   count?: number;
   active: boolean;
   onClick: () => void;
-  color?: string;
   icon?: React.ReactNode;
 }) {
   return (
@@ -363,18 +452,6 @@ function FilterTab({
           {icon}
         </span>
       )}
-      {color && (
-        <span
-          style={{
-            width: "7px",
-            height: "7px",
-            borderRadius: "50%",
-            backgroundColor: color,
-            flexShrink: 0,
-            opacity: active ? 1 : 0.6,
-          }}
-        />
-      )}
       {label}
       {count !== undefined && count > 0 && (
         <span
@@ -397,12 +474,16 @@ function SectionGroup({
   section,
   bookmarks,
   onToggleBookmark,
+  expanded,
+  onToggleExpanded,
 }: {
   section: SectionGroup;
   bookmarks: Set<string>;
   onToggleBookmark: (id: string) => void;
+  expanded: boolean;
+  onToggleExpanded: () => void;
 }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
   const tierColor =
     section.tier.slug === "fundamentals"
@@ -411,85 +492,117 @@ function SectionGroup({
       ? "var(--color-blue)"
       : "var(--color-slate)";
 
+  const preview = section.concepts.map((c) => c.name).join(" · ");
+
   return (
-    <div style={{ marginTop: "32px" }}>
-      {/* Section header */}
+    <div style={{ marginTop: "20px" }}>
+      {/* Section card (clickable header) */}
       <button
-        onClick={() => setCollapsed((v) => !v)}
+        onClick={onToggleExpanded}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        aria-expanded={expanded}
         style={{
           display: "flex",
-          alignItems: "center",
-          gap: "8px",
+          alignItems: "flex-start",
+          gap: "14px",
           width: "100%",
-          background: "none",
-          border: "none",
+          background: hovered ? "var(--color-surface)" : "var(--color-bg)",
+          border: `1px solid ${hovered ? "var(--color-border)" : "var(--color-border-subtle)"}`,
+          borderRadius: "10px",
           cursor: "pointer",
-          padding: "0 0 12px 0",
-          marginBottom: "2px",
+          padding: "22px 24px",
           fontFamily: "inherit",
+          textAlign: "left",
+          transition: "background-color 0.12s, border-color 0.12s",
         }}
       >
-        {/* Tier dot */}
+        {/* Tier accent bar */}
         <span
           style={{
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
+            width: "3px",
+            height: "22px",
+            borderRadius: "1.5px",
             backgroundColor: tierColor,
             flexShrink: 0,
+            marginTop: "4px",
           }}
         />
 
-        {/* Section name */}
-        <span
-          style={{
-            fontSize: "13px",
-            fontWeight: 500,
-            color: "var(--color-text-2)",
-            letterSpacing: "0.01em",
-          }}
-        >
-          {section.name}
-        </span>
-
-        {/* Count */}
-        <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
-          {section.concepts.length}
-        </span>
-
-        {/* Tier badge */}
-        <span
-          style={{
-            fontSize: "11px",
-            color: tierColor,
-            opacity: 0.7,
-            marginLeft: "2px",
-          }}
-        >
-          {section.tier.name}
-        </span>
+        {/* Name + description + preview */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
+            <span
+              style={{
+                fontSize: "18px",
+                fontWeight: 600,
+                color: "var(--color-text)",
+                letterSpacing: "-0.01em",
+                lineHeight: 1.3,
+              }}
+            >
+              {section.name}
+            </span>
+            <span
+              style={{
+                fontSize: "12px",
+                color: "var(--color-text-3)",
+                fontWeight: 400,
+              }}
+            >
+              {section.concepts.length}
+            </span>
+          </div>
+          {section.description && (
+            <div
+              style={{
+                fontSize: "13px",
+                color: "var(--color-text-2)",
+                marginTop: "5px",
+                lineHeight: 1.5,
+              }}
+            >
+              {section.description}
+            </div>
+          )}
+          {preview && (
+            <div
+              style={{
+                fontSize: "12px",
+                color: "var(--color-text-3)",
+                marginTop: "6px",
+                lineHeight: 1.4,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                opacity: 0.8,
+              }}
+              title={preview}
+            >
+              {preview}
+            </div>
+          )}
+        </div>
 
         {/* Chevron */}
         <span
           style={{
-            marginLeft: "auto",
             color: "var(--color-text-3)",
-            fontSize: "10px",
-            transform: collapsed ? "rotate(-90deg)" : "rotate(0deg)",
+            fontSize: "11px",
+            transform: expanded ? "rotate(0deg)" : "rotate(-90deg)",
             transition: "transform 0.15s",
             lineHeight: 1,
+            marginTop: "8px",
+            flexShrink: 0,
           }}
         >
           ▾
         </span>
       </button>
 
-      {/* Divider */}
-      <div style={{ height: "1px", backgroundColor: "var(--color-border-subtle)", marginBottom: "16px" }} />
-
       {/* Concept grid */}
-      {!collapsed && (
-        <div className="browse-grid">
+      {expanded && (
+        <div className="browse-grid" style={{ marginTop: "14px" }}>
           {section.concepts.map((concept) => (
             <ConceptCard
               key={concept.id}

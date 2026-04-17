@@ -144,12 +144,12 @@ export function ConceptSidebar({
                   ▾
                 </span>
 
-                {/* Tier dot */}
+                {/* Tier accent bar */}
                 <span
                   style={{
-                    width: "6px",
-                    height: "6px",
-                    borderRadius: "50%",
+                    width: "2px",
+                    height: "12px",
+                    borderRadius: "1px",
                     backgroundColor: tierColor,
                     flexShrink: 0,
                   }}

@@ -33,6 +33,7 @@ export type SectionGroup = {
   id: string;
   name: string;
   slug: string;
+  description: string;
   sortOrder: number;
   tier: { name: string; slug: string; color: string; sortOrder: number };
   concepts: ConceptData[];

@@ -17,6 +17,7 @@ const RESOURCE_BADGE: Record<string, { color: string; bg: string }> = {
   ARTICLE:  { color: "#6b9bd2", bg: "rgba(107,155,210,0.10)" },
   PAPER:    { color: "#8b8b9e", bg: "rgba(139,139,158,0.10)" },
   TUTORIAL: { color: "#5e6ad2", bg: "rgba(94,106,210,0.12)" },
+  COURSE:   { color: "#4ade80", bg: "rgba(74,222,128,0.10)" },
 };
 
 export function ConceptBody({
@@ -245,9 +246,9 @@ export function ConceptBody({
           style={{
             margin: 0,
             padding: "16px 20px",
-            borderLeft: `3px solid ${tier.color}`,
-            backgroundColor: tier.bg,
-            borderRadius: "0 6px 6px 0",
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border-subtle)",
+            borderRadius: "8px",
           }}
         >
           <MarkdownBody content={concept.whyItMatters} muted />
@@ -436,7 +437,21 @@ export function ConceptBody({
                     >
                       {resource.title}
                     </div>
-                    <div style={{ fontSize: "11px", color: "var(--color-text-3)", marginTop: "2px" }}>
+                    <div
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--color-text-3)",
+                        marginTop: "2px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                      title={
+                        resource.description
+                          ? `${resource.sourceDomain} · ${resource.description}`
+                          : resource.sourceDomain
+                      }
+                    >
                       {resource.sourceDomain}
                       {resource.description && (
                         <span style={{ marginLeft: "6px" }}>· {resource.description}</span>
