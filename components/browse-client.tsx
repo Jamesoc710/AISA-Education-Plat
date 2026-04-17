@@ -197,52 +197,76 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
           />
         </nav>
 
-        {/* Divider before Quiz link */}
+        {/* Divider before Quiz / Homework links */}
         <div className="browse-nav-quiz-divider" style={{ width: "1px", height: "20px", backgroundColor: "var(--color-border)" }} />
 
         {/* Quiz nav link */}
-        <Link
+        <NavLink
           href="/quiz"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "4px 12px",
-            borderRadius: "6px",
-            fontSize: "13px",
-            fontWeight: 500,
-            color: "var(--color-text-2)",
-            textDecoration: "none",
-            height: "28px",
-            lineHeight: 1,
-            transition: "background-color 0.1s, color 0.1s",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "var(--color-surface)";
-            (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent";
-            (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-2)";
-          }}
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ color: "var(--color-accent)", flexShrink: 0 }}
-          >
-            <circle cx="12" cy="12" r="10" />
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
-          Quiz
-        </Link>
+          label="Quiz"
+          icon={
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ color: "var(--color-accent)", flexShrink: 0 }}
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          }
+        />
+
+        {/* Homework nav link */}
+        <NavLink
+          href="/homework"
+          label="Homework"
+          icon={
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ color: "var(--color-accent)", flexShrink: 0 }}
+            >
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="9" y1="15" x2="15" y2="15" />
+            </svg>
+          }
+        />
+
+        {/* Assessments nav link */}
+        <NavLink
+          href="/assessments"
+          label="Assessments"
+          icon={
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ color: "var(--color-accent)", flexShrink: 0 }}
+            >
+              <path d="M9 11l3 3L22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+          }
+        />
 
         {/* Spacer */}
         <div style={{ flex: 1 }} />
@@ -395,6 +419,49 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
         )}
       </main>
     </div>
+  );
+}
+
+// ── Nav Link ──────────────────────────────────────────────────────────────────
+
+function NavLink({
+  href,
+  label,
+  icon,
+}: {
+  href: string;
+  label: string;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "6px",
+        padding: "4px 12px",
+        borderRadius: "6px",
+        fontSize: "13px",
+        fontWeight: 500,
+        color: "var(--color-text-2)",
+        textDecoration: "none",
+        height: "28px",
+        lineHeight: 1,
+        transition: "background-color 0.1s, color 0.1s",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "var(--color-surface)";
+        (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent";
+        (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-2)";
+      }}
+    >
+      {icon}
+      {label}
+    </Link>
   );
 }
 
