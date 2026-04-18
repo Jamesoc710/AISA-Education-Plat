@@ -657,7 +657,7 @@ function SectionGroup({
             color: "var(--color-text-3)",
             fontSize: "11px",
             transform: expanded ? "rotate(0deg)" : "rotate(-90deg)",
-            transition: "transform 0.15s",
+            transition: "transform 200ms cubic-bezier(0.2, 0, 0, 1)",
             lineHeight: 1,
             marginTop: "8px",
             flexShrink: 0,
@@ -667,19 +667,38 @@ function SectionGroup({
         </span>
       </button>
 
-      {/* Concept grid */}
-      {expanded && (
-        <div className="browse-grid" style={{ marginTop: "14px" }}>
-          {section.concepts.map((concept) => (
-            <ConceptCard
-              key={concept.id}
-              concept={concept}
-              bookmarked={bookmarks.has(concept.id)}
-              onToggleBookmark={onToggleBookmark}
-            />
-          ))}
+      {/* Concept grid — animated reveal via grid-row height */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateRows: expanded ? "1fr" : "0fr",
+          transition: "grid-template-rows 260ms cubic-bezier(0.2, 0, 0, 1)",
+        }}
+      >
+        <div style={{ overflow: "hidden", minHeight: 0 }}>
+          <div
+            className="browse-grid"
+            style={{
+              paddingTop: "14px",
+              opacity: expanded ? 1 : 0,
+              transform: expanded ? "translateY(0)" : "translateY(-4px)",
+              transition:
+                "opacity 220ms ease-out, transform 220ms ease-out",
+              transitionDelay: expanded ? "60ms" : "0ms",
+            }}
+            aria-hidden={!expanded}
+          >
+            {section.concepts.map((concept) => (
+              <ConceptCard
+                key={concept.id}
+                concept={concept}
+                bookmarked={bookmarks.has(concept.id)}
+                onToggleBookmark={onToggleBookmark}
+              />
+            ))}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
