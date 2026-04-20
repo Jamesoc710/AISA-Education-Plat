@@ -4,7 +4,7 @@ async function main() {
   const url = "https://uoregon-my.sharepoint.com/personal/mbyr_uoregon_edu/_layouts/15/download.aspx?share=IQAwElAalqe1QKJOcogqzaZdAe9EjVrcl14uViaCrqb8SfU";
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
-  const buf = Buffer.from(await res.arrayBuffer());
+  const buf = await res.arrayBuffer();
 
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.load(buf);

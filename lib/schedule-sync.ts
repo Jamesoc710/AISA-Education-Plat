@@ -36,7 +36,7 @@ const THEME_TO_TYPE: Record<number, string> = {
   4: "EXEC",
 };
 
-function colorToType(font?: ExcelJS.Font): string {
+function colorToType(font?: Partial<ExcelJS.Font>): string {
   const color = font?.color as { argb?: string; theme?: number } | undefined;
   if (color?.argb) {
     const rgb = color.argb.replace(/^FF/i, "").toUpperCase();
@@ -218,7 +218,7 @@ export async function syncCalendar(opts?: { year?: number }): Promise<SyncResult
   const downloadUrl = buildDownloadUrl(url);
   const res = await fetch(downloadUrl);
   if (!res.ok) throw new Error(`Sheet fetch failed: HTTP ${res.status}`);
-  const buf = Buffer.from(await res.arrayBuffer());
+  const buf = await res.arrayBuffer();
 
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.load(buf);
@@ -287,7 +287,7 @@ export async function syncCalendar(opts?: { year?: number }): Promise<SyncResult
   for (const { key, data } of records) {
     await prisma.scheduleEvent.upsert({
       where: { sourceRowKey: key },
-      create: { sourceRowKey: key, ...(data as Parameters<typeof prisma.scheduleEvent.create>[0]["data"]) },
+      create: { sourceRowKey: key, ...data } as Parameters<typeof prisma.scheduleEvent.create>[0]["data"],
       update: data as Parameters<typeof prisma.scheduleEvent.update>[0]["data"],
     });
   }
