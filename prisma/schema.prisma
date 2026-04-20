@@ -30,6 +30,7 @@ model User {
   createdAssignments     Assignment[]          @relation("AssignmentCreator")
   createdFormalQuizzes   FormalQuiz[]          @relation("FormalQuizCreator")
   formalQuizAttempts     FormalQuizAttempt[]
+  feedbackSubmitted      Feedback[]
 
   @@map("users")
 }
@@ -313,6 +314,25 @@ model ScheduleEvent {
   @@index([date])
   @@index([weekNumber])
   @@map("schedule_events")
+}
+
+// ─── Feedback ───────────────────────────────────────────────────────────────
+
+model Feedback {
+  id          String    @id @default(cuid())
+  userId      String
+  content     String
+  imagePath   String?   // Path inside the "feedback-images" Supabase bucket
+  pageContext String?   // e.g. "/dashboard" — page the recruit was on
+  status      String    @default("new") // new | read | resolved
+  createdAt   DateTime  @default(now())
+  resolvedAt  DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("feedback")
 }
 
 // ─── LLM normalization cache ────────────────────────────────────────────────

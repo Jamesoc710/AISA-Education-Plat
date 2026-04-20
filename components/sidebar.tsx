@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SidebarNavItem } from "@/components/ui/sidebar-nav-item";
 import { Icon } from "@/components/ui/icon";
-import { FEEDBACK_FORM_URL } from "@/lib/config";
+import { FeedbackDialog } from "@/components/feedback-dialog";
 import type { ShellUser } from "@/components/main-shell";
 
 /**
@@ -19,6 +20,7 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
   const searchParams = useSearchParams();
   const filter = searchParams?.get("filter") ?? null;
   const tier = searchParams?.get("tier") ?? null;
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const onBrowse = pathname === "/browse";
   const browseDefault = onBrowse && !filter && !tier;
 
@@ -171,10 +173,9 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
 
       {/* ── Feedback button (pinned bottom) ──────────────────── */}
       <div style={{ paddingTop: 10, borderTop: "1px solid var(--color-border)", marginTop: 8 }}>
-        <a
-          href={FEEDBACK_FORM_URL}
-          target="_blank"
-          rel="noreferrer noopener"
+        <button
+          type="button"
+          onClick={() => setFeedbackOpen(true)}
           style={{
             display: "flex",
             alignItems: "center",
@@ -184,7 +185,11 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
             fontSize: 13,
             fontWeight: 500,
             color: "var(--color-text-2)",
-            textDecoration: "none",
+            background: "transparent",
+            border: "none",
+            width: "100%",
+            textAlign: "left",
+            cursor: "pointer",
             transition: "background-color 100ms ease, color 100ms ease",
           }}
           onMouseEnter={(e) => {
@@ -198,8 +203,9 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
         >
           <Icon name="message-square" size={16} strokeWidth={1.85} />
           Leave feedback
-        </a>
+        </button>
       </div>
+      <FeedbackDialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </aside>
   );
 }

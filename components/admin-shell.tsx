@@ -9,6 +9,7 @@ const NAV_ITEMS: { label: string; href: string; icon: IconName }[] = [
   { label: "Recruits", href: "/admin/recruits", icon: "users" },
   { label: "Assessments", href: "/admin/assessments", icon: "clipboard-check" },
   { label: "Homework", href: "/admin/homework", icon: "book-open" },
+  { label: "Feedback", href: "/admin/feedback", icon: "message-square" },
 ];
 
 export function AdminShell({
