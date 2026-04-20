@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Icon } from "@/components/ui/icon";
+import { Icon, type IconName } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -90,11 +90,29 @@ export function DashboardClient({
     () => Object.values(conceptScores).filter((s) => s.pct >= 80).length,
     [conceptScores],
   );
+  const touchedCount = overview.conceptsQuizzed;
+
+  const nextAction = useMemo(
+    () => computeNextAction(pendingAssessments, homeworkItems, tiers, conceptScores),
+    [pendingAssessments, homeworkItems, tiers, conceptScores],
+  );
+
+  // Hide Upcoming strip when the Next Best Action already points to the
+  // only open deadline — avoids showing the same item twice.
+  const openDeadlineCount =
+    pendingAssessments.filter((a) => !a.completed).length +
+    homeworkItems.filter((h) => !h.submitted).length;
+  const nbaIsDeadline =
+    nextAction.kind === "deadline-assessment" ||
+    nextAction.kind === "deadline-homework";
+  const showUpcomingStrip =
+    (pendingAssessments.length + homeworkItems.length) > 0 &&
+    !(nbaIsDeadline && openDeadlineCount <= 1);
 
   return (
     <div style={{ maxWidth: 1040, margin: "0 auto", padding: "56px 40px 80px" }}>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section style={{ marginBottom: 36, display: "flex", alignItems: "center", gap: 20 }}>
+      <section style={{ marginBottom: 28, display: "flex", alignItems: "center", gap: 20 }}>
         <IconTile icon="chart-line-up" color="indigo" size="lg" />
         <div style={{ minWidth: 0 }}>
           <div
@@ -128,15 +146,18 @@ export function DashboardClient({
               color: "var(--color-text-2)",
             }}
           >
-            {overview.conceptsQuizzed} of {overview.totalConcepts} concepts touched ·
+            {touchedCount} of {overview.totalConcepts} concepts started ·
             {" "}{masteredCount} at mastery ·
             {" "}{overview.totalQuestions} questions answered
           </p>
         </div>
       </section>
 
+      {/* ── Next best action ────────────────────────────────────────── */}
+      <NextBestActionCard action={nextAction} />
+
       {/* ── Upcoming strip (collapsed by default) ───────────────────── */}
-      {(pendingAssessments.length > 0 || homeworkItems.length > 0) && (
+      {showUpcomingStrip && (
         <UpcomingStrip
           assessments={pendingAssessments}
           homework={homeworkItems}
@@ -155,7 +176,11 @@ export function DashboardClient({
           marginBottom: 28,
         }}
       >
-        <MasteryPanel masteredCount={masteredCount} total={overview.totalConcepts} />
+        <MasteryPanel
+          masteredCount={masteredCount}
+          touchedCount={touchedCount}
+          total={overview.totalConcepts}
+        />
         <TierBars tiers={tiers} conceptScores={conceptScores} />
       </div>
 
@@ -181,20 +206,56 @@ function UpcomingStrip({
   homework: HomeworkItem[];
 }) {
   const [open, setOpen] = useState(false);
-  const pendingCount =
-    assessments.filter((a) => !a.completed).length +
-    homework.filter((h) => !h.submitted).length;
 
-  const summaryBits: string[] = [];
-  if (assessments.length > 0) {
-    summaryBits.push(
-      `${assessments.length} ${assessments.length === 1 ? "assessment" : "assessments"}`,
-    );
+  // Build an interleaved "open" list sorted by earliest due date.
+  type OpenItem =
+    | { kind: "assessment"; title: string; due: string | null; dueMs: number }
+    | { kind: "homework"; title: string; due: string | null; dueMs: number };
+  const openItems: OpenItem[] = [];
+  for (const a of assessments) {
+    if (a.completed) continue;
+    openItems.push({
+      kind: "assessment",
+      title: a.title,
+      due: a.dueDate,
+      dueMs: a.dueDate ? new Date(a.dueDate).getTime() : Number.POSITIVE_INFINITY,
+    });
   }
-  if (homework.length > 0) {
-    summaryBits.push(
-      `${homework.length} ${homework.length === 1 ? "homework item" : "homework items"}`,
-    );
+  for (const h of homework) {
+    if (h.submitted) continue;
+    openItems.push({
+      kind: "homework",
+      title: h.title,
+      due: h.dueDate,
+      dueMs: h.dueDate ? new Date(h.dueDate).getTime() : Number.POSITIVE_INFINITY,
+    });
+  }
+  openItems.sort((a, b) => a.dueMs - b.dueMs);
+
+  const nearest = openItems[0] ?? null;
+  const rest = openItems.length - 1;
+
+  const totalCount = assessments.length + homework.length;
+
+  // Nearest-item inline label
+  let inlineText: string;
+  if (nearest) {
+    const daysLeft = nearest.due
+      ? Math.ceil((nearest.dueMs - Date.now()) / 86400000)
+      : null;
+    const dueLabel = nearest.due
+      ? daysLeft !== null && daysLeft <= 0
+        ? "due today"
+        : daysLeft !== null && daysLeft === 1
+          ? "due tomorrow"
+          : `due in ${daysLeft} days`
+      : "no deadline";
+    inlineText = `${nearest.kind === "assessment" ? "Next up:" : "Homework:"} ${nearest.title} — ${dueLabel}`;
+  } else {
+    inlineText =
+      totalCount > 0
+        ? `${totalCount} completed`
+        : "Nothing pending";
   }
 
   return (
@@ -218,7 +279,7 @@ function UpcomingStrip({
         onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--color-accent)")}
         onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--color-border)")}
       >
-        <span style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}>
           <span
             style={{
               display: "inline-flex",
@@ -229,17 +290,26 @@ function UpcomingStrip({
               borderRadius: 7,
               backgroundColor: "var(--tile-indigo-bg)",
               color: "var(--tile-indigo-fg)",
+              flexShrink: 0,
             }}
           >
             <Icon name="clipboard-check" size={15} />
           </span>
-          <span style={{ fontSize: 13.5, fontWeight: 600, color: "var(--color-text)" }}>
-            Upcoming
+          <span
+            style={{
+              fontSize: 13.5,
+              fontWeight: 500,
+              color: "var(--color-text)",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              minWidth: 0,
+              flex: 1,
+            }}
+          >
+            {inlineText}
           </span>
-          <span style={{ fontSize: 12.5, color: "var(--color-text-3)" }}>
-            {summaryBits.join(" · ")}
-          </span>
-          {pendingCount > 0 && (
+          {rest > 0 && (
             <span
               style={{
                 fontSize: 11,
@@ -248,10 +318,10 @@ function UpcomingStrip({
                 borderRadius: 999,
                 backgroundColor: "var(--color-accent-soft)",
                 color: "var(--color-accent-on-soft)",
-                marginLeft: 4,
+                flexShrink: 0,
               }}
             >
-              {pendingCount} open
+              +{rest} more
             </span>
           )}
         </span>
@@ -262,6 +332,7 @@ function UpcomingStrip({
             transform: open ? "rotate(90deg)" : "rotate(0deg)",
             transition: "transform 140ms ease",
             color: "var(--color-text-3)",
+            marginLeft: 10,
           }}
         >
           <Icon name="chevron-right" size={14} />
@@ -558,11 +629,21 @@ function OverviewStrip({
 
 // ── Mastery Ring Panel ──────────────────────────────────────────────────────
 
-function MasteryPanel({ masteredCount, total }: { masteredCount: number; total: number }) {
-  const pct = total > 0 ? masteredCount / total : 0;
+function MasteryPanel({
+  masteredCount,
+  touchedCount,
+  total,
+}: {
+  masteredCount: number;
+  touchedCount: number;
+  total: number;
+}) {
+  const masteredPct = total > 0 ? masteredCount / total : 0;
+  const touchedPct = total > 0 ? touchedCount / total : 0;
   const R = 54;
   const C = 2 * Math.PI * R;
-  const dash = C * pct;
+  const masteredDash = C * masteredPct;
+  const touchedDash = C * touchedPct;
 
   return (
     <div
@@ -577,6 +658,7 @@ function MasteryPanel({ masteredCount, total }: { masteredCount: number; total: 
       }}
     >
       <svg width={132} height={132} viewBox="0 0 132 132" style={{ flexShrink: 0 }}>
+        {/* Base ring */}
         <circle
           cx={66}
           cy={66}
@@ -585,6 +667,20 @@ function MasteryPanel({ masteredCount, total }: { masteredCount: number; total: 
           stroke="var(--color-border)"
           strokeWidth={10}
         />
+        {/* Touched arc (faint) */}
+        <circle
+          cx={66}
+          cy={66}
+          r={R}
+          fill="none"
+          stroke="var(--tile-sage-bg)"
+          strokeWidth={10}
+          strokeLinecap="round"
+          strokeDasharray={`${touchedDash} ${C}`}
+          transform="rotate(-90 66 66)"
+          style={{ transition: "stroke-dasharray 400ms ease" }}
+        />
+        {/* Mastered arc (solid) */}
         <circle
           cx={66}
           cy={66}
@@ -593,7 +689,7 @@ function MasteryPanel({ masteredCount, total }: { masteredCount: number; total: 
           stroke="var(--color-correct)"
           strokeWidth={10}
           strokeLinecap="round"
-          strokeDasharray={`${dash} ${C}`}
+          strokeDasharray={`${masteredDash} ${C}`}
           transform="rotate(-90 66 66)"
           style={{ transition: "stroke-dasharray 400ms ease" }}
         />
@@ -639,13 +735,41 @@ function MasteryPanel({ masteredCount, total }: { masteredCount: number; total: 
             color: "var(--color-text)",
             letterSpacing: "-0.01em",
             lineHeight: 1.3,
-            marginBottom: 4,
+            marginBottom: 8,
           }}
         >
-          {Math.round(pct * 100)}% at 80%+
+          {masteredCount === 0
+            ? touchedCount === 0
+              ? "Ready to start"
+              : `${touchedCount} in progress`
+            : `${Math.round(masteredPct * 100)}% at mastery`}
         </div>
-        <div style={{ fontSize: 12.5, color: "var(--color-text-2)", lineHeight: 1.5 }}>
-          Concepts you&apos;ve scored 80% or higher on at least once.
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: "var(--color-text-2)" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 2,
+                backgroundColor: "var(--color-correct)",
+                flexShrink: 0,
+              }}
+            />
+            {masteredCount} mastered (80%+)
+          </span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 2,
+                backgroundColor: "var(--tile-sage-bg)",
+                border: "1px solid var(--color-border)",
+                flexShrink: 0,
+              }}
+            />
+            {touchedCount - masteredCount} in progress
+          </span>
         </div>
       </div>
     </div>
@@ -703,52 +827,72 @@ function TierBars({
       >
         Progress by Tier
       </div>
-      {rows.map(({ tier, total, mastered, touched, visual, pct }) => (
-        <div key={tier.id} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: 999,
-                  backgroundColor: `var(--tile-${visual.color}-fg)`,
-                  flexShrink: 0,
-                }}
-              />
-              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text)" }}>
-                {visual.label}
-              </span>
+      {rows.map(({ tier, total, mastered, touched, visual, pct }) => {
+        const touchedPct = total > 0 ? touched / total : 0;
+        return (
+          <div key={tier.id} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 999,
+                    backgroundColor: `var(--tile-${visual.color}-fg)`,
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text)" }}>
+                  {visual.label}
+                </span>
+              </div>
+              <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>
+                <span style={{ color: "var(--color-text-2)", fontWeight: 600 }}>
+                  {mastered}/{total}
+                </span>
+                <span style={{ marginLeft: 4 }}>mastered</span>
+                <span style={{ marginLeft: 8, opacity: 0.75 }}>· {touched} touched</span>
+              </div>
             </div>
-            <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>
-              {mastered}/{total} mastered
-              <span style={{ marginLeft: 6, color: "var(--color-text-3)", opacity: 0.7 }}>
-                · {touched} touched
-              </span>
-            </div>
-          </div>
-          <div
-            style={{
-              position: "relative",
-              height: 8,
-              borderRadius: 999,
-              backgroundColor: `var(--tile-${visual.color}-bg)`,
-              overflow: "hidden",
-            }}
-          >
             <div
               style={{
-                position: "absolute",
-                inset: 0,
-                width: `${pct * 100}%`,
-                backgroundColor: `var(--tile-${visual.color}-fg)`,
+                position: "relative",
+                height: 8,
                 borderRadius: 999,
-                transition: "width 400ms ease",
+                backgroundColor: "var(--color-surface-2)",
+                overflow: "hidden",
               }}
-            />
+            >
+              {/* Touched layer (faint) */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  width: `${touchedPct * 100}%`,
+                  backgroundColor: `var(--tile-${visual.color}-bg)`,
+                  borderRadius: 999,
+                  transition: "width 400ms ease",
+                }}
+              />
+              {/* Mastered layer (solid) */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  width: `${pct * 100}%`,
+                  backgroundColor: `var(--tile-${visual.color}-fg)`,
+                  borderRadius: 999,
+                  transition: "width 400ms ease",
+                }}
+              />
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -756,9 +900,58 @@ function TierBars({
 // ── Activity Pulse ──────────────────────────────────────────────────────────
 
 function ActivityPulse({ activity }: { activity: ActivityBucket[] }) {
-  const maxTotal = Math.max(1, ...activity.map((a) => a.total));
   const activeDays = activity.filter((a) => a.total > 0).length;
   const totalAttempts = activity.reduce((s, a) => s + a.total, 0);
+
+  // Current streak: consecutive active days ending at the last bucket (today).
+  // If today has no activity yet, streak breaks at 0.
+  let currentStreak = 0;
+  for (let i = activity.length - 1; i >= 0; i--) {
+    if (activity[i].total > 0) currentStreak++;
+    else break;
+  }
+
+  // Longest streak in the window.
+  let longestStreak = 0;
+  let run = 0;
+  for (const a of activity) {
+    if (a.total > 0) {
+      run++;
+      if (run > longestStreak) longestStreak = run;
+    } else {
+      run = 0;
+    }
+  }
+
+  function intensityLevel(total: number): 0 | 1 | 2 | 3 {
+    if (total === 0) return 0;
+    if (total <= 2) return 1;
+    if (total <= 7) return 2;
+    return 3;
+  }
+  const LEVEL_BG: Record<0 | 1 | 2 | 3, string> = {
+    0: "var(--color-surface-2)",
+    1: "var(--tile-sage-bg)",
+    2: "var(--tile-sage-fg)",
+    3: "var(--color-correct)",
+  };
+  const LEVEL_OPACITY: Record<0 | 1 | 2 | 3, number> = {
+    0: 1,
+    1: 1,
+    2: 0.7,
+    3: 1,
+  };
+
+  // Month labels: "Mar" above the first day of each new month in the window.
+  const monthTicks: { index: number; label: string }[] = [];
+  let lastMonth = -1;
+  activity.forEach((a, i) => {
+    const m = new Date(a.date).getMonth();
+    if (m !== lastMonth) {
+      monthTicks.push({ index: i, label: new Date(a.date).toLocaleDateString("en-US", { month: "short" }) });
+      lastMonth = m;
+    }
+  });
 
   return (
     <div
@@ -773,67 +966,179 @@ function ActivityPulse({ activity }: { activity: ActivityBucket[] }) {
       <div
         style={{
           display: "flex",
-          alignItems: "center",
+          alignItems: "baseline",
           justifyContent: "space-between",
           marginBottom: 14,
+          gap: 16,
+          flexWrap: "wrap",
         }}
       >
-        <div
-          style={{
-            fontSize: 11,
-            fontWeight: 600,
-            color: "var(--color-text-3)",
-            letterSpacing: "0.04em",
-            textTransform: "uppercase",
-          }}
-        >
-          Last 30 days
+        <div>
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: "var(--color-text-3)",
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
+              marginBottom: 2,
+            }}
+          >
+            Study activity
+          </div>
+          <div style={{ fontSize: 13, color: "var(--color-text-2)" }}>
+            {activeDays === 0
+              ? "No activity in the last 30 days"
+              : `You studied ${activeDays} of the last 30 days`}
+          </div>
         </div>
-        <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>
-          {activeDays} active days · {totalAttempts} attempts
+        <div style={{ display: "flex", gap: 20 }}>
+          <StreakStat
+            label="Current streak"
+            value={currentStreak}
+            emphasis={currentStreak > 0}
+          />
+          <StreakStat
+            label="Longest streak"
+            value={longestStreak}
+            emphasis={false}
+          />
+          <StreakStat
+            label="Total attempts"
+            value={totalAttempts}
+            emphasis={false}
+          />
         </div>
       </div>
+
+      {/* Month tick row */}
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(30, 1fr)",
           gap: 4,
-          alignItems: "end",
+          marginBottom: 4,
+          height: 14,
+          position: "relative",
+        }}
+      >
+        {monthTicks.slice(1).map((t) => (
+          <span
+            key={t.index}
+            style={{
+              gridColumn: `${t.index + 1} / span 2`,
+              fontSize: 10.5,
+              color: "var(--color-text-3)",
+              letterSpacing: "0.03em",
+            }}
+          >
+            {t.label}
+          </span>
+        ))}
+      </div>
+
+      {/* Day cells */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(30, 1fr)",
+          gap: 4,
         }}
       >
         {activity.map((a) => {
-          const intensity = maxTotal > 0 ? a.total / maxTotal : 0;
-          const height = a.total === 0 ? 6 : Math.max(8, Math.round(6 + intensity * 28));
-          const pct = a.total > 0 ? (a.correct / a.total) * 100 : -1;
-          const bg =
-            a.total === 0
-              ? "var(--color-surface-2)"
-              : pct >= 80
-                ? "var(--color-correct)"
-                : pct >= 50
-                  ? "var(--color-gold)"
-                  : "var(--color-incorrect)";
-          const border =
-            a.total === 0 ? "1px solid var(--color-border)" : "none";
+          const level = intensityLevel(a.total);
           const d = new Date(a.date);
+          const dateLabel = d.toLocaleDateString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          });
           const tooltip =
             a.total === 0
-              ? `${d.toLocaleDateString("en-US", { month: "short", day: "numeric" })} — no activity`
-              : `${d.toLocaleDateString("en-US", { month: "short", day: "numeric" })} — ${a.correct}/${a.total} correct`;
+              ? `${dateLabel} — no activity`
+              : `${dateLabel} — ${a.total} ${a.total === 1 ? "question" : "questions"} answered`;
           return (
             <div
               key={a.date}
               title={tooltip}
               style={{
-                height,
+                aspectRatio: "1 / 1",
                 borderRadius: 3,
-                backgroundColor: bg,
-                border,
-                transition: "height 200ms ease",
+                backgroundColor: LEVEL_BG[level],
+                opacity: LEVEL_OPACITY[level],
+                border: level === 0 ? "1px solid var(--color-border)" : "none",
+                transition: "transform 120ms ease",
+                cursor: "default",
               }}
             />
           );
         })}
+      </div>
+
+      {/* Legend */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          gap: 8,
+          marginTop: 12,
+          fontSize: 11,
+          color: "var(--color-text-3)",
+        }}
+      >
+        <span>Less</span>
+        {[0, 1, 2, 3].map((lv) => (
+          <span
+            key={lv}
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: 3,
+              backgroundColor: LEVEL_BG[lv as 0 | 1 | 2 | 3],
+              opacity: LEVEL_OPACITY[lv as 0 | 1 | 2 | 3],
+              border: lv === 0 ? "1px solid var(--color-border)" : "none",
+            }}
+          />
+        ))}
+        <span>More</span>
+      </div>
+    </div>
+  );
+}
+
+function StreakStat({
+  label,
+  value,
+  emphasis,
+}: {
+  label: string;
+  value: number;
+  emphasis: boolean;
+}) {
+  return (
+    <div style={{ textAlign: "right" }}>
+      <div
+        style={{
+          fontSize: 10.5,
+          fontWeight: 600,
+          color: "var(--color-text-3)",
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
+        }}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          fontSize: 18,
+          fontWeight: 600,
+          color: emphasis ? "var(--color-correct)" : "var(--color-text)",
+          letterSpacing: "-0.02em",
+          lineHeight: 1.1,
+        }}
+      >
+        {value}
       </div>
     </div>
   );
@@ -1336,5 +1641,285 @@ function SuggestedReview({
         })}
       </div>
     </div>
+  );
+}
+
+// ── Next Best Action ────────────────────────────────────────────────────────
+
+type NextAction =
+  | { kind: "deadline-assessment"; item: PendingAssessment; daysLeft: number | null }
+  | { kind: "deadline-homework"; item: HomeworkItem; daysLeft: number | null }
+  | {
+      kind: "review";
+      concept: ConceptInfo;
+      score: ConceptScore;
+      sectionName: string;
+      tierSlug: string;
+    }
+  | {
+      kind: "start";
+      concept: ConceptInfo;
+      sectionName: string;
+      tierSlug: string;
+      continueSection: boolean;
+    }
+  | { kind: "welcome" };
+
+function computeNextAction(
+  assessments: PendingAssessment[],
+  homework: HomeworkItem[],
+  tiers: TierInfo[],
+  conceptScores: Record<string, ConceptScore>,
+): NextAction {
+  const now = Date.now();
+
+  // 1. Deadlines — earliest due wins (open only).
+  type Dl =
+    | { kind: "deadline-assessment"; item: PendingAssessment; days: number | null }
+    | { kind: "deadline-homework"; item: HomeworkItem; days: number | null };
+  const deadlines: Dl[] = [];
+  for (const a of assessments) {
+    if (a.completed) continue;
+    const days = a.dueDate
+      ? Math.ceil((new Date(a.dueDate).getTime() - now) / 86400000)
+      : null;
+    deadlines.push({ kind: "deadline-assessment", item: a, days });
+  }
+  for (const h of homework) {
+    if (h.submitted) continue;
+    const days = h.dueDate
+      ? Math.ceil((new Date(h.dueDate).getTime() - now) / 86400000)
+      : null;
+    deadlines.push({ kind: "deadline-homework", item: h, days });
+  }
+  deadlines.sort((a, b) => (a.days ?? 9999) - (b.days ?? 9999));
+  const nearest = deadlines[0];
+  if (nearest) {
+    if (nearest.kind === "deadline-assessment") {
+      return { kind: "deadline-assessment", item: nearest.item, daysLeft: nearest.days };
+    }
+    return { kind: "deadline-homework", item: nearest.item, daysLeft: nearest.days };
+  }
+
+  // 2. Weakest concept at <50% (if any activity).
+  type Flat = {
+    concept: ConceptInfo;
+    sectionName: string;
+    tierSlug: string;
+    score: ConceptScore | null;
+  };
+  const flat: Flat[] = [];
+  for (const tier of tiers) {
+    for (const sec of tier.sections) {
+      for (const c of sec.concepts) {
+        flat.push({
+          concept: c,
+          sectionName: sec.name,
+          tierSlug: tier.slug,
+          score: conceptScores[c.id] ?? null,
+        });
+      }
+    }
+  }
+  const weak = flat
+    .filter((f): f is Flat & { score: ConceptScore } => f.score !== null && f.score.pct < 50)
+    .sort((a, b) => a.score.pct - b.score.pct)[0];
+  if (weak) {
+    return {
+      kind: "review",
+      concept: weak.concept,
+      score: weak.score,
+      sectionName: weak.sectionName,
+      tierSlug: weak.tierSlug,
+    };
+  }
+
+  // 3. Untouched concept inside a section the user has already touched.
+  const touchedSections = new Set(
+    flat.filter((f) => f.score !== null).map((f) => f.sectionName),
+  );
+  const continueNext = flat.find(
+    (f) => f.score === null && touchedSections.has(f.sectionName),
+  );
+  if (continueNext) {
+    return {
+      kind: "start",
+      concept: continueNext.concept,
+      sectionName: continueNext.sectionName,
+      tierSlug: continueNext.tierSlug,
+      continueSection: true,
+    };
+  }
+
+  // 4. Fresh start — first untouched overall.
+  const firstUntouched = flat.find((f) => f.score === null);
+  if (firstUntouched) {
+    return {
+      kind: "start",
+      concept: firstUntouched.concept,
+      sectionName: firstUntouched.sectionName,
+      tierSlug: firstUntouched.tierSlug,
+      continueSection: false,
+    };
+  }
+
+  return { kind: "welcome" };
+}
+
+function NextBestActionCard({ action }: { action: NextAction }) {
+  let icon: IconName;
+  let tile: string;
+  let eyebrow: string;
+  let title: string;
+  let subtitle: string;
+  let href: string;
+  let cta: string;
+
+  if (action.kind === "deadline-assessment") {
+    const d = action.daysLeft;
+    const dueLabel =
+      d === null
+        ? "no deadline"
+        : d <= 0
+          ? "due today"
+          : d === 1
+            ? "due tomorrow"
+            : `due in ${d} days`;
+    icon = "clipboard-check";
+    tile = "honey";
+    eyebrow = "Do this next";
+    title = action.item.title;
+    subtitle = `Assessment · ${action.item.questionCount} questions · ${dueLabel}`;
+    href = `/assessment/${action.item.id}`;
+    cta = "Start";
+  } else if (action.kind === "deadline-homework") {
+    const d = action.daysLeft;
+    const dueLabel =
+      d === null
+        ? "no deadline"
+        : d <= 0
+          ? "due today"
+          : d === 1
+            ? "due tomorrow"
+            : `due in ${d} days`;
+    icon = "file-text";
+    tile = "sage";
+    eyebrow = "Do this next";
+    title = action.item.title;
+    const bits: string[] = ["Homework"];
+    if (action.item.conceptName) bits.push(action.item.conceptName);
+    bits.push(dueLabel);
+    subtitle = bits.join(" · ");
+    href = `/homework/${action.item.id}`;
+    cta = "Open";
+  } else if (action.kind === "review") {
+    icon = "target";
+    tile = "rose";
+    eyebrow = "Brush up on";
+    title = action.concept.name;
+    subtitle = `${action.sectionName} · ${action.score.pct}% — ${action.score.correct}/${action.score.total} correct`;
+    href = `/quiz?mode=concept&id=${action.concept.id}`;
+    cta = "Quiz now";
+  } else if (action.kind === "start") {
+    icon = action.continueSection ? "arrow-left" : "sparkle";
+    tile = "lilac";
+    eyebrow = action.continueSection ? "Continue where you left off" : "Try next";
+    title = action.concept.name;
+    subtitle = `${action.sectionName} · new concept`;
+    href = `/concepts/${action.concept.slug}`;
+    cta = "Open";
+  } else {
+    icon = "sparkle";
+    tile = "indigo";
+    eyebrow = "Get started";
+    title = "Take your first quiz";
+    subtitle = "Answer a few questions to start tracking mastery.";
+    href = "/quiz";
+    cta = "Start";
+  }
+
+  return (
+    <Link
+      href={href}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 16,
+        padding: "16px 18px",
+        marginBottom: 20,
+        borderRadius: 12,
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        textDecoration: "none",
+        color: "inherit",
+        transition: "border-color 140ms ease, transform 140ms ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = "var(--color-accent)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "var(--color-border)";
+      }}
+    >
+      <IconTile icon={icon} color={tile} size="md" />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            color: "var(--color-text-3)",
+            marginBottom: 3,
+          }}
+        >
+          {eyebrow}
+        </div>
+        <div
+          style={{
+            fontSize: 16,
+            fontWeight: 600,
+            color: "var(--color-text)",
+            letterSpacing: "-0.01em",
+            lineHeight: 1.25,
+            marginBottom: 3,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {title}
+        </div>
+        <div
+          style={{
+            fontSize: 12.5,
+            color: "var(--color-text-2)",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {subtitle}
+        </div>
+      </div>
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "8px 14px",
+          borderRadius: 8,
+          fontSize: 13,
+          fontWeight: 600,
+          color: "var(--color-accent-on-soft)",
+          backgroundColor: "var(--color-accent-soft)",
+          whiteSpace: "nowrap",
+          flexShrink: 0,
+        }}
+      >
+        {cta}
+        <Icon name="chevron-right" size={14} />
+      </span>
+    </Link>
   );
 }
