@@ -28,6 +28,7 @@ export default async function CalendarPage() {
     date: e.date.toISOString(),
     title: e.title,
     description: e.description,
+    topics: Array.isArray(e.topics) ? (e.topics as string[]) : null,
     startTime: e.startTime,
     endTime: e.endTime,
     location: e.location,

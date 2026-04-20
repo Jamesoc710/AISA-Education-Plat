@@ -306,10 +306,23 @@ model ScheduleEvent {
   location      String?   // Dream Lab, Willow Room, Lillis 132, etc.
   type          String    // TECH_TEAM | CAPITAL_TEAM | EVENTS | MEDIA_TEAM | EXEC | NON_MANDATORY | GENERAL
   category      String    @default("OTHER") // CLASS | MEETING | WORKSHOP | HOMEWORK | DEADLINE | OTHER
+  topics        Json?     // string[] of sub-topics shown in expander (null if single event)
   sourceRowKey  String    @unique // e.g. "w4-tue-0" — stable upsert key
   syncedAt      DateTime  @default(now())
 
   @@index([date])
   @@index([weekNumber])
   @@map("schedule_events")
+}
+
+// ─── LLM normalization cache ────────────────────────────────────────────────
+// One row per weekday cell; LLM only re-runs when the cell's contentHash changes.
+
+model ScheduleCellCache {
+  cellKey     String   @id              // "w4-tue" (weekNumber + dayCode)
+  contentHash String                    // SHA256 of raw parsed lines
+  normalized  Json                      // normalized events: [{ title, description, topics, type, startTime, endTime }]
+  updatedAt   DateTime @updatedAt
+
+  @@map("schedule_cell_cache")
 }

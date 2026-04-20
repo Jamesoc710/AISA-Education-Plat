@@ -13,6 +13,7 @@ interface CalEvent {
   date: string;
   title: string;
   description: string | null;
+  topics: string[] | null;
   startTime: string | null;
   endTime: string | null;
   location: string | null;
@@ -386,10 +387,11 @@ function EventCard({
   onToggle: () => void;
 }) {
   const tokens = TYPE_TOKENS[event.type] ?? TYPE_TOKENS.GENERAL;
-  const hasDetails = event.description || event.location;
+  const topicCount = event.topics?.length ?? 0;
+  const hasExpandable = topicCount > 0 || !!event.description;
   return (
     <button
-      onClick={onToggle}
+      onClick={hasExpandable ? onToggle : undefined}
       type="button"
       style={{
         textAlign: "left",
@@ -400,7 +402,7 @@ function EventCard({
         borderLeft: `3px solid ${tokens.bar}`,
         borderRadius: 8,
         padding: "8px 10px",
-        cursor: hasDetails ? "pointer" : "default",
+        cursor: hasExpandable ? "pointer" : "default",
         fontFamily: "inherit",
         boxShadow: expanded ? "var(--shadow-card-hover)" : "none",
       }}
@@ -439,19 +441,71 @@ function EventCard({
           )}
         </div>
       )}
-      {expanded && event.description && (
+      {topicCount > 0 && (
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            marginTop: 6,
+            fontSize: 11,
+            color: "var(--color-text-3)",
+            fontWeight: 500,
+          }}
+        >
+          <span
+            style={{
+              display: "inline-flex",
+              transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
+              transition: "transform 140ms ease",
+            }}
+          >
+            <Icon name="chevron-right" size={12} />
+          </span>
+          {topicCount} {topicCount === 1 ? "topic" : "topics"}
+        </div>
+      )}
+      {expanded && (topicCount > 0 || event.description) && (
         <div
           style={{
             marginTop: 8,
             paddingTop: 8,
             borderTop: "1px solid var(--color-border-subtle)",
-            fontSize: 12,
-            color: "var(--color-text-2)",
-            lineHeight: 1.5,
-            whiteSpace: "pre-wrap",
           }}
         >
-          {event.description}
+          {topicCount > 0 && (
+            <ul
+              style={{
+                margin: 0,
+                padding: "0 0 0 16px",
+                fontSize: 12,
+                color: "var(--color-text-2)",
+                lineHeight: 1.5,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              {event.topics!.map((t, i) => (
+                <li key={i} style={{ wordBreak: "break-word" }}>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          )}
+          {event.description && (
+            <div
+              style={{
+                marginTop: topicCount > 0 ? 8 : 0,
+                fontSize: 12,
+                color: "var(--color-text-2)",
+                lineHeight: 1.5,
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {event.description}
+            </div>
+          )}
         </div>
       )}
       {event.type !== "GENERAL" && (

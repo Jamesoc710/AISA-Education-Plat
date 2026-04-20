@@ -1,4 +1,7 @@
 import ExcelJS from "exceljs";
+import { createHash } from "crypto";
+import Anthropic from "@anthropic-ai/sdk";
+import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 
 // ─── Color → EventType mapping ─────────────────────────────────────────────
@@ -165,6 +168,99 @@ function parseCell(cell: ExcelJS.Cell): ParsedEvent[] {
   return events;
 }
 
+// ─── LLM normalization ────────────────────────────────────────────────────
+// Collapses same-type bullets in a cell into one event with topics[]. Cached
+// by raw-content hash so unchanged cells never re-call the model.
+
+export interface NormalizedEvent {
+  title: string;
+  description: string | null;
+  topics: string[] | null;
+  type: string;
+  startTime: string | null;
+  endTime: string | null;
+}
+
+function cellContentHash(parsed: ParsedEvent[]): string {
+  const repr = parsed
+    .map(
+      (e) =>
+        `${e.title} [${e.type}]${e.startTime ? ` ${e.startTime}-${e.endTime ?? "?"}` : ""}${e.description ? ` || ${e.description}` : ""}`,
+    )
+    .join("\n");
+  return createHash("sha256").update(repr).digest("hex");
+}
+
+const LLM_SYSTEM_PROMPT = `You are normalizing a single weekday cell from a shared class-calendar spreadsheet.
+
+Each input line has a detected team color (TECH_TEAM, CAPITAL_TEAM, EVENTS, MEDIA_TEAM, EXEC, NON_MANDATORY, GENERAL).
+
+Decide whether the lines represent ONE session with multiple sub-topics, or MULTIPLE distinct sessions.
+
+Rules:
+- Lines of different types (colors) are always separate events.
+- Lines that share a type and are clearly sub-topics of one workshop/lecture (no conflicting times/locations) should be merged into a single event with topics[].
+- Preserve exact wording for titles and topics — do not paraphrase or invent text.
+- When merging: the first line becomes the title; subsequent same-type lines become topics. Keep time hints from the title line if present.
+- If a merged event's title contains a trailing time range like "7 - 9" or "5:30 - 6:30", strip it from the title and populate startTime/endTime instead.
+- Never merge across types. Never merge if the lines look like independent items.
+
+Output strict JSON only — no markdown fences, no prose:
+{ "events": [ { "title": string, "description": string | null, "topics": string[] | null, "type": string, "startTime": string | null, "endTime": string | null } ] }`;
+
+async function normalizeWithLLM(parsed: ParsedEvent[]): Promise<NormalizedEvent[]> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
+
+  const client = new Anthropic({ apiKey });
+  const lines = parsed
+    .map(
+      (p, i) =>
+        `${i + 1}. "${p.title}" [${p.type}]${p.startTime ? ` time:${p.startTime}-${p.endTime ?? "?"}` : ""}${p.description ? `\n   notes: ${p.description}` : ""}`,
+    )
+    .join("\n");
+
+  const response = await client.messages.create({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 1024,
+    system: LLM_SYSTEM_PROMPT,
+    messages: [{ role: "user", content: `Lines:\n${lines}\n\nReturn the normalized events JSON.` }],
+  });
+
+  const text =
+    response.content.find((b): b is Anthropic.TextBlock => b.type === "text")?.text ?? "";
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error(`LLM returned no JSON: ${text.slice(0, 200)}`);
+  const result = JSON.parse(match[0]) as { events?: unknown };
+  if (!Array.isArray(result.events)) throw new Error("LLM response missing events[]");
+
+  return result.events.map((raw): NormalizedEvent => {
+    const e = raw as Partial<NormalizedEvent>;
+    return {
+      title: String(e.title ?? "").slice(0, 500),
+      description: e.description ? String(e.description).slice(0, 2000) : null,
+      topics:
+        Array.isArray(e.topics) && e.topics.length > 0
+          ? e.topics.map((t) => String(t)).slice(0, 20)
+          : null,
+      type: String(e.type ?? "GENERAL"),
+      startTime: e.startTime ? String(e.startTime) : null,
+      endTime: e.endTime ? String(e.endTime) : null,
+    };
+  });
+}
+
+function toNormalized(parsed: ParsedEvent[]): NormalizedEvent[] {
+  return parsed.map((e) => ({
+    title: e.title,
+    description: e.description,
+    topics: null,
+    type: e.type,
+    startTime: e.startTime,
+    endTime: e.endTime,
+  }));
+}
+
 // ─── Location per column ──────────────────────────────────────────────────
 
 const COL_LOCATIONS: Record<number, string> = {
@@ -207,6 +303,8 @@ export interface SyncResult {
   errors: string[];
   syncedAt: Date;
   durationMs: number;
+  llmCalls: number;      // cells normalized via Claude this run
+  llmCached: number;     // cells reused from cache (unchanged content)
 }
 
 export async function syncCalendar(opts?: { year?: number }): Promise<SyncResult> {
@@ -229,6 +327,20 @@ export async function syncCalendar(opts?: { year?: number }): Promise<SyncResult
   const seenKeys = new Set<string>();
   const records: { key: string; data: Record<string, unknown> }[] = [];
   const syncedAt = new Date();
+  const LLM_CAP = 100; // hard budget guard
+  let llmCalls = 0;
+  let llmCached = 0;
+
+  type CellJob = {
+    cellKey: string;
+    weekNumber: number;
+    range: { start: Date; end: Date };
+    dayOfWeek: number;
+    col: number;
+    parsed: ParsedEvent[];
+    hash: string;
+  };
+  const jobs: CellJob[] = [];
 
   for (let r = 4; r <= ws.rowCount; r++) {
     const row = ws.getRow(r);
@@ -250,40 +362,110 @@ export async function syncCalendar(opts?: { year?: number }): Promise<SyncResult
 
     for (const col of [3, 4, 5, 6, 7, HOMEWORK_COL]) {
       const cell = row.getCell(col);
-      const events = parseCell(cell);
+      const parsed = parseCell(cell);
+      if (parsed.length === 0) continue;
       const dayOfWeek = col === HOMEWORK_COL ? 5 : col - 3;
-
-      const eventDate = new Date(range.start);
-      const dayOffset = dayOfWeek <= 4 ? dayOfWeek : 4; // homework column → Friday
-      eventDate.setUTCDate(eventDate.getUTCDate() + dayOffset);
-
-      events.forEach((ev, idx) => {
-        const dayCode = ["mon", "tue", "wed", "thu", "fri", "hw"][dayOfWeek];
-        const key = `w${weekNumber}-${dayCode}-${idx}`;
-        seenKeys.add(key);
-        records.push({
-          key,
-          data: {
-            weekNumber,
-            weekStart: range.start,
-            weekEnd: range.end,
-            dayOfWeek,
-            date: eventDate,
-            title: ev.title.slice(0, 500),
-            description: ev.description?.slice(0, 2000) ?? null,
-            startTime: ev.startTime,
-            endTime: ev.endTime,
-            location: dayOfWeek === 5 ? null : COL_LOCATIONS[col] ?? null,
-            type: ev.type,
-            category: categorize(ev.title, dayOfWeek),
-            syncedAt,
-          },
-        });
+      const dayCode = ["mon", "tue", "wed", "thu", "fri", "hw"][dayOfWeek];
+      jobs.push({
+        cellKey: `w${weekNumber}-${dayCode}`,
+        weekNumber,
+        range,
+        dayOfWeek,
+        col,
+        parsed,
+        hash: cellContentHash(parsed),
       });
     }
   }
 
-  // Upsert all parsed events
+  // Prime cache for all cells in one query
+  const cacheRows = await prisma.scheduleCellCache.findMany({
+    where: { cellKey: { in: jobs.map((j) => j.cellKey) } },
+  });
+  const cacheByKey = new Map(cacheRows.map((c) => [c.cellKey, c]));
+
+  // Resolve each cell → normalized events (cache → LLM → deterministic fallback)
+  for (const job of jobs) {
+    const cached = cacheByKey.get(job.cellKey);
+    let normalized: NormalizedEvent[];
+
+    if (cached && cached.contentHash === job.hash) {
+      normalized = cached.normalized as unknown as NormalizedEvent[];
+      llmCached++;
+    } else if (job.parsed.length <= 1 || job.dayOfWeek === 5) {
+      // Single-item cells and the homework column never need LLM merging
+      normalized = toNormalized(job.parsed);
+      await prisma.scheduleCellCache.upsert({
+        where: { cellKey: job.cellKey },
+        create: {
+          cellKey: job.cellKey,
+          contentHash: job.hash,
+          normalized: normalized as unknown as Prisma.InputJsonValue,
+        },
+        update: {
+          contentHash: job.hash,
+          normalized: normalized as unknown as Prisma.InputJsonValue,
+        },
+      });
+    } else if (llmCalls >= LLM_CAP) {
+      errors.push(`LLM budget cap (${LLM_CAP}) reached at ${job.cellKey}; using deterministic parse`);
+      normalized = toNormalized(job.parsed);
+    } else {
+      try {
+        normalized = await normalizeWithLLM(job.parsed);
+        llmCalls++;
+        await prisma.scheduleCellCache.upsert({
+          where: { cellKey: job.cellKey },
+          create: {
+            cellKey: job.cellKey,
+            contentHash: job.hash,
+            normalized: normalized as unknown as Prisma.InputJsonValue,
+          },
+          update: {
+            contentHash: job.hash,
+            normalized: normalized as unknown as Prisma.InputJsonValue,
+          },
+        });
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        errors.push(`LLM failed for ${job.cellKey}: ${msg}`);
+        normalized = toNormalized(job.parsed);
+      }
+    }
+
+    const eventDate = new Date(job.range.start);
+    const dayOffset = job.dayOfWeek <= 4 ? job.dayOfWeek : 4;
+    eventDate.setUTCDate(eventDate.getUTCDate() + dayOffset);
+
+    normalized.forEach((ev, idx) => {
+      const key = `${job.cellKey}-${idx}`;
+      seenKeys.add(key);
+      records.push({
+        key,
+        data: {
+          weekNumber: job.weekNumber,
+          weekStart: job.range.start,
+          weekEnd: job.range.end,
+          dayOfWeek: job.dayOfWeek,
+          date: eventDate,
+          title: ev.title.slice(0, 500),
+          description: ev.description?.slice(0, 2000) ?? null,
+          topics:
+            ev.topics && ev.topics.length > 0
+              ? (ev.topics.slice(0, 20) as unknown as Prisma.InputJsonValue)
+              : Prisma.JsonNull,
+          startTime: ev.startTime,
+          endTime: ev.endTime,
+          location: job.dayOfWeek === 5 ? null : COL_LOCATIONS[job.col] ?? null,
+          type: ev.type,
+          category: categorize(ev.title, job.dayOfWeek),
+          syncedAt,
+        },
+      });
+    });
+  }
+
+  // Upsert all normalized events
   for (const { key, data } of records) {
     await prisma.scheduleEvent.upsert({
       where: { sourceRowKey: key },
@@ -304,5 +486,7 @@ export async function syncCalendar(opts?: { year?: number }): Promise<SyncResult
     errors,
     syncedAt,
     durationMs: Date.now() - t0,
+    llmCalls,
+    llmCached,
   };
 }
