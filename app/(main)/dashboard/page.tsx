@@ -151,6 +151,29 @@ export default async function DashboardPage() {
     ),
   );
 
+  // 30-day activity buckets for the Activity Pulse strip
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dayMs = 86400000;
+  const buckets = new Map<string, { total: number; correct: number }>();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today.getTime() - i * dayMs);
+    buckets.set(d.toISOString().slice(0, 10), { total: 0, correct: 0 });
+  }
+  for (const a of attempts as typeof attempts) {
+    const key = a.attemptedAt.toISOString().slice(0, 10);
+    const b = buckets.get(key);
+    if (b) {
+      b.total++;
+      if (a.isCorrect) b.correct++;
+    }
+  }
+  const activity = Array.from(buckets.entries()).map(([date, v]) => ({
+    date,
+    total: v.total,
+    correct: v.correct,
+  }));
+
   const pendingAssessments = formalQuizzes.map((q: typeof formalQuizzes[number]) => ({
     id: q.id,
     title: q.title,
@@ -214,6 +237,7 @@ export default async function DashboardPage() {
       conceptScores={conceptScores}
       pendingAssessments={pendingAssessments}
       homeworkItems={homeworkItems}
+      activity={activity}
     />
   );
 }

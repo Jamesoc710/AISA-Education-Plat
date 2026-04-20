@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { Icon } from "@/components/ui/icon";
+import { IconTile } from "@/components/ui/icon-tile";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -36,17 +38,12 @@ type HomeworkItem = {
   conceptName: string | null; submitted: boolean;
   submittedAt: string | null; grade: string | null;
 };
+type ActivityBucket = { date: string; total: number; correct: number };
 
-const TIER_COLOR: Record<string, string> = {
-  fundamentals: "var(--color-gold)",
-  intermediate: "var(--color-blue)",
-  advanced: "var(--color-slate)",
-};
-
-const TIER_DIM: Record<string, string> = {
-  fundamentals: "var(--color-gold-dim)",
-  intermediate: "var(--color-blue-dim)",
-  advanced: "var(--color-slate-dim)",
+const TIER_VISUAL: Record<string, { color: string; label: string }> = {
+  fundamentals: { color: "amber", label: "Fundamentals" },
+  intermediate: { color: "blue", label: "Intermediate" },
+  advanced: { color: "stone", label: "Advanced" },
 };
 
 function getMasteryColor(pct: number): string {
@@ -61,6 +58,12 @@ function getMasteryBg(pct: number): string {
   return "var(--color-incorrect-dim)";
 }
 
+function formatDue(iso: string | null): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export function DashboardClient({
@@ -70,6 +73,7 @@ export function DashboardClient({
   conceptScores,
   pendingAssessments,
   homeworkItems,
+  activity,
 }: {
   userName: string;
   overview: Overview;
@@ -77,427 +81,463 @@ export function DashboardClient({
   conceptScores: Record<string, ConceptScore>;
   pendingAssessments: PendingAssessment[];
   homeworkItems: HomeworkItem[];
+  activity: ActivityBucket[];
 }) {
+  const firstName = userName.split(" ")[0];
+
+  // Count concepts at 80%+ mastery
+  const masteredCount = useMemo(
+    () => Object.values(conceptScores).filter((s) => s.pct >= 80).length,
+    [conceptScores],
+  );
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "var(--color-bg)",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      {/* ── Top bar ──────────────────────────────────────────── */}
-      <header
-        style={{
-          height: "56px",
-          borderBottom: "1px solid var(--color-border)",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 24px",
-          gap: "12px",
-          flexShrink: 0,
-        }}
-      >
-        <Link
-          href="/browse"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            textDecoration: "none",
-          }}
-        >
-          <img
-            src="/assets/aisa-logo.png"
-            alt="AISA"
-            style={{ width: "28px", height: "28px", flexShrink: 0 }}
-          />
-          <span
+    <div style={{ maxWidth: 1040, margin: "0 auto", padding: "56px 40px 80px" }}>
+      {/* ── Hero ─────────────────────────────────────────────────────── */}
+      <section style={{ marginBottom: 36, display: "flex", alignItems: "center", gap: 20 }}>
+        <IconTile icon="chart-line-up" color="indigo" size="lg" />
+        <div style={{ minWidth: 0 }}>
+          <div
             style={{
-              fontSize: "14px",
+              fontSize: 11.5,
               fontWeight: 600,
-              color: "var(--color-text)",
-              letterSpacing: "-0.01em",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              color: "var(--color-text-3)",
+              marginBottom: 4,
             }}
           >
-            AISA Atlas
-          </span>
-        </Link>
+            Dashboard
+          </div>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 30,
+              fontWeight: 600,
+              letterSpacing: "-0.02em",
+              color: "var(--color-text)",
+              lineHeight: 1.15,
+            }}
+          >
+            Your progress, {firstName}
+          </h1>
+          <p
+            style={{
+              margin: "6px 0 0",
+              fontSize: 14,
+              color: "var(--color-text-2)",
+            }}
+          >
+            {overview.conceptsQuizzed} of {overview.totalConcepts} concepts touched ·
+            {" "}{masteredCount} at mastery ·
+            {" "}{overview.totalQuestions} questions answered
+          </p>
+        </div>
+      </section>
 
-        <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
-          ›
-        </span>
-        <span
-          style={{
-            fontSize: "13px",
-            fontWeight: 500,
-            color: "var(--color-text-2)",
-          }}
-        >
-          Dashboard
-        </span>
-      </header>
+      {/* ── Upcoming strip (collapsed by default) ───────────────────── */}
+      {(pendingAssessments.length > 0 || homeworkItems.length > 0) && (
+        <UpcomingStrip
+          assessments={pendingAssessments}
+          homework={homeworkItems}
+        />
+      )}
 
-      {/* ── Content ──────────────────────────────────────────── */}
-      <main
-        className="quiz-content-padding"
+      {/* ── Stats row ───────────────────────────────────────────────── */}
+      <OverviewStrip overview={overview} masteredCount={masteredCount} />
+
+      {/* ── Mastery + Tier bars ─────────────────────────────────────── */}
+      <div
         style={{
-          flex: 1,
-          display: "flex",
-          justifyContent: "center",
-          padding: "40px 24px 80px",
-          overflowY: "auto",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.3fr)",
+          gap: 16,
+          marginBottom: 28,
         }}
       >
-        <div style={{ width: "100%", maxWidth: "760px" }}>
-          {/* Greeting */}
-          <div className="animate-fade-in">
-            <h1
-              style={{
-                margin: "0 0 4px",
-                fontSize: "24px",
-                fontWeight: 600,
-                color: "var(--color-text)",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Welcome back, {userName.split(" ")[0]}
-            </h1>
-            <p
-              style={{
-                margin: "0 0 32px",
-                fontSize: "14px",
-                color: "var(--color-text-2)",
-              }}
-            >
-              Here&apos;s your learning progress across the Atlas.
-            </p>
-          </div>
+        <MasteryPanel masteredCount={masteredCount} total={overview.totalConcepts} />
+        <TierBars tiers={tiers} conceptScores={conceptScores} />
+      </div>
 
-          {/* Zone 1: Overview Stats */}
-          <OverviewStrip overview={overview} />
+      {/* ── Activity pulse ──────────────────────────────────────────── */}
+      <ActivityPulse activity={activity} />
 
-          {/* Pending Assessments */}
-          {pendingAssessments.length > 0 && (
-            <div style={{ marginBottom: "36px" }}>
-              <div
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 600,
-                  color: "var(--color-text-3)",
-                  letterSpacing: "0.04em",
-                  textTransform: "uppercase",
-                  marginBottom: "12px",
-                }}
-              >
-                ASSESSMENTS
-              </div>
-              {pendingAssessments.map((a) => {
-                const scoreColor =
-                  a.score !== null
-                    ? a.score >= 80
-                      ? "var(--color-correct)"
-                      : a.score >= 50
-                        ? "var(--color-gold)"
-                        : "var(--color-incorrect)"
-                    : "var(--color-text-3)";
-                const scoreBg =
-                  a.score !== null
-                    ? a.score >= 80
-                      ? "var(--color-correct-dim)"
-                      : a.score >= 50
-                        ? "var(--color-gold-dim)"
-                        : "var(--color-incorrect-dim)"
-                    : "transparent";
+      {/* ── Knowledge map v2 ────────────────────────────────────────── */}
+      <KnowledgeMap tiers={tiers} conceptScores={conceptScores} />
 
-                return (
-                  <div
-                    key={a.id}
-                    style={{
-                      backgroundColor: "var(--color-surface)",
-                      border: "1px solid var(--color-border)",
-                      borderRadius: "8px",
-                      padding: "16px",
-                      marginBottom: "8px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: "12px",
-                    }}
-                  >
-                    <div style={{ minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: "14px",
-                          fontWeight: 500,
-                          color: "var(--color-text)",
-                        }}
-                      >
-                        {a.title}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          color: "var(--color-text-3)",
-                          marginTop: "4px",
-                          display: "flex",
-                          gap: "8px",
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <span>{a.questionCount} questions</span>
-                        {a.timeLimit !== null && (
-                          <span>{a.timeLimit} min</span>
-                        )}
-                        {a.dueDate !== null && (
-                          <span>
-                            Due{" "}
-                            {new Date(a.dueDate).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: "8px" }}>
-                      {a.completed ? (
-                        <>
-                          {a.score !== null && (
-                            <span
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: 600,
-                                color: scoreColor,
-                                backgroundColor: scoreBg,
-                                padding: "4px 10px",
-                                borderRadius: "6px",
-                              }}
-                            >
-                              {a.score}%
-                            </span>
-                          )}
-                          <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
-                            Completed
-                          </span>
-                        </>
-                      ) : (
-                        <Link
-                          href={`/assessment/${a.id}`}
-                          style={{
-                            backgroundColor: "var(--color-accent)",
-                            color: "#fff",
-                            fontSize: "12px",
-                            fontWeight: 500,
-                            borderRadius: "6px",
-                            padding: "6px 14px",
-                            textDecoration: "none",
-                          }}
-                        >
-                          Start
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Homework */}
-          {homeworkItems.length > 0 && (
-            <div style={{ marginBottom: "36px" }}>
-              <div
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 600,
-                  color: "var(--color-text-3)",
-                  letterSpacing: "0.04em",
-                  textTransform: "uppercase",
-                  marginBottom: "12px",
-                }}
-              >
-                HOMEWORK
-              </div>
-              {homeworkItems.map((h) => (
-                <div
-                  key={h.id}
-                  style={{
-                    backgroundColor: "var(--color-surface)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "8px",
-                    padding: "16px",
-                    marginBottom: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "12px",
-                  }}
-                >
-                  <div style={{ minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: 500,
-                        color: "var(--color-text)",
-                      }}
-                    >
-                      {h.title}
-                    </div>
-                    {h.conceptName && (
-                      <div style={{ fontSize: "12px", color: "var(--color-text-3)", marginTop: "2px" }}>
-                        {h.conceptName}
-                      </div>
-                    )}
-                    {h.dueDate !== null && (
-                      <div style={{ fontSize: "12px", color: "var(--color-text-3)", marginTop: "2px" }}>
-                        Due{" "}
-                        {new Date(h.dueDate).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: "8px" }}>
-                    {!h.submitted ? (
-                      <Link
-                        href={`/homework/${h.id}`}
-                        style={{
-                          border: "1px solid var(--color-accent)",
-                          color: "var(--color-accent)",
-                          backgroundColor: "transparent",
-                          fontSize: "12px",
-                          fontWeight: 500,
-                          borderRadius: "6px",
-                          padding: "6px 14px",
-                          textDecoration: "none",
-                        }}
-                      >
-                        Submit
-                      </Link>
-                    ) : h.grade !== null ? (
-                      <>
-                        <span
-                          style={{
-                            fontSize: "12px",
-                            fontWeight: 600,
-                            color: "#fff",
-                            backgroundColor: "var(--color-correct)",
-                            padding: "4px 10px",
-                            borderRadius: "6px",
-                          }}
-                        >
-                          {h.grade}
-                        </span>
-                        <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
-                          Graded
-                        </span>
-                      </>
-                    ) : (
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
-                          Submitted
-                        </div>
-                        <div style={{ fontSize: "11px", color: "var(--color-text-3)" }}>
-                          Awaiting review
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Zone 2: Tier Completion Map */}
-          <TierMap
-            tiers={tiers}
-            conceptScores={conceptScores}
-          />
-
-          {/* Zone 3: Weak Areas */}
-          <WeakAreas
-            tiers={tiers}
-            conceptScores={conceptScores}
-          />
-        </div>
-      </main>
+      {/* ── Suggested review ────────────────────────────────────────── */}
+      <SuggestedReview tiers={tiers} conceptScores={conceptScores} />
     </div>
   );
 }
 
-// ── Zone 1: Overview Stats ───────────────────────────────────────────────────
+// ── Upcoming Strip ──────────────────────────────────────────────────────────
 
-function OverviewStrip({ overview }: { overview: Overview }) {
-  const stats = [
+function UpcomingStrip({
+  assessments,
+  homework,
+}: {
+  assessments: PendingAssessment[];
+  homework: HomeworkItem[];
+}) {
+  const [open, setOpen] = useState(false);
+  const pendingCount =
+    assessments.filter((a) => !a.completed).length +
+    homework.filter((h) => !h.submitted).length;
+
+  const summaryBits: string[] = [];
+  if (assessments.length > 0) {
+    summaryBits.push(
+      `${assessments.length} ${assessments.length === 1 ? "assessment" : "assessments"}`,
+    );
+  }
+  if (homework.length > 0) {
+    summaryBits.push(
+      `${homework.length} ${homework.length === 1 ? "homework item" : "homework items"}`,
+    );
+  }
+
+  return (
+    <div style={{ marginBottom: 28 }}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          width: "100%",
+          padding: "12px 16px",
+          borderRadius: 10,
+          border: "1px solid var(--color-border)",
+          backgroundColor: "var(--color-surface)",
+          cursor: "pointer",
+          textAlign: "left",
+          color: "inherit",
+          transition: "border-color 120ms ease",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--color-accent)")}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--color-border)")}
+      >
+        <span style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 28,
+              height: 28,
+              borderRadius: 7,
+              backgroundColor: "var(--tile-indigo-bg)",
+              color: "var(--tile-indigo-fg)",
+            }}
+          >
+            <Icon name="clipboard-check" size={15} />
+          </span>
+          <span style={{ fontSize: 13.5, fontWeight: 600, color: "var(--color-text)" }}>
+            Upcoming
+          </span>
+          <span style={{ fontSize: 12.5, color: "var(--color-text-3)" }}>
+            {summaryBits.join(" · ")}
+          </span>
+          {pendingCount > 0 && (
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                padding: "2px 8px",
+                borderRadius: 999,
+                backgroundColor: "var(--color-accent-soft)",
+                color: "var(--color-accent-on-soft)",
+                marginLeft: 4,
+              }}
+            >
+              {pendingCount} open
+            </span>
+          )}
+        </span>
+        <span
+          aria-hidden
+          style={{
+            display: "inline-flex",
+            transform: open ? "rotate(90deg)" : "rotate(0deg)",
+            transition: "transform 140ms ease",
+            color: "var(--color-text-3)",
+          }}
+        >
+          <Icon name="chevron-right" size={14} />
+        </span>
+      </button>
+
+      {open && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
+          {assessments.map((a) => (
+            <AssessmentRow key={a.id} a={a} />
+          ))}
+          {homework.map((h) => (
+            <HomeworkRow key={h.id} h={h} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AssessmentRow({ a }: { a: PendingAssessment }) {
+  const scoreColor = a.score !== null ? getMasteryColor(a.score) : "var(--color-text-3)";
+  const scoreBg = a.score !== null ? getMasteryBg(a.score) : "transparent";
+  const due = formatDue(a.dueDate);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 12,
+        padding: "12px 16px",
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 8,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+        <IconTile icon="clipboard-check" color="honey" size="sm" />
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--color-text)" }}>
+            {a.title}
+          </div>
+          <div
+            style={{
+              fontSize: 11.5,
+              color: "var(--color-text-3)",
+              marginTop: 2,
+              display: "flex",
+              gap: 8,
+              flexWrap: "wrap",
+            }}
+          >
+            <span>{a.questionCount} questions</span>
+            {a.timeLimit !== null && <span>· {a.timeLimit} min</span>}
+            {due && <span>· Due {due}</span>}
+          </div>
+        </div>
+      </div>
+      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 8 }}>
+        {a.completed ? (
+          <>
+            {a.score !== null && (
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: scoreColor,
+                  backgroundColor: scoreBg,
+                  padding: "4px 10px",
+                  borderRadius: 6,
+                }}
+              >
+                {a.score}%
+              </span>
+            )}
+            <span style={{ fontSize: 12, color: "var(--color-text-3)" }}>Completed</span>
+          </>
+        ) : (
+          <Link
+            href={`/assessment/${a.id}`}
+            style={{
+              backgroundColor: "var(--color-accent)",
+              color: "#fff",
+              fontSize: 12,
+              fontWeight: 500,
+              borderRadius: 6,
+              padding: "6px 14px",
+              textDecoration: "none",
+            }}
+          >
+            Start
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HomeworkRow({ h }: { h: HomeworkItem }) {
+  const due = formatDue(h.dueDate);
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 12,
+        padding: "12px 16px",
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 8,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+        <IconTile icon="file-text" color="sage" size="sm" />
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--color-text)" }}>
+            {h.title}
+          </div>
+          <div
+            style={{
+              fontSize: 11.5,
+              color: "var(--color-text-3)",
+              marginTop: 2,
+              display: "flex",
+              gap: 8,
+              flexWrap: "wrap",
+            }}
+          >
+            {h.conceptName && <span>{h.conceptName}</span>}
+            {due && <span>{h.conceptName ? "· " : ""}Due {due}</span>}
+          </div>
+        </div>
+      </div>
+      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 8 }}>
+        {!h.submitted ? (
+          <Link
+            href={`/homework/${h.id}`}
+            style={{
+              border: "1px solid var(--color-accent)",
+              color: "var(--color-accent)",
+              backgroundColor: "transparent",
+              fontSize: 12,
+              fontWeight: 500,
+              borderRadius: 6,
+              padding: "6px 14px",
+              textDecoration: "none",
+            }}
+          >
+            Submit
+          </Link>
+        ) : h.grade !== null ? (
+          <>
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                color: "#fff",
+                backgroundColor: "var(--color-correct)",
+                padding: "4px 10px",
+                borderRadius: 6,
+              }}
+            >
+              {h.grade}
+            </span>
+            <span style={{ fontSize: 12, color: "var(--color-text-3)" }}>Graded</span>
+          </>
+        ) : (
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>Submitted</div>
+            <div style={{ fontSize: 11, color: "var(--color-text-3)" }}>Awaiting review</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Overview Stats ──────────────────────────────────────────────────────────
+
+function OverviewStrip({
+  overview,
+  masteredCount,
+}: {
+  overview: Overview;
+  masteredCount: number;
+}) {
+  const avgColor =
+    overview.totalQuestions === 0
+      ? "var(--color-text)"
+      : getMasteryColor(overview.avgScore);
+
+  const stats: {
+    label: string;
+    value: string;
+    sub: string | null;
+    icon: "check-circle" | "target" | "sparkle" | "list-checks";
+    tile: string;
+    valueColor?: string;
+  }[] = [
     {
       label: "Concepts Explored",
       value: `${overview.conceptsQuizzed}`,
       sub: `of ${overview.totalConcepts}`,
+      icon: "target",
+      tile: "blue",
     },
     {
-      label: "Questions Answered",
-      value: `${overview.totalQuestions}`,
-      sub: null,
+      label: "At Mastery",
+      value: `${masteredCount}`,
+      sub: "80%+",
+      icon: "check-circle",
+      tile: "sage",
     },
     {
       label: "Average Score",
       value: overview.totalQuestions > 0 ? `${overview.avgScore}%` : "—",
       sub: null,
+      icon: "sparkle",
+      tile: "gold",
+      valueColor: avgColor,
     },
     {
       label: "Quiz Sessions",
       value: `${overview.quizSessions}`,
       sub: null,
+      icon: "list-checks",
+      tile: "lilac",
     },
   ];
 
   return (
     <div
-      className="animate-fade-in dashboard-stats-grid"
+      className="dashboard-stats-grid"
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(4, 1fr)",
-        gap: "10px",
-        marginBottom: "36px",
+        gap: 10,
+        marginBottom: 28,
       }}
     >
       {stats.map((s) => (
         <div
           key={s.label}
           style={{
-            padding: "18px 16px",
+            padding: 16,
             backgroundColor: "var(--color-surface)",
             border: "1px solid var(--color-border)",
-            borderRadius: "10px",
+            borderRadius: 10,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
           }}
         >
-          <div
-            style={{
-              fontSize: "11px",
-              fontWeight: 500,
-              color: "var(--color-text-3)",
-              letterSpacing: "0.03em",
-              textTransform: "uppercase",
-              marginBottom: "8px",
-            }}
-          >
-            {s.label}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              gap: "6px",
-            }}
-          >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <IconTile icon={s.icon} color={s.tile} size="sm" />
             <span
               style={{
-                fontSize: "28px",
+                fontSize: 11,
                 fontWeight: 600,
-                color: "var(--color-text)",
+                color: "var(--color-text-3)",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+              }}
+            >
+              {s.label}
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+            <span
+              style={{
+                fontSize: 28,
+                fontWeight: 600,
+                color: s.valueColor ?? "var(--color-text)",
                 letterSpacing: "-0.02em",
                 lineHeight: 1,
               }}
@@ -505,12 +545,7 @@ function OverviewStrip({ overview }: { overview: Overview }) {
               {s.value}
             </span>
             {s.sub && (
-              <span
-                style={{
-                  fontSize: "13px",
-                  color: "var(--color-text-3)",
-                }}
-              >
+              <span style={{ fontSize: 12.5, color: "var(--color-text-3)" }}>
                 {s.sub}
               </span>
             )}
@@ -521,9 +556,292 @@ function OverviewStrip({ overview }: { overview: Overview }) {
   );
 }
 
-// ── Zone 2: Tier Completion Map ──────────────────────────────────────────────
+// ── Mastery Ring Panel ──────────────────────────────────────────────────────
 
-function TierMap({
+function MasteryPanel({ masteredCount, total }: { masteredCount: number; total: number }) {
+  const pct = total > 0 ? masteredCount / total : 0;
+  const R = 54;
+  const C = 2 * Math.PI * R;
+  const dash = C * pct;
+
+  return (
+    <div
+      style={{
+        padding: 20,
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 10,
+        display: "flex",
+        alignItems: "center",
+        gap: 20,
+      }}
+    >
+      <svg width={132} height={132} viewBox="0 0 132 132" style={{ flexShrink: 0 }}>
+        <circle
+          cx={66}
+          cy={66}
+          r={R}
+          fill="none"
+          stroke="var(--color-border)"
+          strokeWidth={10}
+        />
+        <circle
+          cx={66}
+          cy={66}
+          r={R}
+          fill="none"
+          stroke="var(--color-correct)"
+          strokeWidth={10}
+          strokeLinecap="round"
+          strokeDasharray={`${dash} ${C}`}
+          transform="rotate(-90 66 66)"
+          style={{ transition: "stroke-dasharray 400ms ease" }}
+        />
+        <text
+          x={66}
+          y={62}
+          textAnchor="middle"
+          fontSize={26}
+          fontWeight={600}
+          fill="var(--color-text)"
+          style={{ letterSpacing: "-0.02em" }}
+        >
+          {masteredCount}
+        </text>
+        <text
+          x={66}
+          y={82}
+          textAnchor="middle"
+          fontSize={11}
+          fill="var(--color-text-3)"
+          style={{ letterSpacing: "0.04em", textTransform: "uppercase" }}
+        >
+          of {total}
+        </text>
+      </svg>
+      <div style={{ minWidth: 0 }}>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: "var(--color-text-3)",
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+            marginBottom: 6,
+          }}
+        >
+          Mastery
+        </div>
+        <div
+          style={{
+            fontSize: 16,
+            fontWeight: 600,
+            color: "var(--color-text)",
+            letterSpacing: "-0.01em",
+            lineHeight: 1.3,
+            marginBottom: 4,
+          }}
+        >
+          {Math.round(pct * 100)}% at 80%+
+        </div>
+        <div style={{ fontSize: 12.5, color: "var(--color-text-2)", lineHeight: 1.5 }}>
+          Concepts you&apos;ve scored 80% or higher on at least once.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Tier Bars ───────────────────────────────────────────────────────────────
+
+function TierBars({
+  tiers,
+  conceptScores,
+}: {
+  tiers: TierInfo[];
+  conceptScores: Record<string, ConceptScore>;
+}) {
+  const rows = tiers.map((tier) => {
+    let total = 0;
+    let mastered = 0;
+    let touched = 0;
+    for (const sec of tier.sections) {
+      for (const c of sec.concepts) {
+        total++;
+        const s = conceptScores[c.id];
+        if (s) {
+          touched++;
+          if (s.pct >= 80) mastered++;
+        }
+      }
+    }
+    const visual = TIER_VISUAL[tier.slug] ?? { color: "stone", label: tier.name };
+    const pct = total > 0 ? mastered / total : 0;
+    return { tier, total, mastered, touched, visual, pct };
+  });
+
+  return (
+    <div
+      style={{
+        padding: 20,
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 10,
+        display: "flex",
+        flexDirection: "column",
+        gap: 14,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 600,
+          color: "var(--color-text-3)",
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
+        }}
+      >
+        Progress by Tier
+      </div>
+      {rows.map(({ tier, total, mastered, touched, visual, pct }) => (
+        <div key={tier.id} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 999,
+                  backgroundColor: `var(--tile-${visual.color}-fg)`,
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text)" }}>
+                {visual.label}
+              </span>
+            </div>
+            <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>
+              {mastered}/{total} mastered
+              <span style={{ marginLeft: 6, color: "var(--color-text-3)", opacity: 0.7 }}>
+                · {touched} touched
+              </span>
+            </div>
+          </div>
+          <div
+            style={{
+              position: "relative",
+              height: 8,
+              borderRadius: 999,
+              backgroundColor: `var(--tile-${visual.color}-bg)`,
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: `${pct * 100}%`,
+                backgroundColor: `var(--tile-${visual.color}-fg)`,
+                borderRadius: 999,
+                transition: "width 400ms ease",
+              }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Activity Pulse ──────────────────────────────────────────────────────────
+
+function ActivityPulse({ activity }: { activity: ActivityBucket[] }) {
+  const maxTotal = Math.max(1, ...activity.map((a) => a.total));
+  const activeDays = activity.filter((a) => a.total > 0).length;
+  const totalAttempts = activity.reduce((s, a) => s + a.total, 0);
+
+  return (
+    <div
+      style={{
+        padding: 20,
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 10,
+        marginBottom: 28,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 14,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: "var(--color-text-3)",
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+          }}
+        >
+          Last 30 days
+        </div>
+        <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>
+          {activeDays} active days · {totalAttempts} attempts
+        </div>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(30, 1fr)",
+          gap: 4,
+          alignItems: "end",
+        }}
+      >
+        {activity.map((a) => {
+          const intensity = maxTotal > 0 ? a.total / maxTotal : 0;
+          const height = a.total === 0 ? 6 : Math.max(8, Math.round(6 + intensity * 28));
+          const pct = a.total > 0 ? (a.correct / a.total) * 100 : -1;
+          const bg =
+            a.total === 0
+              ? "var(--color-surface-2)"
+              : pct >= 80
+                ? "var(--color-correct)"
+                : pct >= 50
+                  ? "var(--color-gold)"
+                  : "var(--color-incorrect)";
+          const border =
+            a.total === 0 ? "1px solid var(--color-border)" : "none";
+          const d = new Date(a.date);
+          const tooltip =
+            a.total === 0
+              ? `${d.toLocaleDateString("en-US", { month: "short", day: "numeric" })} — no activity`
+              : `${d.toLocaleDateString("en-US", { month: "short", day: "numeric" })} — ${a.correct}/${a.total} correct`;
+          return (
+            <div
+              key={a.date}
+              title={tooltip}
+              style={{
+                height,
+                borderRadius: 3,
+                backgroundColor: bg,
+                border,
+                transition: "height 200ms ease",
+              }}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Knowledge Map v2 ────────────────────────────────────────────────────────
+
+function KnowledgeMap({
   tiers,
   conceptScores,
 }: {
@@ -531,203 +849,197 @@ function TierMap({
   conceptScores: Record<string, ConceptScore>;
 }) {
   const [tooltip, setTooltip] = useState<{
-    concept: ConceptInfo;
-    score: ConceptScore | null;
+    text: string;
+    sub: string;
+    color: string;
     x: number;
     y: number;
   } | null>(null);
 
   return (
-    <div style={{ marginBottom: "36px" }}>
-      <h2
-        style={{
-          margin: "0 0 6px",
-          fontSize: "16px",
-          fontWeight: 600,
-          color: "var(--color-text)",
-          letterSpacing: "-0.01em",
-        }}
-      >
-        Knowledge Map
-      </h2>
+    <div style={{ marginBottom: 28 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>
+        <h2
+          style={{
+            margin: 0,
+            fontSize: 16,
+            fontWeight: 600,
+            color: "var(--color-text)",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Knowledge Map
+        </h2>
+        <Legend />
+      </div>
       <p
         style={{
-          margin: "0 0 20px",
-          fontSize: "13px",
+          margin: "0 0 16px",
+          fontSize: 13,
           color: "var(--color-text-3)",
         }}
       >
-        Each cell is a concept. Color shows your mastery level.
+        Each dot is a concept. Hover for name, click to open.
       </p>
 
-      {/* Legend */}
-      <div
-        style={{
-          display: "flex",
-          gap: "16px",
-          marginBottom: "16px",
-          flexWrap: "wrap",
-        }}
-      >
-        {[
-          { label: "Not attempted", bg: "var(--color-surface)", border: "var(--color-border)" },
-          { label: "< 50%", bg: "var(--color-incorrect-dim)", border: "var(--color-incorrect-border)" },
-          { label: "50–79%", bg: "var(--color-gold-dim)", border: "rgba(232, 181, 74, 0.35)" },
-          { label: "80%+", bg: "var(--color-correct-dim)", border: "var(--color-correct-border)" },
-        ].map((item) => (
-          <div
-            key={item.label}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-            }}
-          >
-            <span
-              style={{
-                width: "12px",
-                height: "12px",
-                borderRadius: "3px",
-                backgroundColor: item.bg,
-                border: `1px solid ${item.border}`,
-                flexShrink: 0,
-              }}
-            />
-            <span style={{ fontSize: "11px", color: "var(--color-text-3)" }}>
-              {item.label}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Tier rows */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-          position: "relative",
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, position: "relative" }}>
         {tiers.map((tier) => {
-          const tierColor = TIER_COLOR[tier.slug] ?? "var(--color-text-3)";
-
+          const visual = TIER_VISUAL[tier.slug] ?? { color: "stone", label: tier.name };
           return (
             <div
               key={tier.id}
               style={{
-                padding: "16px",
+                padding: 14,
                 backgroundColor: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
-                borderRadius: "10px",
+                borderRadius: 10,
               }}
             >
-              {/* Tier label */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "8px",
-                  marginBottom: "12px",
+                  gap: 8,
+                  marginBottom: 12,
                 }}
               >
                 <span
                   style={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    backgroundColor: tierColor,
+                    width: 10,
+                    height: 10,
+                    borderRadius: 999,
+                    backgroundColor: `var(--tile-${visual.color}-fg)`,
                     flexShrink: 0,
                   }}
                 />
                 <span
                   style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: tierColor,
-                    letterSpacing: "0.03em",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: `var(--tile-${visual.color}-fg)`,
+                    letterSpacing: "0.04em",
                     textTransform: "uppercase",
                   }}
                 >
-                  {tier.name}
+                  {visual.label}
                 </span>
               </div>
 
-              {/* Sections */}
-              {tier.sections.map((section) => (
-                <div key={section.id} style={{ marginBottom: "10px" }}>
-                  <div
-                    style={{
-                      fontSize: "11px",
-                      fontWeight: 500,
-                      color: "var(--color-text-3)",
-                      marginBottom: "6px",
-                    }}
-                  >
-                    {section.name}
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "4px",
-                    }}
-                  >
-                    {section.concepts.map((concept) => {
-                      const score = conceptScores[concept.id] ?? null;
-                      let bg = "var(--color-surface-2)";
-                      let border = "var(--color-border)";
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {tier.sections.map((section) => {
+                  const total = section.concepts.length;
+                  let mastered = 0;
+                  let touched = 0;
+                  for (const c of section.concepts) {
+                    const s = conceptScores[c.id];
+                    if (s) {
+                      touched++;
+                      if (s.pct >= 80) mastered++;
+                    }
+                  }
+                  const sectionPct = total > 0 ? Math.round((mastered / total) * 100) : 0;
 
-                      if (score) {
-                        bg = getMasteryBg(score.pct);
-                        if (score.pct >= 80) border = "var(--color-correct-border)";
-                        else if (score.pct >= 50) border = "rgba(232, 181, 74, 0.35)";
-                        else border = "var(--color-incorrect-border)";
-                      }
-
-                      return (
-                        <Link
-                          key={concept.id}
-                          href={`/concepts/${concept.slug}`}
+                  return (
+                    <div
+                      key={section.id}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "minmax(0, 180px) minmax(0, 1fr) 72px",
+                        alignItems: "center",
+                        gap: 14,
+                      }}
+                    >
+                      <div style={{ minWidth: 0 }}>
+                        <div
                           style={{
-                            width: "28px",
-                            height: "28px",
-                            borderRadius: "5px",
-                            backgroundColor: bg,
-                            border: `1px solid ${border}`,
-                            cursor: "pointer",
-                            transition: "transform 0.1s, box-shadow 0.1s",
-                            position: "relative",
-                            display: "block",
+                            fontSize: 12.5,
+                            fontWeight: 600,
+                            color: "var(--color-text)",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
                           }}
-                          title={`${concept.name}${score ? ` — ${score.pct}%` : " — Not attempted"}`}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = "scale(1.15)";
-                            e.currentTarget.style.zIndex = "10";
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            setTooltip({
-                              concept,
-                              score,
-                              x: rect.left + rect.width / 2,
-                              y: rect.top - 8,
-                            });
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = "scale(1)";
-                            e.currentTarget.style.zIndex = "0";
-                            setTooltip(null);
-                          }}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
+                        >
+                          {section.name}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 1 }}>
+                          {touched}/{total} touched
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                        {section.concepts.map((concept) => {
+                          const score = conceptScores[concept.id] ?? null;
+                          let bg = "var(--color-surface-2)";
+                          let border = "var(--color-border)";
+
+                          if (score) {
+                            bg = getMasteryBg(score.pct);
+                            if (score.pct >= 80) border = "var(--color-correct-border)";
+                            else if (score.pct >= 50) border = "rgba(232, 181, 74, 0.35)";
+                            else border = "var(--color-incorrect-border)";
+                          }
+
+                          return (
+                            <Link
+                              key={concept.id}
+                              href={`/concepts/${concept.slug}`}
+                              style={{
+                                width: 18,
+                                height: 18,
+                                borderRadius: 4,
+                                backgroundColor: bg,
+                                border: `1px solid ${border}`,
+                                cursor: "pointer",
+                                transition: "transform 0.1s",
+                                display: "block",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = "scale(1.25)";
+                                e.currentTarget.style.zIndex = "10";
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setTooltip({
+                                  text: concept.name,
+                                  sub: score
+                                    ? `${score.pct}% — ${score.correct}/${score.total} correct`
+                                    : "Not attempted",
+                                  color: score ? getMasteryColor(score.pct) : "var(--color-text-3)",
+                                  x: rect.left + rect.width / 2,
+                                  y: rect.top - 8,
+                                });
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = "scale(1)";
+                                e.currentTarget.style.zIndex = "0";
+                                setTooltip(null);
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: sectionPct >= 80
+                            ? "var(--color-correct)"
+                            : sectionPct >= 50
+                              ? "var(--color-gold)"
+                              : "var(--color-text-3)",
+                          textAlign: "right",
+                        }}
+                      >
+                        {sectionPct}%
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           );
         })}
 
-        {/* Tooltip */}
         {tooltip && (
           <div
             style={{
@@ -738,31 +1050,17 @@ function TierMap({
               padding: "8px 12px",
               backgroundColor: "var(--color-surface-3)",
               border: "1px solid var(--color-border)",
-              borderRadius: "6px",
+              borderRadius: 6,
               pointerEvents: "none",
               zIndex: 100,
               whiteSpace: "nowrap",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
             }}
           >
-            <div
-              style={{
-                fontSize: "12px",
-                fontWeight: 500,
-                color: "var(--color-text)",
-                marginBottom: tooltip.score ? "2px" : 0,
-              }}
-            >
-              {tooltip.concept.name}
+            <div style={{ fontSize: 12, fontWeight: 500, color: "var(--color-text)", marginBottom: 2 }}>
+              {tooltip.text}
             </div>
-            {tooltip.score ? (
-              <div style={{ fontSize: "11px", color: getMasteryColor(tooltip.score.pct) }}>
-                {tooltip.score.pct}% — {tooltip.score.correct}/{tooltip.score.total} correct
-              </div>
-            ) : (
-              <div style={{ fontSize: "11px", color: "var(--color-text-3)" }}>
-                Not attempted
-              </div>
-            )}
+            <div style={{ fontSize: 11, color: tooltip.color }}>{tooltip.sub}</div>
           </div>
         )}
       </div>
@@ -770,16 +1068,43 @@ function TierMap({
   );
 }
 
-// ── Zone 3: Weak Areas ───────────────────────────────────────────────────────
+function Legend() {
+  const items = [
+    { label: "New", bg: "var(--color-surface-2)", border: "var(--color-border)" },
+    { label: "<50%", bg: "var(--color-incorrect-dim)", border: "var(--color-incorrect-border)" },
+    { label: "50–79%", bg: "var(--color-gold-dim)", border: "rgba(232, 181, 74, 0.35)" },
+    { label: "80%+", bg: "var(--color-correct-dim)", border: "var(--color-correct-border)" },
+  ];
+  return (
+    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+      {items.map((it) => (
+        <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <span
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 3,
+              backgroundColor: it.bg,
+              border: `1px solid ${it.border}`,
+              flexShrink: 0,
+            }}
+          />
+          <span style={{ fontSize: 11, color: "var(--color-text-3)" }}>{it.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
-function WeakAreas({
+// ── Suggested Review ────────────────────────────────────────────────────────
+
+function SuggestedReview({
   tiers,
   conceptScores,
 }: {
   tiers: TierInfo[];
   conceptScores: Record<string, ConceptScore>;
 }) {
-  // Build flat list of all concepts with their tier/section info
   const allConcepts: {
     concept: ConceptInfo;
     tierSlug: string;
@@ -800,11 +1125,9 @@ function WeakAreas({
     }
   }
 
-  // Priority: low scores first, then unattempted concepts in sections with some activity
   const weakItems = allConcepts
     .filter((item) => {
       if (!item.score) {
-        // Include unattempted if they're in a section where the user has quizzed siblings
         const siblings = allConcepts.filter(
           (c) => c.sectionName === item.sectionName && c.score !== null,
         );
@@ -827,25 +1150,18 @@ function WeakAreas({
           textAlign: "center",
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: "10px",
+          borderRadius: 10,
         }}
       >
-        <div
-          style={{
-            fontSize: "15px",
-            fontWeight: 500,
-            color: "var(--color-text)",
-            marginBottom: "8px",
-          }}
-        >
+        <div style={{ fontSize: 15, fontWeight: 500, color: "var(--color-text)", marginBottom: 8 }}>
           No quiz data yet
         </div>
         <p
           style={{
             margin: "0 0 20px",
-            fontSize: "13px",
+            fontSize: 13,
             color: "var(--color-text-3)",
-            lineHeight: "1.6",
+            lineHeight: 1.6,
           }}
         >
           Take your first quiz to start tracking progress.
@@ -855,11 +1171,11 @@ function WeakAreas({
           style={{
             display: "inline-block",
             padding: "10px 24px",
-            fontSize: "13px",
+            fontSize: 13,
             fontWeight: 500,
             color: "#fff",
             backgroundColor: "var(--color-accent)",
-            borderRadius: "6px",
+            borderRadius: 6,
             textDecoration: "none",
           }}
         >
@@ -873,30 +1189,17 @@ function WeakAreas({
     return (
       <div
         style={{
-          padding: "24px",
+          padding: 24,
           textAlign: "center",
           backgroundColor: "var(--color-correct-dim)",
           border: "1px solid var(--color-correct-border)",
-          borderRadius: "10px",
+          borderRadius: 10,
         }}
       >
-        <div
-          style={{
-            fontSize: "15px",
-            fontWeight: 500,
-            color: "var(--color-correct)",
-            marginBottom: "4px",
-          }}
-        >
+        <div style={{ fontSize: 15, fontWeight: 500, color: "var(--color-correct)", marginBottom: 4 }}>
           All concepts at 80%+
         </div>
-        <p
-          style={{
-            margin: 0,
-            fontSize: "13px",
-            color: "var(--color-text-2)",
-          }}
-        >
+        <p style={{ margin: 0, fontSize: 13, color: "var(--color-text-2)" }}>
           You&apos;re mastering the Atlas. Keep it up!
         </p>
       </div>
@@ -908,7 +1211,7 @@ function WeakAreas({
       <h2
         style={{
           margin: "0 0 6px",
-          fontSize: "16px",
+          fontSize: 16,
           fontWeight: 600,
           color: "var(--color-text)",
           letterSpacing: "-0.01em",
@@ -916,46 +1219,31 @@ function WeakAreas({
       >
         Suggested Review
       </h2>
-      <p
-        style={{
-          margin: "0 0 16px",
-          fontSize: "13px",
-          color: "var(--color-text-3)",
-        }}
-      >
+      <p style={{ margin: "0 0 16px", fontSize: 13, color: "var(--color-text-3)" }}>
         Concepts that need more attention, sorted by score.
       </p>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "6px",
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {weakItems.map((item) => {
-          const tierColor =
-            TIER_COLOR[item.tierSlug] ?? "var(--color-text-3)";
-
+          const visual = TIER_VISUAL[item.tierSlug] ?? { color: "stone", label: item.tierSlug };
           return (
             <div
               key={item.concept.id}
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "12px",
+                gap: 12,
                 padding: "12px 16px",
                 backgroundColor: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
-                borderRadius: "8px",
+                borderRadius: 8,
               }}
             >
-              {/* Score indicator */}
               <div
                 style={{
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "8px",
+                  width: 40,
+                  height: 40,
+                  borderRadius: 8,
                   backgroundColor: item.score
                     ? getMasteryBg(item.score.pct)
                     : "var(--color-surface-2)",
@@ -974,8 +1262,8 @@ function WeakAreas({
               >
                 <span
                   style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
+                    fontSize: 12,
+                    fontWeight: 700,
                     color: item.score
                       ? getMasteryColor(item.score.pct)
                       : "var(--color-text-3)",
@@ -984,15 +1272,13 @@ function WeakAreas({
                   {item.score ? `${item.score.pct}%` : "—"}
                 </span>
               </div>
-
-              {/* Info */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div
                   style={{
-                    fontSize: "13px",
-                    fontWeight: 500,
+                    fontSize: 13.5,
+                    fontWeight: 600,
                     color: "var(--color-text)",
-                    marginBottom: "2px",
+                    marginBottom: 2,
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -1004,17 +1290,17 @@ function WeakAreas({
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "6px",
-                    fontSize: "11px",
+                    gap: 6,
+                    fontSize: 11.5,
                     color: "var(--color-text-3)",
                   }}
                 >
                   <span
                     style={{
-                      width: "6px",
-                      height: "6px",
-                      borderRadius: "50%",
-                      backgroundColor: tierColor,
+                      width: 7,
+                      height: 7,
+                      borderRadius: 999,
+                      backgroundColor: `var(--tile-${visual.color}-fg)`,
                       flexShrink: 0,
                     }}
                   />
@@ -1029,24 +1315,21 @@ function WeakAreas({
                   )}
                 </div>
               </div>
-
-              {/* Quiz button */}
               <Link
                 href={`/quiz?mode=concept&id=${item.concept.id}`}
                 style={{
                   padding: "6px 14px",
-                  fontSize: "12px",
+                  fontSize: 12,
                   fontWeight: 500,
-                  color: "var(--color-accent)",
-                  backgroundColor: "var(--color-accent-dim)",
-                  border: "none",
-                  borderRadius: "5px",
+                  color: "var(--color-accent-on-soft)",
+                  backgroundColor: "var(--color-accent-soft)",
+                  borderRadius: 6,
                   textDecoration: "none",
                   flexShrink: 0,
                   whiteSpace: "nowrap",
                 }}
               >
-                Quiz Now
+                Quiz now
               </Link>
             </div>
           );
