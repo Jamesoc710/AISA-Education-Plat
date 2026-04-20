@@ -1,41 +1,50 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { ConceptCard } from "@/components/concept-card";
-import { SearchBar } from "@/components/search-bar";
-import { UserNav } from "@/components/user-nav";
+import { IconTile } from "@/components/ui/icon-tile";
+import { TierBadge } from "@/components/ui/tier-badge";
+import { Icon } from "@/components/ui/icon";
+import { getSectionVisual } from "@/lib/section-icons";
 import type { SectionGroup } from "@/lib/types";
 
 const BOOKMARKS_KEY = "aisa-atlas-bookmarks";
-const BANNER_DISMISSED_KEY = "aisa-atlas-welcome-dismissed";
 const EXPANDED_KEY = "aisa-atlas-browse-expanded";
 
-type ActiveFilter = "all" | "bookmarked";
+const TIER_COPY: Record<string, { title: string; subtitle: string }> = {
+  fundamentals: {
+    title: "Fundamentals",
+    subtitle:
+      "The building blocks. If you can't explain these, you're not ready for projects, site tours, or client conversations.",
+  },
+  intermediate: {
+    title: "Intermediate",
+    subtitle:
+      "The 'how it works in the real world' layer. What separates a participant from a valuable team member.",
+  },
+  advanced: {
+    title: "Advanced",
+    subtitle:
+      "The cutting edge and the deep dives. What separates someone who's informed from someone who's a thought leader.",
+  },
+};
 
 export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const query = (searchParams?.get("q") ?? "").trim();
+  const filter = searchParams?.get("filter") === "bookmarked" ? "bookmarked" : "all";
+  const tierFilter = searchParams?.get("tier") ?? null;
 
-  // Initialize from URL synchronously so first paint matches deep link.
-  const [query, setQuery] = useState(() => searchParams?.get("q") ?? "");
-  const [activeFilter, setActiveFilter] = useState<ActiveFilter>(() =>
-    searchParams?.get("filter") === "bookmarked" ? "bookmarked" : "all"
-  );
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
-  const [bannerDismissed, setBannerDismissed] = useState(true); // default true to avoid flash
-  // User's manual expand state (persisted). Collapsed by default.
   const [userExpanded, setUserExpanded] = useState<Set<string>>(new Set());
 
-  // Load bookmarks + banner + expand state from localStorage on mount
+  // Hydrate persisted state
   useEffect(() => {
     try {
       const stored = localStorage.getItem(BOOKMARKS_KEY);
       if (stored) setBookmarks(new Set(JSON.parse(stored)));
-    } catch {}
-    try {
-      setBannerDismissed(localStorage.getItem(BANNER_DISMISSED_KEY) === "true");
     } catch {}
     try {
       const stored = localStorage.getItem(EXPANDED_KEY);
@@ -43,27 +52,11 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
     } catch {}
   }, []);
 
-  // Keep URL in sync with query + filter (shareable deep-links, non-history-polluting)
-  const didMountRef = useRef(false);
-  useEffect(() => {
-    // Skip first render — URL already reflects initial state
-    if (!didMountRef.current) {
-      didMountRef.current = true;
-      return;
-    }
-    const params = new URLSearchParams();
-    if (query.trim()) params.set("q", query.trim());
-    if (activeFilter !== "all") params.set("filter", activeFilter);
-    const qs = params.toString();
-    router.replace(qs ? `/browse?${qs}` : "/browse", { scroll: false });
-  }, [query, activeFilter, router]);
-
-  // Persist bookmarks
-  const toggleBookmark = (conceptId: string) => {
+  const toggleBookmark = (id: string) => {
     setBookmarks((prev) => {
       const next = new Set(prev);
-      if (next.has(conceptId)) next.delete(conceptId);
-      else next.add(conceptId);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       try {
         localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([...next]));
       } catch {}
@@ -71,7 +64,6 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
     });
   };
 
-  // Expand-state persistence helper
   const persistExpanded = (next: Set<string>) => {
     try {
       localStorage.setItem(EXPANDED_KEY, JSON.stringify([...next]));
@@ -88,8 +80,8 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
     });
   };
 
-  const expandAll = () => {
-    const next = new Set(sections.map((s) => s.id));
+  const expandAll = (ids: string[]) => {
+    const next = new Set(ids);
     setUserExpanded(next);
     persistExpanded(next);
   };
@@ -100,313 +92,180 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
     persistExpanded(next);
   };
 
-  // All concepts flat for counting
-  const allConcepts = useMemo(
-    () => sections.flatMap((s) => s.concepts),
-    [sections]
-  );
-
-  // Filtered sections
+  // ── Filtering ────────────────────────────────────────────────
   const filteredSections = useMemo(() => {
-    const q = query.toLowerCase().trim();
+    const q = query.toLowerCase();
 
     return sections
+      .filter((s) => !tierFilter || s.tier.slug === tierFilter)
       .map((section) => {
         const concepts = section.concepts.filter((c) => {
-          if (activeFilter === "bookmarked" && !bookmarks.has(c.id)) return false;
-
+          if (filter === "bookmarked" && !bookmarks.has(c.id)) return false;
           if (q) {
             const haystack = `${c.name} ${c.subtitle} ${c.section.name}`.toLowerCase();
             if (!haystack.includes(q)) return false;
           }
-
           return true;
         });
-
         return { ...section, concepts };
       })
       .filter((s) => s.concepts.length > 0);
-  }, [sections, query, activeFilter, bookmarks]);
+  }, [sections, query, filter, tierFilter, bookmarks]);
 
-  const totalVisible = filteredSections.reduce(
-    (acc, s) => acc + s.concepts.length,
-    0
-  );
+  const totalVisible = filteredSections.reduce((acc, s) => acc + s.concepts.length, 0);
 
-  const bookmarkCount = allConcepts.filter((c) => bookmarks.has(c.id)).length;
-
-  // Effective expand set: during search, auto-expand all filtered sections.
-  // Otherwise, use user's persisted manual state.
-  const isSearching = query.trim().length > 0;
+  // ── Effective expand set ─────────────────────────────────────
+  // While searching, auto-expand all matched sections so results are visible.
+  const isSearching = query.length > 0;
   const displayExpanded = useMemo(() => {
     if (isSearching) return new Set(filteredSections.map((s) => s.id));
     return userExpanded;
   }, [isSearching, filteredSections, userExpanded]);
-
   const allCollapsed = displayExpanded.size === 0;
 
+  // ── Page header copy reflects filters ───────────────────────
+  const header = (() => {
+    if (filter === "bookmarked") {
+      return {
+        title: "Bookmarked",
+        subtitle:
+          totalVisible === 0
+            ? "Star a concept on any card and it'll show up here."
+            : `${totalVisible} concept${totalVisible === 1 ? "" : "s"} you've saved.`,
+      };
+    }
+    if (tierFilter && TIER_COPY[tierFilter]) {
+      return {
+        title: TIER_COPY[tierFilter].title,
+        subtitle: TIER_COPY[tierFilter].subtitle,
+      };
+    }
+    if (query) {
+      return {
+        title: "Search results",
+        subtitle: `${totalVisible} concept${totalVisible === 1 ? "" : "s"} match "${query}"`,
+      };
+    }
+    return {
+      title: "Browse",
+      subtitle:
+        "Explore the curriculum at your own pace. Click any section to see what's inside.",
+    };
+  })();
+
+  const isFiltered = filter !== "all" || tierFilter !== null;
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
-      {/* ── Top bar ─────────────────────────────────────────── */}
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          padding: "0 24px",
-          height: "56px",
-          borderBottom: "1px solid var(--color-border)",
-          backgroundColor: "var(--color-bg)",
-          flexShrink: 0,
-          zIndex: 10,
-        }}
-      >
-        {/* Logo / wordmark */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginRight: "8px" }}>
-          <img
-            src="/assets/aisa-logo.png"
-            alt="AISA"
-            style={{ width: "28px", height: "28px", flexShrink: 0 }}
-          />
-          <span style={{ fontWeight: 600, fontSize: "14px", color: "var(--color-text)", letterSpacing: "-0.01em" }}>
-            AISA Atlas
-          </span>
+    <div style={{ padding: "32px 32px 80px" }}>
+      <div style={{ maxWidth: 1040, margin: "0 auto" }}>
+        {/* ── Page header ─────────────────────────────────────── */}
+        <div style={{ marginBottom: 28 }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 30,
+              fontWeight: 600,
+              letterSpacing: "-0.02em",
+              color: "var(--color-text)",
+              lineHeight: 1.15,
+            }}
+          >
+            {header.title}
+          </h1>
+          <p
+            style={{
+              margin: "8px 0 0 0",
+              fontSize: 14.5,
+              color: "var(--color-text-2)",
+              lineHeight: 1.55,
+              maxWidth: 680,
+            }}
+          >
+            {header.subtitle}
+          </p>
+
+          {isFiltered && (
+            <Link
+              href="/browse"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                marginTop: 14,
+                padding: "5px 10px",
+                fontSize: 12.5,
+                fontWeight: 500,
+                color: "var(--color-text-2)",
+                backgroundColor: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: 999,
+                textDecoration: "none",
+                transition: "background-color 120ms ease, color 120ms ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--color-surface-2)";
+                e.currentTarget.style.color = "var(--color-text)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--color-surface)";
+                e.currentTarget.style.color = "var(--color-text-2)";
+              }}
+            >
+              <Icon name="x" size={12} strokeWidth={2.25} />
+              Clear filter
+            </Link>
+          )}
         </div>
 
-        {/* Divider */}
-        <div style={{ width: "1px", height: "20px", backgroundColor: "var(--color-border)", marginRight: "8px" }} />
-
-        {/* Filter tabs */}
-        <nav className="browse-nav-filters">
-          <FilterTab
-            label="All"
-            count={allConcepts.length}
-            active={activeFilter === "all"}
-            onClick={() => setActiveFilter("all")}
-          />
-          <FilterTab
-            label="Bookmarked"
-            count={bookmarkCount}
-            active={activeFilter === "bookmarked"}
-            onClick={() => setActiveFilter("bookmarked")}
-            icon={
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M5 3a2 2 0 0 0-2 2v16l9-4 9 4V5a2 2 0 0 0-2-2H5z" />
-              </svg>
-            }
-          />
-        </nav>
-
-        {/* Divider before Quiz / Homework links */}
-        <div className="browse-nav-quiz-divider" style={{ width: "1px", height: "20px", backgroundColor: "var(--color-border)" }} />
-
-        {/* Quiz nav link */}
-        <NavLink
-          href="/quiz"
-          label="Quiz"
-          icon={
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{ color: "var(--color-accent)", flexShrink: 0 }}
+        {/* ── Expand / collapse toolbar ───────────────────────── */}
+        {filteredSections.length > 0 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              marginBottom: 8,
+              minHeight: 24,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() =>
+                allCollapsed
+                  ? expandAll(filteredSections.map((s) => s.id))
+                  : collapseAll()
+              }
+              disabled={isSearching}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "4px 8px",
+                fontSize: 12.5,
+                fontFamily: "inherit",
+                color: "var(--color-text-2)",
+                cursor: isSearching ? "default" : "pointer",
+                opacity: isSearching ? 0.4 : 1,
+                transition: "color 120ms ease",
+              }}
+              onMouseEnter={(e) => {
+                if (!isSearching) e.currentTarget.style.color = "var(--color-text)";
+              }}
+              onMouseLeave={(e) => {
+                if (!isSearching) e.currentTarget.style.color = "var(--color-text-2)";
+              }}
             >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          }
-        />
-
-        {/* Homework nav link */}
-        <NavLink
-          href="/homework"
-          label="Homework"
-          icon={
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{ color: "var(--color-accent)", flexShrink: 0 }}
-            >
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="9" y1="15" x2="15" y2="15" />
-            </svg>
-          }
-        />
-
-        {/* Assessments nav link */}
-        <NavLink
-          href="/assessments"
-          label="Assessments"
-          icon={
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{ color: "var(--color-accent)", flexShrink: 0 }}
-            >
-              <path d="M9 11l3 3L22 4" />
-              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-            </svg>
-          }
-        />
-
-        {/* Spacer */}
-        <div style={{ flex: 1 }} />
-
-        {/* Search */}
-        <SearchBar value={query} onChange={setQuery} />
-
-        {/* Result count */}
-        {(query || activeFilter !== "all") && (
-          <span className="browse-nav-count" style={{ fontSize: "12px", color: "var(--color-text-3)", whiteSpace: "nowrap" }}>
-            {totalVisible} concept{totalVisible !== 1 ? "s" : ""}
-          </span>
+              {allCollapsed ? "Expand all" : "Collapse all"}
+            </button>
+          </div>
         )}
 
-        {/* User nav */}
-        <UserNav />
-      </header>
-
-      {/* ── Content ─────────────────────────────────────────── */}
-      <main
-        className="browse-content"
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "0 24px 48px",
-        }}
-      >
+        {/* ── Sections / empty state ──────────────────────────── */}
         {filteredSections.length === 0 ? (
-          <EmptyState query={query} filter={activeFilter} />
+          <EmptyState query={query} filter={filter} />
         ) : (
-          <div style={{ maxWidth: "1040px", margin: "0 auto" }}>
-            {/* Welcome banner */}
-            {!bannerDismissed && (
-              <div
-                className="animate-fade-in"
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "12px",
-                  padding: "14px 16px",
-                  backgroundColor: "var(--color-surface)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "8px",
-                  margin: "16px 0 8px",
-                }}
-              >
-                {/* Info icon */}
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--color-accent)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{ flexShrink: 0, marginTop: "1px" }}
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="16" x2="12" y2="12" />
-                  <line x1="12" y1="8" x2="12.01" y2="8" />
-                </svg>
-                <div style={{ flex: 1, fontSize: "13px", lineHeight: "1.55", color: "var(--color-text-2)" }}>
-                  <strong style={{ color: "var(--color-text)", fontWeight: 600 }}>Welcome to Atlas!</strong>{" "}
-                  We recommend starting with Core Architecture and working through sections in order, but feel free to explore at your own pace. Click any section to expand it, and bookmark anything you want to revisit.
-                </div>
-                <button
-                  onClick={() => {
-                    setBannerDismissed(true);
-                    try { localStorage.setItem(BANNER_DISMISSED_KEY, "true"); } catch {}
-                  }}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "var(--color-text-3)",
-                    fontSize: "14px",
-                    padding: "2px 4px",
-                    flexShrink: 0,
-                    lineHeight: 1,
-                    transition: "color 0.12s",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-3)";
-                  }}
-                  aria-label="Dismiss welcome banner"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-            {/* Expand / Collapse all */}
-            {filteredSections.length > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  marginTop: "20px",
-                  marginBottom: "-8px",
-                }}
-              >
-                <button
-                  onClick={allCollapsed ? expandAll : collapseAll}
-                  disabled={isSearching}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    padding: "4px 8px",
-                    fontSize: "12px",
-                    fontFamily: "inherit",
-                    color: "var(--color-text-3)",
-                    cursor: isSearching ? "default" : "pointer",
-                    opacity: isSearching ? 0.4 : 1,
-                    transition: "color 0.12s",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isSearching)
-                      (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isSearching)
-                      (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-3)";
-                  }}
-                  title={
-                    isSearching
-                      ? "Disabled while searching"
-                      : allCollapsed
-                      ? "Expand all sections"
-                      : "Collapse all sections"
-                  }
-                >
-                  {allCollapsed ? "Expand all" : "Collapse all"}
-                </button>
-              </div>
-            )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {filteredSections.map((section) => (
-              <SectionGroup
+              <SectionRow
                 key={section.id}
                 section={section}
                 bookmarks={bookmarks}
@@ -417,127 +276,14 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
             ))}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }
 
-// ── Nav Link ──────────────────────────────────────────────────────────────────
+// ── Section Row ──────────────────────────────────────────────────────────────
 
-function NavLink({
-  href,
-  label,
-  icon,
-}: {
-  href: string;
-  label: string;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        padding: "4px 12px",
-        borderRadius: "6px",
-        fontSize: "13px",
-        fontWeight: 500,
-        color: "var(--color-text-2)",
-        textDecoration: "none",
-        height: "28px",
-        lineHeight: 1,
-        transition: "background-color 0.1s, color 0.1s",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "var(--color-surface)";
-        (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent";
-        (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-2)";
-      }}
-    >
-      {icon}
-      {label}
-    </Link>
-  );
-}
-
-// ── Filter Tab ────────────────────────────────────────────────────────────────
-
-function FilterTab({
-  label,
-  count,
-  active,
-  onClick,
-  icon,
-}: {
-  label: string;
-  count?: number;
-  active: boolean;
-  onClick: () => void;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      aria-pressed={active}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "5px",
-        padding: "4px 10px",
-        borderRadius: "6px",
-        border: "none",
-        cursor: "pointer",
-        fontSize: "13px",
-        fontWeight: active ? 500 : 400,
-        backgroundColor: active ? "var(--color-surface-2)" : "transparent",
-        color: active ? "var(--color-text)" : "var(--color-text-2)",
-        transition: "background-color 0.1s, color 0.1s",
-        fontFamily: "inherit",
-        lineHeight: 1,
-        height: "28px",
-      }}
-      onMouseEnter={(e) => {
-        if (!active) {
-          (e.currentTarget as HTMLButtonElement).style.backgroundColor = "var(--color-surface)";
-          (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text)";
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!active) {
-          (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
-          (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-2)";
-        }
-      }}
-    >
-      {icon && (
-        <span style={{ color: active ? "var(--color-text-2)" : "var(--color-text-3)" }}>
-          {icon}
-        </span>
-      )}
-      {label}
-      {count !== undefined && count > 0 && (
-        <span
-          style={{
-            fontSize: "11px",
-            color: active ? "var(--color-text-3)" : "var(--color-text-3)",
-            fontWeight: 400,
-          }}
-        >
-          {count}
-        </span>
-      )}
-    </button>
-  );
-}
-
-// ── Section Group ─────────────────────────────────────────────────────────────
-
-function SectionGroup({
+function SectionRow({
   section,
   bookmarks,
   onToggleBookmark,
@@ -551,20 +297,14 @@ function SectionGroup({
   onToggleExpanded: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
-
-  const tierColor =
-    section.tier.slug === "fundamentals"
-      ? "var(--color-gold)"
-      : section.tier.slug === "intermediate"
-      ? "var(--color-blue)"
-      : "var(--color-slate)";
-
+  const visual = getSectionVisual(section.slug);
   const preview = section.concepts.map((c) => c.name).join(" · ");
 
   return (
-    <div style={{ marginTop: "20px" }}>
-      {/* Section card (clickable header) */}
+    <div>
+      {/* Clickable section card */}
       <button
+        type="button"
         onClick={onToggleExpanded}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -572,102 +312,95 @@ function SectionGroup({
         style={{
           display: "flex",
           alignItems: "flex-start",
-          gap: "14px",
+          gap: 16,
           width: "100%",
-          background: hovered ? "var(--color-surface)" : "var(--color-bg)",
-          border: `1px solid ${hovered ? "var(--color-border)" : "var(--color-border-subtle)"}`,
-          borderRadius: "10px",
+          backgroundColor: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: 14,
+          padding: "20px 22px",
           cursor: "pointer",
-          padding: "22px 24px",
           fontFamily: "inherit",
           textAlign: "left",
-          transition: "background-color 0.12s, border-color 0.12s",
+          color: "inherit",
+          boxShadow: hovered ? "var(--shadow-card-hover)" : "var(--shadow-card)",
+          transform: hovered ? "translateY(-1px)" : "translateY(0)",
+          transition:
+            "box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease",
         }}
       >
-        {/* Tier accent bar */}
-        <span
-          style={{
-            width: "3px",
-            height: "22px",
-            borderRadius: "1.5px",
-            backgroundColor: tierColor,
-            flexShrink: 0,
-            marginTop: "4px",
-          }}
-        />
+        <IconTile icon={visual.icon} color={visual.color} size="md" />
 
-        {/* Name + description + preview */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
-            <span
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <h2
               style={{
-                fontSize: "18px",
+                margin: 0,
+                fontSize: 18,
                 fontWeight: 600,
                 color: "var(--color-text)",
-                letterSpacing: "-0.01em",
-                lineHeight: 1.3,
+                letterSpacing: "-0.015em",
+                lineHeight: 1.25,
               }}
             >
               {section.name}
-            </span>
+            </h2>
+            <TierBadge slug={section.tier.slug} />
             <span
               style={{
-                fontSize: "12px",
+                fontSize: 12.5,
                 color: "var(--color-text-3)",
-                fontWeight: 400,
+                fontWeight: 500,
               }}
             >
-              {section.concepts.length}
+              {section.concepts.length} concept{section.concepts.length === 1 ? "" : "s"}
             </span>
           </div>
           {section.description && (
-            <div
+            <p
               style={{
-                fontSize: "13px",
+                margin: "6px 0 0 0",
+                fontSize: 13.5,
                 color: "var(--color-text-2)",
-                marginTop: "5px",
-                lineHeight: 1.5,
+                lineHeight: 1.55,
               }}
             >
               {section.description}
-            </div>
+            </p>
           )}
           {preview && (
-            <div
+            <p
               style={{
-                fontSize: "12px",
+                margin: "8px 0 0 0",
+                fontSize: 12.5,
                 color: "var(--color-text-3)",
-                marginTop: "6px",
                 lineHeight: 1.4,
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
-                opacity: 0.8,
               }}
               title={preview}
             >
               {preview}
-            </div>
+            </p>
           )}
         </div>
 
-        {/* Chevron */}
         <span
+          aria-hidden
           style={{
+            display: "flex",
             color: "var(--color-text-3)",
-            fontSize: "11px",
-            transform: expanded ? "rotate(0deg)" : "rotate(-90deg)",
-            transition: "transform 200ms cubic-bezier(0.2, 0, 0, 1)",
-            lineHeight: 1,
-            marginTop: "8px",
+            transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
+            transition: "transform 220ms cubic-bezier(0.2, 0, 0, 1)",
+            marginTop: 14,
             flexShrink: 0,
           }}
         >
-          ▾
+          <Icon name="chevron-right" size={16} strokeWidth={2} />
         </span>
       </button>
 
-      {/* Concept grid — animated reveal via grid-row height */}
+      {/* Expandable concept grid */}
       <div
         style={{
           display: "grid",
@@ -679,11 +412,10 @@ function SectionGroup({
           <div
             className="browse-grid"
             style={{
-              paddingTop: "14px",
+              paddingTop: 14,
               opacity: expanded ? 1 : 0,
               transform: expanded ? "translateY(0)" : "translateY(-4px)",
-              transition:
-                "opacity 220ms ease-out, transform 220ms ease-out",
+              transition: "opacity 220ms ease-out, transform 220ms ease-out",
               transitionDelay: expanded ? "60ms" : "0ms",
             }}
             aria-hidden={!expanded}
@@ -703,9 +435,9 @@ function SectionGroup({
   );
 }
 
-// ── Empty State ───────────────────────────────────────────────────────────────
+// ── Empty State ──────────────────────────────────────────────────────────────
 
-function EmptyState({ query, filter }: { query: string; filter: ActiveFilter }) {
+function EmptyState({ query, filter }: { query: string; filter: "all" | "bookmarked" }) {
   return (
     <div
       style={{
@@ -713,27 +445,30 @@ function EmptyState({ query, filter }: { query: string; filter: ActiveFilter }) 
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        height: "400px",
-        gap: "12px",
-        color: "var(--color-text-3)",
+        padding: "80px 24px",
+        gap: 14,
+        color: "var(--color-text-2)",
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 14,
+        textAlign: "center",
       }}
     >
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <circle cx="11" cy="11" r="8" />
-        <path d="m21 21-4.35-4.35" />
-      </svg>
-      <p style={{ fontSize: "14px", margin: 0 }}>
+      <span style={{ color: "var(--color-text-3)" }}>
+        <Icon name="search" size={28} strokeWidth={1.5} />
+      </span>
+      <p style={{ fontSize: 14.5, margin: 0, fontWeight: 500, color: "var(--color-text)" }}>
         {filter === "bookmarked"
-          ? "No bookmarks yet — star a concept to save it here"
+          ? "No bookmarks yet"
           : query
           ? `No concepts match "${query}"`
           : "No concepts found"}
       </p>
-      {(query || filter !== "all") && (
-        <p style={{ fontSize: "12px", margin: 0, color: "var(--color-text-3)" }}>
-          Try adjusting your search or filters
-        </p>
-      )}
+      <p style={{ fontSize: 13, margin: 0, color: "var(--color-text-2)", maxWidth: 380 }}>
+        {filter === "bookmarked"
+          ? "Star a concept on any card to save it for later."
+          : "Try adjusting your search or clearing the filter."}
+      </p>
     </div>
   );
 }

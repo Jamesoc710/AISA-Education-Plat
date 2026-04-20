@@ -19,6 +19,8 @@ export default async function AdminPage() {
     pendingSAAnswers,
     formalQuizzes,
     totalAssignments,
+    scheduleEventCount,
+    latestScheduleEvent,
   ] = await Promise.all([
     prisma.user.count({ where: { role: "RECRUIT" } }),
     prisma.quizAttempt
@@ -33,6 +35,11 @@ export default async function AdminPage() {
     prisma.formalQuizAnswer.count({ where: { isCorrect: null } }),
     prisma.formalQuiz.count(),
     prisma.assignment.count(),
+    prisma.scheduleEvent.count(),
+    prisma.scheduleEvent.findFirst({
+      orderBy: { syncedAt: "desc" },
+      select: { syncedAt: true },
+    }),
   ]);
 
   // ── Recent activity ────────────────────────────────────────────────────────
@@ -94,6 +101,10 @@ export default async function AdminPage() {
         formalQuizzes,
       }}
       activity={activity}
+      calendarSync={{
+        eventCount: scheduleEventCount,
+        lastSyncedAt: latestScheduleEvent?.syncedAt.toISOString() ?? null,
+      }}
     />
   );
 }

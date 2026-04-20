@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-
-// ── Types ────────────────────────────────────────────────────────────────────
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { IconTile } from "@/components/ui/icon-tile";
 
 type AssignmentData = {
   id: string;
@@ -40,30 +41,65 @@ interface AdminHomeworkProps {
 
 type View = "list" | "create" | "detail";
 
-// ── Component ────────────────────────────────────────────────────────────────
+const PASS_GRADES = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "Pass"];
 
-export function AdminHomework({ assignments: initialAssignments, concepts }: AdminHomeworkProps) {
+function gradeTone(grade: string | null): { fg: string; bg: string } | null {
+  if (!grade) return null;
+  if (PASS_GRADES.includes(grade.trim()))
+    return { fg: "var(--color-correct)", bg: "var(--color-correct-dim)" };
+  return { fg: "var(--color-incorrect)", bg: "var(--color-incorrect-dim)" };
+}
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontSize: 11,
+  fontWeight: 600,
+  color: "var(--color-text-3)",
+  marginBottom: 6,
+  textTransform: "uppercase",
+  letterSpacing: "0.06em",
+};
+
+function inputStyle(focused: boolean): React.CSSProperties {
+  return {
+    width: "100%",
+    padding: "10px 12px",
+    backgroundColor: "var(--color-surface)",
+    border: `1px solid ${focused ? "var(--color-accent)" : "var(--color-border)"}`,
+    borderRadius: 8,
+    fontSize: 13.5,
+    color: "var(--color-text)",
+    outline: "none",
+    boxSizing: "border-box",
+    boxShadow: focused ? "0 0 0 3px var(--color-accent-dim)" : "none",
+    transition: "border-color 150ms ease, box-shadow 150ms ease",
+    fontFamily: "inherit",
+  };
+}
+
+export function AdminHomework({
+  assignments: initialAssignments,
+  concepts,
+}: AdminHomeworkProps) {
   const [view, setView] = useState<View>("list");
   const [assignments, setAssignments] = useState(initialAssignments);
-  const [selectedAssignment, setSelectedAssignment] = useState<AssignmentData | null>(null);
+  const [selectedAssignment, setSelectedAssignment] =
+    useState<AssignmentData | null>(null);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
   const [gradingId, setGradingId] = useState<string | null>(null);
 
-  // ── Create form state ──────────────────────────────────────────────────────
   const [formTitle, setFormTitle] = useState("");
   const [formDescription, setFormDescription] = useState("");
   const [formConceptId, setFormConceptId] = useState("");
   const [formDueDate, setFormDueDate] = useState("");
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  // ── Grading state ──────────────────────────────────────────────────────────
   const [gradeValue, setGradeValue] = useState("");
   const [feedbackValue, setFeedbackValue] = useState("");
   const [saving, setSaving] = useState(false);
-
-  // ── Handlers ───────────────────────────────────────────────────────────────
 
   async function viewSubmissions(assignment: AssignmentData) {
     setSelectedAssignment(assignment);
@@ -72,7 +108,9 @@ export function AdminHomework({ assignments: initialAssignments, concepts }: Adm
     setGradingId(null);
 
     try {
-      const res = await fetch(`/api/admin/homework?assignmentId=${assignment.id}`);
+      const res = await fetch(
+        `/api/admin/homework?assignmentId=${assignment.id}`,
+      );
       const data = await res.json();
       setSubmissions(data.submissions ?? []);
     } catch {
@@ -107,10 +145,8 @@ export function AdminHomework({ assignments: initialAssignments, concepts }: Adm
 
       const data = await res.json();
       const created = data.assignment;
-
-      // Find concept info for the new assignment
       const concept = formConceptId
-        ? concepts.find((c: ConceptOption) => c.id === formConceptId)
+        ? concepts.find((c) => c.id === formConceptId)
         : null;
 
       const newAssignment: AssignmentData = {
@@ -153,18 +189,21 @@ export function AdminHomework({ assignments: initialAssignments, concepts }: Adm
 
       if (res.ok) {
         setSubmissions((prev) =>
-          prev.map((s: Submission) =>
+          prev.map((s) =>
             s.id === submissionId
-              ? { ...s, grade: gradeValue, feedback: feedbackValue, gradedAt: new Date().toISOString() }
-              : s
-          )
+              ? {
+                  ...s,
+                  grade: gradeValue,
+                  feedback: feedbackValue,
+                  gradedAt: new Date().toISOString(),
+                }
+              : s,
+          ),
         );
         setGradingId(null);
         setGradeValue("");
         setFeedbackValue("");
       }
-    } catch {
-      // silent
     } finally {
       setSaving(false);
     }
@@ -186,106 +225,87 @@ export function AdminHomework({ assignments: initialAssignments, concepts }: Adm
     });
   }
 
-  // ── Shared styles ──────────────────────────────────────────────────────────
-
-  const btnAccent: React.CSSProperties = {
-    padding: "8px 16px",
-    backgroundColor: "var(--color-accent)",
-    color: "#fff",
-    border: "none",
-    borderRadius: "6px",
-    fontSize: "13px",
-    fontWeight: 600,
-    cursor: "pointer",
-  };
-
-  const btnSecondary: React.CSSProperties = {
-    padding: "8px 16px",
-    backgroundColor: "var(--color-surface-2)",
-    color: "var(--color-text)",
-    border: "1px solid var(--color-border)",
-    borderRadius: "6px",
-    fontSize: "13px",
-    fontWeight: 500,
-    cursor: "pointer",
-  };
-
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "8px 12px",
-    backgroundColor: "var(--color-surface)",
-    border: "1px solid var(--color-border)",
-    borderRadius: "6px",
-    fontSize: "13px",
-    color: "var(--color-text)",
-    outline: "none",
-    boxSizing: "border-box",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: "block",
-    fontSize: "12px",
-    fontWeight: 600,
-    color: "var(--color-text-2)",
-    marginBottom: "6px",
-    textTransform: "uppercase",
-    letterSpacing: "0.04em",
-  };
-
-  // ── CREATE VIEW ────────────────────────────────────────────────────────────
-
   if (view === "create") {
     return (
-      <div style={{ padding: "32px", maxWidth: "640px" }}>
-        <h1
+      <div style={{ maxWidth: 640 }}>
+        <button
+          onClick={() => setView("list")}
           style={{
-            fontSize: "18px",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "4px 0",
+            background: "none",
+            border: "none",
+            color: "var(--color-text-2)",
+            fontSize: 13,
+            cursor: "pointer",
+            marginBottom: 18,
+          }}
+        >
+          <Icon name="arrow-left" size={14} strokeWidth={2} />
+          Homework
+        </button>
+
+        <h2
+          style={{
+            fontSize: 22,
             fontWeight: 600,
             color: "var(--color-text)",
             margin: "0 0 24px",
-            letterSpacing: "-0.01em",
+            letterSpacing: "-0.015em",
           }}
         >
-          Create Assignment
-        </h1>
+          Create assignment
+        </h2>
 
         <form onSubmit={handleCreate}>
-          <div style={{ marginBottom: "16px" }}>
+          <div style={{ marginBottom: 18 }}>
             <label style={labelStyle}>Title</label>
             <input
               type="text"
               required
               value={formTitle}
               onChange={(e) => setFormTitle(e.target.value)}
+              onFocus={() => setFocusedField("title")}
+              onBlur={() => setFocusedField(null)}
               placeholder="Assignment title"
-              style={inputStyle}
+              style={inputStyle(focusedField === "title")}
             />
           </div>
 
-          <div style={{ marginBottom: "16px" }}>
+          <div style={{ marginBottom: 18 }}>
             <label style={labelStyle}>Description (Markdown)</label>
             <textarea
               required
               value={formDescription}
               onChange={(e) => setFormDescription(e.target.value)}
+              onFocus={() => setFocusedField("desc")}
+              onBlur={() => setFocusedField(null)}
               placeholder="Write assignment instructions in Markdown..."
               rows={8}
-              style={{ ...inputStyle, resize: "vertical", lineHeight: "1.6" }}
+              style={{
+                ...inputStyle(focusedField === "desc"),
+                resize: "vertical",
+                lineHeight: 1.6,
+              }}
             />
           </div>
 
-          <div style={{ marginBottom: "16px" }}>
+          <div style={{ marginBottom: 18 }}>
             <label style={labelStyle}>Concept (optional)</label>
             <select
               value={formConceptId}
               onChange={(e) => setFormConceptId(e.target.value)}
-              style={inputStyle}
+              onFocus={() => setFocusedField("concept")}
+              onBlur={() => setFocusedField(null)}
+              style={inputStyle(focusedField === "concept")}
             >
               <option value="">None</option>
               {concepts
                 .slice()
-                .sort((a: ConceptOption, b: ConceptOption) => a.name.localeCompare(b.name))
-                .map((c: ConceptOption) => (
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.sectionName} — {c.name}
                   </option>
@@ -293,55 +313,58 @@ export function AdminHomework({ assignments: initialAssignments, concepts }: Adm
             </select>
           </div>
 
-          <div style={{ marginBottom: "24px" }}>
-            <label style={labelStyle}>Due Date (optional)</label>
+          <div style={{ marginBottom: 24 }}>
+            <label style={labelStyle}>Due date (optional)</label>
             <input
               type="datetime-local"
               value={formDueDate}
               onChange={(e) => setFormDueDate(e.target.value)}
-              style={inputStyle}
+              onFocus={() => setFocusedField("due")}
+              onBlur={() => setFocusedField(null)}
+              style={inputStyle(focusedField === "due")}
             />
           </div>
 
           {createError && (
             <div
               style={{
-                marginBottom: "16px",
+                marginBottom: 18,
                 padding: "10px 14px",
-                backgroundColor: "rgba(229, 113, 111, 0.1)",
-                border: "1px solid #e5716f",
-                borderRadius: "6px",
-                fontSize: "13px",
-                color: "#e5716f",
+                backgroundColor: "var(--color-incorrect-dim)",
+                border: "1px solid var(--color-incorrect)",
+                borderRadius: 8,
+                fontSize: 13,
+                color: "var(--color-incorrect)",
               }}
             >
               {createError}
             </div>
           )}
 
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button type="submit" disabled={creating} style={btnAccent}>
-              {creating ? "Creating..." : "Create Assignment"}
-            </button>
-            <button
+          <div style={{ display: "flex", gap: 8 }}>
+            <Button
+              variant="primary"
+              type="submit"
+              disabled={creating}
+            >
+              {creating ? "Creating..." : "Create assignment"}
+            </Button>
+            <Button
+              variant="secondary"
               type="button"
               onClick={() => setView("list")}
-              style={btnSecondary}
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       </div>
     );
   }
 
-  // ── DETAIL VIEW ────────────────────────────────────────────────────────────
-
   if (view === "detail" && selectedAssignment) {
     return (
-      <div style={{ padding: "32px", maxWidth: "960px" }}>
-        {/* Back button */}
+      <div style={{ maxWidth: 960 }}>
         <button
           onClick={() => {
             setView("list");
@@ -349,290 +372,334 @@ export function AdminHomework({ assignments: initialAssignments, concepts }: Adm
             setGradingId(null);
           }}
           style={{
-            ...btnSecondary,
-            marginBottom: "20px",
             display: "inline-flex",
             alignItems: "center",
-            gap: "6px",
+            gap: 6,
+            padding: "4px 0",
+            background: "none",
+            border: "none",
+            color: "var(--color-text-2)",
+            fontSize: 13,
+            cursor: "pointer",
+            marginBottom: 18,
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          Back to Homework
+          <Icon name="arrow-left" size={14} strokeWidth={2} />
+          Homework
         </button>
 
-        {/* Assignment info */}
-        <h1
+        <h2
           style={{
-            fontSize: "18px",
+            fontSize: 22,
             fontWeight: 600,
             color: "var(--color-text)",
-            margin: "0 0 8px",
-            letterSpacing: "-0.01em",
+            margin: "0 0 6px",
+            letterSpacing: "-0.015em",
           }}
         >
           {selectedAssignment.title}
-        </h1>
+        </h2>
+        {selectedAssignment.conceptName && (
+          <span
+            style={{
+              display: "inline-block",
+              padding: "2px 10px",
+              fontSize: 11.5,
+              fontWeight: 600,
+              color: "var(--color-accent-on-soft)",
+              backgroundColor: "var(--color-accent-soft)",
+              borderRadius: 999,
+              marginBottom: 14,
+            }}
+          >
+            {selectedAssignment.conceptName}
+          </span>
+        )}
         <p
           style={{
-            fontSize: "13px",
+            fontSize: 13.5,
             color: "var(--color-text-2)",
-            margin: "0 0 24px",
-            lineHeight: "1.6",
+            margin: "0 0 32px",
+            lineHeight: 1.6,
           }}
         >
           {selectedAssignment.description}
         </p>
 
-        {/* Submissions table */}
-        <h2
+        <div
           style={{
-            fontSize: "14px",
-            fontWeight: 600,
-            color: "var(--color-text)",
-            margin: "0 0 12px",
+            display: "flex",
+            alignItems: "baseline",
+            justifyContent: "space-between",
+            marginBottom: 12,
           }}
         >
-          Submissions
-        </h2>
+          <h3
+            style={{
+              fontSize: 15,
+              fontWeight: 600,
+              color: "var(--color-text)",
+              margin: 0,
+            }}
+          >
+            Submissions
+          </h3>
+          <span
+            style={{
+              fontSize: 12,
+              color: "var(--color-text-3)",
+            }}
+          >
+            {submissions.length} total
+          </span>
+        </div>
 
         {loadingSubmissions ? (
-          <div style={{ fontSize: "13px", color: "var(--color-text-3)", padding: "20px 0" }}>
+          <div
+            style={{
+              fontSize: 13,
+              color: "var(--color-text-3)",
+              padding: "20px 0",
+            }}
+          >
             Loading submissions...
           </div>
         ) : submissions.length === 0 ? (
-          <div
-            style={{
-              padding: "24px",
-              textAlign: "center",
-              fontSize: "13px",
-              color: "var(--color-text-3)",
-              backgroundColor: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "8px",
-            }}
-          >
-            No submissions yet
-          </div>
+          <EmptyCard
+            title="No submissions yet"
+            description="Recruit submissions will appear here once they start turning work in."
+            icon="clipboard-check"
+          />
         ) : (
           <div
             style={{
               border: "1px solid var(--color-border)",
-              borderRadius: "8px",
+              borderRadius: 12,
+              backgroundColor: "var(--color-surface)",
+              boxShadow: "var(--shadow-card)",
               overflow: "hidden",
             }}
           >
-            {/* Table header */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 140px 90px 100px",
-                gap: "12px",
-                padding: "10px 14px",
-                backgroundColor: "var(--color-surface-2)",
-                borderBottom: "1px solid var(--color-border)",
-                fontSize: "11px",
-                fontWeight: 600,
-                color: "var(--color-text-3)",
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-              }}
-            >
-              <span>Recruit</span>
-              <span>Submitted</span>
-              <span>Grade</span>
-              <span>Actions</span>
-            </div>
-
-            {/* Rows */}
-            {submissions.map((sub: Submission) => (
-              <div key={sub.id}>
+            {submissions.map((sub, idx) => {
+              const tone = gradeTone(sub.grade);
+              const expanded = gradingId === sub.id;
+              return (
                 <div
+                  key={sub.id}
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 140px 90px 100px",
-                    gap: "12px",
-                    padding: "12px 14px",
-                    backgroundColor: "var(--color-surface)",
-                    borderBottom: "1px solid var(--color-border-subtle)",
-                    alignItems: "center",
+                    borderTop:
+                      idx === 0 ? "none" : "1px solid var(--color-border-subtle)",
                   }}
                 >
-                  {/* Recruit name + content preview */}
-                  <div>
-                    <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--color-text)" }}>
-                      {sub.user.name}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        color: "var(--color-text-3)",
-                        marginTop: "2px",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        maxWidth: "300px",
-                      }}
-                    >
-                      {sub.content.slice(0, 100)}
-                      {sub.content.length > 100 ? "..." : ""}
-                    </div>
-                  </div>
-
-                  {/* Submitted at */}
-                  <span style={{ fontSize: "12px", color: "var(--color-text-2)" }}>
-                    {formatDate(sub.submittedAt)}
-                  </span>
-
-                  {/* Grade */}
-                  <span
-                    style={{
-                      fontSize: "13px",
-                      fontWeight: sub.grade ? 600 : 400,
-                      color: sub.grade ? "#4ade80" : "var(--color-text-3)",
-                    }}
-                  >
-                    {sub.grade ?? "Ungraded"}
-                  </span>
-
-                  {/* Actions */}
-                  <button
-                    onClick={() => {
-                      if (gradingId === sub.id) {
-                        setGradingId(null);
-                      } else {
-                        openGrading(sub);
-                      }
-                    }}
-                    style={{
-                      ...btnSecondary,
-                      padding: "5px 10px",
-                      fontSize: "12px",
-                    }}
-                  >
-                    {gradingId === sub.id ? "Close" : "Grade"}
-                  </button>
-                </div>
-
-                {/* Inline grading panel */}
-                {gradingId === sub.id && (
                   <div
                     style={{
-                      padding: "16px 14px",
-                      backgroundColor: "var(--color-surface-2)",
-                      borderBottom: "1px solid var(--color-border)",
+                      display: "grid",
+                      gridTemplateColumns: "1fr 160px 110px 110px",
+                      gap: 12,
+                      padding: "14px 18px",
+                      alignItems: "center",
                     }}
                   >
-                    {/* Full submission content */}
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        color: "var(--color-text)",
-                        lineHeight: "1.6",
-                        marginBottom: "16px",
-                        padding: "12px",
-                        backgroundColor: "var(--color-surface)",
-                        border: "1px solid var(--color-border-subtle)",
-                        borderRadius: "6px",
-                        whiteSpace: "pre-wrap",
-                        wordBreak: "break-word",
-                      }}
-                    >
-                      {sub.content}
-                    </div>
-
-                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-end", flexWrap: "wrap" }}>
-                      <div>
-                        <label style={labelStyle}>Grade</label>
-                        <input
-                          type="text"
-                          value={gradeValue}
-                          onChange={(e) => setGradeValue(e.target.value)}
-                          placeholder='e.g. "A", "B+", "Pass"'
-                          style={{ ...inputStyle, width: "140px" }}
-                        />
-                      </div>
-
-                      <div style={{ flex: 1, minWidth: "200px" }}>
-                        <label style={labelStyle}>Feedback</label>
-                        <textarea
-                          value={feedbackValue}
-                          onChange={(e) => setFeedbackValue(e.target.value)}
-                          placeholder="Optional feedback..."
-                          rows={2}
-                          style={{ ...inputStyle, resize: "vertical" }}
-                        />
-                      </div>
-
-                      <button
-                        onClick={() => handleSaveGrade(sub.id)}
-                        disabled={saving || !gradeValue}
+                    <div style={{ minWidth: 0 }}>
+                      <div
                         style={{
-                          ...btnAccent,
-                          opacity: saving || !gradeValue ? 0.5 : 1,
+                          fontSize: 13.5,
+                          fontWeight: 600,
+                          color: "var(--color-text)",
                         }}
                       >
-                        {saving ? "Saving..." : "Save Grade"}
-                      </button>
+                        {sub.user.name}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 12.5,
+                          color: "var(--color-text-3)",
+                          marginTop: 2,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {sub.content.slice(0, 110)}
+                        {sub.content.length > 110 ? "…" : ""}
+                      </div>
                     </div>
+
+                    <span
+                      style={{
+                        fontSize: 12.5,
+                        color: "var(--color-text-2)",
+                      }}
+                    >
+                      {formatDate(sub.submittedAt)}
+                    </span>
+
+                    <span>
+                      {tone ? (
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            padding: "3px 10px",
+                            fontSize: 12,
+                            fontWeight: 650,
+                            color: tone.fg,
+                            backgroundColor: tone.bg,
+                            borderRadius: 999,
+                          }}
+                        >
+                          {sub.grade}
+                        </span>
+                      ) : (
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: "var(--color-text-3)",
+                          }}
+                        >
+                          Ungraded
+                        </span>
+                      )}
+                    </span>
+
+                    <Button
+                      size="sm"
+                      variant={expanded ? "secondary" : "primary"}
+                      onClick={() => {
+                        if (expanded) setGradingId(null);
+                        else openGrading(sub);
+                      }}
+                    >
+                      {expanded ? "Close" : "Grade"}
+                    </Button>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {expanded && (
+                    <div
+                      style={{
+                        padding: "18px 18px 22px",
+                        backgroundColor: "var(--color-surface-2)",
+                        borderTop: "1px solid var(--color-border-subtle)",
+                      }}
+                    >
+                      <div style={labelStyle}>Submission</div>
+                      <div
+                        style={{
+                          fontSize: 13.5,
+                          color: "var(--color-text)",
+                          lineHeight: 1.6,
+                          marginBottom: 18,
+                          padding: "14px 16px",
+                          backgroundColor: "var(--color-surface)",
+                          border: "1px solid var(--color-border-subtle)",
+                          borderRadius: 8,
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {sub.content}
+                      </div>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 12,
+                          alignItems: "flex-end",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <div style={{ width: 160 }}>
+                          <label style={labelStyle}>Grade</label>
+                          <input
+                            type="text"
+                            value={gradeValue}
+                            onChange={(e) => setGradeValue(e.target.value)}
+                            onFocus={() => setFocusedField(`grade-${sub.id}`)}
+                            onBlur={() => setFocusedField(null)}
+                            placeholder='e.g. "A", "B+", "Pass"'
+                            style={inputStyle(focusedField === `grade-${sub.id}`)}
+                          />
+                        </div>
+
+                        <div style={{ flex: 1, minWidth: 240 }}>
+                          <label style={labelStyle}>Feedback</label>
+                          <textarea
+                            value={feedbackValue}
+                            onChange={(e) => setFeedbackValue(e.target.value)}
+                            onFocus={() => setFocusedField(`fb-${sub.id}`)}
+                            onBlur={() => setFocusedField(null)}
+                            placeholder="Optional feedback..."
+                            rows={2}
+                            style={{
+                              ...inputStyle(focusedField === `fb-${sub.id}`),
+                              resize: "vertical",
+                            }}
+                          />
+                        </div>
+
+                        <Button
+                          variant="primary"
+                          onClick={() => handleSaveGrade(sub.id)}
+                          disabled={saving || !gradeValue}
+                        >
+                          {saving ? "Saving..." : "Save grade"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
     );
   }
 
-  // ── LIST VIEW (default) ────────────────────────────────────────────────────
-
   return (
-    <div style={{ padding: "32px", maxWidth: "960px" }}>
-      {/* Header */}
+    <div>
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "24px",
+          marginBottom: 18,
         }}
       >
-        <h1
+        <h2
           style={{
-            fontSize: "18px",
+            fontSize: 18,
             fontWeight: 600,
             color: "var(--color-text)",
             margin: 0,
             letterSpacing: "-0.01em",
           }}
         >
-          Homework
-        </h1>
-        <button onClick={() => setView("create")} style={btnAccent}>
-          Create Assignment
-        </button>
+          Assignments
+        </h2>
+        <Button
+          variant="primary"
+          onClick={() => setView("create")}
+          leftIcon={<Icon name="clipboard-check" size={14} strokeWidth={2} />}
+        >
+          New assignment
+        </Button>
       </div>
 
-      {/* Assignment list */}
       {assignments.length === 0 ? (
+        <EmptyCard
+          title="No assignments yet"
+          description="Create one to start posting work for recruits."
+          icon="clipboard-check"
+        />
+      ) : (
         <div
           style={{
-            padding: "40px 24px",
-            textAlign: "center",
-            fontSize: "13px",
-            color: "var(--color-text-3)",
-            backgroundColor: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "8px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
           }}
         >
-          No assignments created yet
-        </div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          {assignments.map((a: AssignmentData) => {
+          {assignments.map((a) => {
             const pending = a.submissionCount - a.gradedCount;
             return (
               <div
@@ -640,89 +707,128 @@ export function AdminHomework({ assignments: initialAssignments, concepts }: Adm
                 style={{
                   backgroundColor: "var(--color-surface)",
                   border: "1px solid var(--color-border)",
-                  borderRadius: "8px",
-                  padding: "16px",
+                  borderRadius: 12,
+                  padding: "16px 18px",
+                  boxShadow: "var(--shadow-card)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    gap: "12px",
-                  }}
-                >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    {/* Title */}
-                    <div
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: 600,
-                        color: "var(--color-text)",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      {a.title}
-                    </div>
+                <IconTile
+                  icon="clipboard-check"
+                  color={pending > 0 ? "honey" : "mint"}
+                  size="md"
+                />
 
-                    {/* Concept */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 600,
+                      color: "var(--color-text)",
+                      letterSpacing: "-0.005em",
+                      marginBottom: 4,
+                    }}
+                  >
+                    {a.title}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      flexWrap: "wrap",
+                      fontSize: 12.5,
+                      color: "var(--color-text-3)",
+                    }}
+                  >
                     {a.conceptName && (
-                      <div
+                      <span
                         style={{
-                          fontSize: "12px",
+                          padding: "2px 8px",
+                          backgroundColor: "var(--color-surface-2)",
                           color: "var(--color-text-2)",
-                          marginBottom: "4px",
+                          borderRadius: 999,
+                          fontSize: 11.5,
+                          fontWeight: 500,
                         }}
                       >
                         {a.conceptName}
-                      </div>
+                      </span>
                     )}
-
-                    {/* Due date */}
-                    {a.dueDate && (
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          color: "var(--color-text-3)",
-                          marginBottom: "6px",
-                        }}
-                      >
-                        Due: {formatDate(a.dueDate)}
-                      </div>
+                    <span>
+                      {a.submissionCount} submission
+                      {a.submissionCount !== 1 ? "s" : ""}
+                    </span>
+                    <span>{a.gradedCount} graded</span>
+                    {pending > 0 && (
+                      <span style={{ color: "var(--color-gold)" }}>
+                        {pending} pending
+                      </span>
                     )}
-
-                    {/* Stats */}
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        color: "var(--color-text-3)",
-                      }}
-                    >
-                      {a.submissionCount} submission{a.submissionCount !== 1 ? "s" : ""}
-                      {" · "}
-                      {a.gradedCount} graded
-                      {" · "}
-                      {pending} pending
-                    </div>
+                    {a.dueDate && <span>Due {formatDate(a.dueDate)}</span>}
                   </div>
-
-                  <button
-                    onClick={() => viewSubmissions(a)}
-                    style={{
-                      ...btnSecondary,
-                      flexShrink: 0,
-                      fontSize: "12px",
-                      padding: "6px 12px",
-                    }}
-                  >
-                    View Submissions
-                  </button>
                 </div>
+
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => viewSubmissions(a)}
+                  rightIcon={<Icon name="chevron-right" size={12} strokeWidth={2} />}
+                >
+                  Submissions
+                </Button>
               </div>
             );
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+function EmptyCard({
+  title,
+  description,
+  icon,
+}: {
+  title: string;
+  description: string;
+  icon: "clipboard-check" | "users" | "bar-chart";
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "60px 24px",
+        gap: 12,
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 12,
+        boxShadow: "var(--shadow-card)",
+        textAlign: "center",
+      }}
+    >
+      <IconTile icon={icon} color="indigo" size="lg" />
+      <div>
+        <div
+          style={{
+            fontSize: 14.5,
+            fontWeight: 600,
+            color: "var(--color-text)",
+            marginBottom: 4,
+          }}
+        >
+          {title}
+        </div>
+        <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
+          {description}
+        </div>
+      </div>
     </div>
   );
 }

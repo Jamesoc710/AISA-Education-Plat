@@ -1,12 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ConceptSidebar } from "@/components/concept-sidebar";
+import { useEffect, useMemo, useState } from "react";
 import { ConceptBody } from "@/components/concept-body";
+import { ConceptSectionNav } from "@/components/concept-section-nav";
+import { ConceptPager } from "@/components/concept-pager";
 import type { ConceptDetail, SidebarSection } from "@/lib/concepts";
 
 const BOOKMARKS_KEY = "aisa-atlas-bookmarks";
 
+/**
+ * Concept detail client.
+ *
+ * Lives inside the (main) shell — so the global sidebar + top chrome are
+ * supplied by MainShell. This component owns the content card + the
+ * right-rail "More in section" nav + bottom prev/next pager.
+ */
 export function ConceptDetailClient({
   concept,
   sections,
@@ -15,7 +23,6 @@ export function ConceptDetailClient({
   sections: SidebarSection[];
 }) {
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -35,98 +42,40 @@ export function ConceptDetailClient({
     });
   };
 
+  const { siblings, prev, next } = useMemo(() => {
+    const section = sections.find((s) => s.id === concept.section.id);
+    const list = section?.concepts ?? [];
+    const idx = list.findIndex((c) => c.slug === concept.slug);
+    return {
+      siblings: list,
+      prev: idx > 0 ? list[idx - 1] : null,
+      next: idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null,
+    };
+  }, [sections, concept.section.id, concept.slug]);
+
   return (
     <div
+      className="concept-shell concept-shell-padding"
       style={{
-        display: "flex",
-        height: "100vh",
-        overflow: "hidden",
-        backgroundColor: "var(--color-bg)",
+        maxWidth: 1320,
+        margin: "0 auto",
       }}
     >
-      {/* ── Sidebar ───────────────────────────────────────────── */}
-      <ConceptSidebar
-        sections={sections}
-        currentSlug={concept.slug}
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-
-      {/* ── Mobile backdrop ───────────────────────────────────── */}
-      {sidebarOpen && (
-        <div
-          onClick={() => setSidebarOpen(false)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.6)",
-            zIndex: 30,
-          }}
+      <div style={{ minWidth: 0 }}>
+        <ConceptBody
+          concept={concept}
+          bookmarked={bookmarks.has(concept.id)}
+          onToggleBookmark={() => toggleBookmark(concept.id)}
         />
-      )}
-
-      {/* ── Main content ──────────────────────────────────────── */}
-      <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-        {/* Top bar — only visible on mobile/tablet */}
-        <MobileTopBar
-          conceptName={concept.name}
-          onMenuClick={() => setSidebarOpen(true)}
-        />
-
-        <div style={{ flex: 1, overflowY: "auto" }}>
-          <ConceptBody
-            concept={concept}
-            bookmarked={bookmarks.has(concept.id)}
-            onToggleBookmark={() => toggleBookmark(concept.id)}
-          />
-        </div>
+        <ConceptPager prev={prev} next={next} />
       </div>
-    </div>
-  );
-}
 
-function MobileTopBar({
-  conceptName,
-  onMenuClick,
-}: {
-  conceptName: string;
-  onMenuClick: () => void;
-}) {
-  return (
-    <div
-      className="concept-mobile-bar"
-      style={{
-        display: "none",
-        alignItems: "center",
-        gap: "12px",
-        padding: "0 16px",
-        height: "48px",
-        borderBottom: "1px solid var(--color-border)",
-        backgroundColor: "var(--color-bg)",
-        flexShrink: 0,
-      }}
-    >
-      <button
-        onClick={onMenuClick}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "4px",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          padding: "4px",
-          color: "var(--color-text-2)",
-        }}
-        aria-label="Open navigation"
-      >
-        <span style={{ display: "block", width: "16px", height: "1.5px", backgroundColor: "currentColor" }} />
-        <span style={{ display: "block", width: "16px", height: "1.5px", backgroundColor: "currentColor" }} />
-        <span style={{ display: "block", width: "16px", height: "1.5px", backgroundColor: "currentColor" }} />
-      </button>
-      <span style={{ fontSize: "13px", color: "var(--color-text-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-        {conceptName}
-      </span>
+      <ConceptSectionNav
+        sectionName={concept.section.name}
+        sectionSlug={concept.section.slug}
+        siblings={siblings}
+        currentSlug={concept.slug}
+      />
     </div>
   );
 }

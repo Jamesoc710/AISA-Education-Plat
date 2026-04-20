@@ -47,3 +47,8 @@ next-env.d.ts
 /app/generated/prisma
 
 .vercel
+
+# Local dev artifacts
+/dev.db
+/backups
+/.playwright-mcp

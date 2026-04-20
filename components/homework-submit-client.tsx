@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Icon } from "@/components/ui/icon";
+import { Button } from "@/components/ui/button";
 
 type HomeworkSubmitProps = {
   assignmentId: string;
@@ -33,6 +35,7 @@ export function HomeworkSubmitClient({
   const [submitting, setSubmitting] = useState(false);
   const [submission, setSubmission] = useState(existingSubmission);
   const [error, setError] = useState<string | null>(null);
+  const [focused, setFocused] = useState(false);
 
   const handleSubmit = async () => {
     if (!content.trim() || submitting) return;
@@ -85,91 +88,103 @@ export function HomeworkSubmitClient({
   return (
     <div
       style={{
-        maxWidth: "760px",
+        maxWidth: 760,
         margin: "0 auto",
-        padding: "48px 40px 80px",
+        padding: "40px 40px 80px",
       }}
     >
-      {/* ── Back link ──────────────────────────────────────── */}
       <Link
-        href="/dashboard"
+        href="/homework"
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: "4px",
-          fontSize: "12px",
+          gap: 4,
+          fontSize: 12.5,
+          fontWeight: 500,
           color: "var(--color-text-3)",
           textDecoration: "none",
-          marginBottom: "20px",
+          marginBottom: 18,
         }}
       >
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path d="M19 12H5" />
-          <path d="M12 19l-7-7 7-7" />
-        </svg>
-        Dashboard
+        <Icon
+          name="chevron-right"
+          size={14}
+          strokeWidth={2}
+          style={{ transform: "rotate(180deg)" }}
+        />
+        Homework
       </Link>
 
-      {/* ── Header ─────────────────────────────────────────── */}
-      <div style={{ marginBottom: "32px" }}>
+      <div style={{ marginBottom: 28 }}>
         <h1
           style={{
-            margin: 0,
-            fontSize: "24px",
+            margin: "0 0 10px",
+            fontSize: 28,
             fontWeight: 600,
             color: "var(--color-text)",
-            lineHeight: "1.3",
+            lineHeight: 1.25,
             letterSpacing: "-0.02em",
           }}
         >
           {title}
         </h1>
-
-        {conceptName && conceptSlug && (
-          <Link
-            href={`/concepts/${conceptSlug}`}
-            style={{
-              display: "inline-block",
-              marginTop: "6px",
-              fontSize: "12px",
-              color: "var(--color-accent)",
-              textDecoration: "none",
-            }}
-          >
-            {conceptName}
-          </Link>
-        )}
-
-        {formattedDue && (
-          <div
-            style={{
-              marginTop: "8px",
-              fontSize: "12px",
-              color: "var(--color-text-3)",
-            }}
-          >
-            Due: {formattedDue}
-          </div>
-        )}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+          }}
+        >
+          {conceptName && conceptSlug && (
+            <Link
+              href={`/concepts/${conceptSlug}`}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                padding: "3px 10px",
+                fontSize: 12,
+                fontWeight: 500,
+                color: "var(--color-accent-on-soft)",
+                backgroundColor: "var(--color-accent-soft)",
+                borderRadius: 999,
+                textDecoration: "none",
+              }}
+            >
+              {conceptName}
+            </Link>
+          )}
+          {formattedDue && (
+            <span style={{ fontSize: 12.5, color: "var(--color-text-3)" }}>
+              Due {formattedDue}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* ── Description ────────────────────────────────────── */}
+      {/* Description card */}
       <div
         style={{
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: "8px",
-          padding: "20px",
-          marginBottom: "32px",
+          borderRadius: 12,
+          padding: "22px 24px",
+          marginBottom: 28,
+          boxShadow: "var(--shadow-card)",
         }}
       >
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 650,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            color: "var(--color-text-3)",
+            marginBottom: 14,
+          }}
+        >
+          Assignment
+        </div>
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
@@ -177,8 +192,8 @@ export function HomeworkSubmitClient({
               <p
                 style={{
                   margin: "0 0 14px",
-                  fontSize: "14px",
-                  lineHeight: "1.75",
+                  fontSize: 14,
+                  lineHeight: 1.7,
                   color: "var(--color-text)",
                 }}
               >
@@ -193,7 +208,11 @@ export function HomeworkSubmitClient({
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: "var(--color-accent)", textDecoration: "none" }}
+                style={{
+                  color: "var(--color-accent)",
+                  textDecoration: "underline",
+                  textUnderlineOffset: 2,
+                }}
               >
                 {children}
               </a>
@@ -202,9 +221,9 @@ export function HomeworkSubmitClient({
               <ul
                 style={{
                   margin: "0 0 14px",
-                  paddingLeft: "20px",
-                  fontSize: "14px",
-                  lineHeight: "1.75",
+                  paddingLeft: 22,
+                  fontSize: 14,
+                  lineHeight: 1.7,
                   color: "var(--color-text)",
                 }}
               >
@@ -215,9 +234,9 @@ export function HomeworkSubmitClient({
               <ol
                 style={{
                   margin: "0 0 14px",
-                  paddingLeft: "20px",
-                  fontSize: "14px",
-                  lineHeight: "1.75",
+                  paddingLeft: 22,
+                  fontSize: 14,
+                  lineHeight: 1.7,
                   color: "var(--color-text)",
                 }}
               >
@@ -225,7 +244,7 @@ export function HomeworkSubmitClient({
               </ol>
             ),
             li: ({ children }) => (
-              <li style={{ marginBottom: "4px" }}>{children}</li>
+              <li style={{ marginBottom: 4 }}>{children}</li>
             ),
             code: ({ children, className }) => {
               const isBlock = className?.includes("language-");
@@ -236,12 +255,12 @@ export function HomeworkSubmitClient({
                     padding: "12px 16px",
                     backgroundColor: "var(--color-surface-2)",
                     border: "1px solid var(--color-border)",
-                    borderRadius: "6px",
-                    fontSize: "12.5px",
+                    borderRadius: 8,
+                    fontSize: 12.5,
                     fontFamily: "var(--font-mono)",
                     color: "var(--color-text)",
                     overflowX: "auto",
-                    lineHeight: "1.6",
+                    lineHeight: 1.6,
                     margin: "0 0 14px",
                   }}
                 >
@@ -250,11 +269,11 @@ export function HomeworkSubmitClient({
               ) : (
                 <code
                   style={{
-                    padding: "1px 5px",
+                    padding: "1px 6px",
                     backgroundColor: "var(--color-surface-2)",
                     border: "1px solid var(--color-border)",
-                    borderRadius: "3px",
-                    fontSize: "12px",
+                    borderRadius: 4,
+                    fontSize: 12.5,
                     fontFamily: "var(--font-mono)",
                     color: "var(--color-text)",
                   }}
@@ -269,138 +288,51 @@ export function HomeworkSubmitClient({
         </ReactMarkdown>
       </div>
 
-      {/* ── Submission section ─────────────────────────────── */}
+      {/* Submission section */}
       {submission ? (
-        <div>
-          {/* Submitted badge */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "16px",
-            }}
-          >
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "5px",
-                fontSize: "12px",
-                fontWeight: 500,
-                color: "var(--color-correct, #4ade80)",
-                backgroundColor: "rgba(74, 222, 128, 0.10)",
-                borderRadius: "4px",
-                padding: "3px 10px",
-              }}
-            >
-              <svg
-                width="11"
-                height="11"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              Submitted
-            </span>
-            <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
-              {formattedSubmittedAt}
-            </span>
-          </div>
-
-          {/* Grade badge */}
-          {submission.grade && (
-            <div style={{ marginBottom: "16px" }}>
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "20px",
-                  fontWeight: 600,
-                  minWidth: "48px",
-                  padding: "8px 16px",
-                  borderRadius: "8px",
-                  color: isPassGrade(submission.grade)
-                    ? "var(--color-correct, #4ade80)"
-                    : "var(--color-text)",
-                  backgroundColor: isPassGrade(submission.grade)
-                    ? "rgba(74, 222, 128, 0.10)"
-                    : "var(--color-surface-2)",
-                }}
-              >
-                {submission.grade}
-              </span>
-            </div>
-          )}
-
-          {/* Feedback */}
-          {submission.feedback && (
-            <p
-              style={{
-                margin: "0 0 16px",
-                fontSize: "14px",
-                color: "var(--color-text-2)",
-                fontStyle: "italic",
-                lineHeight: "1.6",
-              }}
-            >
-              {submission.feedback}
-            </p>
-          )}
-
-          {/* Not graded yet */}
-          {!submission.grade && !submission.feedback && (
-            <p
-              style={{
-                margin: "0 0 16px",
-                fontSize: "12px",
-                color: "var(--color-text-3)",
-              }}
-            >
-              Awaiting review
-            </p>
-          )}
-
-          {/* Submitted content */}
-          <div
-            style={{
-              backgroundColor: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "8px",
-              padding: "20px",
-              fontSize: "14px",
-              lineHeight: "1.75",
-              color: "var(--color-text)",
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {submission.content}
-          </div>
-        </div>
+        <SubmissionView
+          submission={submission}
+          formattedSubmittedAt={formattedSubmittedAt}
+        />
       ) : (
         <div>
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 650,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              color: "var(--color-text-3)",
+              marginBottom: 8,
+            }}
+          >
+            Your submission
+          </div>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Write your submission here..."
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            placeholder="Write your submission here…"
+            rows={9}
             style={{
               width: "100%",
-              minHeight: "200px",
-              padding: "16px",
-              fontSize: "14px",
+              padding: "14px 16px",
+              fontSize: 14,
               fontFamily: "inherit",
               color: "var(--color-text)",
               backgroundColor: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "8px",
+              border: `1px solid ${focused ? "var(--color-accent)" : "var(--color-border)"}`,
+              boxShadow: focused
+                ? "0 0 0 3px var(--color-accent-dim)"
+                : "var(--shadow-card)",
+              borderRadius: 10,
               resize: "vertical",
               outline: "none",
-              lineHeight: "1.75",
+              lineHeight: 1.65,
               boxSizing: "border-box",
+              transition:
+                "border-color 0.15s ease, box-shadow 0.15s ease",
             }}
           />
 
@@ -409,45 +341,189 @@ export function HomeworkSubmitClient({
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              marginTop: "10px",
+              marginTop: 10,
+              fontSize: 12,
+              color: "var(--color-text-3)",
             }}
           >
-            <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
-              {content.length} characters
-            </span>
-
+            <span>{content.length} characters</span>
             {error && (
-              <span style={{ fontSize: "12px", color: "#ef4444" }}>
-                {error}
-              </span>
+              <span style={{ color: "var(--color-incorrect)" }}>{error}</span>
             )}
           </div>
 
-          <button
-            onClick={handleSubmit}
-            disabled={!content.trim() || submitting}
-            style={{
-              marginTop: "16px",
-              padding: "10px 20px",
-              fontSize: "13px",
-              fontWeight: 500,
-              fontFamily: "inherit",
-              color: "#fff",
-              backgroundColor:
-                !content.trim() || submitting
-                  ? "var(--color-accent-dim)"
-                  : "var(--color-accent)",
-              border: "none",
-              borderRadius: "8px",
-              cursor: !content.trim() || submitting ? "not-allowed" : "pointer",
-              opacity: !content.trim() || submitting ? 0.6 : 1,
-              transition: "opacity 0.15s",
-            }}
-          >
-            {submitting ? "Submitting..." : "Submit Homework"}
-          </button>
+          <div style={{ marginTop: 18 }}>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={handleSubmit}
+              disabled={!content.trim() || submitting}
+            >
+              {submitting ? "Submitting…" : "Submit homework"}
+            </Button>
+          </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function SubmissionView({
+  submission,
+  formattedSubmittedAt,
+}: {
+  submission: {
+    content: string;
+    submittedAt: string;
+    grade: string | null;
+    feedback: string | null;
+  };
+  formattedSubmittedAt: string | null;
+}) {
+  const passed = submission.grade ? isPassGrade(submission.grade) : false;
+
+  return (
+    <div>
+      {/* Status row */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginBottom: 18,
+        }}
+      >
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "3px 10px",
+            fontSize: 11.5,
+            fontWeight: 600,
+            color: "var(--color-correct)",
+            backgroundColor: "var(--color-correct-dim)",
+            borderRadius: 999,
+          }}
+        >
+          <Icon name="clipboard-check" size={11} strokeWidth={2.25} />
+          Submitted
+        </span>
+        {formattedSubmittedAt && (
+          <span style={{ fontSize: 12, color: "var(--color-text-3)" }}>
+            {formattedSubmittedAt}
+          </span>
+        )}
+      </div>
+
+      {/* Grade + feedback panel */}
+      {(submission.grade || submission.feedback) && (
+        <div
+          style={{
+            padding: "18px 20px",
+            backgroundColor: passed
+              ? "var(--color-correct-dim)"
+              : "var(--color-surface)",
+            border: `1px solid ${
+              passed
+                ? "var(--color-correct-border)"
+                : "var(--color-border)"
+            }`,
+            borderRadius: 12,
+            marginBottom: 18,
+            boxShadow: passed ? "none" : "var(--shadow-card)",
+          }}
+        >
+          {submission.grade && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                gap: 14,
+                marginBottom: submission.feedback ? 12 : 0,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 36,
+                  fontWeight: 700,
+                  color: passed
+                    ? "var(--color-correct)"
+                    : "var(--color-text)",
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1,
+                }}
+              >
+                {submission.grade}
+              </span>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 650,
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  color: "var(--color-text-3)",
+                }}
+              >
+                Grade
+              </span>
+            </div>
+          )}
+          {submission.feedback && (
+            <p
+              style={{
+                margin: 0,
+                fontSize: 14,
+                color: "var(--color-text-2)",
+                lineHeight: 1.65,
+              }}
+            >
+              {submission.feedback}
+            </p>
+          )}
+        </div>
+      )}
+
+      {!submission.grade && !submission.feedback && (
+        <p
+          style={{
+            margin: "0 0 18px",
+            fontSize: 13,
+            color: "var(--color-text-3)",
+          }}
+        >
+          Awaiting review by your mentor.
+        </p>
+      )}
+
+      {/* Submitted content */}
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 650,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          color: "var(--color-text-3)",
+          marginBottom: 8,
+        }}
+      >
+        Your submission
+      </div>
+      <div
+        style={{
+          backgroundColor: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: 12,
+          padding: "18px 20px",
+          fontSize: 14,
+          lineHeight: 1.7,
+          color: "var(--color-text)",
+          whiteSpace: "pre-wrap",
+          boxShadow: "var(--shadow-card)",
+        }}
+      >
+        {submission.content}
+      </div>
     </div>
   );
 }

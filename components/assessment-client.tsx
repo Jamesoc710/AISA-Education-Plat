@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
-
-// ── Types ────────────────────────────────────────────────────────────────────
+import { Icon } from "@/components/ui/icon";
+import { IconTile } from "@/components/ui/icon-tile";
+import { Button } from "@/components/ui/button";
 
 type AssessmentQuestion = {
   id: string;
@@ -27,8 +29,6 @@ type AssessmentProps = {
 
 type Phase = "intro" | "quiz" | "completed";
 
-// ── Main Component ───────────────────────────────────────────────────────────
-
 export function AssessmentClient({
   quizId,
   title,
@@ -44,11 +44,7 @@ export function AssessmentClient({
   const [phase, setPhase] = useState<Phase>(
     alreadyCompleted ? "completed" : "intro",
   );
-
-  // Answers map: questionId -> selected text (MC) or typed text (SA)
   const [answers, setAnswers] = useState<Map<string, string>>(new Map());
-
-  // Result state (after submission)
   const [resultScore, setResultScore] = useState<number | null>(existingScore);
   const [resultMCTotal, setResultMCTotal] = useState<number | null>(
     existingMCTotal,
@@ -59,11 +55,9 @@ export function AssessmentClient({
   const [resultSACount, setResultSACount] = useState<number | null>(
     existingSACount,
   );
-
   const [submitting, setSubmitting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Timer
   const [secondsLeft, setSecondsLeft] = useState<number | null>(
     timeLimit ? timeLimit * 60 : null,
   );
@@ -71,8 +65,6 @@ export function AssessmentClient({
   const hasAutoSubmitted = useRef(false);
 
   const answeredCount = answers.size;
-
-  // ── Submit handler ─────────────────────────────────────────────────────────
 
   const handleSubmit = useCallback(async () => {
     if (submitting) return;
@@ -112,8 +104,6 @@ export function AssessmentClient({
     }
   }, [submitting, quizId, questions, answers]);
 
-  // ── Timer effect ───────────────────────────────────────────────────────────
-
   useEffect(() => {
     if (phase !== "quiz" || secondsLeft === null) return;
 
@@ -133,15 +123,12 @@ export function AssessmentClient({
     };
   }, [phase, secondsLeft === null]);
 
-  // Auto-submit when timer hits 0
   useEffect(() => {
     if (secondsLeft === 0 && phase === "quiz" && !hasAutoSubmitted.current) {
       hasAutoSubmitted.current = true;
       handleSubmit();
     }
   }, [secondsLeft, phase, handleSubmit]);
-
-  // ── Helpers ────────────────────────────────────────────────────────────────
 
   function setAnswer(questionId: string, value: string) {
     setAnswers((prev) => {
@@ -157,45 +144,83 @@ export function AssessmentClient({
     return `${m}:${sec.toString().padStart(2, "0")}`;
   }
 
-  // ── Intro Phase ────────────────────────────────────────────────────────────
-
+  // ── Intro phase ──────────────────────────────────────────────
   if (phase === "intro") {
     return (
-      <div className="animate-fade-in" style={{ maxWidth: 600 }}>
-        <h1
+      <div
+        className="animate-fade-in"
+        style={{ maxWidth: 680, margin: "0 auto", padding: "56px 40px 80px" }}
+      >
+        <Link
+          href="/assessments"
           style={{
-            margin: "0 0 8px",
-            fontSize: "24px",
-            fontWeight: 600,
-            color: "var(--color-text)",
-            letterSpacing: "-0.02em",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            fontSize: 12.5,
+            fontWeight: 500,
+            color: "var(--color-text-3)",
+            textDecoration: "none",
+            marginBottom: 20,
           }}
         >
-          {title}
-        </h1>
-        {description && (
-          <p
-            style={{
-              margin: "0 0 24px",
-              fontSize: "14px",
-              color: "var(--color-text-2)",
-              lineHeight: "1.6",
-            }}
-          >
-            {description}
-          </p>
-        )}
+          <Icon
+            name="chevron-right"
+            size={14}
+            strokeWidth={2}
+            style={{ transform: "rotate(180deg)" }}
+          />
+          Assessments
+        </Link>
 
         <div
           style={{
-            padding: "20px",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 16,
+            marginBottom: 16,
+          }}
+        >
+          <IconTile icon="bar-chart" color="indigo" size="lg" />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1
+              style={{
+                margin: "0 0 8px",
+                fontSize: 28,
+                fontWeight: 600,
+                color: "var(--color-text)",
+                letterSpacing: "-0.02em",
+                lineHeight: 1.2,
+              }}
+            >
+              {title}
+            </h1>
+            {description && (
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 14,
+                  color: "var(--color-text-2)",
+                  lineHeight: 1.6,
+                }}
+              >
+                {description}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div
+          style={{
+            padding: "20px 22px",
             backgroundColor: "var(--color-surface)",
             border: "1px solid var(--color-border)",
-            borderRadius: "10px",
-            marginBottom: "24px",
+            borderRadius: 12,
+            margin: "28px 0",
             display: "flex",
             flexDirection: "column",
-            gap: "10px",
+            gap: 12,
+            boxShadow: "var(--shadow-card)",
           }}
         >
           <InfoRow label="Questions" value={String(questions.length)} />
@@ -204,67 +229,61 @@ export function AssessmentClient({
           )}
           <InfoRow
             label="Attempts"
-            value="1 (you cannot retake this assessment)"
+            value="1 — you cannot retake this assessment"
           />
         </div>
 
-        <button
+        <Button
+          variant="primary"
+          size="md"
           onClick={() => setPhase("quiz")}
-          style={{
-            padding: "12px 28px",
-            fontSize: "14px",
-            fontWeight: 500,
-            fontFamily: "inherit",
-            color: "#fff",
-            backgroundColor: "var(--color-accent)",
-            border: "1px solid var(--color-accent)",
-            borderRadius: "8px",
-            cursor: "pointer",
-            transition: "opacity 0.12s",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          rightIcon={
+            <Icon name="chevron-right" size={14} strokeWidth={2.25} />
+          }
         >
-          Begin Assessment
-        </button>
+          Begin assessment
+        </Button>
       </div>
     );
   }
 
-  // ── Completed Phase ────────────────────────────────────────────────────────
-
+  // ── Completed phase ──────────────────────────────────────────
   if (phase === "completed") {
     const mcTotal = resultMCTotal ?? 0;
     const mcCorrect = resultMCCorrect ?? 0;
     const saCount = resultSACount ?? 0;
     const percentage =
       mcTotal > 0 ? Math.round((mcCorrect / mcTotal) * 100) : 0;
-    const scoreColor =
+
+    const tone =
       percentage >= 80
-        ? "var(--color-correct)"
+        ? { fg: "var(--color-correct)", label: "Strong" }
         : percentage >= 50
-          ? "var(--color-gold)"
-          : "var(--color-incorrect)";
+          ? { fg: "var(--color-gold)", label: "Getting there" }
+          : { fg: "var(--color-incorrect)", label: "Keep going" };
 
     return (
-      <div className="animate-fade-in" style={{ maxWidth: 600 }}>
+      <div
+        className="animate-fade-in"
+        style={{ maxWidth: 680, margin: "0 auto", padding: "56px 40px 80px" }}
+      >
         <h1
           style={{
-            margin: "0 0 8px",
-            fontSize: "24px",
+            margin: "0 0 6px",
+            fontSize: 32,
             fontWeight: 600,
             color: "var(--color-text)",
-            letterSpacing: "-0.02em",
+            letterSpacing: "-0.025em",
           }}
         >
-          Assessment Complete
+          Assessment complete
         </h1>
         <p
           style={{
-            margin: "0 0 28px",
-            fontSize: "14px",
+            margin: "0 0 32px",
+            fontSize: 14,
             color: "var(--color-text-2)",
-            lineHeight: "1.6",
+            lineHeight: 1.55,
           }}
         >
           {title}
@@ -272,50 +291,70 @@ export function AssessmentClient({
 
         <div
           style={{
-            padding: "28px",
+            padding: "32px 28px",
             backgroundColor: "var(--color-surface)",
             border: "1px solid var(--color-border)",
-            borderRadius: "10px",
+            borderRadius: 14,
             textAlign: "center",
-            marginBottom: "28px",
+            marginBottom: 28,
+            boxShadow: "var(--shadow-card)",
           }}
         >
           {mcTotal > 0 && (
             <>
               <div
                 style={{
-                  fontSize: "48px",
+                  fontSize: 56,
                   fontWeight: 700,
-                  color: scoreColor,
+                  color: tone.fg,
                   letterSpacing: "-0.03em",
                   lineHeight: 1,
-                  marginBottom: "8px",
+                  marginBottom: 14,
                 }}
               >
                 {percentage}%
               </div>
               <div
                 style={{
-                  fontSize: "15px",
-                  color: "var(--color-text-2)",
-                  marginBottom: "4px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 10,
                 }}
               >
-                {mcCorrect} of {mcTotal} multiple choice correct
+                <span
+                  style={{
+                    padding: "3px 10px",
+                    fontSize: 11,
+                    fontWeight: 650,
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                    color: "#fff",
+                    backgroundColor: tone.fg,
+                    borderRadius: 999,
+                  }}
+                >
+                  {tone.label}
+                </span>
+                <span
+                  style={{
+                    fontSize: 13.5,
+                    color: "var(--color-text-2)",
+                  }}
+                >
+                  {mcCorrect} of {mcTotal} multiple choice correct
+                </span>
               </div>
             </>
           )}
           {saCount > 0 && (
             <div
               style={{
-                fontSize: "13px",
+                fontSize: 12.5,
                 color: "var(--color-text-3)",
-                marginTop: mcTotal > 0 ? "10px" : "0",
-                paddingTop: mcTotal > 0 ? "10px" : "0",
+                marginTop: mcTotal > 0 ? 18 : 0,
+                paddingTop: mcTotal > 0 ? 18 : 0,
                 borderTop:
-                  mcTotal > 0
-                    ? "1px solid var(--color-border)"
-                    : "none",
+                  mcTotal > 0 ? "1px solid var(--color-border)" : "none",
               }}
             >
               {saCount} short answer question{saCount !== 1 ? "s" : ""} —
@@ -324,271 +363,359 @@ export function AssessmentClient({
           )}
         </div>
 
-        <Link
-          href="/dashboard"
-          style={{
-            display: "inline-block",
-            padding: "12px 28px",
-            fontSize: "13px",
-            fontWeight: 500,
-            color: "#fff",
-            backgroundColor: "var(--color-accent)",
-            border: "1px solid var(--color-accent)",
-            borderRadius: "8px",
-            textDecoration: "none",
-            transition: "opacity 0.12s",
-          }}
-        >
-          Back to Dashboard
-        </Link>
+        <div style={{ display: "flex", gap: 10 }}>
+          <Link href="/dashboard" style={{ textDecoration: "none", flex: 1 }}>
+            <Button variant="primary" size="md" fullWidth>
+              Back to dashboard
+            </Button>
+          </Link>
+          <Link href="/assessments" style={{ textDecoration: "none", flex: 1 }}>
+            <Button variant="secondary" size="md" fullWidth>
+              All assessments
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
 
-  // ── Quiz Phase ─────────────────────────────────────────────────────────────
+  // ── Quiz phase ───────────────────────────────────────────────
+  const progressPct = Math.round((answeredCount / questions.length) * 100);
 
   return (
-    <div className="animate-fade-in" style={{ maxWidth: 700 }}>
-      {/* Timer */}
-      {secondsLeft !== null && (
-        <div
-          style={{
-            position: "fixed",
-            top: 16,
-            right: 20,
-            fontSize: "14px",
-            fontWeight: 600,
-            color: secondsLeft < 300 ? "#e5716f" : "var(--color-text-2)",
-            backgroundColor: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "8px",
-            padding: "8px 14px",
-            zIndex: 50,
-          }}
-        >
-          {formatTime(secondsLeft)}
-        </div>
-      )}
-
-      {/* Header */}
+    <div
+      className="animate-fade-in"
+      style={{ maxWidth: 760, margin: "0 auto", padding: "40px 40px 80px" }}
+    >
+      {/* Sticky timer + progress header */}
       <div
         style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          padding: "14px 16px",
+          marginBottom: 22,
+          backgroundColor: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: 12,
+          boxShadow: "var(--shadow-card)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 10,
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 650,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                color: "var(--color-text-3)",
+                marginBottom: 2,
+              }}
+            >
+              {answeredCount} of {questions.length} answered
+            </div>
+            <div
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "var(--color-text)",
+                letterSpacing: "-0.01em",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {title}
+            </div>
+          </div>
+          {secondsLeft !== null && (
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "5px 11px",
+                fontSize: 13,
+                fontWeight: 600,
+                fontVariantNumeric: "tabular-nums",
+                color:
+                  secondsLeft < 300
+                    ? "var(--color-incorrect)"
+                    : "var(--color-text)",
+                backgroundColor:
+                  secondsLeft < 300
+                    ? "var(--color-incorrect-dim)"
+                    : "var(--color-surface-2)",
+                borderRadius: 999,
+                flexShrink: 0,
+              }}
+            >
+              <Icon name="calendar" size={12} strokeWidth={2} />
+              {formatTime(secondsLeft)}
+            </div>
+          )}
+        </div>
+        <div
+          style={{
+            height: 4,
+            width: "100%",
+            backgroundColor: "var(--color-surface-2)",
+            borderRadius: 999,
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              width: `${progressPct}%`,
+              height: "100%",
+              backgroundColor: "var(--color-accent)",
+              transition: "width 220ms ease",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Question list */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {questions.map((q, idx) => (
+          <QuestionCard
+            key={q.id}
+            index={idx}
+            question={q}
+            value={answers.get(q.id) ?? ""}
+            onChange={(v) => setAnswer(q.id, v)}
+          />
+        ))}
+      </div>
+
+      {/* Submit row */}
+      <div
+        style={{
+          marginTop: 28,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: "20px",
+          gap: 12,
+          flexWrap: "wrap",
         }}
       >
-        <h1
-          style={{
-            margin: 0,
-            fontSize: "20px",
-            fontWeight: 600,
-            color: "var(--color-text)",
-            letterSpacing: "-0.02em",
-          }}
-        >
-          {title}
-        </h1>
-        <span
-          style={{
-            fontSize: "13px",
-            color: "var(--color-text-3)",
-            fontWeight: 500,
-          }}
-        >
-          {answeredCount} of {questions.length} answered
-        </span>
-      </div>
-
-      {/* Questions */}
-      {questions.map((q, idx) => (
-        <div
-          key={q.id}
-          style={{
-            backgroundColor: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "10px",
-            padding: "20px",
-            marginBottom: "16px",
-          }}
-        >
-          <div
-            style={{
-              fontSize: "14px",
-              fontWeight: 500,
-              color: "var(--color-text)",
-              marginBottom: "14px",
-              lineHeight: "1.5",
-            }}
-          >
-            <span style={{ color: "var(--color-text-3)", marginRight: "8px" }}>
-              {idx + 1}.
-            </span>
-            {q.questionText}
-          </div>
-
-          {q.type === "MC" && q.options ? (
-            <MCOptions
-              questionId={q.id}
-              options={q.options}
-              selected={answers.get(q.id) ?? null}
-              onSelect={(text) => setAnswer(q.id, text)}
-            />
-          ) : (
-            <textarea
-              value={answers.get(q.id) ?? ""}
-              onChange={(e) => setAnswer(q.id, e.target.value)}
-              placeholder="Type your answer..."
-              style={{
-                width: "100%",
-                minHeight: "100px",
-                padding: "12px",
-                fontSize: "13px",
-                fontFamily: "inherit",
-                color: "var(--color-text)",
-                backgroundColor: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
-                borderRadius: "6px",
-                resize: "vertical",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-              onFocus={(e) =>
-                (e.currentTarget.style.borderColor = "var(--color-accent)")
-              }
-              onBlur={(e) =>
-                (e.currentTarget.style.borderColor = "var(--color-border)")
-              }
-            />
-          )}
+        <div style={{ fontSize: 12.5, color: "var(--color-text-3)" }}>
+          {answeredCount === questions.length
+            ? "All questions answered."
+            : `${questions.length - answeredCount} unanswered`}
         </div>
-      ))}
-
-      {/* Submit */}
-      <div style={{ marginTop: "8px", marginBottom: "40px" }}>
-        <button
+        <Button
+          variant="primary"
+          size="md"
           disabled={answeredCount === 0 || submitting}
           onClick={() => setShowConfirm(true)}
-          style={{
-            padding: "12px 28px",
-            fontSize: "14px",
-            fontWeight: 500,
-            fontFamily: "inherit",
-            color: "#fff",
-            backgroundColor:
-              answeredCount === 0 || submitting
-                ? "var(--color-surface-3)"
-                : "var(--color-accent)",
-            border: "1px solid transparent",
-            borderRadius: "8px",
-            cursor: answeredCount === 0 || submitting ? "not-allowed" : "pointer",
-            transition: "opacity 0.12s",
-            opacity: submitting ? 0.6 : 1,
-          }}
         >
-          {submitting ? "Submitting..." : "Submit Assessment"}
-        </button>
+          {submitting ? "Submitting…" : "Submit assessment"}
+        </Button>
       </div>
 
-      {/* Confirm dialog */}
       {showConfirm && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 100,
+        <ConfirmDialog
+          answeredCount={answeredCount}
+          totalCount={questions.length}
+          onCancel={() => setShowConfirm(false)}
+          onConfirm={() => {
+            setShowConfirm(false);
+            handleSubmit();
           }}
-          onClick={() => setShowConfirm(false)}
-        >
-          <div
-            className="animate-fade-in"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "12px",
-              padding: "28px",
-              maxWidth: 400,
-              width: "90%",
-            }}
-          >
-            <h2
-              style={{
-                margin: "0 0 8px",
-                fontSize: "16px",
-                fontWeight: 600,
-                color: "var(--color-text)",
-              }}
-            >
-              Submit Assessment?
-            </h2>
-            <p
-              style={{
-                margin: "0 0 20px",
-                fontSize: "13px",
-                color: "var(--color-text-2)",
-                lineHeight: "1.6",
-              }}
-            >
-              Are you sure? You cannot retake this assessment.
-              {answeredCount < questions.length && (
-                <span style={{ display: "block", marginTop: "8px", color: "var(--color-incorrect)" }}>
-                  You have only answered {answeredCount} of {questions.length} questions.
-                </span>
-              )}
-            </p>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <button
-                onClick={() => setShowConfirm(false)}
-                style={{
-                  flex: 1,
-                  padding: "10px 16px",
-                  fontSize: "13px",
-                  fontWeight: 500,
-                  fontFamily: "inherit",
-                  color: "var(--color-text)",
-                  backgroundColor: "var(--color-surface-2)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  setShowConfirm(false);
-                  handleSubmit();
-                }}
-                style={{
-                  flex: 1,
-                  padding: "10px 16px",
-                  fontSize: "13px",
-                  fontWeight: 500,
-                  fontFamily: "inherit",
-                  color: "#fff",
-                  backgroundColor: "var(--color-accent)",
-                  border: "1px solid var(--color-accent)",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                }}
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-        </div>
+        />
       )}
     </div>
   );
 }
 
-// ── MC Options ───────────────────────────────────────────────────────────────
+function ConfirmDialog({
+  answeredCount,
+  totalCount,
+  onCancel,
+  onConfirm,
+}: {
+  answeredCount: number;
+  totalCount: number;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      data-theme="light"
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(20, 20, 30, 0.45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 100,
+      }}
+      onClick={onCancel}
+    >
+      <div
+        className="animate-fade-in"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: 14,
+          padding: 28,
+          maxWidth: 440,
+          width: "92%",
+          boxShadow: "var(--shadow-popover)",
+        }}
+      >
+        <h2
+          style={{
+            margin: "0 0 10px",
+            fontSize: 18,
+            fontWeight: 600,
+            color: "var(--color-text)",
+            letterSpacing: "-0.015em",
+          }}
+        >
+          Submit assessment?
+        </h2>
+        <p
+          style={{
+            margin: "0 0 8px",
+            fontSize: 13.5,
+            color: "var(--color-text-2)",
+            lineHeight: 1.6,
+          }}
+        >
+          You cannot retake this assessment after submitting.
+        </p>
+        {answeredCount < totalCount && (
+          <p
+            style={{
+              margin: "0 0 20px",
+              fontSize: 13,
+              color: "var(--color-incorrect)",
+              lineHeight: 1.5,
+            }}
+          >
+            You have only answered {answeredCount} of {totalCount} questions.
+          </p>
+        )}
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            justifyContent: "flex-end",
+            marginTop: 22,
+          }}
+        >
+          <Button variant="secondary" size="md" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button variant="primary" size="md" onClick={onConfirm}>
+            Submit
+          </Button>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+function QuestionCard({
+  index,
+  question,
+  value,
+  onChange,
+}: {
+  index: number;
+  question: AssessmentQuestion;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div
+      style={{
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 12,
+        padding: "20px 22px",
+        boxShadow: "var(--shadow-card)",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 650,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          color: "var(--color-text-3)",
+          marginBottom: 8,
+        }}
+      >
+        Question {index + 1}
+      </div>
+      <h3
+        style={{
+          margin: "0 0 16px",
+          fontSize: 16,
+          fontWeight: 600,
+          color: "var(--color-text)",
+          lineHeight: 1.45,
+          letterSpacing: "-0.01em",
+        }}
+      >
+        {question.questionText}
+      </h3>
+
+      {question.type === "MC" && question.options ? (
+        <MCOptions
+          questionId={question.id}
+          options={question.options}
+          selected={value || null}
+          onSelect={onChange}
+        />
+      ) : (
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder="Type your answer…"
+          rows={4}
+          style={{
+            width: "100%",
+            padding: "12px 14px",
+            fontSize: 14,
+            fontFamily: "inherit",
+            color: "var(--color-text)",
+            backgroundColor: "var(--color-surface)",
+            border: `1px solid ${focused ? "var(--color-accent)" : "var(--color-border)"}`,
+            boxShadow: focused ? "0 0 0 3px var(--color-accent-dim)" : "none",
+            borderRadius: 10,
+            resize: "vertical",
+            outline: "none",
+            lineHeight: 1.6,
+            boxSizing: "border-box",
+            transition: "border-color 0.15s ease, box-shadow 0.15s ease",
+          }}
+        />
+      )}
+    </div>
+  );
+}
 
 function MCOptions({
   questionId,
@@ -602,54 +729,105 @@ function MCOptions({
   onSelect: (text: string) => void;
 }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-      {options.map((opt, idx) => {
-        const isSelected = selected === opt.text;
-        return (
-          <button
-            key={`${questionId}-${idx}`}
-            onClick={() => onSelect(opt.text)}
-            style={{
-              display: "block",
-              width: "100%",
-              padding: "12px",
-              fontSize: "13px",
-              fontFamily: "inherit",
-              color: "var(--color-text)",
-              backgroundColor: isSelected
-                ? "var(--color-accent-dim)"
-                : "var(--color-surface-2)",
-              border: isSelected
-                ? "1px solid var(--color-accent)"
-                : "1px solid var(--color-border)",
-              borderRadius: "6px",
-              cursor: "pointer",
-              textAlign: "left",
-              lineHeight: "1.4",
-              transition: "background-color 0.12s, border-color 0.12s",
-            }}
-            onMouseEnter={(e) => {
-              if (!isSelected) {
-                e.currentTarget.style.backgroundColor =
-                  "var(--color-surface-3)";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isSelected) {
-                e.currentTarget.style.backgroundColor =
-                  "var(--color-surface-2)";
-              }
-            }}
-          >
-            {opt.text}
-          </button>
-        );
-      })}
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {options.map((opt, idx) => (
+        <MCOptionButton
+          key={`${questionId}-${idx}`}
+          index={idx}
+          text={opt.text}
+          isSelected={selected === opt.text}
+          onSelect={() => onSelect(opt.text)}
+        />
+      ))}
     </div>
   );
 }
 
-// ── Info Row ─────────────────────────────────────────────────────────────────
+function MCOptionButton({
+  index,
+  text,
+  isSelected,
+  onSelect,
+}: {
+  index: number;
+  text: string;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  const [hov, setHov] = useState(false);
+
+  let borderColor = "var(--color-border)";
+  let bgColor = "var(--color-surface)";
+  let indicatorBg = "transparent";
+  let indicatorBorder = "var(--color-border)";
+  let indicatorColor = "var(--color-text-3)";
+
+  if (isSelected) {
+    borderColor = "var(--color-accent)";
+    bgColor = "var(--color-accent-soft)";
+    indicatorBg = "var(--color-accent)";
+    indicatorBorder = "var(--color-accent)";
+    indicatorColor = "#fff";
+  } else if (hov) {
+    borderColor = "var(--color-accent)";
+    bgColor = "var(--color-accent-soft)";
+    indicatorBorder = "var(--color-accent)";
+    indicatorColor = "var(--color-accent-on-soft)";
+  }
+
+  return (
+    <button
+      onClick={onSelect}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        padding: "12px 14px",
+        backgroundColor: bgColor,
+        border: `1px solid ${borderColor}`,
+        borderRadius: 10,
+        cursor: "pointer",
+        textAlign: "left",
+        fontFamily: "inherit",
+        transition: "border-color 180ms ease, background-color 180ms ease",
+        width: "100%",
+      }}
+    >
+      <span
+        style={{
+          width: 26,
+          height: 26,
+          borderRadius: "50%",
+          border: `1.5px solid ${indicatorBorder}`,
+          backgroundColor: indicatorBg,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          fontSize: 12,
+          fontWeight: 650,
+          color: indicatorColor,
+          transition: "all 180ms ease",
+        }}
+      >
+        {String.fromCharCode(65 + index)}
+      </span>
+      <span
+        style={{
+          fontSize: 14,
+          color: "var(--color-text)",
+          lineHeight: 1.5,
+          fontWeight: 500,
+          flex: 1,
+        }}
+      >
+        {text}
+      </span>
+    </button>
+  );
+}
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
@@ -658,7 +836,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        fontSize: "13px",
+        fontSize: 13.5,
       }}
     >
       <span style={{ color: "var(--color-text-3)" }}>{label}</span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Icon } from "@/components/ui/icon";
 
 type MCQuestionProps = {
   question: {
@@ -27,112 +28,30 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
       {/* Question text */}
       <h2
         style={{
-          margin: "0 0 24px",
-          fontSize: "18px",
-          fontWeight: 500,
+          margin: "0 0 22px",
+          fontSize: 20,
+          fontWeight: 600,
           color: "var(--color-text)",
-          lineHeight: "1.5",
-          letterSpacing: "-0.01em",
+          lineHeight: 1.45,
+          letterSpacing: "-0.015em",
         }}
       >
         {question.questionText}
       </h2>
 
       {/* Options */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        {question.options.map((opt, i) => {
-          const isSelected = selectedIndex === i;
-          const isCorrectOption = opt.isCorrect;
-
-          let borderColor = "var(--color-border)";
-          let bgColor = "var(--color-surface)";
-          let textColor = "var(--color-text)";
-          let indicatorBg = "transparent";
-          let indicatorBorder = "var(--color-border)";
-
-          if (answered) {
-            if (isCorrectOption) {
-              borderColor = "var(--color-correct-border)";
-              bgColor = "var(--color-correct-dim)";
-              indicatorBg = "var(--color-correct)";
-              indicatorBorder = "var(--color-correct)";
-            } else if (isSelected && !isCorrectOption) {
-              borderColor = "var(--color-incorrect-border)";
-              bgColor = "var(--color-incorrect-dim)";
-              textColor = "var(--color-text-2)";
-              indicatorBg = "var(--color-incorrect)";
-              indicatorBorder = "var(--color-incorrect)";
-            } else {
-              textColor = "var(--color-text-3)";
-              borderColor = "var(--color-border-subtle)";
-              bgColor = "var(--color-bg)";
-            }
-          }
-
-          return (
-            <button
-              key={i}
-              onClick={() => handleSelect(i)}
-              disabled={answered}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: "12px",
-                padding: "14px 16px",
-                backgroundColor: bgColor,
-                border: `1px solid ${borderColor}`,
-                borderRadius: "8px",
-                cursor: answered ? "default" : "pointer",
-                textAlign: "left",
-                fontFamily: "inherit",
-                transition:
-                  "border-color 0.2s ease, background-color 0.2s ease",
-                width: "100%",
-              }}
-            >
-              {/* Letter indicator */}
-              <span
-                style={{
-                  width: "24px",
-                  height: "24px",
-                  borderRadius: "50%",
-                  border: `2px solid ${indicatorBorder}`,
-                  backgroundColor: indicatorBg,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  fontSize: "11px",
-                  fontWeight: 600,
-                  color:
-                    answered && (isCorrectOption || isSelected)
-                      ? "#fff"
-                      : "var(--color-text-3)",
-                  transition: "all 0.2s ease",
-                  marginTop: "1px",
-                }}
-              >
-                {answered && isCorrectOption
-                  ? "✓"
-                  : answered && isSelected && !isCorrectOption
-                    ? "✗"
-                    : String.fromCharCode(65 + i)}
-              </span>
-
-              {/* Option text */}
-              <span
-                style={{
-                  fontSize: "14px",
-                  color: textColor,
-                  lineHeight: "1.5",
-                  transition: "color 0.2s ease",
-                }}
-              >
-                {opt.text}
-              </span>
-            </button>
-          );
-        })}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {question.options.map((opt, i) => (
+          <MCOption
+            key={i}
+            index={i}
+            text={opt.text}
+            isCorrect={opt.isCorrect}
+            answered={answered}
+            isSelected={selectedIndex === i}
+            onSelect={() => handleSelect(i)}
+          />
+        ))}
       </div>
 
       {/* Explanation — shown after answering */}
@@ -140,31 +59,35 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
         <div
           className="animate-fade-in"
           style={{
-            marginTop: "20px",
-            padding: "16px 18px",
-            backgroundColor: "var(--color-surface-2)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "8px",
+            marginTop: 22,
+            padding: "16px 18px 18px",
+            backgroundColor: "var(--color-accent-soft)",
+            borderRadius: 10,
+            borderLeft: "3px solid var(--color-accent)",
           }}
         >
           <div
             style={{
-              fontSize: "11px",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 11,
               fontWeight: 600,
               letterSpacing: "0.06em",
               textTransform: "uppercase",
-              color: "var(--color-text-3)",
-              marginBottom: "8px",
+              color: "var(--color-accent-on-soft)",
+              marginBottom: 8,
             }}
           >
+            <Icon name="info" size={12} strokeWidth={2.25} />
             Explanation
           </div>
           <p
             style={{
               margin: 0,
-              fontSize: "13px",
-              color: "var(--color-text-2)",
-              lineHeight: "1.65",
+              fontSize: 14,
+              color: "var(--color-text)",
+              lineHeight: 1.65,
             }}
           >
             {question.answerExplanation}
@@ -172,5 +95,125 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
         </div>
       )}
     </div>
+  );
+}
+
+function MCOption({
+  index,
+  text,
+  isCorrect,
+  answered,
+  isSelected,
+  onSelect,
+}: {
+  index: number;
+  text: string;
+  isCorrect: boolean;
+  answered: boolean;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  const [hov, setHov] = useState(false);
+
+  let borderColor = "var(--color-border)";
+  let bgColor = "var(--color-surface)";
+  let textColor = "var(--color-text)";
+  let indicatorBg = "transparent";
+  let indicatorBorder = "var(--color-border)";
+  let indicatorColor = "var(--color-text-3)";
+  let boxShadow = "var(--shadow-card)";
+
+  if (answered) {
+    if (isCorrect) {
+      borderColor = "var(--color-correct-border)";
+      bgColor = "var(--color-correct-dim)";
+      indicatorBg = "var(--color-correct)";
+      indicatorBorder = "var(--color-correct)";
+      indicatorColor = "#fff";
+      boxShadow = "none";
+    } else if (isSelected) {
+      borderColor = "var(--color-incorrect-border)";
+      bgColor = "var(--color-incorrect-dim)";
+      textColor = "var(--color-text-2)";
+      indicatorBg = "var(--color-incorrect)";
+      indicatorBorder = "var(--color-incorrect)";
+      indicatorColor = "#fff";
+      boxShadow = "none";
+    } else {
+      textColor = "var(--color-text-3)";
+      borderColor = "var(--color-border-subtle)";
+      bgColor = "var(--color-surface)";
+      boxShadow = "none";
+    }
+  } else if (hov) {
+    borderColor = "var(--color-accent)";
+    bgColor = "var(--color-accent-soft)";
+    indicatorBorder = "var(--color-accent)";
+    indicatorColor = "var(--color-accent-on-soft)";
+    boxShadow = "var(--shadow-card-hover)";
+  }
+
+  return (
+    <button
+      onClick={onSelect}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      disabled={answered}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        padding: "14px 16px",
+        backgroundColor: bgColor,
+        border: `1px solid ${borderColor}`,
+        borderRadius: 10,
+        cursor: answered ? "default" : "pointer",
+        textAlign: "left",
+        fontFamily: "inherit",
+        boxShadow,
+        transition:
+          "border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease",
+        width: "100%",
+      }}
+    >
+      {/* Letter / status indicator */}
+      <span
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: "50%",
+          border: `1.5px solid ${indicatorBorder}`,
+          backgroundColor: indicatorBg,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          fontSize: 12,
+          fontWeight: 650,
+          color: indicatorColor,
+          transition: "all 180ms ease",
+        }}
+      >
+        {answered && isCorrect
+          ? "✓"
+          : answered && isSelected && !isCorrect
+            ? "✗"
+            : String.fromCharCode(65 + index)}
+      </span>
+
+      {/* Option text */}
+      <span
+        style={{
+          fontSize: 14.5,
+          color: textColor,
+          lineHeight: 1.5,
+          fontWeight: 500,
+          transition: "color 180ms ease",
+          flex: 1,
+        }}
+      >
+        {text}
+      </span>
+    </button>
   );
 }

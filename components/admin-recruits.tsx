@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { Icon } from "@/components/ui/icon";
+import { IconTile } from "@/components/ui/icon-tile";
 
 type Recruit = {
   id: string;
@@ -35,7 +37,7 @@ const VALID_ROLES = [
 ];
 
 function relativeTime(iso: string | null): string {
-  if (!iso) return "--";
+  if (!iso) return "—";
   const now = Date.now();
   const then = new Date(iso).getTime();
   const diffMs = now - then;
@@ -53,21 +55,26 @@ function relativeTime(iso: string | null): string {
   return `${years}y ago`;
 }
 
-function scoreColor(score: number | null): string {
-  if (score === null) return "var(--color-text-3)";
-  if (score >= 80) return "#4ade80";
-  if (score >= 50) return "#e8b54a";
-  return "#e5716f";
+function scoreTone(score: number | null): { fg: string; bg: string } | null {
+  if (score === null) return null;
+  if (score >= 80)
+    return { fg: "var(--color-correct)", bg: "var(--color-correct-dim)" };
+  if (score >= 50)
+    return { fg: "var(--color-gold)", bg: "var(--color-gold-soft)" };
+  return { fg: "var(--color-incorrect)", bg: "var(--color-incorrect-dim)" };
 }
 
 function roleBadge(role: string): { bg: string; color: string } {
-  if (role === "ADMIN") {
-    return { bg: "var(--color-accent-dim)", color: "var(--color-accent)" };
-  }
-  return {
-    bg: "var(--color-surface-2)",
-    color: "var(--color-text-3)",
-  };
+  if (role === "ADMIN")
+    return {
+      bg: "var(--color-accent-soft)",
+      color: "var(--color-accent-on-soft)",
+    };
+  if (role === "MENTOR")
+    return { bg: "var(--color-blue-soft)", color: "var(--color-blue)" };
+  if (role === "CURRICULUM_LEAD" || role === "PROJECT_LEAD")
+    return { bg: "var(--color-gold-soft)", color: "var(--color-gold)" };
+  return { bg: "var(--color-surface-2)", color: "var(--color-text-2)" };
 }
 
 export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
@@ -76,19 +83,17 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
   const [sortAsc, setSortAsc] = useState(false);
   const [roles, setRoles] = useState<Record<string, string>>(() => {
     const map: Record<string, string> = {};
-    for (const r of recruits) {
-      map[r.id] = r.role;
-    }
+    for (const r of recruits) map[r.id] = r.role;
     return map;
   });
   const [updating, setUpdating] = useState<string | null>(null);
+  const [searchFocused, setSearchFocused] = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return recruits.filter(
       (r) =>
-        r.name.toLowerCase().includes(q) ||
-        r.email.toLowerCase().includes(q),
+        r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q),
     );
   }, [recruits, search]);
 
@@ -97,7 +102,6 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
     arr.sort((a, b) => {
       let aVal: string | number | null;
       let bVal: string | number | null;
-
       switch (sortKey) {
         case "name":
           aVal = a.name.toLowerCase();
@@ -134,7 +138,6 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
         default:
           return 0;
       }
-
       if (aVal < bVal) return sortAsc ? -1 : 1;
       if (aVal > bVal) return sortAsc ? 1 : -1;
       return 0;
@@ -143,9 +146,8 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
   }, [filtered, sortKey, sortAsc, roles]);
 
   function handleSort(key: SortKey) {
-    if (sortKey === key) {
-      setSortAsc(!sortAsc);
-    } else {
+    if (sortKey === key) setSortAsc(!sortAsc);
+    else {
       setSortKey(key);
       setSortAsc(false);
     }
@@ -159,9 +161,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, role: newRole }),
       });
-      if (res.ok) {
-        setRoles((prev) => ({ ...prev, [userId]: newRole }));
-      }
+      if (res.ok) setRoles((prev) => ({ ...prev, [userId]: newRole }));
     } finally {
       setUpdating(null);
     }
@@ -171,77 +171,99 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
     { label: "Name", key: "name" },
     { label: "Email", key: "email" },
     { label: "Role", key: "role" },
-    { label: "Quiz Score", key: "quizScore" },
-    { label: "Questions Answered", key: "questionsAnswered" },
-    { label: "Homework Submitted", key: "homeworkSubmitted" },
+    { label: "Score", key: "quizScore" },
+    { label: "Questions", key: "questionsAnswered" },
+    { label: "Homework", key: "homeworkSubmitted" },
     { label: "Joined", key: "createdAt" },
-    { label: "Last Active", key: "lastActive" },
+    { label: "Last active", key: "lastActive" },
   ];
 
-  const sortIndicator = (key: SortKey) => {
-    if (sortKey !== key) return "";
-    return sortAsc ? " ↑" : " ↓";
-  };
-
   return (
-    <div style={{ padding: "0 0 40px" }}>
-      {/* Header */}
+    <div>
       <div
         style={{
           display: "flex",
           alignItems: "center",
           gap: 12,
-          marginBottom: 20,
+          marginBottom: 16,
         }}
       >
-        <h1
+        <h2
           style={{
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: 600,
             color: "var(--color-text)",
             margin: 0,
+            letterSpacing: "-0.01em",
           }}
         >
           Recruits
-        </h1>
+        </h2>
         <span
           style={{
-            fontSize: 12,
+            display: "inline-flex",
+            alignItems: "center",
+            padding: "2px 9px",
+            fontSize: 11.5,
             fontWeight: 600,
-            color: "var(--color-text-3)",
+            color: "var(--color-text-2)",
             backgroundColor: "var(--color-surface-2)",
-            padding: "2px 8px",
-            borderRadius: 10,
+            borderRadius: 999,
           }}
         >
           {recruits.length}
         </span>
         <div style={{ flex: 1 }} />
-        <input
-          type="text"
-          placeholder="Search by name or email..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+        <div
           style={{
-            fontSize: 13,
-            padding: "6px 12px",
-            borderRadius: 6,
-            border: "1px solid var(--color-border)",
-            backgroundColor: "var(--color-surface)",
-            color: "var(--color-text)",
-            outline: "none",
-            width: 240,
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
           }}
-        />
+        >
+          <Icon
+            name="search"
+            size={14}
+            strokeWidth={2}
+            style={{
+              position: "absolute",
+              left: 12,
+              color: "var(--color-text-3)",
+              pointerEvents: "none",
+            }}
+          />
+          <input
+            type="text"
+            placeholder="Search by name or email"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+            style={{
+              fontSize: 13,
+              padding: "8px 12px 8px 34px",
+              borderRadius: 8,
+              border: `1px solid ${searchFocused ? "var(--color-accent)" : "var(--color-border)"}`,
+              backgroundColor: "var(--color-surface)",
+              color: "var(--color-text)",
+              outline: "none",
+              width: 280,
+              boxShadow: searchFocused
+                ? "0 0 0 3px var(--color-accent-dim)"
+                : "none",
+              transition: "border-color 150ms ease, box-shadow 150ms ease",
+            }}
+          />
+        </div>
       </div>
 
-      {/* Table */}
       <div
         style={{
           overflowX: "auto",
-          borderRadius: 8,
+          borderRadius: 12,
           border: "1px solid var(--color-border)",
           backgroundColor: "var(--color-surface)",
+          boxShadow: "var(--shadow-card)",
         }}
       >
         <table
@@ -253,38 +275,56 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
         >
           <thead>
             <tr>
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  onClick={() => handleSort(col.key)}
-                  style={{
-                    fontSize: 12,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.04em",
-                    color: "var(--color-text-3)",
-                    fontWeight: 600,
-                    padding: "10px 14px",
-                    borderBottom: "1px solid var(--color-border)",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
-                    userSelect: "none",
-                  }}
-                >
-                  {col.label}
-                  {sortIndicator(col.key)}
-                </th>
-              ))}
+              {columns.map((col) => {
+                const isActive = sortKey === col.key;
+                return (
+                  <th
+                    key={col.key}
+                    onClick={() => handleSort(col.key)}
+                    style={{
+                      fontSize: 11,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
+                      color: isActive
+                        ? "var(--color-text)"
+                        : "var(--color-text-3)",
+                      fontWeight: 600,
+                      padding: "12px 16px",
+                      backgroundColor: "var(--color-surface-2)",
+                      borderBottom: "1px solid var(--color-border)",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                      userSelect: "none",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4,
+                      }}
+                    >
+                      {col.label}
+                      {isActive && (
+                        <span style={{ fontSize: 10 }}>
+                          {sortAsc ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </span>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
-            {sorted.map((r) => {
+            {sorted.map((r, idx) => {
               const currentRole = roles[r.id] || r.role;
               const badge = roleBadge(currentRole);
+              const tone = scoreTone(r.quizScore);
               return (
                 <tr
                   key={r.id}
-                  style={{ cursor: "pointer" }}
                   onMouseEnter={(e) => {
                     (e.currentTarget as HTMLElement).style.backgroundColor =
                       "var(--color-surface-2)";
@@ -293,8 +333,20 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                     (e.currentTarget as HTMLElement).style.backgroundColor =
                       "transparent";
                   }}
+                  style={{ transition: "background-color 100ms ease" }}
                 >
-                  <td style={{ padding: "10px 14px", fontSize: 13, color: "var(--color-text)", borderBottom: "1px solid var(--color-border)" }}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      fontSize: 13.5,
+                      fontWeight: 500,
+                      color: "var(--color-text)",
+                      borderTop:
+                        idx === 0
+                          ? "none"
+                          : "1px solid var(--color-border-subtle)",
+                    }}
+                  >
                     <Link
                       href={`/admin/recruits?detail=${r.id}`}
                       style={{ color: "inherit", textDecoration: "none" }}
@@ -302,21 +354,46 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                       {r.name}
                     </Link>
                   </td>
-                  <td style={{ padding: "10px 14px", fontSize: 13, color: "var(--color-text-2)", borderBottom: "1px solid var(--color-border)" }}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      fontSize: 13,
+                      color: "var(--color-text-2)",
+                      borderTop:
+                        idx === 0
+                          ? "none"
+                          : "1px solid var(--color-border-subtle)",
+                    }}
+                  >
                     {r.email}
                   </td>
-                  <td style={{ padding: "10px 14px", fontSize: 13, borderBottom: "1px solid var(--color-border)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      borderTop:
+                        idx === 0
+                          ? "none"
+                          : "1px solid var(--color-border-subtle)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                      }}
+                    >
                       <span
                         style={{
-                          display: "inline-block",
+                          display: "inline-flex",
+                          padding: "3px 9px",
                           fontSize: 11,
-                          fontWeight: 600,
-                          padding: "2px 8px",
-                          borderRadius: 10,
+                          fontWeight: 650,
+                          borderRadius: 999,
                           backgroundColor: badge.bg,
                           color: badge.color,
                           whiteSpace: "nowrap",
+                          letterSpacing: "0.02em",
                         }}
                       >
                         {currentRole}
@@ -325,11 +402,13 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                         value={currentRole}
                         disabled={updating === r.id}
                         onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => handleRoleChange(r.id, e.target.value)}
+                        onChange={(e) =>
+                          handleRoleChange(r.id, e.target.value)
+                        }
                         style={{
                           fontSize: 11,
-                          padding: "1px 4px",
-                          borderRadius: 4,
+                          padding: "2px 6px",
+                          borderRadius: 6,
                           border: "1px solid var(--color-border)",
                           backgroundColor: "var(--color-surface)",
                           color: "var(--color-text-3)",
@@ -347,25 +426,96 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                   </td>
                   <td
                     style={{
-                      padding: "10px 14px",
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: scoreColor(r.quizScore),
-                      borderBottom: "1px solid var(--color-border)",
+                      padding: "12px 16px",
+                      borderTop:
+                        idx === 0
+                          ? "none"
+                          : "1px solid var(--color-border-subtle)",
                     }}
                   >
-                    {r.quizScore !== null ? `${r.quizScore}%` : "--"}
+                    {tone ? (
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          padding: "3px 9px",
+                          fontSize: 12,
+                          fontWeight: 650,
+                          color: tone.fg,
+                          backgroundColor: tone.bg,
+                          borderRadius: 999,
+                        }}
+                      >
+                        {r.quizScore}%
+                      </span>
+                    ) : (
+                      <span
+                        style={{
+                          fontSize: 13,
+                          color: "var(--color-text-3)",
+                        }}
+                      >
+                        —
+                      </span>
+                    )}
                   </td>
-                  <td style={{ padding: "10px 14px", fontSize: 13, color: "var(--color-text-2)", borderBottom: "1px solid var(--color-border)" }}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      fontSize: 13,
+                      color: "var(--color-text-2)",
+                      fontVariantNumeric: "tabular-nums",
+                      borderTop:
+                        idx === 0
+                          ? "none"
+                          : "1px solid var(--color-border-subtle)",
+                    }}
+                  >
                     {r.questionsAnswered}
                   </td>
-                  <td style={{ padding: "10px 14px", fontSize: 13, color: "var(--color-text-2)", borderBottom: "1px solid var(--color-border)" }}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      fontSize: 13,
+                      color: "var(--color-text-2)",
+                      fontVariantNumeric: "tabular-nums",
+                      borderTop:
+                        idx === 0
+                          ? "none"
+                          : "1px solid var(--color-border-subtle)",
+                    }}
+                  >
                     {r.homeworkSubmitted}
                   </td>
-                  <td style={{ padding: "10px 14px", fontSize: 13, color: "var(--color-text-2)", borderBottom: "1px solid var(--color-border)", whiteSpace: "nowrap" }}>
-                    {new Date(r.createdAt).toLocaleDateString()}
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      fontSize: 13,
+                      color: "var(--color-text-2)",
+                      whiteSpace: "nowrap",
+                      borderTop:
+                        idx === 0
+                          ? "none"
+                          : "1px solid var(--color-border-subtle)",
+                    }}
+                  >
+                    {new Date(r.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
                   </td>
-                  <td style={{ padding: "10px 14px", fontSize: 13, color: "var(--color-text-2)", borderBottom: "1px solid var(--color-border)", whiteSpace: "nowrap" }}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      fontSize: 13,
+                      color: "var(--color-text-2)",
+                      whiteSpace: "nowrap",
+                      borderTop:
+                        idx === 0
+                          ? "none"
+                          : "1px solid var(--color-border-subtle)",
+                    }}
+                  >
                     {relativeTime(r.lastActive)}
                   </td>
                 </tr>
@@ -373,21 +523,46 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
             })}
             {sorted.length === 0 && (
               <tr>
-                <td
-                  colSpan={8}
-                  style={{
-                    padding: "40px 14px",
-                    fontSize: 13,
-                    color: "var(--color-text-3)",
-                    textAlign: "center",
-                  }}
-                >
-                  No recruits found.
+                <td colSpan={8} style={{ padding: 0 }}>
+                  <EmptyState />
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "60px 24px",
+        gap: 12,
+        textAlign: "center",
+      }}
+    >
+      <IconTile icon="users" color="indigo" size="lg" />
+      <div>
+        <div
+          style={{
+            fontSize: 14.5,
+            fontWeight: 600,
+            color: "var(--color-text)",
+            marginBottom: 4,
+          }}
+        >
+          No recruits found
+        </div>
+        <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
+          Try a different search term.
+        </div>
       </div>
     </div>
   );

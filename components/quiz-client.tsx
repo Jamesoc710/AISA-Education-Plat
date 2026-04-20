@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
 import { MCQuestion } from "@/components/quiz-mc";
 import { ShortAnswerQuestion } from "@/components/quiz-short-answer";
 import { QuizResults } from "@/components/quiz-results";
-import type {
-  QuizQuestion,
-  MCAnswer,
-} from "@/components/quiz-results";
+import type { QuizQuestion, MCAnswer } from "@/components/quiz-results";
+import { Icon, type IconName } from "@/components/ui/icon";
+import { IconTile } from "@/components/ui/icon-tile";
+import { TierBadge } from "@/components/ui/tier-badge";
+import { Button } from "@/components/ui/button";
+import { SearchInput } from "@/components/ui/search-input";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -33,63 +34,43 @@ type TierOption = {
 type QuizMode = "concept" | "section" | "tier" | "mixed";
 type Phase = "select-mode" | "select-target" | "loading" | "quiz" | "summary";
 
-// ── Tier color helper ─────────────────────────────────────────────────────────
+// ── Tile palette per tier (matches --tile-{color}-bg/fg vars) ─────────────────
 
-const TIER_COLOR: Record<string, string> = {
-  fundamentals: "var(--color-gold)",
-  intermediate: "var(--color-blue)",
-  advanced: "var(--color-slate)",
-};
-
-const TIER_DIM: Record<string, string> = {
-  fundamentals: "var(--color-gold-dim)",
-  intermediate: "var(--color-blue-dim)",
-  advanced: "var(--color-slate-dim)",
+const TIER_TILE: Record<string, string> = {
+  fundamentals: "gold",
+  intermediate: "blue",
+  advanced: "stone",
 };
 
 // ── Back button ───────────────────────────────────────────────────────────────
 
 function BackButton({ onClick }: { onClick: () => void }) {
+  const [hov, setHov] = useState(false);
   return (
     <button
       onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: "6px",
-        padding: "6px 0",
-        marginBottom: "24px",
-        fontSize: "13px",
+        gap: 6,
+        padding: "6px 10px 6px 6px",
+        marginBottom: 24,
+        fontSize: 13,
         fontWeight: 500,
         fontFamily: "inherit",
-        color: "var(--color-text-3)",
-        background: "none",
+        color: hov ? "var(--color-text)" : "var(--color-text-2)",
+        backgroundColor: hov ? "var(--color-surface-2)" : "transparent",
         border: "none",
+        borderRadius: 8,
         cursor: "pointer",
-        transition: "color 0.12s",
+        transition: "color 120ms ease, background-color 120ms ease",
       }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.color = "var(--color-text-2)")
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.color = "var(--color-text-3)")
-      }
     >
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 16 16"
-        fill="none"
-        style={{ flexShrink: 0 }}
-      >
-        <path
-          d="M10 12L6 8l4-4"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <span style={{ display: "inline-flex", transform: "rotate(180deg)" }}>
+        <Icon name="chevron-right" size={14} strokeWidth={2} />
+      </span>
       Back
     </button>
   );
@@ -100,7 +81,7 @@ function BackButton({ onClick }: { onClick: () => void }) {
 export function QuizClient({ tiers }: { tiers: TierOption[] }) {
   const [phase, setPhase] = useState<Phase>("select-mode");
   const [mode, setMode] = useState<QuizMode | null>(null);
-  const [selectedId, setSelectedId] = useState<string>("");
+  const [, setSelectedId] = useState<string>("");
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mcAnswers, setMcAnswers] = useState<MCAnswer[]>([]);
@@ -109,12 +90,7 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
   >([]);
   const [error, setError] = useState<string | null>(null);
 
-  // ── Fetch questions and start quiz ──────────────────────────────────────
-
-  const startQuiz = async (
-    quizMode: QuizMode,
-    targetId?: string,
-  ) => {
+  const startQuiz = async (quizMode: QuizMode, targetId?: string) => {
     setPhase("loading");
     setError(null);
 
@@ -142,8 +118,6 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
     }
   };
 
-  // ── Mode selected handler ─────────────────────────────────────────────
-
   const handleModeSelect = (m: QuizMode) => {
     setMode(m);
     setSelectedId("");
@@ -156,8 +130,6 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
     }
   };
 
-  // ── Handlers ────────────────────────────────────────────────────────────
-
   const handleMCAnswer = (
     questionId: string,
     correct: boolean,
@@ -169,15 +141,10 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
   const handleGraded = (questionId: string, result: { score: string }) => {
     setSaAnswers((prev) => [
       ...prev,
-      {
-        questionId,
-        score: result.score,
-        gotIt: result.score === "correct",
-      },
+      { questionId, score: result.score, gotIt: result.score === "correct" },
     ]);
   };
 
-  // Save quiz attempts to the database (fire-and-forget for logged-in users)
   const saveAttempts = (
     qs: QuizQuestion[],
     mc: MCAnswer[],
@@ -202,27 +169,20 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
           isCorrect: saAnswer.gotIt,
         };
       }
-      return {
-        questionId: q.id,
-        selectedAnswer: null,
-        isCorrect: null,
-      };
+      return { questionId: q.id, selectedAnswer: null, isCorrect: null };
     });
 
     fetch("/api/quiz/attempts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ answers }),
-    }).catch(() => {
-      // Silently fail — user may not be logged in
-    });
+    }).catch(() => {});
   };
 
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((i) => i + 1);
     } else {
-      // Save attempts before showing summary
       saveAttempts(questions, mcAnswers, saAnswers);
       setPhase("summary");
     }
@@ -259,145 +219,62 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
     setError(null);
   };
 
-  // ── Render ──────────────────────────────────────────────────────────────
+  // Width adjusts per phase: mode select gets a wider grid
+  const maxWidth =
+    phase === "select-mode"
+      ? 820
+      : phase === "select-target" && mode === "concept"
+        ? 760
+        : 720;
 
   return (
     <div
+      className="quiz-content-padding"
       style={{
-        minHeight: "100vh",
-        backgroundColor: "var(--color-bg)",
-        display: "flex",
-        flexDirection: "column",
+        maxWidth,
+        margin: "0 auto",
+        padding: phase === "select-mode" ? "56px 40px 80px" : "40px 40px 80px",
       }}
     >
-      {/* ── Top bar ──────────────────────────────────────────── */}
-      <header
-        style={{
-          height: "56px",
-          borderBottom: "1px solid var(--color-border)",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 24px",
-          gap: "12px",
-          flexShrink: 0,
-        }}
-      >
-        <Link
-          href="/browse"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            textDecoration: "none",
+      {phase === "select-mode" && (
+        <ModeSelect onSelect={handleModeSelect} error={error} />
+      )}
+
+      {phase === "select-target" && mode && (
+        <TargetSelect
+          mode={mode}
+          tiers={tiers}
+          onBack={goBackToModeSelect}
+          onStart={(id) => {
+            setSelectedId(id);
+            startQuiz(mode, id);
           }}
-        >
-          <img
-            src="/assets/aisa-logo.png"
-            alt="AISA"
-            style={{ width: "28px", height: "28px", flexShrink: 0 }}
-          />
-          <span
-            style={{
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "var(--color-text)",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            AISA Atlas
-          </span>
-        </Link>
+          error={error}
+        />
+      )}
 
-        <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
-          ›
-        </span>
-        <span
-          style={{
-            fontSize: "13px",
-            fontWeight: 500,
-            color: "var(--color-text-2)",
-          }}
-        >
-          Quiz
-        </span>
+      {phase === "loading" && <LoadingState />}
 
-        {phase === "quiz" && (
-          <span
-            style={{
-              marginLeft: "auto",
-              fontSize: "12px",
-              color: "var(--color-text-3)",
-            }}
-          >
-            Question {currentIndex + 1} of {questions.length}
-          </span>
-        )}
-      </header>
+      {phase === "quiz" && questions[currentIndex] && (
+        <QuizFlow
+          question={questions[currentIndex]}
+          index={currentIndex}
+          total={questions.length}
+          onMCAnswer={handleMCAnswer}
+          onGraded={handleGraded}
+          onNext={handleNext}
+        />
+      )}
 
-      {/* ── Content ──────────────────────────────────────────── */}
-      <main
-        className="quiz-content-padding"
-        style={{
-          flex: 1,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          padding: phase === "select-mode" ? "72px 24px 48px" : "48px 24px 80px",
-          overflowY: "auto",
-        }}
-      >
-        <div
-          style={{
-            width: "100%",
-            maxWidth:
-              phase === "select-mode"
-                ? "780px"
-                : phase === "select-target" && mode === "concept"
-                ? "720px"
-                : "640px",
-          }}
-        >
-          {phase === "select-mode" && (
-            <ModeSelect onSelect={handleModeSelect} error={error} />
-          )}
-
-          {phase === "select-target" && mode && (
-            <TargetSelect
-              mode={mode}
-              tiers={tiers}
-              onBack={goBackToModeSelect}
-              onStart={(id) => {
-                setSelectedId(id);
-                startQuiz(mode, id);
-              }}
-              error={error}
-            />
-          )}
-
-          {phase === "loading" && <LoadingState />}
-
-          {phase === "quiz" && questions[currentIndex] && (
-            <QuizFlow
-              question={questions[currentIndex]}
-              index={currentIndex}
-              total={questions.length}
-              onMCAnswer={handleMCAnswer}
-              onGraded={handleGraded}
-              onNext={handleNext}
-            />
-          )}
-
-          {phase === "summary" && (
-            <QuizResults
-              questions={questions}
-              mcAnswers={mcAnswers}
-              mode={mode!}
-              onRetake={retakeQuiz}
-              onNewQuiz={resetQuiz}
-            />
-          )}
-        </div>
-      </main>
+      {phase === "summary" && (
+        <QuizResults
+          questions={questions}
+          mcAnswers={mcAnswers}
+          mode={mode!}
+          onRetake={retakeQuiz}
+          onNewQuiz={resetQuiz}
+        />
+      )}
     </div>
   );
 }
@@ -408,77 +285,36 @@ const MODE_CARDS: {
   key: QuizMode;
   label: string;
   desc: string;
-  icon: React.ReactNode;
+  icon: IconName;
+  tile: string;
 }[] = [
   {
     key: "concept",
     label: "By Concept",
-    desc: "Quiz yourself on a single topic",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <rect
-          x="3"
-          y="3"
-          width="14"
-          height="14"
-          rx="3"
-          stroke="currentColor"
-          strokeWidth="1.5"
-        />
-        <path
-          d="M7 10h6M10 7v6"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
+    desc: "Quiz yourself on a single topic.",
+    icon: "target",
+    tile: "indigo",
   },
   {
     key: "section",
     label: "By Section",
-    desc: "Questions across a full section",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path
-          d="M4 6h12M4 10h12M4 14h8"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
+    desc: "Questions across a full section.",
+    icon: "layers",
+    tile: "sky",
   },
   {
     key: "tier",
     label: "By Tier",
-    desc: "Cover everything in a tier",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path
-          d="M4 14h12M6 10h8M8 6h4"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
+    desc: "Cover everything in a tier.",
+    icon: "bar-chart",
+    tile: "honey",
   },
   {
     key: "mixed",
     label: "Mixed",
-    desc: "Random questions from all topics",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path
-          d="M4 5h3l3 10h3l3-10"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
+    desc: "Random questions from all topics.",
+    icon: "sparkles",
+    tile: "lilac",
   },
 ];
 
@@ -493,33 +329,39 @@ function ModeSelect({
     <div className="animate-fade-in">
       <h1
         style={{
-          margin: "0 0 10px",
-          fontSize: "36px",
+          margin: "0 0 12px",
+          fontSize: 36,
           fontWeight: 600,
           color: "var(--color-text)",
-          letterSpacing: "-0.02em",
+          letterSpacing: "-0.025em",
+          lineHeight: 1.15,
         }}
       >
         Quiz
       </h1>
       <p
         style={{
-          margin: "0 0 40px",
-          fontSize: "16px",
+          margin: "0 0 36px",
+          fontSize: 16,
           color: "var(--color-text-2)",
-          lineHeight: "1.55",
+          lineHeight: 1.55,
+          maxWidth: 580,
         }}
       >
-        Test your understanding of AI concepts. Choose how you&apos;d like to
-        be quizzed.
+        Test your understanding of AI concepts. Pick how you&apos;d like to be
+        quizzed.
       </p>
 
       {error && (
         <p
           style={{
-            fontSize: "13px",
+            fontSize: 13,
             color: "var(--color-incorrect)",
-            marginBottom: "16px",
+            backgroundColor: "var(--color-incorrect-dim)",
+            border: "1px solid var(--color-incorrect-border)",
+            padding: "10px 14px",
+            borderRadius: 8,
+            marginBottom: 20,
           }}
         >
           {error}
@@ -527,80 +369,76 @@ function ModeSelect({
       )}
 
       <div
+        className="quiz-mode-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          gap: "14px",
+          gap: 14,
         }}
-        className="quiz-mode-grid"
       >
         {MODE_CARDS.map((m) => (
-          <button
-            key={m.key}
-            onClick={() => onSelect(m.key)}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              gap: "16px",
-              padding: "28px 28px 26px",
-              backgroundColor: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "12px",
-              cursor: "pointer",
-              textAlign: "left",
-              fontFamily: "inherit",
-              transition:
-                "border-color 0.15s, background-color 0.15s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "var(--color-accent)";
-              e.currentTarget.style.backgroundColor =
-                "var(--color-surface-2)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "var(--color-border)";
-              e.currentTarget.style.backgroundColor =
-                "var(--color-surface)";
-            }}
-          >
-            <span
-              style={{
-                color: "var(--color-accent)",
-                display: "inline-flex",
-                transform: "scale(1.4)",
-                transformOrigin: "top left",
-                marginBottom: "4px",
-              }}
-            >
-              {m.icon}
-            </span>
-            <div>
-              <div
-                style={{
-                  fontSize: "17px",
-                  fontWeight: 600,
-                  color: "var(--color-text)",
-                  marginBottom: "6px",
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                {m.label}
-              </div>
-              <div
-                style={{
-                  fontSize: "13.5px",
-                  color: "var(--color-text-3)",
-                  lineHeight: "1.5",
-                }}
-              >
-                {m.desc}
-              </div>
-            </div>
-          </button>
+          <ModeCard key={m.key} card={m} onSelect={() => onSelect(m.key)} />
         ))}
       </div>
     </div>
+  );
+}
+
+function ModeCard({
+  card,
+  onSelect,
+}: {
+  card: (typeof MODE_CARDS)[number];
+  onSelect: () => void;
+}) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      onClick={onSelect}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        gap: 18,
+        padding: "24px 22px 22px",
+        backgroundColor: "var(--color-surface)",
+        border: `1px solid ${hov ? "var(--color-accent)" : "var(--color-border)"}`,
+        borderRadius: 14,
+        cursor: "pointer",
+        textAlign: "left",
+        fontFamily: "inherit",
+        boxShadow: hov ? "var(--shadow-card-hover)" : "var(--shadow-card)",
+        transform: hov ? "translateY(-1px)" : "translateY(0)",
+        transition:
+          "border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease",
+      }}
+    >
+      <IconTile icon={card.icon} color={card.tile} size="md" />
+      <div>
+        <div
+          style={{
+            fontSize: 17,
+            fontWeight: 600,
+            color: "var(--color-text)",
+            marginBottom: 6,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {card.label}
+        </div>
+        <div
+          style={{
+            fontSize: 13.5,
+            color: "var(--color-text-2)",
+            lineHeight: 1.5,
+          }}
+        >
+          {card.desc}
+        </div>
+      </div>
+    </button>
   );
 }
 
@@ -626,9 +464,13 @@ function TargetSelect({
       {error && (
         <p
           style={{
-            fontSize: "13px",
+            fontSize: 13,
             color: "var(--color-incorrect)",
-            marginBottom: "16px",
+            backgroundColor: "var(--color-incorrect-dim)",
+            border: "1px solid var(--color-incorrect-border)",
+            padding: "10px 14px",
+            borderRadius: 8,
+            marginBottom: 16,
           }}
         >
           {error}
@@ -665,7 +507,6 @@ function ConceptPicker({
 
   const query = search.toLowerCase().trim();
 
-  // When searching, auto-expand everything; otherwise use manual state
   const filteredTiers = useMemo(() => {
     return tiers
       .map((tier) => ({
@@ -674,8 +515,7 @@ function ConceptPicker({
           .map((section) => ({
             ...section,
             concepts: section.concepts.filter(
-              (c) =>
-                !query || c.name.toLowerCase().includes(query),
+              (c) => !query || c.name.toLowerCase().includes(query),
             ),
           }))
           .filter((s) => s.concepts.length > 0),
@@ -686,8 +526,7 @@ function ConceptPicker({
   const toggleTier = (id: string) => {
     setExpandedTiers((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   };
@@ -695,8 +534,7 @@ function ConceptPicker({
   const toggleSection = (id: string) => {
     setExpandedSections((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   };
@@ -706,7 +544,7 @@ function ConceptPicker({
       <h2
         style={{
           margin: "0 0 8px",
-          fontSize: "20px",
+          fontSize: 22,
           fontWeight: 600,
           color: "var(--color-text)",
           letterSpacing: "-0.02em",
@@ -717,73 +555,27 @@ function ConceptPicker({
       <p
         style={{
           margin: "0 0 24px",
-          fontSize: "13px",
-          color: "var(--color-text-3)",
+          fontSize: 14,
+          color: "var(--color-text-2)",
         }}
       >
         Pick a topic to quiz yourself on.
       </p>
 
-      {/* Search bar */}
-      <div style={{ position: "relative", marginBottom: "20px" }}>
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 16 16"
-          fill="none"
-          style={{
-            position: "absolute",
-            left: "12px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            pointerEvents: "none",
-          }}
-        >
-          <circle
-            cx="7"
-            cy="7"
-            r="5"
-            stroke="var(--color-text-3)"
-            strokeWidth="1.5"
-          />
-          <path
-            d="M11 11l3 3"
-            stroke="var(--color-text-3)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
-        <input
-          type="text"
-          placeholder="Search concepts…"
+      <div style={{ marginBottom: 18 }}>
+        <SearchInput
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "10px 14px 10px 36px",
-            fontSize: "13px",
-            fontFamily: "inherit",
-            color: "var(--color-text)",
-            backgroundColor: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "8px",
-            outline: "none",
-            boxSizing: "border-box",
-          }}
-          onFocus={(e) =>
-            (e.currentTarget.style.borderColor = "var(--color-accent)")
-          }
-          onBlur={(e) =>
-            (e.currentTarget.style.borderColor = "var(--color-border)")
-          }
+          onChange={setSearch}
+          placeholder="Search concepts…"
+          width={360}
+          focusedWidth={460}
         />
       </div>
 
-      {/* Tier accordion */}
       {filteredTiers.length === 0 && (
         <p
           style={{
-            fontSize: "13px",
+            fontSize: 13,
             color: "var(--color-text-3)",
             textAlign: "center",
             padding: "32px 0",
@@ -793,24 +585,19 @@ function ConceptPicker({
         </p>
       )}
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {filteredTiers.map((tier) => {
-          const tierColor = TIER_COLOR[tier.slug] ?? "var(--color-text-3)";
           const isTierOpen = query.length > 0 || expandedTiers.has(tier.id);
 
           return (
             <div
               key={tier.id}
               style={{
+                backgroundColor: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
-                borderRadius: "10px",
+                borderRadius: 12,
                 overflow: "hidden",
+                boxShadow: "var(--shadow-card)",
               }}
             >
               {/* Tier header */}
@@ -820,64 +607,45 @@ function ConceptPicker({
                   width: "100%",
                   display: "flex",
                   alignItems: "center",
-                  gap: "10px",
+                  gap: 12,
                   padding: "14px 16px",
-                  backgroundColor: "var(--color-surface)",
+                  backgroundColor: "transparent",
                   border: "none",
                   cursor: "pointer",
                   fontFamily: "inherit",
                   textAlign: "left",
                 }}
               >
+                <TierBadge slug={tier.slug} label={tier.name} />
+                <span style={{ flex: 1 }} />
                 <span
                   style={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    backgroundColor: tierColor,
-                    flexShrink: 0,
-                  }}
-                />
-                <span
-                  style={{
-                    flex: 1,
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    color: "var(--color-text)",
-                    letterSpacing: "-0.01em",
+                    fontSize: 12,
+                    color: "var(--color-text-3)",
                   }}
                 >
-                  {tier.name}
+                  {tier.sections.reduce(
+                    (s, sec) => s + sec.concepts.length,
+                    0,
+                  )}{" "}
+                  concepts
                 </span>
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
+                <span
                   style={{
-                    transition: "transform 0.15s",
-                    transform: isTierOpen
-                      ? "rotate(90deg)"
-                      : "rotate(0deg)",
-                    flexShrink: 0,
+                    display: "inline-flex",
+                    transform: isTierOpen ? "rotate(90deg)" : "rotate(0deg)",
+                    transition: "transform 150ms ease",
+                    color: "var(--color-text-3)",
                   }}
                 >
-                  <path
-                    d="M4.5 2.5l3.5 3.5-3.5 3.5"
-                    stroke="var(--color-text-3)"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                  <Icon name="chevron-right" size={14} strokeWidth={2} />
+                </span>
               </button>
 
-              {/* Sections under tier */}
+              {/* Sections */}
               {isTierOpen && (
                 <div
-                  style={{
-                    borderTop: "1px solid var(--color-border-subtle)",
-                  }}
+                  style={{ borderTop: "1px solid var(--color-border-subtle)" }}
                 >
                   {tier.sections.map((section, sIdx) => {
                     const isSectionOpen =
@@ -888,22 +656,20 @@ function ConceptPicker({
                         {sIdx > 0 && (
                           <div
                             style={{
-                              height: "1px",
-                              backgroundColor:
-                                "var(--color-border-subtle)",
-                              marginLeft: "16px",
+                              height: 1,
+                              backgroundColor: "var(--color-border-subtle)",
+                              marginLeft: 16,
                             }}
                           />
                         )}
-                        {/* Section header */}
                         <button
                           onClick={() => toggleSection(section.id)}
                           style={{
                             width: "100%",
                             display: "flex",
                             alignItems: "center",
-                            gap: "8px",
-                            padding: "10px 16px 10px 28px",
+                            gap: 8,
+                            padding: "10px 16px 10px 22px",
                             backgroundColor: "transparent",
                             border: "none",
                             cursor: "pointer",
@@ -911,32 +677,27 @@ function ConceptPicker({
                             textAlign: "left",
                           }}
                         >
-                          <svg
-                            width="10"
-                            height="10"
-                            viewBox="0 0 10 10"
-                            fill="none"
+                          <span
                             style={{
-                              transition: "transform 0.15s",
+                              display: "inline-flex",
                               transform: isSectionOpen
                                 ? "rotate(90deg)"
                                 : "rotate(0deg)",
-                              flexShrink: 0,
+                              transition: "transform 150ms ease",
+                              color: "var(--color-text-3)",
                             }}
                           >
-                            <path
-                              d="M3.5 1.5l3 3-3 3"
-                              stroke="var(--color-text-3)"
-                              strokeWidth="1.3"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
+                            <Icon
+                              name="chevron-right"
+                              size={11}
+                              strokeWidth={2}
                             />
-                          </svg>
+                          </span>
                           <span
                             style={{
                               flex: 1,
-                              fontSize: "12px",
-                              fontWeight: 500,
+                              fontSize: 12.5,
+                              fontWeight: 550,
                               color: "var(--color-text-2)",
                             }}
                           >
@@ -944,7 +705,7 @@ function ConceptPicker({
                           </span>
                           <span
                             style={{
-                              fontSize: "11px",
+                              fontSize: 11,
                               color: "var(--color-text-3)",
                             }}
                           >
@@ -952,55 +713,14 @@ function ConceptPicker({
                           </span>
                         </button>
 
-                        {/* Concepts under section */}
                         {isSectionOpen && (
-                          <div style={{ paddingBottom: "4px" }}>
+                          <div style={{ paddingBottom: 6 }}>
                             {section.concepts.map((concept) => (
-                              <button
+                              <ConceptRow
                                 key={concept.id}
-                                onClick={() => onSelect(concept.id)}
-                                style={{
-                                  width: "100%",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "8px",
-                                  padding: "8px 16px 8px 48px",
-                                  backgroundColor: "transparent",
-                                  border: "none",
-                                  cursor: "pointer",
-                                  fontFamily: "inherit",
-                                  textAlign: "left",
-                                  transition: "background-color 0.1s",
-                                }}
-                                onMouseEnter={(e) =>
-                                  (e.currentTarget.style.backgroundColor =
-                                    "var(--color-surface-2)")
-                                }
-                                onMouseLeave={(e) =>
-                                  (e.currentTarget.style.backgroundColor =
-                                    "transparent")
-                                }
-                              >
-                                <span
-                                  style={{
-                                    flex: 1,
-                                    fontSize: "13px",
-                                    color: "var(--color-text)",
-                                  }}
-                                >
-                                  {concept.name}
-                                </span>
-                                <span
-                                  style={{
-                                    fontSize: "11px",
-                                    color: "var(--color-text-3)",
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  {concept.questionCount}{" "}
-                                  {concept.questionCount === 1 ? "q" : "q\u2019s"}
-                                </span>
-                              </button>
+                                concept={concept}
+                                onSelect={() => onSelect(concept.id)}
+                              />
                             ))}
                           </div>
                         )}
@@ -1014,6 +734,67 @@ function ConceptPicker({
         })}
       </div>
     </div>
+  );
+}
+
+function ConceptRow({
+  concept,
+  onSelect,
+}: {
+  concept: ConceptOption;
+  onSelect: () => void;
+}) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      onClick={onSelect}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "8px 16px 8px 42px",
+        backgroundColor: hov ? "var(--color-accent-soft)" : "transparent",
+        border: "none",
+        cursor: "pointer",
+        fontFamily: "inherit",
+        textAlign: "left",
+        transition: "background-color 100ms ease",
+      }}
+    >
+      <span
+        style={{
+          flex: 1,
+          fontSize: 13.5,
+          fontWeight: 500,
+          color: hov ? "var(--color-accent-on-soft)" : "var(--color-text)",
+          transition: "color 100ms ease",
+        }}
+      >
+        {concept.name}
+      </span>
+      <span
+        style={{
+          fontSize: 11,
+          color: "var(--color-text-3)",
+          flexShrink: 0,
+        }}
+      >
+        {concept.questionCount} {concept.questionCount === 1 ? "q" : "qs"}
+      </span>
+      <span
+        style={{
+          display: "inline-flex",
+          color: hov ? "var(--color-accent)" : "var(--color-text-3)",
+          opacity: hov ? 1 : 0,
+          transition: "opacity 120ms ease, color 120ms ease",
+        }}
+      >
+        <Icon name="chevron-right" size={12} strokeWidth={2} />
+      </span>
+    </button>
   );
 }
 
@@ -1031,7 +812,7 @@ function SectionPicker({
       <h2
         style={{
           margin: "0 0 8px",
-          fontSize: "20px",
+          fontSize: 22,
           fontWeight: 600,
           color: "var(--color-text)",
           letterSpacing: "-0.02em",
@@ -1042,8 +823,8 @@ function SectionPicker({
       <p
         style={{
           margin: "0 0 28px",
-          fontSize: "13px",
-          color: "var(--color-text-3)",
+          fontSize: 14,
+          color: "var(--color-text-2)",
         }}
       >
         All questions from every concept in the section.
@@ -1053,134 +834,121 @@ function SectionPicker({
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "24px",
+          gap: 28,
         }}
       >
-        {tiers.map((tier) => {
-          const tierColor = TIER_COLOR[tier.slug] ?? "var(--color-text-3)";
-          const tierDim = TIER_DIM[tier.slug] ?? "rgba(139,139,158,0.08)";
-
-          return (
-            <div key={tier.id}>
-              {/* Tier label */}
-              <div
+        {tiers.map((tier) => (
+          <div key={tier.id}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                marginBottom: 12,
+              }}
+            >
+              <TierBadge slug={tier.slug} label={tier.name} />
+              <span
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  marginBottom: "10px",
+                  fontSize: 12,
+                  color: "var(--color-text-3)",
                 }}
               >
-                <span
-                  style={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    backgroundColor: tierColor,
-                    flexShrink: 0,
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: tierColor,
-                    letterSpacing: "0.03em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {tier.name}
-                </span>
-              </div>
-
-              {/* Section cards */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                }}
-              >
-                {tier.sections.map((section) => {
-                  const totalQuestions = section.concepts.reduce(
-                    (sum, c) => sum + c.questionCount,
-                    0,
-                  );
-
-                  return (
-                    <button
-                      key={section.id}
-                      onClick={() => onSelect(section.id)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                        padding: "14px 16px",
-                        backgroundColor: "var(--color-surface)",
-                        border: "1px solid var(--color-border)",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        fontFamily: "inherit",
-                        textAlign: "left",
-                        transition:
-                          "border-color 0.15s, background-color 0.15s",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = tierColor;
-                        e.currentTarget.style.backgroundColor = tierDim;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor =
-                          "var(--color-border)";
-                        e.currentTarget.style.backgroundColor =
-                          "var(--color-surface)";
-                      }}
-                    >
-                      <div style={{ flex: 1 }}>
-                        <div
-                          style={{
-                            fontSize: "13px",
-                            fontWeight: 500,
-                            color: "var(--color-text)",
-                            marginBottom: "2px",
-                          }}
-                        >
-                          {section.name}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "12px",
-                            color: "var(--color-text-3)",
-                          }}
-                        >
-                          {section.concepts.length} concepts ·{" "}
-                          {totalQuestions} questions
-                        </div>
-                      </div>
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        style={{ flexShrink: 0 }}
-                      >
-                        <path
-                          d="M6 4l4 4-4 4"
-                          stroke="var(--color-text-3)"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                  );
-                })}
-              </div>
+                {tier.sections.length} sections
+              </span>
             </div>
-          );
-        })}
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+              }}
+            >
+              {tier.sections.map((section) => (
+                <SectionRow
+                  key={section.id}
+                  section={section}
+                  tierTile={TIER_TILE[tier.slug] ?? "stone"}
+                  onSelect={() => onSelect(section.id)}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
+  );
+}
+
+function SectionRow({
+  section,
+  tierTile,
+  onSelect,
+}: {
+  section: SectionOption;
+  tierTile: string;
+  onSelect: () => void;
+}) {
+  const [hov, setHov] = useState(false);
+  const totalQuestions = section.concepts.reduce(
+    (sum, c) => sum + c.questionCount,
+    0,
+  );
+  return (
+    <button
+      onClick={onSelect}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        padding: "14px 16px",
+        backgroundColor: "var(--color-surface)",
+        border: `1px solid ${hov ? "var(--color-accent)" : "var(--color-border)"}`,
+        borderRadius: 10,
+        cursor: "pointer",
+        fontFamily: "inherit",
+        textAlign: "left",
+        boxShadow: hov ? "var(--shadow-card-hover)" : "var(--shadow-card)",
+        transition:
+          "border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease",
+        transform: hov ? "translateY(-1px)" : "translateY(0)",
+      }}
+    >
+      <IconTile icon="layers" color={tierTile} size="sm" />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 550,
+            color: "var(--color-text)",
+            marginBottom: 2,
+            letterSpacing: "-0.005em",
+          }}
+        >
+          {section.name}
+        </div>
+        <div
+          style={{
+            fontSize: 12,
+            color: "var(--color-text-3)",
+          }}
+        >
+          {section.concepts.length} concepts · {totalQuestions} questions
+        </div>
+      </div>
+      <span
+        style={{
+          display: "inline-flex",
+          color: hov ? "var(--color-accent)" : "var(--color-text-3)",
+          transition: "color 120ms ease",
+        }}
+      >
+        <Icon name="chevron-right" size={15} strokeWidth={2} />
+      </span>
+    </button>
   );
 }
 
@@ -1198,7 +966,7 @@ function TierPicker({
       <h2
         style={{
           margin: "0 0 8px",
-          fontSize: "20px",
+          fontSize: 22,
           fontWeight: 600,
           color: "var(--color-text)",
           letterSpacing: "-0.02em",
@@ -1209,8 +977,8 @@ function TierPicker({
       <p
         style={{
           margin: "0 0 28px",
-          fontSize: "13px",
-          color: "var(--color-text-3)",
+          fontSize: 14,
+          color: "var(--color-text-2)",
         }}
       >
         Every question from all sections in the tier.
@@ -1220,100 +988,104 @@ function TierPicker({
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
+          gap: 12,
         }}
       >
-        {tiers.map((tier) => {
-          const tierColor = TIER_COLOR[tier.slug] ?? "var(--color-text-3)";
-          const tierDim = TIER_DIM[tier.slug] ?? "rgba(139,139,158,0.08)";
-          const totalQuestions = tier.sections.reduce(
-            (sum, s) =>
-              sum + s.concepts.reduce((cSum, c) => cSum + c.questionCount, 0),
-            0,
-          );
-          const totalConcepts = tier.sections.reduce(
-            (sum, s) => sum + s.concepts.length,
-            0,
-          );
-
-          return (
-            <button
-              key={tier.id}
-              onClick={() => onSelect(tier.id)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "16px",
-                padding: "24px 20px",
-                backgroundColor: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontFamily: "inherit",
-                textAlign: "left",
-                transition:
-                  "border-color 0.15s, background-color 0.15s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = tierColor;
-                e.currentTarget.style.backgroundColor = tierDim;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "var(--color-border)";
-                e.currentTarget.style.backgroundColor =
-                  "var(--color-surface)";
-              }}
-            >
-              <span
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "50%",
-                  backgroundColor: tierColor,
-                  flexShrink: 0,
-                }}
-              />
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    fontSize: "15px",
-                    fontWeight: 600,
-                    color: "var(--color-text)",
-                    marginBottom: "4px",
-                  }}
-                >
-                  {tier.name}
-                </div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: "var(--color-text-3)",
-                  }}
-                >
-                  {tier.sections.length} sections · {totalConcepts}{" "}
-                  concepts · {totalQuestions} questions
-                </div>
-              </div>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                style={{ flexShrink: 0 }}
-              >
-                <path
-                  d="M6 4l4 4-4 4"
-                  stroke="var(--color-text-3)"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          );
-        })}
+        {tiers.map((tier) => (
+          <TierRow
+            key={tier.id}
+            tier={tier}
+            onSelect={() => onSelect(tier.id)}
+          />
+        ))}
       </div>
     </div>
+  );
+}
+
+function TierRow({
+  tier,
+  onSelect,
+}: {
+  tier: TierOption;
+  onSelect: () => void;
+}) {
+  const [hov, setHov] = useState(false);
+  const totalQuestions = tier.sections.reduce(
+    (sum, s) => sum + s.concepts.reduce((cs, c) => cs + c.questionCount, 0),
+    0,
+  );
+  const totalConcepts = tier.sections.reduce(
+    (sum, s) => sum + s.concepts.length,
+    0,
+  );
+  const tile = TIER_TILE[tier.slug] ?? "stone";
+
+  return (
+    <button
+      onClick={onSelect}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 18,
+        padding: "22px 22px",
+        backgroundColor: "var(--color-surface)",
+        border: `1px solid ${hov ? "var(--color-accent)" : "var(--color-border)"}`,
+        borderRadius: 14,
+        cursor: "pointer",
+        fontFamily: "inherit",
+        textAlign: "left",
+        boxShadow: hov ? "var(--shadow-card-hover)" : "var(--shadow-card)",
+        transition:
+          "border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease",
+        transform: hov ? "translateY(-1px)" : "translateY(0)",
+      }}
+    >
+      <IconTile icon="bar-chart" color={tile} size="lg" />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 6,
+          }}
+        >
+          <TierBadge slug={tier.slug} label={tier.name} size="xs" />
+        </div>
+        <div
+          style={{
+            fontSize: 16,
+            fontWeight: 600,
+            color: "var(--color-text)",
+            marginBottom: 4,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {tier.name}
+        </div>
+        <div
+          style={{
+            fontSize: 12.5,
+            color: "var(--color-text-3)",
+          }}
+        >
+          {tier.sections.length} sections · {totalConcepts} concepts ·{" "}
+          {totalQuestions} questions
+        </div>
+      </div>
+      <span
+        style={{
+          display: "inline-flex",
+          color: hov ? "var(--color-accent)" : "var(--color-text-3)",
+          transition: "color 120ms ease",
+        }}
+      >
+        <Icon name="chevron-right" size={18} strokeWidth={2} />
+      </span>
+    </button>
   );
 }
 
@@ -1325,27 +1097,25 @@ function LoadingState() {
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: "12px",
-        paddingTop: "16px",
+        gap: 14,
+        paddingTop: 24,
       }}
     >
-      <div className="skeleton" style={{ height: "20px", width: "40%" }} />
       <div
         className="skeleton"
-        style={{ height: "48px", width: "100%", borderRadius: "8px" }}
+        style={{ height: 18, width: "30%", borderRadius: 6 }}
       />
       <div
         className="skeleton"
-        style={{ height: "48px", width: "100%", borderRadius: "8px" }}
+        style={{ height: 28, width: "70%", borderRadius: 6, marginBottom: 8 }}
       />
-      <div
-        className="skeleton"
-        style={{ height: "48px", width: "100%", borderRadius: "8px" }}
-      />
-      <div
-        className="skeleton"
-        style={{ height: "48px", width: "100%", borderRadius: "8px" }}
-      />
+      {[0, 1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="skeleton"
+          style={{ height: 56, width: "100%", borderRadius: 12 }}
+        />
+      ))}
     </div>
   );
 }
@@ -1380,32 +1150,64 @@ function QuizFlow({
     onNext();
   };
 
-  // Reset answered state when question changes
   const [prevIndex, setPrevIndex] = useState(index);
   if (index !== prevIndex) {
     setPrevIndex(index);
     setAnswered(false);
   }
 
+  const progress = ((index + 1) / total) * 100;
+
   return (
     <div>
+      {/* Progress meta */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 10,
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: "var(--color-text-3)",
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+          }}
+        >
+          Question {index + 1} of {total}
+        </span>
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 500,
+            color: "var(--color-text-3)",
+          }}
+        >
+          {Math.round(progress)}%
+        </span>
+      </div>
+
       {/* Progress bar */}
       <div
         style={{
-          height: "3px",
+          height: 4,
           backgroundColor: "var(--color-surface-2)",
-          borderRadius: "2px",
-          marginBottom: "32px",
+          borderRadius: 999,
+          marginBottom: 28,
           overflow: "hidden",
         }}
       >
         <div
           style={{
             height: "100%",
-            width: `${((index + 1) / total) * 100}%`,
+            width: `${progress}%`,
             backgroundColor: "var(--color-accent)",
-            borderRadius: "2px",
-            transition: "width 0.3s ease",
+            borderRadius: 999,
+            transition: "width 300ms ease",
           }}
         />
       </div>
@@ -1415,26 +1217,34 @@ function QuizFlow({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "8px",
-          marginBottom: "16px",
+          gap: 10,
+          marginBottom: 16,
+          flexWrap: "wrap",
         }}
       >
         <span
           style={{
-            fontSize: "11px",
-            fontWeight: 500,
+            fontSize: 11,
+            fontWeight: 600,
+            color: "var(--color-text-2)",
+            letterSpacing: "0.05em",
+            textTransform: "uppercase",
+            backgroundColor: "var(--color-surface-2)",
+            padding: "3px 9px",
+            borderRadius: 999,
+          }}
+        >
+          {question.conceptName}
+        </span>
+        <span
+          style={{
+            fontSize: 11,
             color: "var(--color-text-3)",
             letterSpacing: "0.04em",
             textTransform: "uppercase",
           }}
         >
-          {question.conceptName}
-        </span>
-        <span style={{ fontSize: "11px", color: "var(--color-text-3)" }}>
-          ·
-        </span>
-        <span style={{ fontSize: "11px", color: "var(--color-text-3)" }}>
-          {question.type === "MC" ? "Multiple Choice" : "Short Answer"}
+          {question.type === "MC" ? "Multiple choice" : "Short answer"}
         </span>
       </div>
 
@@ -1457,25 +1267,21 @@ function QuizFlow({
         />
       )}
 
-      {/* Next / Finish button */}
+      {/* Next / Finish */}
       {answered && (
-        <div className="animate-fade-in" style={{ marginTop: "24px" }}>
-          <button
+        <div className="animate-fade-in" style={{ marginTop: 28 }}>
+          <Button
+            variant="primary"
+            size="md"
             onClick={handleNext}
-            style={{
-              padding: "10px 24px",
-              fontSize: "13px",
-              fontWeight: 500,
-              fontFamily: "inherit",
-              color: "#fff",
-              backgroundColor: "var(--color-accent)",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
+            rightIcon={
+              index < total - 1 ? (
+                <Icon name="chevron-right" size={14} strokeWidth={2} />
+              ) : undefined
+            }
           >
-            {index < total - 1 ? "Next Question →" : "View Results"}
-          </button>
+            {index < total - 1 ? "Next question" : "View results"}
+          </Button>
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* ── Colors ─────────────────────────────────────────────────── */
+  /* ── Colors (dark — default, used by all un-migrated pages) ──── */
   --color-bg:            #0e0e10;
   --color-surface:       #141416;
   --color-surface-2:     #1a1a1e;
@@ -16,7 +16,7 @@
   --color-accent:        #5e6ad2;
   --color-accent-dim:    rgba(94, 106, 210, 0.15);
 
-  /* Tier palette */
+  /* Tier palette (dark) */
   --color-gold:          #e8b54a;
   --color-gold-dim:      rgba(232, 181, 74, 0.12);
   --color-blue:          #6b9bd2;
@@ -33,8 +33,98 @@
   --color-incorrect-border:rgba(229, 113, 111, 0.3);
 
   /* ── Typography ─────────────────────────────────────────────── */
-  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-inter), var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
+}
+
+/* ── Light theme — opt-in, scoped to pages inside (main) ──────── */
+/*
+   Pages migrated to the new design wrap their tree in an element
+   with `data-theme="light"`. CSS-var overrides here flip the palette
+   for that subtree only. Un-migrated pages keep the dark defaults.
+*/
+[data-theme="light"] {
+  /* Surfaces — warm off-white, not pure white */
+  --color-bg:            #FAF9F5;
+  --color-surface:       #FFFFFF;
+  --color-surface-2:     #F4F2EC;
+  --color-surface-3:     #ECEAE3;
+  --color-border:        #E8E5DC;
+  --color-border-subtle: #EFEDE6;
+
+  /* Text — near-black w/ hint of warmth, not pure #000 */
+  --color-text:          #1F1F22;
+  --color-text-2:        #6B6B73;
+  --color-text-3:        #9C9CA3;
+
+  /* Accent — indigo (kept; works on both themes) */
+  --color-accent:        #5E6AD2;
+  --color-accent-hover:  #4F5BC4;
+  --color-accent-dim:    rgba(94, 106, 210, 0.10);
+  --color-accent-soft:   #EEEFFB;
+  --color-accent-on-soft:#3F49AC;
+
+  /* Tier palette (light pairs: soft tint bg + darker text) */
+  --color-gold:          #B8860C;
+  --color-gold-soft:     #FBEFCE;
+  --color-blue:          #3D6FA7;
+  --color-blue-soft:     #E1ECF8;
+  --color-slate:         #54545E;
+  --color-slate-soft:    #ECEAE7;
+
+  /* Section icon-tile pastels (bg + matching darker icon color).
+     Stable per section slug — see lib/section-icons.ts. */
+  --tile-amber-bg:       #FBEAC9;
+  --tile-amber-fg:       #95620A;
+  --tile-sage-bg:        #E2EED5;
+  --tile-sage-fg:        #4F7028;
+  --tile-lilac-bg:       #F0DEF9;
+  --tile-lilac-fg:       #7239AC;
+  --tile-rose-bg:        #FAD3D5;
+  --tile-rose-fg:        #A93940;
+  --tile-gold-bg:        #FBE2A6;
+  --tile-gold-fg:        #855208;
+  --tile-sky-bg:         #D2E5F8;
+  --tile-sky-fg:         #265D96;
+  --tile-coral-bg:       #FBC3A8;
+  --tile-coral-fg:       #993813;
+  --tile-blue-bg:        #D6E1F8;
+  --tile-blue-fg:        #2B53A8;
+  --tile-cyan-bg:        #CFE9F8;
+  --tile-cyan-fg:        #1B5F80;
+  --tile-mint-bg:        #D2EDD7;
+  --tile-mint-fg:        #2A6F39;
+  --tile-red-bg:         #F8D6D2;
+  --tile-red-fg:         #973229;
+  --tile-indigo-bg:      #DDDAFB;
+  --tile-indigo-fg:      #4F40A0;
+  --tile-honey-bg:       #FBDDB1;
+  --tile-honey-fg:       #815013;
+  --tile-stone-bg:       #DDDDE3;
+  --tile-stone-fg:       #43434E;
+  --tile-steel-bg:       #D8DEEC;
+  --tile-steel-fg:       #38486D;
+  --tile-mauve-bg:       #E5DAEB;
+  --tile-mauve-fg:       #5A4068;
+
+  /* Quiz feedback (light) */
+  --color-correct:       #1F8B4F;
+  --color-correct-dim:   rgba(31, 139, 79, 0.10);
+  --color-correct-border:rgba(31, 139, 79, 0.30);
+  --color-incorrect:     #C0392B;
+  --color-incorrect-dim: rgba(192, 57, 43, 0.08);
+  --color-incorrect-border:rgba(192, 57, 43, 0.28);
+
+  /* Shadows — soft, never harsh */
+  --shadow-card:         0 1px 2px rgba(20, 20, 30, 0.04), 0 1px 1px rgba(20, 20, 30, 0.02);
+  --shadow-card-hover:   0 4px 12px rgba(20, 20, 30, 0.06), 0 2px 4px rgba(20, 20, 30, 0.03);
+  --shadow-popover:      0 8px 24px rgba(20, 20, 30, 0.10);
+}
+
+/* Light-theme background applies at the scope root */
+[data-theme="light"] {
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 * { box-sizing: border-box; }
@@ -90,27 +180,42 @@ input:focus {
 
 /* ── Concept detail — responsive layout ────────────────────────── */
 
-.concept-sidebar-desktop { display: block; }
-.concept-sidebar-mobile  { display: none; }
-.concept-mobile-bar      { display: none !important; }
-
-.concept-body-padding {
-  padding: 48px 56px;
+.concept-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 252px;
+  gap: 32px;
+  align-items: start;
 }
 
-@media (max-width: 1023px) {
-  .concept-sidebar-desktop { display: none; }
-  .concept-sidebar-mobile  { display: block; }
-  .concept-mobile-bar      { display: flex !important; }
+.concept-shell-padding {
+  padding: 32px 40px 72px;
+}
 
+.concept-body-padding {
+  padding: 44px 56px 48px;
+}
+
+@media (max-width: 1279px) {
+  .concept-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .concept-shell > aside {
+    display: none;
+  }
+  .concept-shell-padding {
+    padding: 28px 32px 64px;
+  }
   .concept-body-padding {
-    padding: 32px 24px;
+    padding: 36px 40px 44px;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .concept-shell-padding {
+    padding: 20px 16px 56px;
+  }
   .concept-body-padding {
-    padding: 24px 16px;
+    padding: 28px 22px;
   }
 }
 

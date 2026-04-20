@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
 
 type Mode = "login" | "signup";
 
@@ -18,7 +18,7 @@ export function LoginClient() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const supabase = createClient();
 
@@ -26,15 +26,12 @@ export function LoginClient() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setMessage(null);
 
     if (mode === "signup") {
       const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: { name },
-        },
+        options: { data: { name } },
       });
 
       if (signUpError) {
@@ -43,7 +40,6 @@ export function LoginClient() {
         return;
       }
 
-      // Create user record in our database
       const res = await fetch("/api/auth/callback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,7 +66,6 @@ export function LoginClient() {
         return;
       }
 
-      // Ensure user record exists
       await fetch("/api/auth/callback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -81,313 +76,226 @@ export function LoginClient() {
     }
   };
 
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "10px 14px",
-    fontSize: "13px",
-    fontFamily: "inherit",
-    color: "var(--color-text)",
-    backgroundColor: "var(--color-surface)",
-    border: "1px solid var(--color-border)",
-    borderRadius: "8px",
-    outline: "none",
-    boxSizing: "border-box",
-  };
+  function inputStyle(field: string): React.CSSProperties {
+    const focused = focusedField === field;
+    return {
+      width: "100%",
+      padding: "10px 14px",
+      fontSize: 13.5,
+      fontFamily: "inherit",
+      color: "var(--color-text)",
+      backgroundColor: "var(--color-surface)",
+      border: `1px solid ${focused ? "var(--color-accent)" : "var(--color-border)"}`,
+      borderRadius: 8,
+      outline: "none",
+      boxSizing: "border-box",
+      boxShadow: focused ? "0 0 0 3px var(--color-accent-dim)" : "none",
+      transition: "border-color 150ms ease, box-shadow 150ms ease",
+    };
+  }
 
   return (
     <div
       style={{
-        minHeight: "100vh",
-        backgroundColor: "var(--color-bg)",
         display: "flex",
-        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        padding: "80px 24px 40px",
       }}
     >
-      {/* Top bar */}
-      <header
-        style={{
-          height: "56px",
-          borderBottom: "1px solid var(--color-border)",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 24px",
-          gap: "12px",
-          flexShrink: 0,
-        }}
-      >
-        <Link
-          href="/browse"
+      <div style={{ width: "100%", maxWidth: 400 }}>
+        <div
           style={{
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
-            gap: "8px",
-            textDecoration: "none",
+            marginBottom: 28,
+            gap: 14,
           }}
         >
-          <img
-            src="/assets/aisa-logo.png"
-            alt="AISA"
-            style={{ width: "28px", height: "28px", flexShrink: 0 }}
-          />
-          <span
-            style={{
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "var(--color-text)",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            AISA Atlas
-          </span>
-        </Link>
-      </header>
+          <div style={{ textAlign: "center" }}>
+            <h1
+              style={{
+                margin: "0 0 6px",
+                fontSize: 26,
+                fontWeight: 600,
+                color: "var(--color-text)",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              {mode === "login" ? "Welcome back" : "Create your account"}
+            </h1>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 14,
+                color: "var(--color-text-2)",
+                lineHeight: 1.55,
+              }}
+            >
+              {mode === "login"
+                ? "Sign in to track your progress and continue learning."
+                : "Start your AI learning journey with AISA Atlas."}
+            </p>
+          </div>
+        </div>
 
-      {/* Content */}
-      <main
-        style={{
-          flex: 1,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          padding: "80px 24px",
-        }}
-      >
         <div
-          className="animate-fade-in"
-          style={{ width: "100%", maxWidth: "380px" }}
+          style={{
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: 12,
+            padding: 24,
+            boxShadow: "var(--shadow-card)",
+          }}
         >
-          <h1
-            style={{
-              margin: "0 0 8px",
-              fontSize: "24px",
-              fontWeight: 600,
-              color: "var(--color-text)",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            {mode === "login" ? "Sign in" : "Create account"}
-          </h1>
-          <p
-            style={{
-              margin: "0 0 32px",
-              fontSize: "14px",
-              color: "var(--color-text-2)",
-              lineHeight: "1.6",
-            }}
-          >
-            {mode === "login"
-              ? "Track your quiz scores and see your progress."
-              : "Start your AI learning journey with AISA Atlas."}
-          </p>
-
           <form onSubmit={handleSubmit}>
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "16px",
+                gap: 16,
               }}
             >
               {mode === "signup" && (
                 <div>
-                  <label
-                    style={{
-                      display: "block",
-                      fontSize: "12px",
-                      fontWeight: 500,
-                      color: "var(--color-text-2)",
-                      marginBottom: "6px",
-                    }}
-                  >
-                    Name
-                  </label>
+                  <label style={labelStyle}>Name</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    onFocus={() => setFocusedField("name")}
+                    onBlur={() => setFocusedField(null)}
                     required
                     placeholder="Your name"
-                    style={inputStyle}
-                    onFocus={(e) =>
-                      (e.currentTarget.style.borderColor =
-                        "var(--color-accent)")
-                    }
-                    onBlur={(e) =>
-                      (e.currentTarget.style.borderColor =
-                        "var(--color-border)")
-                    }
+                    style={inputStyle("name")}
                   />
                 </div>
               )}
 
               <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "12px",
-                    fontWeight: 500,
-                    color: "var(--color-text-2)",
-                    marginBottom: "6px",
-                  }}
-                >
-                  Email
-                </label>
+                <label style={labelStyle}>Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onFocus={() => setFocusedField("email")}
+                  onBlur={() => setFocusedField(null)}
                   required
                   placeholder="you@example.com"
-                  style={inputStyle}
-                  onFocus={(e) =>
-                    (e.currentTarget.style.borderColor =
-                      "var(--color-accent)")
-                  }
-                  onBlur={(e) =>
-                    (e.currentTarget.style.borderColor =
-                      "var(--color-border)")
-                  }
+                  style={inputStyle("email")}
                 />
               </div>
 
               <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "12px",
-                    fontWeight: 500,
-                    color: "var(--color-text-2)",
-                    marginBottom: "6px",
-                  }}
-                >
-                  Password
-                </label>
+                <label style={labelStyle}>Password</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setFocusedField("password")}
+                  onBlur={() => setFocusedField(null)}
                   required
                   minLength={6}
                   placeholder="At least 6 characters"
-                  style={inputStyle}
-                  onFocus={(e) =>
-                    (e.currentTarget.style.borderColor =
-                      "var(--color-accent)")
-                  }
-                  onBlur={(e) =>
-                    (e.currentTarget.style.borderColor =
-                      "var(--color-border)")
-                  }
+                  style={inputStyle("password")}
                 />
               </div>
             </div>
 
             {error && (
-              <p
+              <div
                 style={{
-                  fontSize: "13px",
+                  marginTop: 16,
+                  padding: "10px 14px",
+                  backgroundColor: "var(--color-incorrect-dim)",
+                  border: "1px solid var(--color-incorrect)",
+                  borderRadius: 8,
+                  fontSize: 13,
                   color: "var(--color-incorrect)",
-                  marginTop: "16px",
                 }}
               >
                 {error}
-              </p>
+              </div>
             )}
 
-            {message && (
-              <p
-                style={{
-                  fontSize: "13px",
-                  color: "var(--color-correct)",
-                  marginTop: "16px",
-                }}
+            <div style={{ marginTop: 22 }}>
+              <Button
+                variant="primary"
+                type="submit"
+                disabled={loading}
+                fullWidth
               >
-                {message}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: "100%",
-                marginTop: "24px",
-                padding: "12px 20px",
-                fontSize: "14px",
-                fontWeight: 500,
-                fontFamily: "inherit",
-                color: "#fff",
-                backgroundColor: loading
-                  ? "var(--color-surface-2)"
-                  : "var(--color-accent)",
-                border: "none",
-                borderRadius: "8px",
-                cursor: loading ? "not-allowed" : "pointer",
-                transition: "opacity 0.12s",
-              }}
-            >
-              {loading
-                ? "Loading..."
-                : mode === "login"
-                  ? "Sign in"
-                  : "Create account"}
-            </button>
+                {loading
+                  ? "Loading..."
+                  : mode === "login"
+                    ? "Sign in"
+                    : "Create account"}
+              </Button>
+            </div>
           </form>
-
-          <p
-            style={{
-              marginTop: "24px",
-              fontSize: "13px",
-              color: "var(--color-text-3)",
-              textAlign: "center",
-            }}
-          >
-            {mode === "login" ? (
-              <>
-                Don&apos;t have an account?{" "}
-                <button
-                  onClick={() => {
-                    setMode("signup");
-                    setError(null);
-                  }}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "var(--color-accent)",
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                    fontSize: "13px",
-                    fontWeight: 500,
-                  }}
-                >
-                  Sign up
-                </button>
-              </>
-            ) : (
-              <>
-                Already have an account?{" "}
-                <button
-                  onClick={() => {
-                    setMode("login");
-                    setError(null);
-                  }}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "var(--color-accent)",
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                    fontSize: "13px",
-                    fontWeight: 500,
-                  }}
-                >
-                  Sign in
-                </button>
-              </>
-            )}
-          </p>
         </div>
-      </main>
+
+        <p
+          style={{
+            marginTop: 20,
+            fontSize: 13,
+            color: "var(--color-text-2)",
+            textAlign: "center",
+          }}
+        >
+          {mode === "login" ? (
+            <>
+              Don&apos;t have an account?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("signup");
+                  setError(null);
+                }}
+                style={toggleButtonStyle}
+              >
+                Sign up
+              </button>
+            </>
+          ) : (
+            <>
+              Already have an account?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("login");
+                  setError(null);
+                }}
+                style={toggleButtonStyle}
+              >
+                Sign in
+              </button>
+            </>
+          )}
+        </p>
+      </div>
     </div>
   );
 }
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontSize: 12,
+  fontWeight: 600,
+  color: "var(--color-text-2)",
+  marginBottom: 6,
+};
+
+const toggleButtonStyle: React.CSSProperties = {
+  background: "none",
+  border: "none",
+  color: "var(--color-accent)",
+  cursor: "pointer",
+  fontFamily: "inherit",
+  fontSize: 13,
+  fontWeight: 600,
+  padding: 0,
+  textDecoration: "underline",
+  textUnderlineOffset: 2,
+};

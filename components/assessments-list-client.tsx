@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { Icon } from "@/components/ui/icon";
+import { IconTile } from "@/components/ui/icon-tile";
+import { Button } from "@/components/ui/button";
 
 type AssessmentItem = {
   id: string;
@@ -17,111 +20,45 @@ export function AssessmentsListClient({ items }: { items: AssessmentItem[] }) {
   return (
     <div
       style={{
-        minHeight: "100vh",
-        backgroundColor: "var(--color-bg)",
-        display: "flex",
-        flexDirection: "column",
+        maxWidth: 820,
+        margin: "0 auto",
+        padding: "56px 40px 80px",
       }}
     >
-      {/* ── Top bar ──────────────────────────────────────────── */}
-      <header
+      <h1
         style={{
-          height: "56px",
-          borderBottom: "1px solid var(--color-border)",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 24px",
-          gap: "12px",
-          flexShrink: 0,
+          margin: "0 0 6px",
+          fontSize: 28,
+          fontWeight: 600,
+          color: "var(--color-text)",
+          letterSpacing: "-0.02em",
         }}
       >
-        <Link
-          href="/browse"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            textDecoration: "none",
-          }}
-        >
-          <img
-            src="/assets/aisa-logo.png"
-            alt="AISA"
-            style={{ width: "28px", height: "28px", flexShrink: 0 }}
-          />
-          <span
-            style={{
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "var(--color-text)",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            AISA Atlas
-          </span>
-        </Link>
-
-        <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>›</span>
-        <span
-          style={{
-            fontSize: "13px",
-            fontWeight: 500,
-            color: "var(--color-text-2)",
-          }}
-        >
-          Assessments
-        </span>
-      </header>
-
-      {/* ── Content ──────────────────────────────────────────── */}
-      <main
+        Assessments
+      </h1>
+      <p
         style={{
-          flex: 1,
-          display: "flex",
-          justifyContent: "center",
-          padding: "48px 24px 80px",
-          overflowY: "auto",
+          margin: "0 0 32px",
+          fontSize: 14,
+          color: "var(--color-text-2)",
+          lineHeight: 1.55,
         }}
       >
-        <div style={{ width: "100%", maxWidth: "760px" }}>
-          <h1
-            style={{
-              margin: "0 0 6px",
-              fontSize: "24px",
-              fontWeight: 600,
-              color: "var(--color-text)",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            Assessments
-          </h1>
-          <p
-            style={{
-              margin: "0 0 28px",
-              fontSize: "13.5px",
-              color: "var(--color-text-3)",
-              lineHeight: 1.55,
-            }}
-          >
-            Timed assessments to measure your progress. Each can be taken once.
-          </p>
+        Timed assessments to measure your progress. Each can be taken once.
+      </p>
 
-          {items.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {items.map((a) => (
-                <AssessmentRow key={a.id} item={a} />
-              ))}
-            </div>
-          )}
+      {items.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {items.map((a) => (
+            <AssessmentRow key={a.id} item={a} />
+          ))}
         </div>
-      </main>
+      )}
     </div>
   );
 }
-
-// ── Empty State ───────────────────────────────────────────────────────────────
 
 function EmptyState() {
   return (
@@ -131,148 +68,162 @@ function EmptyState() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "64px 24px",
-        gap: "14px",
+        padding: "72px 24px",
+        gap: 14,
         backgroundColor: "var(--color-surface)",
-        border: "1px solid var(--color-border-subtle)",
-        borderRadius: "10px",
+        border: "1px solid var(--color-border)",
+        borderRadius: 12,
         textAlign: "center",
+        boxShadow: "var(--shadow-card)",
       }}
     >
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="var(--color-text-3)"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M9 11l3 3L22 4" />
-        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-      </svg>
+      <IconTile icon="bar-chart" color="indigo" size="lg" />
       <div>
         <div
           style={{
-            fontSize: "15px",
-            fontWeight: 500,
+            fontSize: 15,
+            fontWeight: 600,
             color: "var(--color-text)",
-            marginBottom: "4px",
+            marginBottom: 4,
           }}
         >
-          No assessments at this time
+          No assessments yet
         </div>
-        <div style={{ fontSize: "13px", color: "var(--color-text-3)" }}>
-          Check back later — new assessments will appear here when they're posted.
+        <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
+          New assessments will appear here when your mentors post them.
         </div>
       </div>
     </div>
   );
 }
 
-// ── Row ───────────────────────────────────────────────────────────────────────
-
 function AssessmentRow({ item: a }: { item: AssessmentItem }) {
-  const scoreColor =
-    a.score !== null
-      ? a.score >= 80
-        ? "var(--color-correct)"
-        : a.score >= 50
-          ? "var(--color-gold)"
-          : "var(--color-incorrect)"
-      : "var(--color-text-3)";
-  const scoreBg =
-    a.score !== null
-      ? a.score >= 80
-        ? "var(--color-correct-dim)"
-        : a.score >= 50
-          ? "var(--color-gold-dim)"
-          : "var(--color-incorrect-dim)"
-      : "transparent";
+  const tile = a.completed ? "mint" : "honey";
+  const dueLabel = a.dueDate
+    ? new Date(a.dueDate).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+    : null;
 
   return (
     <div
       style={{
-        backgroundColor: "var(--color-surface)",
-        border: "1px solid var(--color-border)",
-        borderRadius: "8px",
-        padding: "16px",
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between",
-        gap: "12px",
+        gap: 14,
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 12,
+        padding: "16px 18px",
+        boxShadow: "var(--shadow-card)",
       }}
     >
-      <div style={{ minWidth: 0 }}>
+      <IconTile icon="bar-chart" color={tile} size="md" />
+
+      <div style={{ minWidth: 0, flex: 1 }}>
         <div
           style={{
-            fontSize: "14px",
-            fontWeight: 500,
+            fontSize: 15,
+            fontWeight: 600,
             color: "var(--color-text)",
+            letterSpacing: "-0.005em",
+            marginBottom: 4,
           }}
         >
           {a.title}
         </div>
         <div
           style={{
-            fontSize: "12px",
-            color: "var(--color-text-3)",
-            marginTop: "4px",
             display: "flex",
-            gap: "8px",
+            alignItems: "center",
+            gap: 12,
             flexWrap: "wrap",
+            fontSize: 12.5,
+            color: "var(--color-text-3)",
           }}
         >
           <span>{a.questionCount} questions</span>
-          {a.timeLimit !== null && <span>{a.timeLimit} min</span>}
-          {a.dueDate !== null && (
+          {a.timeLimit !== null && (
             <span>
-              Due{" "}
-              {new Date(a.dueDate).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-              })}
+              <Icon
+                name="calendar"
+                size={11}
+                strokeWidth={2}
+                style={{
+                  display: "inline-block",
+                  verticalAlign: "-1px",
+                  marginRight: 4,
+                }}
+              />
+              {a.timeLimit} min
             </span>
           )}
+          {dueLabel && <span>Due {dueLabel}</span>}
         </div>
       </div>
-      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+
+      <div
+        style={{
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+        }}
+      >
         {a.completed ? (
-          <>
-            {a.score !== null && (
-              <span
-                style={{
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  color: scoreColor,
-                  backgroundColor: scoreBg,
-                  padding: "4px 10px",
-                  borderRadius: "6px",
-                }}
-              >
-                {a.score}%
-              </span>
-            )}
-            <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>Completed</span>
-          </>
+          <ScorePill score={a.score} />
         ) : (
-          <Link
-            href={`/assessment/${a.id}`}
-            style={{
-              backgroundColor: "var(--color-accent)",
-              color: "#fff",
-              fontSize: "12px",
-              fontWeight: 500,
-              borderRadius: "6px",
-              padding: "6px 14px",
-              textDecoration: "none",
-            }}
-          >
-            Start
+          <Link href={`/assessment/${a.id}`} style={{ textDecoration: "none" }}>
+            <Button variant="primary" size="sm">
+              Start
+            </Button>
           </Link>
         )}
       </div>
     </div>
+  );
+}
+
+function ScorePill({ score }: { score: number | null }) {
+  if (score === null) {
+    return (
+      <span
+        style={{
+          padding: "3px 10px",
+          fontSize: 11.5,
+          fontWeight: 600,
+          color: "var(--color-text-3)",
+          backgroundColor: "var(--color-surface-2)",
+          borderRadius: 999,
+        }}
+      >
+        Completed
+      </span>
+    );
+  }
+
+  const tone =
+    score >= 80
+      ? { fg: "var(--color-correct)", bg: "var(--color-correct-dim)" }
+      : score >= 50
+        ? { fg: "var(--color-gold)", bg: "var(--color-gold-soft)" }
+        : { fg: "var(--color-incorrect)", bg: "var(--color-incorrect-dim)" };
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "3px 10px",
+        fontSize: 12,
+        fontWeight: 650,
+        color: tone.fg,
+        backgroundColor: tone.bg,
+        borderRadius: 999,
+      }}
+    >
+      {score}%
+    </span>
   );
 }

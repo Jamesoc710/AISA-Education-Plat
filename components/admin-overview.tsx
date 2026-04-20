@@ -1,12 +1,19 @@
 "use client";
 
-// ── Types ────────────────────────────────────────────────────────────────────
+import { Icon } from "@/components/ui/icon";
+import { IconTile } from "@/components/ui/icon-tile";
+import { AdminCalendarSync } from "@/components/admin-calendar-sync";
 
 interface Stats {
   totalRecruits: number;
   activeThisWeek: number;
   pendingToGrade: number;
   formalQuizzes: number;
+}
+
+interface CalendarSyncInfo {
+  lastSyncedAt: string | null;
+  eventCount: number;
 }
 
 interface ActivityItem {
@@ -20,9 +27,8 @@ interface ActivityItem {
 interface AdminOverviewProps {
   stats: Stats;
   activity: ActivityItem[];
+  calendarSync: CalendarSyncInfo;
 }
-
-// ── Relative time helper ─────────────────────────────────────────────────────
 
 function relativeTime(timestamp: string): string {
   const now = Date.now();
@@ -39,170 +45,233 @@ function relativeTime(timestamp: string): string {
   return `${diffDay}d ago`;
 }
 
-// ── Dot color by status ──────────────────────────────────────────────────────
-
-function dotColor(status: ActivityItem["status"]): string {
+function statusTone(status: ActivityItem["status"]): {
+  bg: string;
+  fg: string;
+} {
   switch (status) {
     case "correct":
-      return "#34c759";
+      return {
+        bg: "var(--color-correct-dim)",
+        fg: "var(--color-correct)",
+      };
     case "incorrect":
-      return "#ff453a";
+      return {
+        bg: "var(--color-incorrect-dim)",
+        fg: "var(--color-incorrect)",
+      };
     case "submitted":
+      return {
+        bg: "var(--color-blue-soft)",
+        fg: "var(--color-blue)",
+      };
     case "graded":
-      return "var(--color-accent)";
+      return {
+        bg: "var(--color-accent-soft)",
+        fg: "var(--color-accent-on-soft)",
+      };
   }
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
-
-export function AdminOverview({ stats, activity }: AdminOverviewProps) {
-  const statCards: { value: number; label: string }[] = [
-    { value: stats.totalRecruits, label: "Total Recruits" },
-    { value: stats.activeThisWeek, label: "Active This Week" },
-    { value: stats.pendingToGrade, label: "Pending to Grade" },
-    { value: stats.formalQuizzes, label: "Formal Quizzes" },
+export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewProps) {
+  const statCards: { value: number; label: string; tile: "indigo" | "sky" | "honey" | "mint" }[] = [
+    { value: stats.totalRecruits, label: "Total recruits", tile: "indigo" },
+    { value: stats.activeThisWeek, label: "Active this week", tile: "sky" },
+    { value: stats.pendingToGrade, label: "Pending to grade", tile: "honey" },
+    { value: stats.formalQuizzes, label: "Formal quizzes", tile: "mint" },
   ];
 
   return (
-    <div style={{ padding: "32px", maxWidth: "960px" }}>
-      {/* ── Page title ──────────────────────────────────── */}
-      <h1
-        style={{
-          fontSize: "18px",
-          fontWeight: 600,
-          color: "var(--color-text)",
-          margin: "0 0 24px",
-          letterSpacing: "-0.01em",
-        }}
-      >
-        Overview
-      </h1>
-
-      {/* ── Stats strip ─────────────────────────────────── */}
+    <div>
+      <AdminCalendarSync
+        lastSyncedAt={calendarSync.lastSyncedAt}
+        eventCount={calendarSync.eventCount}
+      />
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
-          gap: "12px",
-          marginBottom: "32px",
+          gap: 12,
+          marginBottom: 36,
         }}
       >
-        {statCards.map((card: (typeof statCards)[number]) => (
+        {statCards.map((card) => (
           <div
             key={card.label}
             style={{
               backgroundColor: "var(--color-surface)",
               border: "1px solid var(--color-border)",
-              borderRadius: "8px",
-              padding: "20px",
+              borderRadius: 12,
+              padding: "18px 20px",
+              boxShadow: "var(--shadow-card)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 14,
             }}
           >
-            <div
-              style={{
-                fontSize: "24px",
-                fontWeight: 700,
-                color: "var(--color-text)",
-                lineHeight: 1,
-              }}
-            >
-              {card.value}
-            </div>
-            <div
-              style={{
-                fontSize: "12px",
-                color: "var(--color-text-3)",
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-                marginTop: "8px",
-              }}
-            >
-              {card.label}
+            <IconTile icon="bar-chart" color={card.tile} size="sm" />
+            <div>
+              <div
+                style={{
+                  fontSize: 28,
+                  fontWeight: 600,
+                  color: "var(--color-text)",
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1,
+                  marginBottom: 6,
+                }}
+              >
+                {card.value}
+              </div>
+              <div
+                style={{
+                  fontSize: 12.5,
+                  color: "var(--color-text-3)",
+                  fontWeight: 500,
+                }}
+              >
+                {card.label}
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* ── Activity feed ───────────────────────────────── */}
-      <h2
+      <div
         style={{
-          fontSize: "14px",
-          fontWeight: 600,
-          color: "var(--color-text)",
-          margin: "0 0 12px",
-          letterSpacing: "-0.01em",
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          marginBottom: 14,
         }}
       >
-        Recent Activity
-      </h2>
+        <h2
+          style={{
+            fontSize: 16,
+            fontWeight: 600,
+            color: "var(--color-text)",
+            margin: 0,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Recent activity
+        </h2>
+        <span
+          style={{
+            fontSize: 12,
+            color: "var(--color-text-3)",
+          }}
+        >
+          {activity.length} events
+        </span>
+      </div>
 
       {activity.length === 0 ? (
+        <EmptyState />
+      ) : (
         <div
           style={{
-            padding: "24px",
-            textAlign: "center",
-            fontSize: "13px",
-            color: "var(--color-text-3)",
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: 12,
+            boxShadow: "var(--shadow-card)",
+            overflow: "hidden",
+          }}
+        >
+          {activity.map((item, idx) => {
+            const tone = statusTone(item.status);
+            return (
+              <div
+                key={item.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
+                  padding: "14px 18px",
+                  borderTop:
+                    idx === 0 ? "none" : "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <span
+                  style={{
+                    display: "inline-flex",
+                    padding: "3px 10px",
+                    fontSize: 11,
+                    fontWeight: 650,
+                    color: tone.fg,
+                    backgroundColor: tone.bg,
+                    borderRadius: 999,
+                    textTransform: "capitalize",
+                    letterSpacing: "0.02em",
+                    flexShrink: 0,
+                  }}
+                >
+                  {item.status}
+                </span>
+                <span
+                  style={{
+                    flex: 1,
+                    fontSize: 13.5,
+                    color: "var(--color-text)",
+                    minWidth: 0,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {item.description}
+                </span>
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "var(--color-text-3)",
+                    flexShrink: 0,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {relativeTime(item.timestamp)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "60px 24px",
+        gap: 12,
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 12,
+        boxShadow: "var(--shadow-card)",
+      }}
+    >
+      <IconTile icon="bell" color="indigo" size="lg" />
+      <div style={{ textAlign: "center" }}>
+        <div
+          style={{
+            fontSize: 14.5,
+            fontWeight: 600,
+            color: "var(--color-text)",
+            marginBottom: 4,
           }}
         >
           No recent activity
         </div>
-      ) : (
-        <div>
-          {activity.map((item: ActivityItem) => (
-            <div
-              key={item.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                backgroundColor: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
-                borderRadius: "6px",
-                padding: "12px 14px",
-                marginBottom: "4px",
-              }}
-            >
-              {/* Status dot */}
-              <span
-                style={{
-                  width: "8px",
-                  height: "8px",
-                  borderRadius: "50%",
-                  backgroundColor: dotColor(item.status),
-                  flexShrink: 0,
-                }}
-              />
-
-              {/* Description */}
-              <span
-                style={{
-                  flex: 1,
-                  fontSize: "13px",
-                  color: "var(--color-text)",
-                  minWidth: 0,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {item.description}
-              </span>
-
-              {/* Relative time */}
-              <span
-                style={{
-                  fontSize: "12px",
-                  color: "var(--color-text-3)",
-                  flexShrink: 0,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {relativeTime(item.timestamp)}
-              </span>
-            </div>
-          ))}
+        <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
+          Recruit progress will show up here as it happens.
         </div>
-      )}
+      </div>
     </div>
   );
 }

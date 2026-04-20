@@ -5,19 +5,19 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { ConceptDetail } from "@/lib/concepts";
+import { Icon } from "@/components/ui/icon";
+import { TierBadge } from "@/components/ui/tier-badge";
 
-const TIER_STYLES: Record<string, { color: string; bg: string; label: string }> = {
-  fundamentals: { color: "#e8b54a", bg: "rgba(232,181,74,0.10)", label: "Fundamentals" },
-  intermediate:  { color: "#6b9bd2", bg: "rgba(107,155,210,0.10)", label: "Intermediate" },
-  advanced:      { color: "#8b8b9e", bg: "rgba(139,139,158,0.10)", label: "Advanced" },
-};
-
-const RESOURCE_BADGE: Record<string, { color: string; bg: string }> = {
-  VIDEO:    { color: "#e8b54a", bg: "rgba(232,181,74,0.10)" },
-  ARTICLE:  { color: "#6b9bd2", bg: "rgba(107,155,210,0.10)" },
-  PAPER:    { color: "#8b8b9e", bg: "rgba(139,139,158,0.10)" },
-  TUTORIAL: { color: "#5e6ad2", bg: "rgba(94,106,210,0.12)" },
-  COURSE:   { color: "#4ade80", bg: "rgba(74,222,128,0.10)" },
+/**
+ * Resource-type tag colors — reuse the section pastel tokens.
+ * Maps each resource type to a `--tile-{color}` pair.
+ */
+const RESOURCE_PALETTE: Record<string, string> = {
+  VIDEO:    "coral",
+  ARTICLE:  "blue",
+  PAPER:    "mauve",
+  TUTORIAL: "indigo",
+  COURSE:   "mint",
 };
 
 export function ConceptBody({
@@ -30,205 +30,126 @@ export function ConceptBody({
   onToggleBookmark: () => void;
 }) {
   const [deeperOpen, setDeeperOpen] = useState(false);
-  const [bookmarkHovered, setBookmarkHovered] = useState(false);
-  const [explanationMode, setExplanationMode] = useState<"detailed" | "simple">("detailed");
-  const tier = TIER_STYLES[concept.section.tier.slug] ?? TIER_STYLES.fundamentals;
+  const [explanationMode, setExplanationMode] = useState<"detailed" | "simple">(
+    "detailed"
+  );
   const hasSimple = Boolean(concept.simpleExplanation);
 
   return (
-    <div
-      style={{
-        maxWidth: "760px",
-        margin: "0 auto",
-        padding: "48px 40px 80px",
-      }}
+    <article
       className="concept-body-padding"
+      style={{
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 16,
+        boxShadow: "var(--shadow-card)",
+      }}
     >
       {/* ── Breadcrumb ─────────────────────────────────────── */}
-      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "24px" }}>
+      <nav
+        aria-label="Breadcrumb"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          marginBottom: 18,
+          fontSize: 12.5,
+          color: "var(--color-text-3)",
+        }}
+      >
         <Link
           href="/browse"
           style={{
-            fontSize: "12px",
             color: "var(--color-text-3)",
             textDecoration: "none",
+            transition: "color 100ms ease",
           }}
-          onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "var(--color-text-2)")}
-          onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "var(--color-text-3)")}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-text-2)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-3)")}
         >
           Browse
         </Link>
-        <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>›</span>
-        <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
-          {concept.section.name}
-        </span>
-      </div>
+        <Icon name="chevron-right" size={11} strokeWidth={2} />
+        <Link
+          href={`/browse?tier=${concept.section.tier.slug}`}
+          style={{
+            color: "var(--color-text-3)",
+            textDecoration: "none",
+            transition: "color 100ms ease",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-text-2)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-3)")}
+        >
+          {concept.section.tier.name}
+        </Link>
+        <Icon name="chevron-right" size={11} strokeWidth={2} />
+        <span style={{ color: "var(--color-text-2)" }}>{concept.section.name}</span>
+      </nav>
 
       {/* ── Header ─────────────────────────────────────────── */}
-      <div style={{ marginBottom: "32px" }}>
-        {/* Tier badge + section label */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "5px",
-              fontSize: "11px",
-              fontWeight: 500,
-              color: tier.color,
-              backgroundColor: tier.bg,
-              borderRadius: "4px",
-              padding: "2px 8px",
-            }}
-          >
-            <span
-              style={{
-                width: "5px",
-                height: "5px",
-                borderRadius: "50%",
-                backgroundColor: tier.color,
-              }}
-            />
-            {tier.label}
-          </span>
-          <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
+      <header style={{ marginBottom: 28 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+          <TierBadge slug={concept.section.tier.slug} size="xs" />
+          <span style={{ fontSize: 12, color: "var(--color-text-3)" }}>·</span>
+          <span style={{ fontSize: 12.5, color: "var(--color-text-2)", fontWeight: 500 }}>
             {concept.section.name}
           </span>
         </div>
 
-        {/* Title row */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: 16,
+          }}
+        >
           <h1
             style={{
               margin: 0,
-              fontSize: "26px",
+              fontSize: 32,
               fontWeight: 600,
               color: "var(--color-text)",
-              lineHeight: "1.25",
-              letterSpacing: "-0.02em",
+              lineHeight: 1.2,
+              letterSpacing: "-0.025em",
+              flex: 1,
             }}
           >
             {concept.name}
           </h1>
-
-          {/* Bookmark star */}
-          <button
-            onClick={onToggleBookmark}
-            onMouseEnter={() => setBookmarkHovered(true)}
-            onMouseLeave={() => setBookmarkHovered(false)}
-            title={bookmarked ? "Remove bookmark" : "Bookmark"}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "6px 10px",
-              border: `1px solid ${bookmarked ? "rgba(232,181,74,0.3)" : "var(--color-border)"}`,
-              borderRadius: "6px",
-              background: bookmarked ? "rgba(232,181,74,0.07)" : "none",
-              cursor: "pointer",
-              color: bookmarked ? "#e8b54a" : bookmarkHovered ? "var(--color-text)" : "var(--color-text-2)",
-              fontSize: "12px",
-              fontFamily: "inherit",
-              flexShrink: 0,
-              transition: "all 0.1s",
-              marginTop: "4px",
-            }}
-          >
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill={bookmarked ? "currentColor" : "none"}
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-            </svg>
-            {bookmarked ? "Bookmarked" : "Bookmark"}
-          </button>
+          <BookmarkButton bookmarked={bookmarked} onClick={onToggleBookmark} />
         </div>
 
-        {/* Subtitle */}
         <p
           style={{
-            margin: "10px 0 0",
-            fontSize: "15px",
+            margin: "12px 0 0",
+            fontSize: 16,
             color: "var(--color-text-2)",
-            lineHeight: "1.6",
+            lineHeight: 1.6,
+            maxWidth: "62ch",
           }}
         >
           {concept.subtitle}
         </p>
-      </div>
+      </header>
 
-      {/* ── Divider ──────────────────────────────────────────── */}
-      <div style={{ height: "1px", backgroundColor: "var(--color-border)", marginBottom: "36px" }} />
+      <div style={{ height: 1, backgroundColor: "var(--color-border-subtle)", marginBottom: 32 }} />
 
-      {/* ── What it is ───────────────────────────────────────── */}
-      <div style={{ marginBottom: "40px" }}>
+      {/* ── What it is ──────────────────────────────────────── */}
+      <section style={{ marginBottom: 36 }}>
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: "14px",
+            marginBottom: 14,
           }}
         >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: "11px",
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "var(--color-text-3)",
-            }}
-          >
-            What it is
-          </h2>
-
-          {/* Simple / Detailed toggle */}
+          <SectionLabel>What it is</SectionLabel>
           {hasSimple && (
-            <div
-              style={{
-                display: "flex",
-                backgroundColor: "var(--color-surface-2)",
-                borderRadius: "5px",
-                padding: "2px",
-                gap: "2px",
-              }}
-            >
-              {(["simple", "detailed"] as const).map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => setExplanationMode(mode)}
-                  style={{
-                    padding: "3px 10px",
-                    fontSize: "11px",
-                    fontWeight: 500,
-                    fontFamily: "inherit",
-                    color:
-                      explanationMode === mode
-                        ? "var(--color-text)"
-                        : "var(--color-text-3)",
-                    backgroundColor:
-                      explanationMode === mode
-                        ? "var(--color-surface-3)"
-                        : "transparent",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    textTransform: "capitalize",
-                    transition: "background-color 0.15s, color 0.15s",
-                  }}
-                >
-                  {mode}
-                </button>
-              ))}
-            </div>
+            <ModeToggle mode={explanationMode} setMode={setExplanationMode} />
           )}
         </div>
-
         <div key={explanationMode} className="animate-fade-in">
           <MarkdownBody
             content={
@@ -238,291 +159,429 @@ export function ConceptBody({
             }
           />
         </div>
-      </div>
+      </section>
 
-      {/* ── Why it matters ───────────────────────────────────── */}
-      <Section label="Why it matters">
-        <blockquote
+      {/* ── Why it matters ──────────────────────────────────── */}
+      <section style={{ marginBottom: 36 }}>
+        <SectionLabel>Why it matters</SectionLabel>
+        <div
           style={{
-            margin: 0,
-            padding: "16px 20px",
-            backgroundColor: "var(--color-surface)",
-            border: "1px solid var(--color-border-subtle)",
-            borderRadius: "8px",
+            position: "relative",
+            margin: "10px 0 0",
+            padding: "18px 22px 18px 26px",
+            backgroundColor: "var(--color-accent-soft)",
+            borderRadius: 12,
+            overflow: "hidden",
           }}
         >
-          <MarkdownBody content={concept.whyItMatters} muted />
-        </blockquote>
-      </Section>
+          <span
+            aria-hidden
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 14,
+              bottom: 14,
+              width: 3,
+              borderRadius: 1.5,
+              backgroundColor: "var(--color-accent)",
+            }}
+          />
+          <MarkdownBody content={concept.whyItMatters} variant="callout" />
+        </div>
+      </section>
 
-      {/* ── Go Deeper ────────────────────────────────────────── */}
+      {/* ── Go Deeper ───────────────────────────────────────── */}
       {concept.goDeeper && (
-        <div style={{ marginBottom: "40px" }}>
+        <section style={{ marginBottom: 36 }}>
           <button
             onClick={() => setDeeperOpen((v) => !v)}
+            aria-expanded={deeperOpen}
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "8px",
-              background: "none",
-              border: "none",
+              gap: 10,
+              padding: "12px 16px",
+              width: "100%",
+              backgroundColor: deeperOpen ? "var(--color-surface-2)" : "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+              borderRadius: 12,
+              borderBottomLeftRadius: deeperOpen ? 0 : 12,
+              borderBottomRightRadius: deeperOpen ? 0 : 12,
               cursor: "pointer",
               fontFamily: "inherit",
-              padding: "0 0 14px 0",
-              width: "100%",
               textAlign: "left",
+              transition: "background-color 120ms ease",
             }}
           >
             <span
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "18px",
-                height: "18px",
-                borderRadius: "4px",
-                backgroundColor: "var(--color-surface-2)",
-                border: "1px solid var(--color-border)",
-                fontSize: "9px",
-                color: "var(--color-text-3)",
-                transform: deeperOpen ? "rotate(0deg)" : "rotate(-90deg)",
-                transition: "transform 0.15s",
+                display: "inline-flex",
+                transform: deeperOpen ? "rotate(90deg)" : "rotate(0deg)",
+                transition: "transform 150ms ease",
+                color: "var(--color-text-2)",
                 flexShrink: 0,
               }}
             >
-              ▾
+              <Icon name="chevron-right" size={14} strokeWidth={2} />
             </span>
             <span
               style={{
-                fontSize: "13px",
-                fontWeight: 500,
-                color: "var(--color-text-2)",
+                fontSize: 13.5,
+                fontWeight: 600,
+                color: "var(--color-text)",
+                letterSpacing: "-0.005em",
               }}
             >
               Go deeper
             </span>
-            {!deeperOpen && (
-              <span style={{ fontSize: "12px", color: "var(--color-text-3)" }}>
-                More technical detail
-              </span>
-            )}
+            <span
+              style={{
+                fontSize: 12.5,
+                color: "var(--color-text-3)",
+                marginLeft: "auto",
+              }}
+            >
+              {deeperOpen ? "Hide" : "Show technical detail"}
+            </span>
           </button>
-
           {deeperOpen && (
             <div
               className="animate-fade-in"
               style={{
-                padding: "16px 20px",
+                padding: "20px 22px",
                 backgroundColor: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
-                borderRadius: "8px",
+                borderTop: "none",
+                borderBottomLeftRadius: 12,
+                borderBottomRightRadius: 12,
               }}
             >
-              <MarkdownBody content={concept.goDeeper} muted />
+              <MarkdownBody content={concept.goDeeper} />
             </div>
           )}
-        </div>
+        </section>
       )}
 
-      {/* ── Related concepts ─────────────────────────────────── */}
+      {/* ── Related concepts ────────────────────────────────── */}
       {concept.relatedFrom.length > 0 && (
-        <Section label="Related concepts">
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+        <section style={{ marginBottom: 36 }}>
+          <SectionLabel>Related concepts</SectionLabel>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 8,
+              marginTop: 10,
+            }}
+          >
             {concept.relatedFrom.map((r) => (
-              <Link
+              <RelatedChip
                 key={r.relatedConcept.slug}
                 href={`/concepts/${r.relatedConcept.slug}`}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "5px",
-                  padding: "5px 12px",
-                  fontSize: "13px",
-                  color: "var(--color-text-2)",
-                  backgroundColor: "var(--color-surface)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "6px",
-                  textDecoration: "none",
-                  transition: "border-color 0.1s, color 0.1s, background-color 0.1s",
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLAnchorElement;
-                  el.style.borderColor = "var(--color-border)";
-                  el.style.color = "var(--color-text)";
-                  el.style.backgroundColor = "var(--color-surface-2)";
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLAnchorElement;
-                  el.style.borderColor = "var(--color-border)";
-                  el.style.color = "var(--color-text-2)";
-                  el.style.backgroundColor = "var(--color-surface)";
-                }}
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                </svg>
-                {r.relatedConcept.name}
-              </Link>
+                name={r.relatedConcept.name}
+              />
             ))}
           </div>
-        </Section>
+        </section>
       )}
 
-      {/* ── Resources ────────────────────────────────────────── */}
+      {/* ── Resources ───────────────────────────────────────── */}
       {concept.resources.length > 0 && (
-        <Section label="Resources">
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            {concept.resources.map((resource) => {
-              const badge = RESOURCE_BADGE[resource.type] ?? RESOURCE_BADGE.ARTICLE;
-              return (
-                <a
-                  key={resource.id}
-                  href={resource.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    padding: "11px 14px",
-                    backgroundColor: "var(--color-surface)",
-                    border: "1px solid var(--color-border-subtle)",
-                    borderRadius: "7px",
-                    textDecoration: "none",
-                    transition: "border-color 0.1s, background-color 0.1s",
-                  }}
-                  onMouseEnter={(e) => {
-                    const el = e.currentTarget as HTMLAnchorElement;
-                    el.style.borderColor = "var(--color-border)";
-                    el.style.backgroundColor = "var(--color-surface-2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    const el = e.currentTarget as HTMLAnchorElement;
-                    el.style.borderColor = "var(--color-border-subtle)";
-                    el.style.backgroundColor = "var(--color-surface)";
-                  }}
-                >
-                  {/* Type badge */}
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      padding: "2px 7px",
-                      fontSize: "10px",
-                      fontWeight: 600,
-                      letterSpacing: "0.05em",
-                      color: badge.color,
-                      backgroundColor: badge.bg,
-                      borderRadius: "4px",
-                      flexShrink: 0,
-                      minWidth: "52px",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {resource.type}
-                  </span>
-
-                  {/* Title + domain */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        color: "var(--color-text)",
-                        lineHeight: "1.4",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {resource.title}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "11px",
-                        color: "var(--color-text-3)",
-                        marginTop: "2px",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                      title={
-                        resource.description
-                          ? `${resource.sourceDomain} · ${resource.description}`
-                          : resource.sourceDomain
-                      }
-                    >
-                      {resource.sourceDomain}
-                      {resource.description && (
-                        <span style={{ marginLeft: "6px" }}>· {resource.description}</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Time estimate */}
-                  {resource.estimatedMinutes && (
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        color: "var(--color-text-3)",
-                        flexShrink: 0,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {resource.estimatedMinutes} min
-                    </span>
-                  )}
-
-                  {/* External link icon */}
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    style={{ color: "var(--color-text-3)", flexShrink: 0 }}
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
-                </a>
-              );
-            })}
+        <section>
+          <SectionLabel>Resources</SectionLabel>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
+            {concept.resources.map((resource) => (
+              <ResourceRow key={resource.id} resource={resource} />
+            ))}
           </div>
-        </Section>
+        </section>
       )}
+    </article>
+  );
+}
+
+// ── Section label ──────────────────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <h2
+      style={{
+        margin: 0,
+        fontSize: 11,
+        fontWeight: 600,
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        color: "var(--color-text-3)",
+      }}
+    >
+      {children}
+    </h2>
+  );
+}
+
+// ── Bookmark button ────────────────────────────────────────────────────────────
+
+function BookmarkButton({
+  bookmarked,
+  onClick,
+}: {
+  bookmarked: boolean;
+  onClick: () => void;
+}) {
+  const [hov, setHov] = useState(false);
+  const baseColor = bookmarked
+    ? "var(--color-gold)"
+    : hov
+    ? "var(--color-text)"
+    : "var(--color-text-2)";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      title={bookmarked ? "Remove bookmark" : "Bookmark this concept"}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "7px 12px",
+        marginTop: 4,
+        backgroundColor: bookmarked
+          ? "var(--color-gold-soft)"
+          : hov
+          ? "var(--color-surface-2)"
+          : "var(--color-surface)",
+        border: `1px solid ${bookmarked ? "var(--color-gold-soft)" : "var(--color-border)"}`,
+        borderRadius: 8,
+        cursor: "pointer",
+        fontFamily: "inherit",
+        fontSize: 12.5,
+        fontWeight: 500,
+        color: baseColor,
+        flexShrink: 0,
+        transition: "background-color 100ms ease, color 100ms ease, border-color 100ms ease",
+      }}
+    >
+      <Icon
+        name={bookmarked ? "bookmark-filled" : "bookmark"}
+        size={14}
+        strokeWidth={1.85}
+      />
+      {bookmarked ? "Bookmarked" : "Bookmark"}
+    </button>
+  );
+}
+
+// ── Simple/Detailed toggle ─────────────────────────────────────────────────────
+
+function ModeToggle({
+  mode,
+  setMode,
+}: {
+  mode: "simple" | "detailed";
+  setMode: (m: "simple" | "detailed") => void;
+}) {
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        backgroundColor: "var(--color-surface-2)",
+        border: "1px solid var(--color-border-subtle)",
+        borderRadius: 8,
+        padding: 2,
+        gap: 2,
+      }}
+    >
+      {(["simple", "detailed"] as const).map((m) => {
+        const active = mode === m;
+        return (
+          <button
+            key={m}
+            type="button"
+            onClick={() => setMode(m)}
+            style={{
+              padding: "4px 12px",
+              fontSize: 12,
+              fontWeight: active ? 600 : 500,
+              fontFamily: "inherit",
+              color: active ? "var(--color-accent-on-soft)" : "var(--color-text-2)",
+              backgroundColor: active ? "var(--color-surface)" : "transparent",
+              border: "none",
+              borderRadius: 6,
+              cursor: "pointer",
+              textTransform: "capitalize",
+              boxShadow: active ? "0 1px 2px rgba(20,20,30,0.05)" : "none",
+              transition: "background-color 120ms ease, color 120ms ease",
+            }}
+          >
+            {m}
+          </button>
+        );
+      })}
     </div>
   );
 }
 
-// ── Section wrapper ────────────────────────────────────────────────────────────
+// ── Related concept chip ───────────────────────────────────────────────────────
 
-function Section({ label, children }: { label: string; children: React.ReactNode }) {
+function RelatedChip({ href, name }: { href: string; name: string }) {
+  const [hov, setHov] = useState(false);
   return (
-    <div style={{ marginBottom: "40px" }}>
-      <h2
+    <Link
+      href={href}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "7px 12px 7px 14px",
+        backgroundColor: hov ? "var(--color-accent-soft)" : "var(--color-surface)",
+        border: `1px solid ${hov ? "var(--color-accent-soft)" : "var(--color-border)"}`,
+        borderRadius: 999,
+        fontSize: 13,
+        fontWeight: 500,
+        color: hov ? "var(--color-accent-on-soft)" : "var(--color-text)",
+        textDecoration: "none",
+        transition: "background-color 120ms ease, color 120ms ease, border-color 120ms ease",
+      }}
+    >
+      {name}
+      <Icon name="chevron-right" size={12} strokeWidth={2} />
+    </Link>
+  );
+}
+
+// ── Resource row ───────────────────────────────────────────────────────────────
+
+function ResourceRow({
+  resource,
+}: {
+  resource: ConceptDetail["resources"][number];
+}) {
+  const [hov, setHov] = useState(false);
+  const palette = RESOURCE_PALETTE[resource.type] ?? "stone";
+  return (
+    <a
+      href={resource.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        padding: "12px 14px",
+        backgroundColor: hov ? "var(--color-surface-2)" : "var(--color-surface)",
+        border: `1px solid ${hov ? "var(--color-border)" : "var(--color-border-subtle)"}`,
+        borderRadius: 10,
+        textDecoration: "none",
+        transition:
+          "background-color 120ms ease, border-color 120ms ease, transform 120ms ease",
+        transform: hov ? "translateY(-1px)" : "translateY(0)",
+      }}
+    >
+      <span
+        aria-hidden
         style={{
-          margin: "0 0 14px",
-          fontSize: "11px",
-          fontWeight: 600,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "var(--color-text-3)",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "3px 9px",
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: "0.06em",
+          color: `var(--tile-${palette}-fg)`,
+          backgroundColor: `var(--tile-${palette}-bg)`,
+          borderRadius: 6,
+          minWidth: 56,
+          flexShrink: 0,
         }}
       >
-        {label}
-      </h2>
-      {children}
-    </div>
+        {resource.type}
+      </span>
+
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontSize: 13.5,
+            fontWeight: 550,
+            color: "var(--color-text)",
+            lineHeight: 1.4,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            letterSpacing: "-0.005em",
+          }}
+        >
+          {resource.title}
+        </div>
+        <div
+          style={{
+            fontSize: 11.5,
+            color: "var(--color-text-3)",
+            marginTop: 2,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+          title={
+            resource.description
+              ? `${resource.sourceDomain} · ${resource.description}`
+              : resource.sourceDomain
+          }
+        >
+          {resource.sourceDomain}
+          {resource.description && (
+            <span style={{ marginLeft: 6 }}>· {resource.description}</span>
+          )}
+        </div>
+      </div>
+
+      {resource.estimatedMinutes && (
+        <span
+          style={{
+            fontSize: 11.5,
+            fontWeight: 500,
+            color: "var(--color-text-3)",
+            flexShrink: 0,
+            whiteSpace: "nowrap",
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {resource.estimatedMinutes} min
+        </span>
+      )}
+
+      <span
+        style={{
+          color: hov ? "var(--color-text-2)" : "var(--color-text-3)",
+          flexShrink: 0,
+          display: "inline-flex",
+          transition: "color 120ms ease",
+        }}
+      >
+        <Icon name="chevron-right" size={14} strokeWidth={2} />
+      </span>
+    </a>
   );
 }
 
-// ── Markdown renderer ──────────────────────────────────────────────────────────
+// ── Markdown renderer (light theme) ────────────────────────────────────────────
 
-function MarkdownBody({ content, muted }: { content: string; muted?: boolean }) {
-  const baseColor = muted ? "var(--color-text-2)" : "var(--color-text)";
+function MarkdownBody({
+  content,
+  variant = "default",
+}: {
+  content: string;
+  variant?: "default" | "callout";
+}) {
+  const baseColor =
+    variant === "callout" ? "var(--color-text)" : "var(--color-text)";
+  const fontSize = variant === "callout" ? 14.5 : 15;
+  const leading = 1.7;
 
   return (
     <ReactMarkdown
@@ -532,8 +591,8 @@ function MarkdownBody({ content, muted }: { content: string; muted?: boolean }) 
           <p
             style={{
               margin: "0 0 14px",
-              fontSize: "14px",
-              lineHeight: "1.75",
+              fontSize,
+              lineHeight: leading,
               color: baseColor,
             }}
           >
@@ -541,7 +600,9 @@ function MarkdownBody({ content, muted }: { content: string; muted?: boolean }) 
           </p>
         ),
         strong: ({ children }) => (
-          <strong style={{ fontWeight: 600, color: "var(--color-text)" }}>{children}</strong>
+          <strong style={{ fontWeight: 650, color: "var(--color-text)" }}>
+            {children}
+          </strong>
         ),
         em: ({ children }) => (
           <em style={{ fontStyle: "italic", color: baseColor }}>{children}</em>
@@ -552,15 +613,15 @@ function MarkdownBody({ content, muted }: { content: string; muted?: boolean }) 
             <code
               style={{
                 display: "block",
-                padding: "12px 16px",
+                padding: "14px 16px",
                 backgroundColor: "var(--color-surface-2)",
-                border: "1px solid var(--color-border)",
-                borderRadius: "6px",
-                fontSize: "12.5px",
+                border: "1px solid var(--color-border-subtle)",
+                borderRadius: 8,
+                fontSize: 12.5,
                 fontFamily: "var(--font-mono)",
                 color: "var(--color-text)",
                 overflowX: "auto",
-                lineHeight: "1.6",
+                lineHeight: 1.6,
                 margin: "0 0 14px",
               }}
             >
@@ -569,13 +630,13 @@ function MarkdownBody({ content, muted }: { content: string; muted?: boolean }) 
           ) : (
             <code
               style={{
-                padding: "1px 5px",
+                padding: "1px 6px",
                 backgroundColor: "var(--color-surface-2)",
-                border: "1px solid var(--color-border)",
-                borderRadius: "3px",
-                fontSize: "12px",
+                border: "1px solid var(--color-border-subtle)",
+                borderRadius: 4,
+                fontSize: 12.5,
                 fontFamily: "var(--font-mono)",
-                color: "var(--color-text)",
+                color: "var(--color-accent-on-soft)",
               }}
             >
               {children}
@@ -583,25 +644,56 @@ function MarkdownBody({ content, muted }: { content: string; muted?: boolean }) 
           );
         },
         ul: ({ children }) => (
-          <ul style={{ margin: "0 0 14px", paddingLeft: "20px", color: baseColor, fontSize: "14px", lineHeight: "1.75" }}>
+          <ul
+            style={{
+              margin: "0 0 14px",
+              paddingLeft: 22,
+              color: baseColor,
+              fontSize,
+              lineHeight: leading,
+            }}
+          >
             {children}
           </ul>
         ),
         ol: ({ children }) => (
-          <ol style={{ margin: "0 0 14px", paddingLeft: "20px", color: baseColor, fontSize: "14px", lineHeight: "1.75" }}>
+          <ol
+            style={{
+              margin: "0 0 14px",
+              paddingLeft: 22,
+              color: baseColor,
+              fontSize,
+              lineHeight: leading,
+            }}
+          >
             {children}
           </ol>
         ),
         li: ({ children }) => (
-          <li style={{ marginBottom: "4px", color: baseColor }}>{children}</li>
+          <li style={{ marginBottom: 4, color: baseColor }}>{children}</li>
         ),
         h3: ({ children }) => (
-          <h3 style={{ margin: "20px 0 8px", fontSize: "14px", fontWeight: 600, color: "var(--color-text)", letterSpacing: "-0.01em" }}>
+          <h3
+            style={{
+              margin: "22px 0 8px",
+              fontSize: 15.5,
+              fontWeight: 600,
+              color: "var(--color-text)",
+              letterSpacing: "-0.01em",
+            }}
+          >
             {children}
           </h3>
         ),
         h4: ({ children }) => (
-          <h4 style={{ margin: "16px 0 6px", fontSize: "13px", fontWeight: 600, color: "var(--color-text-2)" }}>
+          <h4
+            style={{
+              margin: "16px 0 6px",
+              fontSize: 13.5,
+              fontWeight: 600,
+              color: "var(--color-text-2)",
+            }}
+          >
             {children}
           </h4>
         ),
@@ -609,18 +701,28 @@ function MarkdownBody({ content, muted }: { content: string; muted?: boolean }) 
           <blockquote
             style={{
               margin: "0 0 14px",
-              paddingLeft: "12px",
+              paddingLeft: 14,
               borderLeft: "2px solid var(--color-border)",
               color: "var(--color-text-2)",
-              fontSize: "14px",
-              lineHeight: "1.75",
+              fontSize,
+              lineHeight: leading,
             }}
           >
             {children}
           </blockquote>
         ),
         a: ({ href, children }) => (
-          <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-accent)", textDecoration: "none" }}>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "var(--color-accent-on-soft)",
+              textDecoration: "underline",
+              textDecorationColor: "var(--color-accent-soft)",
+              textUnderlineOffset: 3,
+            }}
+          >
             {children}
           </a>
         ),

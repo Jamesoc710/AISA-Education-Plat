@@ -23,7 +23,6 @@ async function getConcepts(): Promise<SectionGroup[]> {
     ],
   });
 
-  // Group by section
   const sectionMap = new Map<string, SectionGroup>();
 
   for (const c of concepts) {

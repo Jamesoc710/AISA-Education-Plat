@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-
-// ── Types ────────────────────────────────────────────────────────────────────
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { IconTile } from "@/components/ui/icon-tile";
 
 type AssessmentData = {
   id: string;
@@ -33,44 +34,26 @@ interface AdminAssessmentsProps {
   questions: QuestionOption[];
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+type AnswerDetail = {
+  id: string;
+  questionId: string;
+  questionText: string;
+  type: string;
+  modelAnswer: string;
+  selected: string | null;
+  isCorrect: boolean | null;
+  llmScore: string | null;
+  llmReasoning: string | null;
+  llmGradedAt: string | null;
+};
 
-function statusBadgeStyle(status: string): React.CSSProperties {
-  const base: React.CSSProperties = {
-    display: "inline-block",
-    fontSize: "11px",
-    fontWeight: 600,
-    padding: "2px 8px",
-    borderRadius: "4px",
-    textTransform: "uppercase",
-    letterSpacing: "0.04em",
-  };
-  switch (status) {
-    case "active":
-      return { ...base, backgroundColor: "#1b3a2a", color: "#34c759" };
-    case "closed":
-      return { ...base, backgroundColor: "#3a1b1b", color: "#ff453a" };
-    default:
-      return {
-        ...base,
-        backgroundColor: "var(--color-surface-2)",
-        color: "var(--color-text-3)",
-      };
-  }
-}
-
-function formatDate(iso: string | null): string {
-  if (!iso) return "--";
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-// ── Group questions by tier -> concept ───────────────────────────────────────
+type AttemptResult = {
+  id: string;
+  name: string;
+  score: number;
+  submittedAt: string;
+  answers: AnswerDetail[];
+};
 
 type TierGroup = {
   tierName: string;
@@ -81,6 +64,37 @@ type TierGroup = {
     questions: QuestionOption[];
   }[];
 };
+
+function statusTone(status: string): { fg: string; bg: string; label: string } {
+  if (status === "active")
+    return {
+      fg: "var(--color-correct)",
+      bg: "var(--color-correct-dim)",
+      label: "Active",
+    };
+  if (status === "closed")
+    return {
+      fg: "var(--color-incorrect)",
+      bg: "var(--color-incorrect-dim)",
+      label: "Closed",
+    };
+  return {
+    fg: "var(--color-text-2)",
+    bg: "var(--color-surface-2)",
+    label: "Draft",
+  };
+}
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
 
 function groupByTier(questions: QuestionOption[]): TierGroup[] {
   const tierMap = new Map<
@@ -124,7 +138,32 @@ function groupByTier(questions: QuestionOption[]): TierGroup[] {
   }));
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontSize: 11,
+  fontWeight: 600,
+  color: "var(--color-text-3)",
+  marginBottom: 6,
+  textTransform: "uppercase",
+  letterSpacing: "0.06em",
+};
+
+function inputStyle(focused: boolean): React.CSSProperties {
+  return {
+    width: "100%",
+    padding: "10px 12px",
+    fontSize: 13.5,
+    backgroundColor: "var(--color-surface)",
+    border: `1px solid ${focused ? "var(--color-accent)" : "var(--color-border)"}`,
+    borderRadius: 8,
+    color: "var(--color-text)",
+    outline: "none",
+    boxSizing: "border-box",
+    boxShadow: focused ? "0 0 0 3px var(--color-accent-dim)" : "none",
+    transition: "border-color 150ms ease, box-shadow 150ms ease",
+    fontFamily: "inherit",
+  };
+}
 
 export function AdminAssessments({
   assessments: initialAssessments,
@@ -134,64 +173,12 @@ export function AdminAssessments({
   const [assessments, setAssessments] =
     useState<AssessmentData[]>(initialAssessments);
   const [expandedResults, setExpandedResults] = useState<string | null>(null);
-  type AnswerDetail = {
-    id: string;
-    questionId: string;
-    questionText: string;
-    type: string;
-    modelAnswer: string;
-    selected: string | null;
-    isCorrect: boolean | null;
-    llmScore: string | null;
-    llmReasoning: string | null;
-    llmGradedAt: string | null;
-  };
-  type AttemptResult = {
-    id: string;
-    name: string;
-    score: number;
-    submittedAt: string;
-    answers: AnswerDetail[];
-  };
   const [results, setResults] = useState<
     Record<string, { average: number; attempts: AttemptResult[] }>
   >({});
   const [loadingResults, setLoadingResults] = useState<string | null>(null);
   const [expandedAttempt, setExpandedAttempt] = useState<string | null>(null);
 
-  async function handleOverrideGrade(
-    quizId: string,
-    answerId: string,
-    isCorrect: boolean,
-  ) {
-    const res = await fetch("/api/admin/assessments", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answerId, isCorrect }),
-    });
-    if (!res.ok) return;
-    const { newScore } = await res.json();
-    // Update local state
-    setResults((prev) => {
-      const quizResults = prev[quizId];
-      if (!quizResults) return prev;
-      return {
-        ...prev,
-        [quizId]: {
-          ...quizResults,
-          attempts: quizResults.attempts.map((att) => ({
-            ...att,
-            score: att.answers.some((a) => a.id === answerId) ? newScore : att.score,
-            answers: att.answers.map((a) =>
-              a.id === answerId ? { ...a, isCorrect } : a,
-            ),
-          })),
-        },
-      };
-    });
-  }
-
-  // ── Create form state ────────────────────────────────────
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [timeLimit, setTimeLimit] = useState("");
@@ -200,10 +187,9 @@ export function AdminAssessments({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [collapsedTiers, setCollapsedTiers] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const tierGroups = useMemo(() => groupByTier(questions), [questions]);
-
-  // ── Handlers ─────────────────────────────────────────────
 
   function toggleQuestion(id: string) {
     setSelectedIds((prev) => {
@@ -256,7 +242,6 @@ export function AdminAssessments({
         },
         ...prev,
       ]);
-      // Reset form
       setTitle("");
       setDescription("");
       setTimeLimit("");
@@ -278,7 +263,7 @@ export function AdminAssessments({
     if (!res.ok) return;
     const updated = await res.json();
     setAssessments((prev) =>
-      prev.map((a) => (a.id === quizId ? { ...a, status: updated.status } : a))
+      prev.map((a) => (a.id === quizId ? { ...a, status: updated.status } : a)),
     );
   }
 
@@ -300,134 +285,159 @@ export function AdminAssessments({
     }
   }
 
-  // ── Shared styles ────────────────────────────────────────
-
-  const cardStyle: React.CSSProperties = {
-    backgroundColor: "var(--color-surface)",
-    border: "1px solid var(--color-border)",
-    borderRadius: "10px",
-    padding: "20px",
-  };
-
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "8px 12px",
-    fontSize: "14px",
-    backgroundColor: "var(--color-surface)",
-    border: "1px solid var(--color-border)",
-    borderRadius: "6px",
-    color: "var(--color-text)",
-    outline: "none",
-    boxSizing: "border-box",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: "block",
-    fontSize: "12px",
-    fontWeight: 600,
-    color: "var(--color-text-2)",
-    marginBottom: "6px",
-    textTransform: "uppercase",
-    letterSpacing: "0.04em",
-  };
-
-  const btnAccent: React.CSSProperties = {
-    backgroundColor: "var(--color-accent)",
-    color: "#fff",
-    fontSize: "13px",
-    fontWeight: 600,
-    border: "none",
-    borderRadius: "6px",
-    padding: "8px 16px",
-    cursor: "pointer",
-  };
-
-  const btnBorder: React.CSSProperties = {
-    backgroundColor: "transparent",
-    color: "var(--color-text-2)",
-    fontSize: "12px",
-    fontWeight: 500,
-    border: "1px solid var(--color-border)",
-    borderRadius: "6px",
-    padding: "6px 12px",
-    cursor: "pointer",
-  };
-
-  // ── Create View ──────────────────────────────────────────
+  async function handleOverrideGrade(
+    quizId: string,
+    answerId: string,
+    isCorrect: boolean,
+  ) {
+    const res = await fetch("/api/admin/assessments", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answerId, isCorrect }),
+    });
+    if (!res.ok) return;
+    const { newScore } = await res.json();
+    setResults((prev) => {
+      const quizResults = prev[quizId];
+      if (!quizResults) return prev;
+      return {
+        ...prev,
+        [quizId]: {
+          ...quizResults,
+          attempts: quizResults.attempts.map((att) => ({
+            ...att,
+            score: att.answers.some((a) => a.id === answerId)
+              ? newScore
+              : att.score,
+            answers: att.answers.map((a) =>
+              a.id === answerId ? { ...a, isCorrect } : a,
+            ),
+          })),
+        },
+      };
+    });
+  }
 
   if (view === "create") {
     return (
-      <div style={{ padding: "32px", maxWidth: "960px" }}>
-        <h1
+      <div style={{ maxWidth: 960 }}>
+        <button
+          onClick={() => setView("list")}
           style={{
-            fontSize: "18px",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "4px 0",
+            background: "none",
+            border: "none",
+            color: "var(--color-text-2)",
+            fontSize: 13,
+            cursor: "pointer",
+            marginBottom: 18,
+          }}
+        >
+          <Icon name="arrow-left" size={14} strokeWidth={2} />
+          Assessments
+        </button>
+
+        <h2
+          style={{
+            fontSize: 22,
             fontWeight: 600,
             color: "var(--color-text)",
             margin: "0 0 24px",
-            letterSpacing: "-0.01em",
+            letterSpacing: "-0.015em",
           }}
         >
-          Create Assessment
-        </h1>
+          Create assessment
+        </h2>
 
-        <div style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Title */}
+        <div
+          style={{
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: 12,
+            padding: 24,
+            boxShadow: "var(--shadow-card)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 20,
+          }}
+        >
           <div>
             <label style={labelStyle}>Title</label>
             <input
-              style={inputStyle}
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              onFocus={() => setFocusedField("title")}
+              onBlur={() => setFocusedField(null)}
               placeholder="e.g. Midterm Assessment"
+              style={inputStyle(focusedField === "title")}
             />
           </div>
 
-          {/* Description */}
           <div>
             <label style={labelStyle}>Description (optional)</label>
             <textarea
-              style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              onFocus={() => setFocusedField("desc")}
+              onBlur={() => setFocusedField(null)}
               placeholder="Brief description of this assessment..."
+              rows={3}
+              style={{
+                ...inputStyle(focusedField === "desc"),
+                resize: "vertical",
+                lineHeight: 1.6,
+              }}
             />
           </div>
 
-          {/* Time limit + dates row */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr",
+              gap: 12,
+            }}
+          >
             <div>
-              <label style={labelStyle}>Time Limit (minutes)</label>
+              <label style={labelStyle}>Time limit (minutes)</label>
               <input
-                style={inputStyle}
                 type="number"
                 min="1"
                 value={timeLimit}
                 onChange={(e) => setTimeLimit(e.target.value)}
+                onFocus={() => setFocusedField("time")}
+                onBlur={() => setFocusedField(null)}
                 placeholder="No limit"
+                style={inputStyle(focusedField === "time")}
               />
             </div>
             <div>
-              <label style={labelStyle}>Available At</label>
+              <label style={labelStyle}>Available at</label>
               <input
-                style={inputStyle}
                 type="datetime-local"
                 value={availableAt}
                 onChange={(e) => setAvailableAt(e.target.value)}
+                onFocus={() => setFocusedField("avail")}
+                onBlur={() => setFocusedField(null)}
+                style={inputStyle(focusedField === "avail")}
               />
             </div>
             <div>
-              <label style={labelStyle}>Due Date</label>
+              <label style={labelStyle}>Due date</label>
               <input
-                style={inputStyle}
                 type="datetime-local"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
+                onFocus={() => setFocusedField("due")}
+                onBlur={() => setFocusedField(null)}
+                style={inputStyle(focusedField === "due")}
               />
             </div>
           </div>
 
-          {/* Question picker */}
           <div>
             <label style={labelStyle}>
               Questions ({selectedIds.size} selected)
@@ -436,23 +446,22 @@ export function AdminAssessments({
               style={{
                 backgroundColor: "var(--color-surface-2)",
                 border: "1px solid var(--color-border-subtle)",
-                borderRadius: "8px",
-                maxHeight: "400px",
+                borderRadius: 10,
+                maxHeight: 400,
                 overflowY: "auto",
               }}
             >
-              {tierGroups.map((tier: TierGroup) => {
+              {tierGroups.map((tier) => {
                 const isCollapsed = collapsedTiers.has(tier.tierSlug);
                 const tierQuestionIds = tier.concepts.flatMap((c) =>
-                  c.questions.map((q) => q.id)
+                  c.questions.map((q) => q.id),
                 );
                 const tierSelectedCount = tierQuestionIds.filter((id) =>
-                  selectedIds.has(id)
+                  selectedIds.has(id),
                 ).length;
 
                 return (
                   <div key={tier.tierSlug}>
-                    {/* Tier header */}
                     <button
                       type="button"
                       onClick={() => toggleTier(tier.tierSlug)}
@@ -467,83 +476,119 @@ export function AdminAssessments({
                         borderBottom: "1px solid var(--color-border-subtle)",
                         cursor: "pointer",
                         color: "var(--color-text)",
-                        fontSize: "13px",
+                        fontSize: 13,
                         fontWeight: 600,
                         textAlign: "left",
+                        fontFamily: "inherit",
                       }}
                     >
-                      <span>
-                        {isCollapsed ? "+" : "-"} {tier.tierName}
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <Icon
+                          name="chevron-right"
+                          size={12}
+                          strokeWidth={2.5}
+                          style={{
+                            color: "var(--color-text-3)",
+                            transform: isCollapsed
+                              ? "rotate(0deg)"
+                              : "rotate(90deg)",
+                            transition: "transform 150ms ease",
+                          }}
+                        />
+                        {tier.tierName}
                       </span>
                       <span
                         style={{
-                          fontSize: "11px",
+                          fontSize: 11,
                           color: "var(--color-text-3)",
-                          fontWeight: 400,
+                          fontWeight: 500,
                         }}
                       >
                         {tierSelectedCount}/{tierQuestionIds.length} selected
                       </span>
                     </button>
 
-                    {/* Concepts + questions */}
                     {!isCollapsed &&
                       tier.concepts.map((concept) => (
-                        <div key={concept.conceptSlug} style={{ padding: "0 14px" }}>
+                        <div
+                          key={concept.conceptSlug}
+                          style={{ padding: "0 14px 6px" }}
+                        >
                           <div
                             style={{
-                              fontSize: "12px",
+                              fontSize: 11.5,
                               fontWeight: 600,
                               color: "var(--color-text-2)",
-                              padding: "8px 0 4px",
+                              padding: "10px 0 6px",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.04em",
                             }}
                           >
                             {concept.conceptName}
                           </div>
-                          {concept.questions.map((q: QuestionOption) => (
-                            <label
-                              key={q.id}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                                padding: "4px 0",
-                                cursor: "pointer",
-                                fontSize: "13px",
-                                color: "var(--color-text)",
-                              }}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={selectedIds.has(q.id)}
-                                onChange={() => toggleQuestion(q.id)}
-                                style={{ accentColor: "var(--color-accent)" }}
-                              />
-                              <span
+                          {concept.questions.map((q) => {
+                            const checked = selectedIds.has(q.id);
+                            return (
+                              <label
+                                key={q.id}
                                 style={{
-                                  flex: 1,
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 10,
+                                  padding: "6px 6px",
+                                  cursor: "pointer",
+                                  fontSize: 13,
+                                  color: "var(--color-text)",
+                                  borderRadius: 6,
+                                  backgroundColor: checked
+                                    ? "var(--color-accent-soft)"
+                                    : "transparent",
                                 }}
                               >
-                                {q.questionText}
-                              </span>
-                              <span
-                                style={{
-                                  fontSize: "10px",
-                                  fontWeight: 600,
-                                  color: "var(--color-text-3)",
-                                  backgroundColor: "var(--color-surface)",
-                                  padding: "1px 6px",
-                                  borderRadius: "3px",
-                                  flexShrink: 0,
-                                }}
-                              >
-                                {q.type === "MC" ? "MC" : "SA"}
-                              </span>
-                            </label>
-                          ))}
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={() => toggleQuestion(q.id)}
+                                  style={{
+                                    accentColor: "var(--color-accent)",
+                                    cursor: "pointer",
+                                  }}
+                                />
+                                <span
+                                  style={{
+                                    flex: 1,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {q.questionText}
+                                </span>
+                                <span
+                                  style={{
+                                    fontSize: 10,
+                                    fontWeight: 700,
+                                    letterSpacing: "0.04em",
+                                    color: "var(--color-text-3)",
+                                    backgroundColor:
+                                      "var(--color-surface)",
+                                    border: "1px solid var(--color-border)",
+                                    padding: "1px 6px",
+                                    borderRadius: 4,
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  {q.type === "MC" ? "MC" : "SA"}
+                                </span>
+                              </label>
+                            );
+                          })}
                         </div>
                       ))}
                   </div>
@@ -552,48 +597,38 @@ export function AdminAssessments({
             </div>
           </div>
 
-          {/* Buttons */}
-          <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-            <button
-              type="button"
-              style={btnBorder}
-              onClick={() => setView("list")}
-            >
+          <div
+            style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}
+          >
+            <Button variant="secondary" onClick={() => setView("list")}>
               Cancel
-            </button>
-            <button
-              type="button"
-              style={{
-                ...btnAccent,
-                opacity: !title.trim() || selectedIds.size === 0 || submitting ? 0.5 : 1,
-              }}
-              disabled={!title.trim() || selectedIds.size === 0 || submitting}
+            </Button>
+            <Button
+              variant="primary"
               onClick={handleCreate}
+              disabled={!title.trim() || selectedIds.size === 0 || submitting}
             >
-              {submitting ? "Creating..." : "Create Assessment"}
-            </button>
+              {submitting ? "Creating..." : "Create assessment"}
+            </Button>
           </div>
         </div>
       </div>
     );
   }
 
-  // ── List View (default) ──────────────────────────────────
-
   return (
-    <div style={{ padding: "32px", maxWidth: "960px" }}>
-      {/* Header */}
+    <div>
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: "24px",
+          marginBottom: 18,
         }}
       >
-        <h1
+        <h2
           style={{
-            fontSize: "18px",
+            fontSize: 18,
             fontWeight: 600,
             color: "var(--color-text)",
             margin: 0,
@@ -601,510 +636,642 @@ export function AdminAssessments({
           }}
         >
           Assessments
-        </h1>
-        <button type="button" style={btnAccent} onClick={() => setView("create")}>
-          Create Assessment
-        </button>
+        </h2>
+        <Button
+          variant="primary"
+          onClick={() => setView("create")}
+          leftIcon={<Icon name="bar-chart" size={14} strokeWidth={2} />}
+        >
+          New assessment
+        </Button>
       </div>
 
-      {/* Card grid (single column) */}
       {assessments.length === 0 ? (
+        <EmptyCard />
+      ) : (
         <div
           style={{
-            padding: "40px",
-            textAlign: "center",
-            fontSize: "13px",
-            color: "var(--color-text-3)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
           }}
         >
-          No assessments yet. Create one to get started.
-        </div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          {assessments.map((a: AssessmentData) => (
-            <div key={a.id}>
-              <div style={cardStyle}>
-                {/* Title + status row */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: "10px",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      color: "var(--color-text)",
-                    }}
-                  >
-                    {a.title}
-                  </span>
-                  <span style={statusBadgeStyle(a.status)}>{a.status}</span>
-                </div>
-
-                {/* Description */}
-                {a.description && (
-                  <div
-                    style={{
-                      fontSize: "13px",
-                      color: "var(--color-text-2)",
-                      marginBottom: "10px",
-                      lineHeight: 1.4,
-                    }}
-                  >
-                    {a.description}
-                  </div>
-                )}
-
-                {/* Stats row */}
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "16px",
-                    fontSize: "12px",
-                    color: "var(--color-text-3)",
-                    marginBottom: "10px",
-                  }}
-                >
-                  <span>{a.questionCount} questions</span>
-                  <span>{a.attemptCount} attempts</span>
-                  {a.timeLimit && <span>{a.timeLimit} min limit</span>}
-                </div>
-
-                {/* Due date */}
-                {a.dueDate && (
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      color: "var(--color-text-3)",
-                      marginBottom: "12px",
-                    }}
-                  >
-                    Due: {formatDate(a.dueDate)}
-                  </div>
-                )}
-
-                {/* Action buttons */}
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "8px",
-                    borderTop: "1px solid var(--color-border-subtle)",
-                    paddingTop: "12px",
-                  }}
-                >
-                  <button
-                    type="button"
-                    style={btnBorder}
-                    onClick={() => handleViewResults(a.id)}
-                  >
-                    {expandedResults === a.id ? "Hide Results" : "View Results"}
-                  </button>
-                  {a.status === "draft" && (
-                    <button
-                      type="button"
-                      style={{
-                        ...btnBorder,
-                        borderColor: "#34c759",
-                        color: "#34c759",
-                      }}
-                      onClick={() => handleStatusChange(a.id, "active")}
-                    >
-                      Activate
-                    </button>
-                  )}
-                  {a.status === "active" && (
-                    <button
-                      type="button"
-                      style={{
-                        ...btnBorder,
-                        borderColor: "#ff453a",
-                        color: "#ff453a",
-                      }}
-                      onClick={() => handleStatusChange(a.id, "closed")}
-                    >
-                      Close
-                    </button>
-                  )}
-                  {a.status === "closed" && (
-                    <button
-                      type="button"
-                      style={btnBorder}
-                      onClick={() => handleStatusChange(a.id, "draft")}
-                    >
-                      Revert to Draft
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Results panel */}
-              {expandedResults === a.id && (
-                <div
-                  style={{
-                    backgroundColor: "var(--color-surface-2)",
-                    border: "1px solid var(--color-border-subtle)",
-                    borderTop: "none",
-                    borderRadius: "0 0 10px 10px",
-                    padding: "16px 20px",
-                  }}
-                >
-                  {loadingResults === a.id ? (
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        color: "var(--color-text-3)",
-                        textAlign: "center",
-                        padding: "12px",
-                      }}
-                    >
-                      Loading results...
-                    </div>
-                  ) : results[a.id] ? (
-                    <>
-                      <div
-                        style={{
-                          fontSize: "13px",
-                          fontWeight: 600,
-                          color: "var(--color-text)",
-                          marginBottom: "10px",
-                        }}
-                      >
-                        Average Score:{" "}
-                        {results[a.id].attempts.length > 0
-                          ? `${Math.round(results[a.id].average)}%`
-                          : "N/A"}
-                      </div>
-                      {results[a.id].attempts.length === 0 ? (
-                        <div
-                          style={{
-                            fontSize: "12px",
-                            color: "var(--color-text-3)",
-                          }}
-                        >
-                          No attempts yet.
-                        </div>
-                      ) : (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          {results[a.id].attempts.map(
-                            (att: AttemptResult) => (
-                              <div key={att.id}>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setExpandedAttempt(
-                                      expandedAttempt === att.id ? null : att.id,
-                                    )
-                                  }
-                                  style={{
-                                    width: "100%",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    padding: "8px 10px",
-                                    backgroundColor: "var(--color-surface)",
-                                    borderRadius: "6px",
-                                    fontSize: "13px",
-                                    border: "none",
-                                    cursor: "pointer",
-                                    color: "var(--color-text)",
-                                    fontFamily: "inherit",
-                                  }}
-                                >
-                                  <span>{att.name}</span>
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      gap: "16px",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    {att.answers.some(
-                                      (ans) =>
-                                        ans.type === "SHORT_ANSWER" &&
-                                        ans.llmScore,
-                                    ) && (
-                                      <span
-                                        style={{
-                                          fontSize: "10px",
-                                          padding: "2px 6px",
-                                          borderRadius: "3px",
-                                          backgroundColor: "#1b2a3a",
-                                          color: "#5ac8fa",
-                                          fontWeight: 600,
-                                        }}
-                                      >
-                                        AI Graded
-                                      </span>
-                                    )}
-                                    <span
-                                      style={{
-                                        fontWeight: 600,
-                                        color:
-                                          att.score >= 70
-                                            ? "#34c759"
-                                            : "#ff453a",
-                                      }}
-                                    >
-                                      {Math.round(att.score)}%
-                                    </span>
-                                    <span
-                                      style={{
-                                        fontSize: "11px",
-                                        color: "var(--color-text-3)",
-                                      }}
-                                    >
-                                      {formatDate(att.submittedAt)}
-                                    </span>
-                                  </div>
-                                </button>
-
-                                {/* Expanded answer details */}
-                                {expandedAttempt === att.id && (
-                                  <div
-                                    style={{
-                                      padding: "12px",
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      gap: "10px",
-                                    }}
-                                  >
-                                    {att.answers.map((ans: AnswerDetail) => (
-                                      <div
-                                        key={ans.id}
-                                        style={{
-                                          padding: "12px",
-                                          backgroundColor:
-                                            "var(--color-surface)",
-                                          border:
-                                            "1px solid var(--color-border-subtle)",
-                                          borderRadius: "8px",
-                                        }}
-                                      >
-                                        <div
-                                          style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "8px",
-                                            marginBottom: "6px",
-                                          }}
-                                        >
-                                          <span
-                                            style={{
-                                              fontSize: "10px",
-                                              fontWeight: 600,
-                                              padding: "1px 6px",
-                                              borderRadius: "3px",
-                                              backgroundColor:
-                                                "var(--color-surface-2)",
-                                              color: "var(--color-text-3)",
-                                            }}
-                                          >
-                                            {ans.type === "MC" ? "MC" : "SA"}
-                                          </span>
-                                          <span
-                                            style={{
-                                              fontSize: "12px",
-                                              fontWeight: 600,
-                                              color: "var(--color-text)",
-                                            }}
-                                          >
-                                            {ans.questionText}
-                                          </span>
-                                        </div>
-
-                                        {/* Student answer */}
-                                        <div
-                                          style={{
-                                            fontSize: "12px",
-                                            color: "var(--color-text-2)",
-                                            marginBottom: "4px",
-                                          }}
-                                        >
-                                          <strong>Answer:</strong>{" "}
-                                          {ans.selected || (
-                                            <em style={{ color: "var(--color-text-3)" }}>
-                                              No answer
-                                            </em>
-                                          )}
-                                        </div>
-
-                                        {/* Model answer */}
-                                        <div
-                                          style={{
-                                            fontSize: "11px",
-                                            color: "var(--color-text-3)",
-                                            marginBottom: "6px",
-                                          }}
-                                        >
-                                          <strong>Expected:</strong>{" "}
-                                          {ans.modelAnswer}
-                                        </div>
-
-                                        {/* LLM reasoning */}
-                                        {ans.llmScore && (
-                                          <div
-                                            style={{
-                                              fontSize: "11px",
-                                              padding: "6px 8px",
-                                              borderRadius: "4px",
-                                              backgroundColor:
-                                                ans.llmScore === "correct"
-                                                  ? "rgba(52,199,89,0.08)"
-                                                  : ans.llmScore === "partial"
-                                                    ? "rgba(232,181,74,0.08)"
-                                                    : "rgba(255,69,58,0.08)",
-                                              color: "var(--color-text-2)",
-                                              marginBottom: "6px",
-                                            }}
-                                          >
-                                            <span
-                                              style={{
-                                                fontWeight: 600,
-                                                color:
-                                                  ans.llmScore === "correct"
-                                                    ? "#34c759"
-                                                    : ans.llmScore ===
-                                                        "partial"
-                                                      ? "#e8b54a"
-                                                      : "#ff453a",
-                                              }}
-                                            >
-                                              AI:{" "}
-                                              {ans.llmScore
-                                                .charAt(0)
-                                                .toUpperCase() +
-                                                ans.llmScore.slice(1)}
-                                            </span>
-                                            {" — "}
-                                            {ans.llmReasoning}
-                                          </div>
-                                        )}
-
-                                        {/* Grade status + override */}
-                                        <div
-                                          style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "8px",
-                                          }}
-                                        >
-                                          <span
-                                            style={{
-                                              fontSize: "11px",
-                                              fontWeight: 600,
-                                              color:
-                                                ans.isCorrect === true
-                                                  ? "#34c759"
-                                                  : ans.isCorrect === false
-                                                    ? "#ff453a"
-                                                    : "#e8b54a",
-                                            }}
-                                          >
-                                            {ans.isCorrect === true
-                                              ? "Correct"
-                                              : ans.isCorrect === false
-                                                ? "Incorrect"
-                                                : "Ungraded"}
-                                          </span>
-                                          {ans.type === "SHORT_ANSWER" && (
-                                            <>
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  handleOverrideGrade(
-                                                    a.id,
-                                                    ans.id,
-                                                    true,
-                                                  )
-                                                }
-                                                style={{
-                                                  fontSize: "10px",
-                                                  fontWeight: 600,
-                                                  padding: "2px 8px",
-                                                  borderRadius: "4px",
-                                                  border:
-                                                    ans.isCorrect === true
-                                                      ? "2px solid #34c759"
-                                                      : "1px solid var(--color-border)",
-                                                  backgroundColor:
-                                                    ans.isCorrect === true
-                                                      ? "rgba(52,199,89,0.15)"
-                                                      : "transparent",
-                                                  color:
-                                                    ans.isCorrect === true
-                                                      ? "#34c759"
-                                                      : "var(--color-text-3)",
-                                                  cursor: "pointer",
-                                                  fontFamily: "inherit",
-                                                }}
-                                              >
-                                                Mark Correct
-                                              </button>
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  handleOverrideGrade(
-                                                    a.id,
-                                                    ans.id,
-                                                    false,
-                                                  )
-                                                }
-                                                style={{
-                                                  fontSize: "10px",
-                                                  fontWeight: 600,
-                                                  padding: "2px 8px",
-                                                  borderRadius: "4px",
-                                                  border:
-                                                    ans.isCorrect === false
-                                                      ? "2px solid #ff453a"
-                                                      : "1px solid var(--color-border)",
-                                                  backgroundColor:
-                                                    ans.isCorrect === false
-                                                      ? "rgba(255,69,58,0.15)"
-                                                      : "transparent",
-                                                  color:
-                                                    ans.isCorrect === false
-                                                      ? "#ff453a"
-                                                      : "var(--color-text-3)",
-                                                  cursor: "pointer",
-                                                  fontFamily: "inherit",
-                                                }}
-                                              >
-                                                Mark Incorrect
-                                              </button>
-                                            </>
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            ),
-                          )}
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        color: "var(--color-text-3)",
-                      }}
-                    >
-                      Failed to load results.
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+          {assessments.map((a) => (
+            <AssessmentCard
+              key={a.id}
+              assessment={a}
+              expanded={expandedResults === a.id}
+              loading={loadingResults === a.id}
+              results={results[a.id]}
+              expandedAttempt={expandedAttempt}
+              onToggleResults={() => handleViewResults(a.id)}
+              onStatusChange={(status) => handleStatusChange(a.id, status)}
+              onToggleAttempt={(id) =>
+                setExpandedAttempt(expandedAttempt === id ? null : id)
+              }
+              onOverrideGrade={(answerId, isCorrect) =>
+                handleOverrideGrade(a.id, answerId, isCorrect)
+              }
+            />
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function AssessmentCard({
+  assessment: a,
+  expanded,
+  loading,
+  results,
+  expandedAttempt,
+  onToggleResults,
+  onStatusChange,
+  onToggleAttempt,
+  onOverrideGrade,
+}: {
+  assessment: AssessmentData;
+  expanded: boolean;
+  loading: boolean;
+  results?: { average: number; attempts: AttemptResult[] };
+  expandedAttempt: string | null;
+  onToggleResults: () => void;
+  onStatusChange: (status: string) => void;
+  onToggleAttempt: (id: string) => void;
+  onOverrideGrade: (answerId: string, isCorrect: boolean) => void;
+}) {
+  const tone = statusTone(a.status);
+
+  return (
+    <div
+      style={{
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 12,
+        boxShadow: "var(--shadow-card)",
+        overflow: "hidden",
+      }}
+    >
+      <div style={{ padding: "18px 20px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+          }}
+        >
+          <IconTile
+            icon="bar-chart"
+            color={a.status === "active" ? "honey" : a.status === "closed" ? "mint" : "indigo"}
+            size="md"
+          />
+
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                marginBottom: 4,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: "var(--color-text)",
+                  letterSpacing: "-0.005em",
+                }}
+              >
+                {a.title}
+              </span>
+              <span
+                style={{
+                  display: "inline-flex",
+                  padding: "2px 9px",
+                  fontSize: 11,
+                  fontWeight: 650,
+                  color: tone.fg,
+                  backgroundColor: tone.bg,
+                  borderRadius: 999,
+                }}
+              >
+                {tone.label}
+              </span>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                fontSize: 12.5,
+                color: "var(--color-text-3)",
+                flexWrap: "wrap",
+              }}
+            >
+              <span>
+                {a.questionCount} question{a.questionCount !== 1 ? "s" : ""}
+              </span>
+              <span>
+                {a.attemptCount} attempt{a.attemptCount !== 1 ? "s" : ""}
+              </span>
+              {a.timeLimit !== null && <span>{a.timeLimit} min limit</span>}
+              {a.dueDate && <span>Due {formatDate(a.dueDate)}</span>}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+            {a.status === "draft" && (
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={() => onStatusChange("active")}
+              >
+                Activate
+              </Button>
+            )}
+            {a.status === "active" && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => onStatusChange("closed")}
+              >
+                Close
+              </Button>
+            )}
+            {a.status === "closed" && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => onStatusChange("draft")}
+              >
+                Revert
+              </Button>
+            )}
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={onToggleResults}
+            >
+              {expanded ? "Hide results" : "Results"}
+            </Button>
+          </div>
+        </div>
+
+        {a.description && (
+          <div
+            style={{
+              fontSize: 13,
+              color: "var(--color-text-2)",
+              marginTop: 10,
+              marginLeft: 56,
+              lineHeight: 1.55,
+            }}
+          >
+            {a.description}
+          </div>
+        )}
+      </div>
+
+      {expanded && (
+        <div
+          style={{
+            backgroundColor: "var(--color-surface-2)",
+            borderTop: "1px solid var(--color-border-subtle)",
+            padding: "16px 20px 20px",
+          }}
+        >
+          {loading ? (
+            <div
+              style={{
+                fontSize: 13,
+                color: "var(--color-text-3)",
+                textAlign: "center",
+                padding: 12,
+              }}
+            >
+              Loading results...
+            </div>
+          ) : results ? (
+            <ResultsPanel
+              results={results}
+              expandedAttempt={expandedAttempt}
+              onToggleAttempt={onToggleAttempt}
+              onOverrideGrade={onOverrideGrade}
+            />
+          ) : (
+            <div style={{ fontSize: 12.5, color: "var(--color-text-3)" }}>
+              Failed to load results.
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ResultsPanel({
+  results,
+  expandedAttempt,
+  onToggleAttempt,
+  onOverrideGrade,
+}: {
+  results: { average: number; attempts: AttemptResult[] };
+  expandedAttempt: string | null;
+  onToggleAttempt: (id: string) => void;
+  onOverrideGrade: (answerId: string, isCorrect: boolean) => void;
+}) {
+  return (
+    <>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          gap: 8,
+          marginBottom: 12,
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: "var(--color-text-3)",
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+          }}
+        >
+          Average
+        </span>
+        <span
+          style={{
+            fontSize: 16,
+            fontWeight: 600,
+            color: "var(--color-text)",
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {results.attempts.length > 0
+            ? `${Math.round(results.average)}%`
+            : "—"}
+        </span>
+      </div>
+
+      {results.attempts.length === 0 ? (
+        <div style={{ fontSize: 12.5, color: "var(--color-text-3)" }}>
+          No attempts yet.
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {results.attempts.map((att) => (
+            <AttemptRow
+              key={att.id}
+              attempt={att}
+              expanded={expandedAttempt === att.id}
+              onToggle={() => onToggleAttempt(att.id)}
+              onOverrideGrade={onOverrideGrade}
+            />
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+function AttemptRow({
+  attempt: att,
+  expanded,
+  onToggle,
+  onOverrideGrade,
+}: {
+  attempt: AttemptResult;
+  expanded: boolean;
+  onToggle: () => void;
+  onOverrideGrade: (answerId: string, isCorrect: boolean) => void;
+}) {
+  const passing = att.score >= 70;
+  const tone = passing
+    ? { fg: "var(--color-correct)", bg: "var(--color-correct-dim)" }
+    : { fg: "var(--color-incorrect)", bg: "var(--color-incorrect-dim)" };
+  const hasAi = att.answers.some(
+    (a) => a.type === "SHORT_ANSWER" && a.llmScore,
+  );
+
+  return (
+    <div
+      style={{
+        border: "1px solid var(--color-border-subtle)",
+        borderRadius: 8,
+        backgroundColor: "var(--color-surface)",
+        overflow: "hidden",
+      }}
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "10px 14px",
+          backgroundColor: "transparent",
+          border: "none",
+          cursor: "pointer",
+          color: "var(--color-text)",
+          fontFamily: "inherit",
+          fontSize: 13,
+        }}
+      >
+        <span style={{ fontWeight: 500 }}>{att.name}</span>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          {hasAi && (
+            <span
+              style={{
+                fontSize: 10.5,
+                padding: "2px 8px",
+                borderRadius: 999,
+                backgroundColor: "var(--color-blue-soft)",
+                color: "var(--color-blue)",
+                fontWeight: 650,
+              }}
+            >
+              AI graded
+            </span>
+          )}
+          <span
+            style={{
+              display: "inline-flex",
+              padding: "3px 9px",
+              fontSize: 11.5,
+              fontWeight: 650,
+              color: tone.fg,
+              backgroundColor: tone.bg,
+              borderRadius: 999,
+            }}
+          >
+            {Math.round(att.score)}%
+          </span>
+          <span
+            style={{
+              fontSize: 11.5,
+              color: "var(--color-text-3)",
+            }}
+          >
+            {formatDate(att.submittedAt)}
+          </span>
+        </div>
+      </button>
+
+      {expanded && (
+        <div
+          style={{
+            padding: "0 14px 14px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
+          {att.answers.map((ans) => (
+            <AnswerCard
+              key={ans.id}
+              answer={ans}
+              onOverrideGrade={onOverrideGrade}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AnswerCard({
+  answer: ans,
+  onOverrideGrade,
+}: {
+  answer: AnswerDetail;
+  onOverrideGrade: (answerId: string, isCorrect: boolean) => void;
+}) {
+  const llmTone =
+    ans.llmScore === "correct"
+      ? { fg: "var(--color-correct)", bg: "var(--color-correct-dim)" }
+      : ans.llmScore === "partial"
+        ? { fg: "var(--color-gold)", bg: "var(--color-gold-soft)" }
+        : { fg: "var(--color-incorrect)", bg: "var(--color-incorrect-dim)" };
+
+  const statusFg =
+    ans.isCorrect === true
+      ? "var(--color-correct)"
+      : ans.isCorrect === false
+        ? "var(--color-incorrect)"
+        : "var(--color-gold)";
+
+  return (
+    <div
+      style={{
+        padding: 12,
+        backgroundColor: "var(--color-surface-2)",
+        border: "1px solid var(--color-border-subtle)",
+        borderRadius: 8,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          marginBottom: 8,
+        }}
+      >
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: "0.04em",
+            padding: "1px 6px",
+            borderRadius: 4,
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            color: "var(--color-text-3)",
+          }}
+        >
+          {ans.type === "MC" ? "MC" : "SA"}
+        </span>
+        <span
+          style={{
+            fontSize: 12.5,
+            fontWeight: 600,
+            color: "var(--color-text)",
+          }}
+        >
+          {ans.questionText}
+        </span>
+      </div>
+
+      <div
+        style={{
+          fontSize: 12,
+          color: "var(--color-text-2)",
+          marginBottom: 4,
+        }}
+      >
+        <strong style={{ color: "var(--color-text)" }}>Answer:</strong>{" "}
+        {ans.selected || (
+          <em style={{ color: "var(--color-text-3)" }}>No answer</em>
+        )}
+      </div>
+
+      <div
+        style={{
+          fontSize: 11.5,
+          color: "var(--color-text-3)",
+          marginBottom: 8,
+        }}
+      >
+        <strong style={{ color: "var(--color-text-2)" }}>Expected:</strong>{" "}
+        {ans.modelAnswer}
+      </div>
+
+      {ans.llmScore && (
+        <div
+          style={{
+            fontSize: 11.5,
+            padding: "6px 10px",
+            borderRadius: 6,
+            backgroundColor: llmTone.bg,
+            color: "var(--color-text-2)",
+            marginBottom: 8,
+            lineHeight: 1.45,
+          }}
+        >
+          <span style={{ fontWeight: 650, color: llmTone.fg }}>
+            AI: {ans.llmScore.charAt(0).toUpperCase() + ans.llmScore.slice(1)}
+          </span>
+          {" — "}
+          {ans.llmReasoning}
+        </div>
+      )}
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 650,
+            color: statusFg,
+          }}
+        >
+          {ans.isCorrect === true
+            ? "Correct"
+            : ans.isCorrect === false
+              ? "Incorrect"
+              : "Ungraded"}
+        </span>
+        {ans.type === "SHORT_ANSWER" && (
+          <>
+            <button
+              type="button"
+              onClick={() => onOverrideGrade(ans.id, true)}
+              style={{
+                fontSize: 10.5,
+                fontWeight: 650,
+                padding: "3px 9px",
+                borderRadius: 999,
+                border:
+                  ans.isCorrect === true
+                    ? "1px solid var(--color-correct)"
+                    : "1px solid var(--color-border)",
+                backgroundColor:
+                  ans.isCorrect === true
+                    ? "var(--color-correct-dim)"
+                    : "var(--color-surface)",
+                color:
+                  ans.isCorrect === true
+                    ? "var(--color-correct)"
+                    : "var(--color-text-3)",
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              Mark correct
+            </button>
+            <button
+              type="button"
+              onClick={() => onOverrideGrade(ans.id, false)}
+              style={{
+                fontSize: 10.5,
+                fontWeight: 650,
+                padding: "3px 9px",
+                borderRadius: 999,
+                border:
+                  ans.isCorrect === false
+                    ? "1px solid var(--color-incorrect)"
+                    : "1px solid var(--color-border)",
+                backgroundColor:
+                  ans.isCorrect === false
+                    ? "var(--color-incorrect-dim)"
+                    : "var(--color-surface)",
+                color:
+                  ans.isCorrect === false
+                    ? "var(--color-incorrect)"
+                    : "var(--color-text-3)",
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              Mark incorrect
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmptyCard() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "60px 24px",
+        gap: 12,
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 12,
+        boxShadow: "var(--shadow-card)",
+        textAlign: "center",
+      }}
+    >
+      <IconTile icon="bar-chart" color="indigo" size="lg" />
+      <div>
+        <div
+          style={{
+            fontSize: 14.5,
+            fontWeight: 600,
+            color: "var(--color-text)",
+            marginBottom: 4,
+          }}
+        >
+          No assessments yet
+        </div>
+        <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
+          Create one to get started.
+        </div>
+      </div>
     </div>
   );
 }

@@ -289,3 +289,27 @@ model FormalQuizAnswer {
   @@unique([attemptId, questionId])
   @@map("formal_quiz_answers")
 }
+
+// ─── Calendar (synced from SharePoint TCO Master Calendar) ──────────────────
+
+model ScheduleEvent {
+  id            String    @id @default(cuid())
+  weekNumber    Int
+  weekStart     DateTime  // Monday 00:00 of that week
+  weekEnd       DateTime  // Sunday 23:59 of that week
+  dayOfWeek     Int       // 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Homework column
+  date          DateTime  // resolved actual date
+  title         String
+  description   String?
+  startTime     String?   // "17:00"
+  endTime       String?   // "20:00"
+  location      String?   // Dream Lab, Willow Room, Lillis 132, etc.
+  type          String    // TECH_TEAM | CAPITAL_TEAM | EVENTS | MEDIA_TEAM | EXEC | NON_MANDATORY | GENERAL
+  category      String    @default("OTHER") // CLASS | MEETING | WORKSHOP | HOMEWORK | DEADLINE | OTHER
+  sourceRowKey  String    @unique // e.g. "w4-tue-0" — stable upsert key
+  syncedAt      DateTime  @default(now())
+
+  @@index([date])
+  @@index([weekNumber])
+  @@map("schedule_events")
+}

@@ -3,13 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { ConceptData } from "@/lib/types";
+import { IconTile } from "@/components/ui/icon-tile";
+import { Icon } from "@/components/ui/icon";
+import { getConceptVisual } from "@/lib/section-icons";
 
-const TIER_COLORS: Record<string, string> = {
-  fundamentals: "#e8b54a",
-  intermediate: "#6b9bd2",
-  advanced: "#8b8b9e",
-};
-
+/**
+ * Single concept card (light theme).
+ *
+ * Compact rounded card: section-colored icon tile + name + 2-line subtitle.
+ * Bookmark icon top-right, visible on hover or when already bookmarked.
+ * Whole card is the click target; bookmark button stops propagation.
+ */
 export function ConceptCard({
   concept,
   bookmarked,
@@ -20,7 +24,7 @@ export function ConceptCard({
   onToggleBookmark: (id: string) => void;
 }) {
   const [hovered, setHovered] = useState(false);
-  const tierColor = TIER_COLORS[concept.tier.slug] ?? TIER_COLORS.fundamentals;
+  const visual = getConceptVisual(concept.slug, concept.section.slug);
 
   return (
     <div
@@ -28,14 +32,17 @@ export function ConceptCard({
       onMouseLeave={() => setHovered(false)}
       style={{
         position: "relative",
-        backgroundColor: hovered ? "var(--color-surface)" : "var(--color-bg)",
-        border: `1px solid ${hovered ? "var(--color-border)" : "var(--color-border-subtle)"}`,
-        borderRadius: "8px",
-        transition: "background-color 0.12s, border-color 0.12s",
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: 12,
+        boxShadow: hovered ? "var(--shadow-card-hover)" : "var(--shadow-card)",
+        transform: hovered ? "translateY(-1px)" : "translateY(0)",
+        transition:
+          "box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease",
       }}
     >
-      {/* Bookmark button — absolute so it isn't inside the Link */}
-      <div style={{ position: "absolute", top: "12px", right: "12px", zIndex: 1 }}>
+      {/* Bookmark button — absolute, outside the Link */}
+      <div style={{ position: "absolute", top: 10, right: 10, zIndex: 1 }}>
         <BookmarkButton
           bookmarked={bookmarked}
           visible={hovered || bookmarked}
@@ -48,33 +55,22 @@ export function ConceptCard({
         style={{
           display: "flex",
           alignItems: "flex-start",
-          gap: "10px",
-          padding: "14px 16px",
+          gap: 12,
+          padding: "16px 18px",
           textDecoration: "none",
           color: "inherit",
         }}
       >
-        {/* Tier dot */}
-        <span
-          style={{
-            width: "6px",
-            height: "6px",
-            borderRadius: "50%",
-            backgroundColor: tierColor,
-            flexShrink: 0,
-            marginTop: "7px",
-          }}
-        />
+        <IconTile icon={visual.icon} color={visual.color} size="sm" />
 
-        {/* Name + 2-line description */}
-        <div style={{ flex: 1, minWidth: 0, paddingRight: "20px" }}>
+        <div style={{ flex: 1, minWidth: 0, paddingRight: 24 }}>
           <h3
             style={{
               margin: 0,
-              fontSize: "13.5px",
-              fontWeight: 500,
+              fontSize: 14.5,
+              fontWeight: 550,
               color: "var(--color-text)",
-              lineHeight: "1.35",
+              lineHeight: 1.3,
               letterSpacing: "-0.01em",
             }}
           >
@@ -82,10 +78,10 @@ export function ConceptCard({
           </h3>
           <p
             style={{
-              margin: "4px 0 0 0",
-              fontSize: "12px",
-              color: "var(--color-text-3)",
-              lineHeight: "1.5",
+              margin: "5px 0 0 0",
+              fontSize: 12.5,
+              color: "var(--color-text-2)",
+              lineHeight: 1.5,
               display: "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical" as const,
@@ -100,8 +96,6 @@ export function ConceptCard({
   );
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
-
 function BookmarkButton({
   bookmarked,
   visible,
@@ -111,40 +105,44 @@ function BookmarkButton({
   visible: boolean;
   onClick: () => void;
 }) {
-  const [btnHovered, setBtnHovered] = useState(false);
-
+  const [hov, setHov] = useState(false);
   return (
     <button
+      type="button"
       onClick={(e) => {
         e.stopPropagation();
+        e.preventDefault();
         onClick();
       }}
-      onMouseEnter={() => setBtnHovered(true)}
-      onMouseLeave={() => setBtnHovered(false)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
       title={bookmarked ? "Remove bookmark" : "Bookmark this concept"}
+      aria-label={bookmarked ? "Remove bookmark" : "Bookmark this concept"}
       style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        width: "24px",
-        height: "24px",
+        width: 26,
+        height: 26,
         border: "none",
-        background: "none",
+        background: hov ? "var(--color-surface-2)" : "transparent",
         cursor: "pointer",
         padding: 0,
-        borderRadius: "4px",
+        borderRadius: 6,
         opacity: visible ? 1 : 0,
-        transition: "opacity 0.1s",
+        transition: "opacity 120ms ease, background-color 120ms ease",
         color: bookmarked
-          ? "#e8b54a"
-          : btnHovered
-          ? "var(--color-text-2)"
+          ? "var(--color-gold)"
+          : hov
+          ? "var(--color-text)"
           : "var(--color-text-3)",
       }}
     >
-      <svg width="13" height="13" viewBox="0 0 24 24" fill={bookmarked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-      </svg>
+      <Icon
+        name={bookmarked ? "bookmark-filled" : "bookmark"}
+        size={14}
+        strokeWidth={1.85}
+      />
     </button>
   );
 }
