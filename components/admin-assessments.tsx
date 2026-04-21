@@ -127,10 +127,10 @@ function groupByTier(questions: QuestionOption[]): TierGroup[] {
 
 const labelStyle: React.CSSProperties = {
   display: "block",
-  fontSize: 11,
+  fontSize: "var(--text-xs)",
   fontWeight: 600,
   color: "var(--color-text-3)",
-  marginBottom: 6,
+  marginBottom: "var(--space-2)",
   textTransform: "uppercase",
   letterSpacing: "0.06em",
 };
@@ -139,10 +139,10 @@ function inputStyle(focused: boolean): React.CSSProperties {
   return {
     width: "100%",
     padding: "10px 12px",
-    fontSize: 13.5,
+    fontSize: "var(--text-sm)",
     backgroundColor: "var(--color-surface)",
     border: `1px solid ${focused ? "var(--color-accent)" : "var(--color-border)"}`,
-    borderRadius: 8,
+    borderRadius: "var(--radius-2)",
     color: "var(--color-text)",
     outline: "none",
     boxSizing: "border-box",
@@ -313,14 +313,14 @@ export function AdminAssessments({
           style={{
             display: "inline-flex",
             alignItems: "center",
-            gap: 6,
+            gap: "var(--space-2)",
             padding: "4px 0",
             background: "none",
             border: "none",
             color: "var(--color-text-2)",
-            fontSize: 13,
+            fontSize: "var(--text-sm)",
             cursor: "pointer",
-            marginBottom: 18,
+            marginBottom: "var(--space-5)",
           }}
         >
           <Icon name="arrow-left" size={14} strokeWidth={2} />
@@ -329,7 +329,7 @@ export function AdminAssessments({
 
         <h2
           style={{
-            fontSize: 22,
+            fontSize: "var(--text-lg)",
             fontWeight: 600,
             color: "var(--color-text)",
             margin: "0 0 24px",
@@ -343,12 +343,12 @@ export function AdminAssessments({
           style={{
             backgroundColor: "var(--color-surface)",
             border: "1px solid var(--color-border)",
-            borderRadius: 12,
-            padding: 24,
+            borderRadius: "var(--radius-3)",
+            padding: "var(--space-5)",
             boxShadow: "var(--shadow-card)",
             display: "flex",
             flexDirection: "column",
-            gap: 20,
+            gap: "var(--space-5)",
           }}
         >
           <div>
@@ -387,7 +387,7 @@ export function AdminAssessments({
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr 1fr",
-              gap: 12,
+              gap: "var(--space-3)",
             }}
           >
             <div>
@@ -438,7 +438,7 @@ export function AdminAssessments({
               style={{
                 backgroundColor: "var(--color-surface-2)",
                 border: "1px solid var(--color-border-subtle)",
-                borderRadius: 10,
+                borderRadius: "var(--radius-2)",
                 maxHeight: 400,
                 overflowY: "auto",
               }}
@@ -468,7 +468,7 @@ export function AdminAssessments({
                         borderBottom: "1px solid var(--color-border-subtle)",
                         cursor: "pointer",
                         color: "var(--color-text)",
-                        fontSize: 13,
+                        fontSize: "var(--text-sm)",
                         fontWeight: 600,
                         textAlign: "left",
                         fontFamily: "inherit",
@@ -478,7 +478,7 @@ export function AdminAssessments({
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
-                          gap: 8,
+                          gap: "var(--space-2)",
                         }}
                       >
                         <Icon
@@ -497,7 +497,7 @@ export function AdminAssessments({
                       </span>
                       <span
                         style={{
-                          fontSize: 11,
+                          fontSize: "var(--text-xs)",
                           color: "var(--color-text-3)",
                           fontWeight: 500,
                         }}
@@ -514,7 +514,7 @@ export function AdminAssessments({
                         >
                           <div
                             style={{
-                              fontSize: 11.5,
+                              fontSize: "var(--text-xs)",
                               fontWeight: 600,
                               color: "var(--color-text-2)",
                               padding: "10px 0 6px",
@@ -532,12 +532,12 @@ export function AdminAssessments({
                                 style={{
                                   display: "flex",
                                   alignItems: "center",
-                                  gap: 10,
+                                  gap: "var(--space-3)",
                                   padding: "6px 6px",
                                   cursor: "pointer",
-                                  fontSize: 13,
+                                  fontSize: "var(--text-sm)",
                                   color: "var(--color-text)",
-                                  borderRadius: 6,
+                                  borderRadius: "var(--radius-1)",
                                   backgroundColor: checked
                                     ? "var(--color-accent-soft)"
                                     : "transparent",
@@ -564,7 +564,7 @@ export function AdminAssessments({
                                 </span>
                                 <span
                                   style={{
-                                    fontSize: 10,
+                                    fontSize: "var(--text-xs)",
                                     fontWeight: 700,
                                     letterSpacing: "0.04em",
                                     color: "var(--color-text-3)",
@@ -572,7 +572,7 @@ export function AdminAssessments({
                                       "var(--color-surface)",
                                     border: "1px solid var(--color-border)",
                                     padding: "1px 6px",
-                                    borderRadius: 4,
+                                    borderRadius: "var(--radius-1)",
                                     flexShrink: 0,
                                   }}
                                 >
@@ -590,7 +590,7 @@ export function AdminAssessments({
           </div>
 
           <div
-            style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}
+            style={{ display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" }}
           >
             <Button variant="secondary" onClick={() => setView("list")}>
               Cancel
@@ -615,12 +615,12 @@ export function AdminAssessments({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 18,
+          marginBottom: "var(--space-5)",
         }}
       >
         <h2
           style={{
-            fontSize: 18,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
             margin: 0,
@@ -645,7 +645,7 @@ export function AdminAssessments({
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: 12,
+            gap: "var(--space-3)",
           }}
         >
           {assessments.map((a) => (
@@ -700,7 +700,7 @@ function AssessmentCard({
       style={{
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         boxShadow: "var(--shadow-card)",
         overflow: "hidden",
       }}
@@ -710,7 +710,7 @@ function AssessmentCard({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 14,
+            gap: "var(--space-4)",
           }}
         >
           <IconTile
@@ -724,13 +724,13 @@ function AssessmentCard({
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
-                marginBottom: 4,
+                gap: "var(--space-3)",
+                marginBottom: "var(--space-1)",
               }}
             >
               <span
                 style={{
-                  fontSize: 15,
+                  fontSize: "var(--text-md)",
                   fontWeight: 600,
                   color: "var(--color-text)",
                   letterSpacing: "-0.005em",
@@ -744,8 +744,8 @@ function AssessmentCard({
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
-                fontSize: 12.5,
+                gap: "var(--space-3)",
+                fontSize: "var(--text-sm)",
                 color: "var(--color-text-3)",
                 flexWrap: "wrap",
               }}
@@ -761,7 +761,7 @@ function AssessmentCard({
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: "var(--space-2)", flexShrink: 0 }}>
             {a.status === "draft" && (
               <Button
                 size="sm"
@@ -802,9 +802,9 @@ function AssessmentCard({
         {a.description && (
           <div
             style={{
-              fontSize: 13,
+              fontSize: "var(--text-sm)",
               color: "var(--color-text-2)",
-              marginTop: 10,
+              marginTop: "var(--space-3)",
               marginLeft: 56,
               lineHeight: 1.55,
             }}
@@ -825,10 +825,10 @@ function AssessmentCard({
           {loading ? (
             <div
               style={{
-                fontSize: 13,
+                fontSize: "var(--text-sm)",
                 color: "var(--color-text-3)",
                 textAlign: "center",
-                padding: 12,
+                padding: "var(--space-3)",
               }}
             >
               Loading results...
@@ -841,7 +841,7 @@ function AssessmentCard({
               onOverrideGrade={onOverrideGrade}
             />
           ) : (
-            <div style={{ fontSize: 12.5, color: "var(--color-text-3)" }}>
+            <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
               Failed to load results.
             </div>
           )}
@@ -868,13 +868,13 @@ function ResultsPanel({
         style={{
           display: "flex",
           alignItems: "baseline",
-          gap: 8,
-          marginBottom: 12,
+          gap: "var(--space-2)",
+          marginBottom: "var(--space-3)",
         }}
       >
         <span
           style={{
-            fontSize: 11,
+            fontSize: "var(--text-xs)",
             fontWeight: 600,
             color: "var(--color-text-3)",
             textTransform: "uppercase",
@@ -885,7 +885,7 @@ function ResultsPanel({
         </span>
         <span
           style={{
-            fontSize: 16,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
             fontVariantNumeric: "tabular-nums",
@@ -898,11 +898,11 @@ function ResultsPanel({
       </div>
 
       {results.attempts.length === 0 ? (
-        <div style={{ fontSize: 12.5, color: "var(--color-text-3)" }}>
+        <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
           No attempts yet.
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
           {results.attempts.map((att) => (
             <AttemptRow
               key={att.id}
@@ -939,7 +939,7 @@ function AttemptRow({
     <div
       style={{
         border: "1px solid var(--color-border-subtle)",
-        borderRadius: 8,
+        borderRadius: "var(--radius-2)",
         backgroundColor: "var(--color-surface)",
         overflow: "hidden",
       }}
@@ -958,7 +958,7 @@ function AttemptRow({
           cursor: "pointer",
           color: "var(--color-text)",
           fontFamily: "inherit",
-          fontSize: 13,
+          fontSize: "var(--text-sm)",
         }}
       >
         <span style={{ fontWeight: 500 }}>{att.name}</span>
@@ -966,14 +966,14 @@ function AttemptRow({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 12,
+            gap: "var(--space-3)",
           }}
         >
           {hasAi && <StatusTag tone="blue">AI graded</StatusTag>}
           <StatusTag tone={scoreTagTone}>{Math.round(att.score)}%</StatusTag>
           <span
             style={{
-              fontSize: 11.5,
+              fontSize: "var(--text-xs)",
               color: "var(--color-text-3)",
             }}
           >
@@ -988,7 +988,7 @@ function AttemptRow({
             padding: "0 14px 14px",
             display: "flex",
             flexDirection: "column",
-            gap: 10,
+            gap: "var(--space-3)",
           }}
         >
           {att.answers.map((ans) => (
@@ -1028,27 +1028,27 @@ function AnswerCard({
   return (
     <div
       style={{
-        padding: 12,
+        padding: "var(--space-3)",
         backgroundColor: "var(--color-surface-2)",
         border: "1px solid var(--color-border-subtle)",
-        borderRadius: 8,
+        borderRadius: "var(--radius-2)",
       }}
     >
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 8,
-          marginBottom: 8,
+          gap: "var(--space-2)",
+          marginBottom: "var(--space-2)",
         }}
       >
         <span
           style={{
-            fontSize: 10,
+            fontSize: "var(--text-xs)",
             fontWeight: 700,
             letterSpacing: "0.04em",
             padding: "1px 6px",
-            borderRadius: 4,
+            borderRadius: "var(--radius-1)",
             backgroundColor: "var(--color-surface)",
             border: "1px solid var(--color-border)",
             color: "var(--color-text-3)",
@@ -1058,7 +1058,7 @@ function AnswerCard({
         </span>
         <span
           style={{
-            fontSize: 12.5,
+            fontSize: "var(--text-sm)",
             fontWeight: 600,
             color: "var(--color-text)",
           }}
@@ -1069,9 +1069,9 @@ function AnswerCard({
 
       <div
         style={{
-          fontSize: 12,
+          fontSize: "var(--text-xs)",
           color: "var(--color-text-2)",
-          marginBottom: 4,
+          marginBottom: "var(--space-1)",
         }}
       >
         <strong style={{ color: "var(--color-text)" }}>Answer:</strong>{" "}
@@ -1082,9 +1082,9 @@ function AnswerCard({
 
       <div
         style={{
-          fontSize: 11.5,
+          fontSize: "var(--text-xs)",
           color: "var(--color-text-3)",
-          marginBottom: 8,
+          marginBottom: "var(--space-2)",
         }}
       >
         <strong style={{ color: "var(--color-text-2)" }}>Expected:</strong>{" "}
@@ -1094,12 +1094,12 @@ function AnswerCard({
       {ans.llmScore && (
         <div
           style={{
-            fontSize: 11.5,
+            fontSize: "var(--text-xs)",
             padding: "6px 10px",
-            borderRadius: 6,
+            borderRadius: "var(--radius-1)",
             backgroundColor: llmTone.bg,
             color: "var(--color-text-2)",
-            marginBottom: 8,
+            marginBottom: "var(--space-2)",
             lineHeight: 1.45,
           }}
         >
@@ -1115,12 +1115,12 @@ function AnswerCard({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          gap: "var(--space-2)",
         }}
       >
         <span
           style={{
-            fontSize: 11,
+            fontSize: "var(--text-xs)",
             fontWeight: 650,
             color: statusFg,
           }}
@@ -1137,10 +1137,10 @@ function AnswerCard({
               type="button"
               onClick={() => onOverrideGrade(ans.id, true)}
               style={{
-                fontSize: 10.5,
+                fontSize: "var(--text-xs)",
                 fontWeight: 650,
                 padding: "3px 9px",
-                borderRadius: 4,
+                borderRadius: "var(--radius-1)",
                 border:
                   ans.isCorrect === true
                     ? "1px solid var(--color-correct)"
@@ -1163,10 +1163,10 @@ function AnswerCard({
               type="button"
               onClick={() => onOverrideGrade(ans.id, false)}
               style={{
-                fontSize: 10.5,
+                fontSize: "var(--text-xs)",
                 fontWeight: 650,
                 padding: "3px 9px",
-                borderRadius: 4,
+                borderRadius: "var(--radius-1)",
                 border:
                   ans.isCorrect === false
                     ? "1px solid var(--color-incorrect)"
@@ -1201,10 +1201,10 @@ function EmptyCard() {
         alignItems: "center",
         justifyContent: "center",
         padding: "60px 24px",
-        gap: 12,
+        gap: "var(--space-3)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         boxShadow: "var(--shadow-card)",
         textAlign: "center",
       }}
@@ -1213,15 +1213,15 @@ function EmptyCard() {
       <div>
         <div
           style={{
-            fontSize: 14.5,
+            fontSize: "var(--text-base)",
             fontWeight: 600,
             color: "var(--color-text)",
-            marginBottom: 4,
+            marginBottom: "var(--space-1)",
           }}
         >
           No assessments yet
         </div>
-        <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
+        <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
           Create one to get started.
         </div>
       </div>

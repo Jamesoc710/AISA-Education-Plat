@@ -161,7 +161,7 @@ export function FeedbackDialog({ open, onClose }: Props) {
         alignItems: "center",
         justifyContent: "center",
         zIndex: 100,
-        padding: 20,
+        padding: "var(--space-5)",
       }}
       onClick={submitting ? undefined : onClose}
     >
@@ -171,8 +171,8 @@ export function FeedbackDialog({ open, onClose }: Props) {
         style={{
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: 14,
-          padding: 24,
+          borderRadius: "var(--radius-3)",
+          padding: "var(--space-5)",
           maxWidth: 520,
           width: "100%",
           boxShadow: "var(--shadow-popover)",
@@ -185,13 +185,13 @@ export function FeedbackDialog({ open, onClose }: Props) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: 14,
+            marginBottom: "var(--space-4)",
           }}
         >
           <h2
             style={{
               margin: 0,
-              fontSize: 18,
+              fontSize: "var(--text-md)",
               fontWeight: 600,
               color: "var(--color-text)",
               letterSpacing: "-0.015em",
@@ -209,8 +209,8 @@ export function FeedbackDialog({ open, onClose }: Props) {
               border: "none",
               color: "var(--color-text-2)",
               cursor: submitting ? "default" : "pointer",
-              padding: 4,
-              borderRadius: 6,
+              padding: "var(--space-1)",
+              borderRadius: "var(--radius-1)",
               display: "flex",
             }}
           >
@@ -225,14 +225,14 @@ export function FeedbackDialog({ open, onClose }: Props) {
               flexDirection: "column",
               alignItems: "center",
               padding: "32px 12px 8px",
-              gap: 10,
+              gap: "var(--space-3)",
             }}
           >
             <div
               style={{
                 width: 44,
                 height: 44,
-                borderRadius: 22,
+                borderRadius: "var(--radius-3)",
                 backgroundColor: "var(--color-correct-bg, #d9f0e0)",
                 color: "var(--color-correct, #1f7a4a)",
                 display: "flex",
@@ -244,7 +244,7 @@ export function FeedbackDialog({ open, onClose }: Props) {
             </div>
             <div
               style={{
-                fontSize: 15,
+                fontSize: "var(--text-md)",
                 fontWeight: 600,
                 color: "var(--color-text)",
               }}
@@ -257,7 +257,7 @@ export function FeedbackDialog({ open, onClose }: Props) {
             <p
               style={{
                 margin: "0 0 14px",
-                fontSize: 13,
+                fontSize: "var(--text-sm)",
                 color: "var(--color-text-2)",
                 lineHeight: 1.55,
               }}
@@ -277,12 +277,12 @@ export function FeedbackDialog({ open, onClose }: Props) {
               style={{
                 width: "100%",
                 minHeight: 120,
-                padding: 12,
-                borderRadius: 10,
+                padding: "var(--space-3)",
+                borderRadius: "var(--radius-2)",
                 border: "1px solid var(--color-border)",
                 backgroundColor: "var(--color-surface-2)",
                 color: "var(--color-text)",
-                fontSize: 14,
+                fontSize: "var(--text-base)",
                 fontFamily: "inherit",
                 lineHeight: 1.5,
                 resize: "vertical",
@@ -296,8 +296,8 @@ export function FeedbackDialog({ open, onClose }: Props) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                marginTop: 10,
-                fontSize: 12,
+                marginTop: "var(--space-3)",
+                fontSize: "var(--text-xs)",
                 color: "var(--color-text-3, var(--color-text-2))",
               }}
             >
@@ -308,10 +308,10 @@ export function FeedbackDialog({ open, onClose }: Props) {
             {previewUrl ? (
               <div
                 style={{
-                  marginTop: 14,
+                  marginTop: "var(--space-4)",
                   position: "relative",
                   border: "1px solid var(--color-border)",
-                  borderRadius: 10,
+                  borderRadius: "var(--radius-2)",
                   overflow: "hidden",
                   backgroundColor: "var(--color-surface-2)",
                 }}
@@ -334,12 +334,12 @@ export function FeedbackDialog({ open, onClose }: Props) {
                   aria-label="Remove attachment"
                   style={{
                     position: "absolute",
-                    top: 6,
-                    right: 6,
+                    top: "var(--space-2)",
+                    right: "var(--space-2)",
                     background: "rgba(0,0,0,0.55)",
                     color: "#fff",
                     border: "none",
-                    borderRadius: 16,
+                    borderRadius: "var(--radius-3)",
                     width: 26,
                     height: 26,
                     display: "flex",
@@ -357,16 +357,16 @@ export function FeedbackDialog({ open, onClose }: Props) {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={submitting}
                 style={{
-                  marginTop: 14,
+                  marginTop: "var(--space-4)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: "var(--space-2)",
                   padding: "8px 12px",
-                  borderRadius: 8,
+                  borderRadius: "var(--radius-2)",
                   border: "1px dashed var(--color-border)",
                   backgroundColor: "transparent",
                   color: "var(--color-text-2)",
-                  fontSize: 13,
+                  fontSize: "var(--text-sm)",
                   cursor: submitting ? "default" : "pointer",
                 }}
               >
@@ -389,12 +389,12 @@ export function FeedbackDialog({ open, onClose }: Props) {
             {error ? (
               <div
                 style={{
-                  marginTop: 12,
+                  marginTop: "var(--space-3)",
                   padding: "8px 10px",
-                  borderRadius: 8,
+                  borderRadius: "var(--radius-2)",
                   backgroundColor: "var(--color-incorrect-bg, #fbe5e5)",
                   color: "var(--color-incorrect, #a33)",
-                  fontSize: 12.5,
+                  fontSize: "var(--text-sm)",
                   lineHeight: 1.5,
                 }}
               >
@@ -406,8 +406,8 @@ export function FeedbackDialog({ open, onClose }: Props) {
               style={{
                 display: "flex",
                 justifyContent: "flex-end",
-                gap: 10,
-                marginTop: 18,
+                gap: "var(--space-3)",
+                marginTop: "var(--space-5)",
               }}
             >
               <Button

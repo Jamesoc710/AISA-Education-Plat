@@ -77,7 +77,7 @@ export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewPr
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 12,
+          gap: "var(--space-3)",
           marginBottom: 36,
         }}
       >
@@ -87,31 +87,31 @@ export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewPr
             style={{
               backgroundColor: "var(--color-surface)",
               border: "1px solid var(--color-border)",
-              borderRadius: 12,
+              borderRadius: "var(--radius-3)",
               padding: "18px 20px",
               boxShadow: "var(--shadow-card)",
               display: "flex",
               flexDirection: "column",
-              gap: 14,
+              gap: "var(--space-4)",
             }}
           >
             <IconTile icon="bar-chart" color={card.tile} size="sm" />
             <div>
               <div
                 style={{
-                  fontSize: 28,
+                  fontSize: "var(--text-2xl)",
                   fontWeight: 600,
                   color: "var(--color-text)",
                   letterSpacing: "-0.02em",
                   lineHeight: 1,
-                  marginBottom: 6,
+                  marginBottom: "var(--space-2)",
                 }}
               >
                 {card.value}
               </div>
               <div
                 style={{
-                  fontSize: 12.5,
+                  fontSize: "var(--text-sm)",
                   color: "var(--color-text-3)",
                   fontWeight: 500,
                 }}
@@ -128,12 +128,12 @@ export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewPr
           display: "flex",
           alignItems: "baseline",
           justifyContent: "space-between",
-          marginBottom: 14,
+          marginBottom: "var(--space-4)",
         }}
       >
         <h2
           style={{
-            fontSize: 16,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
             margin: 0,
@@ -144,7 +144,7 @@ export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewPr
         </h2>
         <span
           style={{
-            fontSize: 12,
+            fontSize: "var(--text-xs)",
             color: "var(--color-text-3)",
           }}
         >
@@ -159,7 +159,7 @@ export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewPr
           style={{
             backgroundColor: "var(--color-surface)",
             border: "1px solid var(--color-border)",
-            borderRadius: 12,
+            borderRadius: "var(--radius-3)",
             boxShadow: "var(--shadow-card)",
             overflow: "hidden",
           }}
@@ -172,7 +172,7 @@ export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewPr
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 14,
+                  gap: "var(--space-4)",
                   padding: "14px 18px",
                   borderTop:
                     idx === 0 ? "none" : "1px solid var(--color-border-subtle)",
@@ -184,7 +184,7 @@ export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewPr
                 <span
                   style={{
                     flex: 1,
-                    fontSize: 13.5,
+                    fontSize: "var(--text-sm)",
                     color: "var(--color-text)",
                     minWidth: 0,
                     overflow: "hidden",
@@ -196,7 +196,7 @@ export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewPr
                 </span>
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: "var(--text-xs)",
                     color: "var(--color-text-3)",
                     flexShrink: 0,
                     whiteSpace: "nowrap",
@@ -222,10 +222,10 @@ function EmptyState() {
         alignItems: "center",
         justifyContent: "center",
         padding: "60px 24px",
-        gap: 12,
+        gap: "var(--space-3)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         boxShadow: "var(--shadow-card)",
       }}
     >
@@ -233,15 +233,15 @@ function EmptyState() {
       <div style={{ textAlign: "center" }}>
         <div
           style={{
-            fontSize: 14.5,
+            fontSize: "var(--text-base)",
             fontWeight: 600,
             color: "var(--color-text)",
-            marginBottom: 4,
+            marginBottom: "var(--space-1)",
           }}
         >
           No recent activity
         </div>
-        <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
+        <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
           Recruit progress will show up here as it happens.
         </div>
       </div>

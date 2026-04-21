@@ -177,13 +177,13 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 12,
-          marginBottom: 16,
+          gap: "var(--space-3)",
+          marginBottom: "var(--space-4)",
         }}
       >
         <h2
           style={{
-            fontSize: 18,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
             margin: 0,
@@ -207,7 +207,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
             strokeWidth={2}
             style={{
               position: "absolute",
-              left: 12,
+              left: "var(--space-3)",
               color: "var(--color-text-3)",
               pointerEvents: "none",
             }}
@@ -220,9 +220,9 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
             style={{
-              fontSize: 13,
+              fontSize: "var(--text-sm)",
               padding: "8px 12px 8px 34px",
-              borderRadius: 8,
+              borderRadius: "var(--radius-2)",
               border: `1px solid ${searchFocused ? "var(--color-accent)" : "var(--color-border)"}`,
               backgroundColor: "var(--color-surface)",
               color: "var(--color-text)",
@@ -240,7 +240,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
       <div
         style={{
           overflowX: "auto",
-          borderRadius: 12,
+          borderRadius: "var(--radius-3)",
           border: "1px solid var(--color-border)",
           backgroundColor: "var(--color-surface)",
           boxShadow: "var(--shadow-card)",
@@ -262,7 +262,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                     key={col.key}
                     onClick={() => handleSort(col.key)}
                     style={{
-                      fontSize: 11,
+                      fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.06em",
                       color: isActive
@@ -282,12 +282,12 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                       style={{
                         display: "inline-flex",
                         alignItems: "center",
-                        gap: 4,
+                        gap: "var(--space-1)",
                       }}
                     >
                       {col.label}
                       {isActive && (
-                        <span style={{ fontSize: 10 }}>
+                        <span style={{ fontSize: "var(--text-xs)" }}>
                           {sortAsc ? "↑" : "↓"}
                         </span>
                       )}
@@ -318,7 +318,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                   <td
                     style={{
                       padding: "12px 16px",
-                      fontSize: 13.5,
+                      fontSize: "var(--text-sm)",
                       fontWeight: 500,
                       color: "var(--color-text)",
                       borderTop:
@@ -337,7 +337,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                   <td
                     style={{
                       padding: "12px 16px",
-                      fontSize: 13,
+                      fontSize: "var(--text-sm)",
                       color: "var(--color-text-2)",
                       borderTop:
                         idx === 0
@@ -360,7 +360,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 8,
+                        gap: "var(--space-2)",
                       }}
                     >
                       <StatusTag tone={badgeTone}>{currentRole}</StatusTag>
@@ -372,9 +372,9 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                           handleRoleChange(r.id, e.target.value)
                         }
                         style={{
-                          fontSize: 11,
+                          fontSize: "var(--text-xs)",
                           padding: "2px 6px",
-                          borderRadius: 6,
+                          borderRadius: "var(--radius-1)",
                           border: "1px solid var(--color-border)",
                           backgroundColor: "var(--color-surface)",
                           color: "var(--color-text-3)",
@@ -404,7 +404,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                     ) : (
                       <span
                         style={{
-                          fontSize: 13,
+                          fontSize: "var(--text-sm)",
                           color: "var(--color-text-3)",
                         }}
                       >
@@ -415,7 +415,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                   <td
                     style={{
                       padding: "12px 16px",
-                      fontSize: 13,
+                      fontSize: "var(--text-sm)",
                       color: "var(--color-text-2)",
                       fontVariantNumeric: "tabular-nums",
                       borderTop:
@@ -429,7 +429,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                   <td
                     style={{
                       padding: "12px 16px",
-                      fontSize: 13,
+                      fontSize: "var(--text-sm)",
                       color: "var(--color-text-2)",
                       fontVariantNumeric: "tabular-nums",
                       borderTop:
@@ -443,7 +443,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                   <td
                     style={{
                       padding: "12px 16px",
-                      fontSize: 13,
+                      fontSize: "var(--text-sm)",
                       color: "var(--color-text-2)",
                       whiteSpace: "nowrap",
                       borderTop:
@@ -461,7 +461,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                   <td
                     style={{
                       padding: "12px 16px",
-                      fontSize: 13,
+                      fontSize: "var(--text-sm)",
                       color: "var(--color-text-2)",
                       whiteSpace: "nowrap",
                       borderTop:
@@ -498,7 +498,7 @@ function EmptyState() {
         alignItems: "center",
         justifyContent: "center",
         padding: "60px 24px",
-        gap: 12,
+        gap: "var(--space-3)",
         textAlign: "center",
       }}
     >
@@ -506,15 +506,15 @@ function EmptyState() {
       <div>
         <div
           style={{
-            fontSize: 14.5,
+            fontSize: "var(--text-base)",
             fontWeight: 600,
             color: "var(--color-text)",
-            marginBottom: 4,
+            marginBottom: "var(--space-1)",
           }}
         >
           No recruits found
         </div>
-        <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
+        <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
           Try a different search term.
         </div>
       </div>

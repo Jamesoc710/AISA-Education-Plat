@@ -29,7 +29,7 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
       <h2
         style={{
           margin: "0 0 22px",
-          fontSize: 20,
+          fontSize: "var(--text-lg)",
           fontWeight: 600,
           color: "var(--color-text)",
           lineHeight: 1.45,
@@ -40,7 +40,7 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
       </h2>
 
       {/* Options */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
         {question.options.map((opt, i) => (
           <MCOption
             key={i}
@@ -62,7 +62,7 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
             marginTop: 22,
             padding: "16px 18px 18px",
             backgroundColor: "var(--color-accent-soft)",
-            borderRadius: 10,
+            borderRadius: "var(--radius-2)",
             borderLeft: "3px solid var(--color-accent)",
           }}
         >
@@ -70,13 +70,13 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: 6,
-              fontSize: 11,
+              gap: "var(--space-2)",
+              fontSize: "var(--text-xs)",
               fontWeight: 600,
               letterSpacing: "0.06em",
               textTransform: "uppercase",
               color: "var(--color-accent-on-soft)",
-              marginBottom: 8,
+              marginBottom: "var(--space-2)",
             }}
           >
             <Icon name="info" size={12} strokeWidth={2.25} />
@@ -85,7 +85,7 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
           <p
             style={{
               margin: 0,
-              fontSize: 14,
+              fontSize: "var(--text-base)",
               color: "var(--color-text)",
               lineHeight: 1.65,
             }}
@@ -162,11 +162,11 @@ function MCOption({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 14,
+        gap: "var(--space-4)",
         padding: "14px 16px",
         backgroundColor: bgColor,
         border: `1px solid ${borderColor}`,
-        borderRadius: 10,
+        borderRadius: "var(--radius-2)",
         cursor: answered ? "default" : "pointer",
         textAlign: "left",
         fontFamily: "inherit",
@@ -188,7 +188,7 @@ function MCOption({
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
-          fontSize: 12,
+          fontSize: "var(--text-xs)",
           fontWeight: 650,
           color: indicatorColor,
           transition: "all 180ms ease",
@@ -204,7 +204,7 @@ function MCOption({
       {/* Option text */}
       <span
         style={{
-          fontSize: 14.5,
+          fontSize: "var(--text-base)",
           color: textColor,
           lineHeight: 1.5,
           fontWeight: 500,

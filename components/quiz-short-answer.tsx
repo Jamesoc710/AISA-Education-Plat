@@ -99,7 +99,7 @@ export function ShortAnswerQuestion({
       <h2
         style={{
           margin: "0 0 22px",
-          fontSize: 20,
+          fontSize: "var(--text-lg)",
           fontWeight: 600,
           color: "var(--color-text)",
           lineHeight: 1.45,
@@ -110,17 +110,17 @@ export function ShortAnswerQuestion({
       </h2>
 
       {/* Text area */}
-      <div style={{ marginBottom: 14 }}>
+      <div style={{ marginBottom: "var(--space-4)" }}>
         <label
           htmlFor="quiz-short-answer"
           style={{
             display: "block",
-            fontSize: 11,
+            fontSize: "var(--text-xs)",
             fontWeight: 600,
             color: "var(--color-text-3)",
             letterSpacing: "0.06em",
             textTransform: "uppercase",
-            marginBottom: 8,
+            marginBottom: "var(--space-2)",
           }}
         >
           Your answer
@@ -142,9 +142,9 @@ export function ShortAnswerQuestion({
             boxShadow: focused
               ? "0 0 0 3px var(--color-accent-dim)"
               : "var(--shadow-card)",
-            borderRadius: 10,
+            borderRadius: "var(--radius-2)",
             color: "var(--color-text)",
-            fontSize: 14,
+            fontSize: "var(--text-base)",
             fontFamily: "inherit",
             lineHeight: 1.6,
             resize: "vertical",
@@ -159,7 +159,7 @@ export function ShortAnswerQuestion({
 
       {/* Action buttons */}
       {!revealed && (
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
           <Button
             variant="primary"
             size="md"
@@ -184,14 +184,14 @@ export function ShortAnswerQuestion({
         <div
           className="animate-fade-in"
           style={{
-            marginTop: 4,
+            marginTop: "var(--space-1)",
             padding: "18px 20px",
             backgroundColor: SCORE_TOKENS[gradeResult.score].bg,
             border: `1px solid ${SCORE_TOKENS[gradeResult.score].border}`,
-            borderRadius: 12,
+            borderRadius: "var(--radius-3)",
           }}
         >
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: "var(--space-3)" }}>
             <StatusTag tone={SCORE_TOKENS[gradeResult.score].tone} uppercase>
               {SCORE_TOKENS[gradeResult.score].label}
             </StatusTag>
@@ -200,7 +200,7 @@ export function ShortAnswerQuestion({
           <p
             style={{
               margin: "0 0 16px",
-              fontSize: 14,
+              fontSize: "var(--text-base)",
               color: "var(--color-text)",
               lineHeight: 1.65,
             }}
@@ -210,18 +210,18 @@ export function ShortAnswerQuestion({
 
           <div
             style={{
-              paddingTop: 14,
+              paddingTop: "var(--space-4)",
               borderTop: "1px solid var(--color-border)",
             }}
           >
             <div
               style={{
-                fontSize: 11,
+                fontSize: "var(--text-xs)",
                 fontWeight: 650,
                 letterSpacing: "0.06em",
                 textTransform: "uppercase",
                 color: "var(--color-text-3)",
-                marginBottom: 8,
+                marginBottom: "var(--space-2)",
               }}
             >
               Model answer
@@ -229,7 +229,7 @@ export function ShortAnswerQuestion({
             <p
               style={{
                 margin: 0,
-                fontSize: 14,
+                fontSize: "var(--text-base)",
                 color: "var(--color-text-2)",
                 lineHeight: 1.65,
               }}
@@ -245,21 +245,21 @@ export function ShortAnswerQuestion({
         <div
           className="animate-fade-in"
           style={{
-            marginTop: 4,
+            marginTop: "var(--space-1)",
             padding: "18px 20px",
             backgroundColor: "var(--color-accent-soft)",
             borderLeft: "3px solid var(--color-accent)",
-            borderRadius: 10,
+            borderRadius: "var(--radius-2)",
           }}
         >
           <div
             style={{
-              fontSize: 11,
+              fontSize: "var(--text-xs)",
               fontWeight: 650,
               letterSpacing: "0.06em",
               textTransform: "uppercase",
               color: "var(--color-accent-on-soft)",
-              marginBottom: 8,
+              marginBottom: "var(--space-2)",
             }}
           >
             Model answer
@@ -267,7 +267,7 @@ export function ShortAnswerQuestion({
           <p
             style={{
               margin: 0,
-              fontSize: 14,
+              fontSize: "var(--text-base)",
               color: "var(--color-text)",
               lineHeight: 1.65,
             }}

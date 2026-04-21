@@ -91,7 +91,7 @@ export function QuizResults({
       <h1
         style={{
           margin: "0 0 10px",
-          fontSize: 32,
+          fontSize: "var(--text-3xl)",
           fontWeight: 600,
           color: "var(--color-text)",
           letterSpacing: "-0.025em",
@@ -103,7 +103,7 @@ export function QuizResults({
       <p
         style={{
           margin: "0 0 28px",
-          fontSize: 15,
+          fontSize: "var(--text-md)",
           color: "var(--color-text-2)",
           lineHeight: 1.55,
         }}
@@ -118,9 +118,9 @@ export function QuizResults({
           padding: "32px 28px",
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: 14,
+          borderRadius: "var(--radius-3)",
           textAlign: "center",
-          marginBottom: 32,
+          marginBottom: "var(--space-6)",
           boxShadow: "var(--shadow-card)",
         }}
       >
@@ -128,12 +128,12 @@ export function QuizResults({
           <>
             <div
               style={{
-                fontSize: 56,
+                fontSize: "var(--text-display)",
                 fontWeight: 700,
                 color: scoreColor,
                 letterSpacing: "-0.035em",
                 lineHeight: 1,
-                marginBottom: 10,
+                marginBottom: "var(--space-3)",
               }}
             >
               {percentage}%
@@ -142,11 +142,11 @@ export function QuizResults({
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 8,
-                fontSize: 13,
+                gap: "var(--space-2)",
+                fontSize: "var(--text-sm)",
                 fontWeight: 550,
                 color: "var(--color-text-2)",
-                marginBottom: 4,
+                marginBottom: "var(--space-1)",
               }}
             >
               <StatusTag tone={scoreTagTone} uppercase>
@@ -161,7 +161,7 @@ export function QuizResults({
         {totalSA > 0 && (
           <div
             style={{
-              fontSize: 12.5,
+              fontSize: "var(--text-sm)",
               color: "var(--color-text-3)",
               marginTop: totalMC > 0 ? 12 : 0,
               paddingTop: totalMC > 0 ? 12 : 0,
@@ -175,7 +175,7 @@ export function QuizResults({
       </div>
 
       {/* ── Question Review ────────────────────────────────────── */}
-      <div style={{ marginBottom: 32 }}>
+      <div style={{ marginBottom: "var(--space-6)" }}>
         <SectionHeading>Question review</SectionHeading>
 
         {mode === "concept" ? (
@@ -191,9 +191,9 @@ export function QuizResults({
 
       {/* ── Study Links ────────────────────────────────────────── */}
       {needsStudy.length > 0 && (
-        <div style={{ marginBottom: 32 }}>
+        <div style={{ marginBottom: "var(--space-6)" }}>
           <SectionHeading>Review these concepts</SectionHeading>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
             {needsStudy.map((c) => (
               <StudyLinkRow
                 key={c.slug}
@@ -212,8 +212,8 @@ export function QuizResults({
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          gap: 10,
-          marginBottom: 10,
+          gap: "var(--space-3)",
+          marginBottom: "var(--space-3)",
         }}
       >
         <Button variant="secondary" size="md" onClick={onRetake} fullWidth>
@@ -227,7 +227,7 @@ export function QuizResults({
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          gap: 10,
+          gap: "var(--space-3)",
         }}
       >
         <LinkCardButton href="/browse">Browse concepts</LinkCardButton>
@@ -242,7 +242,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
     <h2
       style={{
         margin: "0 0 14px",
-        fontSize: 11,
+        fontSize: "var(--text-xs)",
         fontWeight: 650,
         color: "var(--color-text-3)",
         letterSpacing: "0.08em",
@@ -273,12 +273,12 @@ function LinkCardButton({
         justifyContent: "center",
         height: 34,
         padding: "0 14px",
-        fontSize: 13.5,
+        fontSize: "var(--text-sm)",
         fontWeight: 500,
         color: hov ? "var(--color-text)" : "var(--color-text-2)",
         backgroundColor: hov ? "var(--color-surface-2)" : "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 10,
+        borderRadius: "var(--radius-2)",
         textDecoration: "none",
         transition: "color 120ms ease, background-color 120ms ease",
         letterSpacing: "-0.005em",
@@ -313,7 +313,7 @@ function StudyLinkRow({
         padding: "12px 16px",
         backgroundColor: hov ? "var(--color-accent-soft)" : "var(--color-surface)",
         border: `1px solid ${hov ? "var(--color-accent)" : "var(--color-border)"}`,
-        borderRadius: 10,
+        borderRadius: "var(--radius-2)",
         textDecoration: "none",
         boxShadow: hov ? "var(--shadow-card-hover)" : "var(--shadow-card)",
         transition:
@@ -322,7 +322,7 @@ function StudyLinkRow({
     >
       <span
         style={{
-          fontSize: 14,
+          fontSize: "var(--text-base)",
           fontWeight: 550,
           color: hov ? "var(--color-accent-on-soft)" : "var(--color-text)",
           letterSpacing: "-0.005em",
@@ -335,12 +335,12 @@ function StudyLinkRow({
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: 6,
+          gap: "var(--space-2)",
         }}
       >
         <span
           style={{
-            fontSize: 12,
+            fontSize: "var(--text-xs)",
             fontWeight: 600,
             color: "var(--color-incorrect)",
           }}
@@ -371,7 +371,7 @@ function FlatQuestionList({
   answerMap: Map<string, MCAnswer>;
 }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
       {questions.map((q) => (
         <QuestionRow key={q.id} question={q} answer={answerMap.get(q.id)} />
       ))}
@@ -422,7 +422,7 @@ function GroupedQuestionList({
   if (mode === "section" && sections.length === 1) {
     const concepts = [...sections[0][1].concepts.values()];
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
         {concepts.map((c) => {
           const conceptMCAnswers = c.questions
             .filter((q) => q.type === "MC")
@@ -452,7 +452,7 @@ function GroupedQuestionList({
 
   // Tier/Mixed: two-level accordion
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
       {sections.map(([sectionId, section]) => {
         const allMCInSection = [...section.concepts.values()]
           .flatMap((c) => c.questions)
@@ -528,7 +528,7 @@ function SectionAccordion({
     <div
       style={{
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         overflow: "hidden",
         backgroundColor: "var(--color-surface)",
         boxShadow: "var(--shadow-card)",
@@ -546,7 +546,7 @@ function SectionAccordion({
           border: "none",
           cursor: "pointer",
           fontFamily: "inherit",
-          gap: 10,
+          gap: "var(--space-3)",
         }}
       >
         <span
@@ -563,7 +563,7 @@ function SectionAccordion({
           style={{
             flex: 1,
             textAlign: "left",
-            fontSize: 14,
+            fontSize: "var(--text-base)",
             fontWeight: 600,
             color: "var(--color-text)",
             letterSpacing: "-0.005em",
@@ -611,7 +611,7 @@ function ConceptAccordion({
     <div
       style={{
         border: nested ? "none" : "1px solid var(--color-border)",
-        borderRadius: 10,
+        borderRadius: "var(--radius-2)",
         overflow: "hidden",
         backgroundColor: nested ? "transparent" : "var(--color-surface)",
         boxShadow: nested ? "none" : "var(--shadow-card)",
@@ -630,7 +630,7 @@ function ConceptAccordion({
           borderRadius: nested ? 8 : undefined,
           cursor: "pointer",
           fontFamily: "inherit",
-          gap: 8,
+          gap: "var(--space-2)",
         }}
       >
         <span
@@ -647,7 +647,7 @@ function ConceptAccordion({
           style={{
             flex: 1,
             textAlign: "left",
-            fontSize: 13.5,
+            fontSize: "var(--text-sm)",
             fontWeight: 550,
             color: "var(--color-text)",
           }}
@@ -690,7 +690,7 @@ function ScoreChip({
     <StatusTag
       tone={allCorrect ? "green" : "neutral"}
       size={small ? "xs" : "sm"}
-      style={{ gap: 4, fontVariantNumeric: "tabular-nums" }}
+      style={{ gap: "var(--space-1)", fontVariantNumeric: "tabular-nums" }}
     >
       {correct}/{total}
       {allCorrect && (
@@ -740,11 +740,11 @@ function QuestionRow({
   return (
     <div
       style={{
-        borderRadius: 8,
+        borderRadius: "var(--radius-2)",
         border: `1px solid ${rowBorder}`,
         backgroundColor: rowBg,
         overflow: "hidden",
-        marginTop: 4,
+        marginTop: "var(--space-1)",
       }}
     >
       <button
@@ -758,7 +758,7 @@ function QuestionRow({
           border: "none",
           cursor: "pointer",
           fontFamily: "inherit",
-          gap: 10,
+          gap: "var(--space-3)",
           textAlign: "left",
         }}
       >
@@ -769,7 +769,7 @@ function QuestionRow({
         <span
           style={{
             flex: 1,
-            fontSize: 13.5,
+            fontSize: "var(--text-sm)",
             color: "var(--color-text)",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -807,12 +807,12 @@ function QuestionRow({
             padding: "0 14px 14px 40px",
             display: "flex",
             flexDirection: "column",
-            gap: 10,
+            gap: "var(--space-3)",
           }}
         >
           <span
             style={{
-              fontSize: 11,
+              fontSize: "var(--text-xs)",
               fontWeight: 600,
               color: "var(--color-text-3)",
               letterSpacing: "0.04em",
@@ -823,7 +823,7 @@ function QuestionRow({
           </span>
 
           {isMC && selectedOption && (
-            <div style={{ fontSize: 13.5, lineHeight: 1.55 }}>
+            <div style={{ fontSize: "var(--text-sm)", lineHeight: 1.55 }}>
               <div style={{ color: "var(--color-text-2)", marginBottom: 3 }}>
                 <span style={{ color: "var(--color-text-3)" }}>Your answer: </span>
                 <span
@@ -847,7 +847,7 @@ function QuestionRow({
           )}
 
           {!isMC && (
-            <div style={{ fontSize: 13.5, color: "var(--color-text-2)", lineHeight: 1.6 }}>
+            <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-2)", lineHeight: 1.6 }}>
               <span style={{ color: "var(--color-text-3)", fontWeight: 600 }}>
                 Model answer:{" "}
               </span>
@@ -858,10 +858,10 @@ function QuestionRow({
           {isMC && (
             <div
               style={{
-                fontSize: 13.5,
+                fontSize: "var(--text-sm)",
                 color: "var(--color-text)",
                 lineHeight: 1.65,
-                paddingTop: 8,
+                paddingTop: "var(--space-2)",
                 borderTop: "1px solid var(--color-border-subtle)",
               }}
             >
@@ -894,7 +894,7 @@ function StatusDot({ state }: { state: boolean | null }) {
         borderRadius: "50%",
         backgroundColor: bg,
         color: fg,
-        fontSize: 12,
+        fontSize: "var(--text-xs)",
         fontWeight: 650,
         flexShrink: 0,
         lineHeight: 1,

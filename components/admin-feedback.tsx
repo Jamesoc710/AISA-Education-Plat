@@ -112,7 +112,7 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
   }
 
   return (
-    <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
+    <div style={{ display: "flex", gap: "var(--space-5)", alignItems: "flex-start" }}>
       <div style={{ flex: "1 1 0", minWidth: 0 }}>
         <FilterTabs<FilterKey>
           tabs={FILTERS.map<FilterTabItem<FilterKey>>((f) => ({
@@ -122,7 +122,7 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
           }))}
           active={filter}
           onChange={setFilter}
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: "var(--space-4)" }}
         />
 
         {filtered.length === 0 ? (
@@ -132,9 +132,9 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
               textAlign: "center",
               color: "var(--color-text-3)",
               border: "1px solid var(--color-border)",
-              borderRadius: 12,
+              borderRadius: "var(--radius-3)",
               backgroundColor: "var(--color-surface)",
-              fontSize: 13.5,
+              fontSize: "var(--text-sm)",
             }}
           >
             {filter === "all"
@@ -146,7 +146,7 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: 10,
+              gap: "var(--space-3)",
             }}
           >
             {filtered.map((r) => {
@@ -163,12 +163,12 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
                   style={{
                     textAlign: "left",
                     border: `1px solid ${isSelected ? "var(--color-accent)" : "var(--color-border)"}`,
-                    borderRadius: 12,
+                    borderRadius: "var(--radius-3)",
                     backgroundColor: "var(--color-surface)",
-                    padding: 16,
+                    padding: "var(--space-4)",
                     display: "flex",
                     flexDirection: "column",
-                    gap: 8,
+                    gap: "var(--space-2)",
                     cursor: "pointer",
                     transition: "border-color 120ms ease, background-color 120ms ease",
                     boxShadow: isSelected
@@ -190,20 +190,20 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      gap: 10,
+                      gap: "var(--space-3)",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 10,
+                        gap: "var(--space-3)",
                         minWidth: 0,
                       }}
                     >
                       <span
                         style={{
-                          fontSize: 13.5,
+                          fontSize: "var(--text-sm)",
                           fontWeight: 600,
                           color: "var(--color-text)",
                           whiteSpace: "nowrap",
@@ -215,7 +215,7 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
                       </span>
                       <span
                         style={{
-                          fontSize: 12,
+                          fontSize: "var(--text-xs)",
                           color: "var(--color-text-3)",
                         }}
                       >
@@ -228,7 +228,7 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
                   </div>
                   <div
                     style={{
-                      fontSize: 13.5,
+                      fontSize: "var(--text-sm)",
                       color: "var(--color-text-2)",
                       lineHeight: 1.5,
                       whiteSpace: "pre-wrap",
@@ -241,14 +241,14 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 12,
-                      fontSize: 11.5,
+                      gap: "var(--space-3)",
+                      fontSize: "var(--text-xs)",
                       color: "var(--color-text-3)",
                     }}
                   >
                     {r.pageContext ? (
                       <span
-                        style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
+                        style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-1)" }}
                       >
                         <Icon name="file-text" size={11} />
                         {r.pageContext}
@@ -256,7 +256,7 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
                     ) : null}
                     {r.imageUrl ? (
                       <span
-                        style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
+                        style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-1)" }}
                       >
                         <Icon name="image" size={11} />
                         Attachment
@@ -273,13 +273,13 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
       <aside
         style={{
           position: "sticky",
-          top: 24,
+          top: "var(--space-5)",
           width: 380,
           flex: "0 0 380px",
           border: "1px solid var(--color-border)",
-          borderRadius: 12,
+          borderRadius: "var(--radius-3)",
           backgroundColor: "var(--color-surface)",
-          padding: 18,
+          padding: "var(--space-5)",
           maxHeight: "calc(100vh - 48px)",
           overflowY: "auto",
         }}
@@ -291,14 +291,14 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
-                gap: 10,
-                marginBottom: 12,
+                gap: "var(--space-3)",
+                marginBottom: "var(--space-3)",
               }}
             >
               <div style={{ minWidth: 0 }}>
                 <div
                   style={{
-                    fontSize: 14,
+                    fontSize: "var(--text-base)",
                     fontWeight: 600,
                     color: "var(--color-text)",
                   }}
@@ -307,7 +307,7 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
                 </div>
                 <div
                   style={{
-                    fontSize: 12,
+                    fontSize: "var(--text-xs)",
                     color: "var(--color-text-3)",
                     wordBreak: "break-all",
                   }}
@@ -324,8 +324,8 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
                   border: "none",
                   color: "var(--color-text-3)",
                   cursor: "pointer",
-                  padding: 4,
-                  borderRadius: 6,
+                  padding: "var(--space-1)",
+                  borderRadius: "var(--radius-1)",
                   display: "flex",
                 }}
               >
@@ -335,12 +335,12 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
 
             <div
               style={{
-                fontSize: 11,
+                fontSize: "var(--text-xs)",
                 color: "var(--color-text-3)",
-                marginBottom: 14,
+                marginBottom: "var(--space-4)",
                 display: "flex",
                 flexWrap: "wrap",
-                gap: 8,
+                gap: "var(--space-2)",
               }}
             >
               <span>{new Date(selected.createdAt).toLocaleString()}</span>
@@ -351,12 +351,12 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
 
             <div
               style={{
-                fontSize: 13.5,
+                fontSize: "var(--text-sm)",
                 color: "var(--color-text)",
                 lineHeight: 1.6,
                 whiteSpace: "pre-wrap",
                 wordBreak: "break-word",
-                marginBottom: 14,
+                marginBottom: "var(--space-4)",
               }}
             >
               {selected.content}
@@ -370,9 +370,9 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
                 style={{
                   display: "block",
                   border: "1px solid var(--color-border)",
-                  borderRadius: 10,
+                  borderRadius: "var(--radius-2)",
                   overflow: "hidden",
-                  marginBottom: 14,
+                  marginBottom: "var(--space-4)",
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -393,9 +393,9 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
             <div
               style={{
                 display: "flex",
-                gap: 8,
+                gap: "var(--space-2)",
                 flexWrap: "wrap",
-                paddingTop: 12,
+                paddingTop: "var(--space-3)",
                 borderTop: "1px solid var(--color-border)",
               }}
             >
@@ -434,7 +434,7 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
           <div
             style={{
               color: "var(--color-text-3)",
-              fontSize: 13,
+              fontSize: "var(--text-sm)",
               padding: "32px 8px",
               textAlign: "center",
             }}

@@ -56,28 +56,28 @@ export function AdminCalendarSync({ lastSyncedAt, eventCount }: AdminCalendarSyn
       style={{
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         padding: "16px 20px",
         boxShadow: "var(--shadow-card)",
-        marginBottom: 16,
+        marginBottom: "var(--space-4)",
         display: "flex",
         alignItems: "center",
-        gap: 14,
+        gap: "var(--space-4)",
       }}
     >
       <IconTile icon="calendar" color="indigo" size="sm" />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            fontSize: 13.5,
+            fontSize: "var(--text-sm)",
             fontWeight: 600,
             color: "var(--color-text)",
-            marginBottom: 2,
+            marginBottom: "var(--space-1)",
           }}
         >
           TCO Master Calendar
         </div>
-        <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>
+        <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
           {eventCount} events ·{" "}
           {lastSyncedAt
             ? `last synced ${relativeTime(lastSyncedAt)}`
@@ -85,7 +85,7 @@ export function AdminCalendarSync({ lastSyncedAt, eventCount }: AdminCalendarSyn
           {result && (
             <span
               style={{
-                marginLeft: 10,
+                marginLeft: "var(--space-3)",
                 color: result.ok ? "var(--color-correct)" : "var(--color-incorrect)",
                 fontWeight: 600,
               }}
@@ -102,15 +102,15 @@ export function AdminCalendarSync({ lastSyncedAt, eventCount }: AdminCalendarSyn
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: 6,
+          gap: "var(--space-2)",
           padding: "8px 14px",
-          fontSize: 13,
+          fontSize: "var(--text-sm)",
           fontWeight: 600,
           fontFamily: "inherit",
           color: "var(--color-text)",
           backgroundColor: "var(--color-surface-2)",
           border: "1px solid var(--color-border)",
-          borderRadius: 8,
+          borderRadius: "var(--radius-2)",
           cursor: syncing ? "not-allowed" : "pointer",
           opacity: syncing ? 0.6 : 1,
         }}

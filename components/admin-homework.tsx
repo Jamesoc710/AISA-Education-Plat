@@ -51,10 +51,10 @@ function gradeTone(grade: string | null): StatusTagTone | null {
 
 const labelStyle: React.CSSProperties = {
   display: "block",
-  fontSize: 11,
+  fontSize: "var(--text-xs)",
   fontWeight: 600,
   color: "var(--color-text-3)",
-  marginBottom: 6,
+  marginBottom: "var(--space-2)",
   textTransform: "uppercase",
   letterSpacing: "0.06em",
 };
@@ -65,8 +65,8 @@ function inputStyle(focused: boolean): React.CSSProperties {
     padding: "10px 12px",
     backgroundColor: "var(--color-surface)",
     border: `1px solid ${focused ? "var(--color-accent)" : "var(--color-border)"}`,
-    borderRadius: 8,
-    fontSize: 13.5,
+    borderRadius: "var(--radius-2)",
+    fontSize: "var(--text-sm)",
     color: "var(--color-text)",
     outline: "none",
     boxSizing: "border-box",
@@ -232,14 +232,14 @@ export function AdminHomework({
           style={{
             display: "inline-flex",
             alignItems: "center",
-            gap: 6,
+            gap: "var(--space-2)",
             padding: "4px 0",
             background: "none",
             border: "none",
             color: "var(--color-text-2)",
-            fontSize: 13,
+            fontSize: "var(--text-sm)",
             cursor: "pointer",
-            marginBottom: 18,
+            marginBottom: "var(--space-5)",
           }}
         >
           <Icon name="arrow-left" size={14} strokeWidth={2} />
@@ -248,7 +248,7 @@ export function AdminHomework({
 
         <h2
           style={{
-            fontSize: 22,
+            fontSize: "var(--text-lg)",
             fontWeight: 600,
             color: "var(--color-text)",
             margin: "0 0 24px",
@@ -259,7 +259,7 @@ export function AdminHomework({
         </h2>
 
         <form onSubmit={handleCreate}>
-          <div style={{ marginBottom: 18 }}>
+          <div style={{ marginBottom: "var(--space-5)" }}>
             <label htmlFor="hw-title" style={labelStyle}>Title</label>
             <input
               id="hw-title"
@@ -274,7 +274,7 @@ export function AdminHomework({
             />
           </div>
 
-          <div style={{ marginBottom: 18 }}>
+          <div style={{ marginBottom: "var(--space-5)" }}>
             <label htmlFor="hw-description" style={labelStyle}>Description (Markdown)</label>
             <textarea
               id="hw-description"
@@ -293,7 +293,7 @@ export function AdminHomework({
             />
           </div>
 
-          <div style={{ marginBottom: 18 }}>
+          <div style={{ marginBottom: "var(--space-5)" }}>
             <label htmlFor="hw-concept" style={labelStyle}>Concept (optional)</label>
             <select
               id="hw-concept"
@@ -315,7 +315,7 @@ export function AdminHomework({
             </select>
           </div>
 
-          <div style={{ marginBottom: 24 }}>
+          <div style={{ marginBottom: "var(--space-5)" }}>
             <label htmlFor="hw-due-date" style={labelStyle}>Due date (optional)</label>
             <input
               id="hw-due-date"
@@ -331,12 +331,12 @@ export function AdminHomework({
           {createError && (
             <div
               style={{
-                marginBottom: 18,
+                marginBottom: "var(--space-5)",
                 padding: "10px 14px",
                 backgroundColor: "var(--color-incorrect-dim)",
                 border: "1px solid var(--color-incorrect)",
-                borderRadius: 8,
-                fontSize: 13,
+                borderRadius: "var(--radius-2)",
+                fontSize: "var(--text-sm)",
                 color: "var(--color-incorrect)",
               }}
             >
@@ -344,7 +344,7 @@ export function AdminHomework({
             </div>
           )}
 
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: "var(--space-2)" }}>
             <Button
               variant="primary"
               type="submit"
@@ -377,14 +377,14 @@ export function AdminHomework({
           style={{
             display: "inline-flex",
             alignItems: "center",
-            gap: 6,
+            gap: "var(--space-2)",
             padding: "4px 0",
             background: "none",
             border: "none",
             color: "var(--color-text-2)",
-            fontSize: 13,
+            fontSize: "var(--text-sm)",
             cursor: "pointer",
-            marginBottom: 18,
+            marginBottom: "var(--space-5)",
           }}
         >
           <Icon name="arrow-left" size={14} strokeWidth={2} />
@@ -393,7 +393,7 @@ export function AdminHomework({
 
         <h2
           style={{
-            fontSize: 22,
+            fontSize: "var(--text-lg)",
             fontWeight: 600,
             color: "var(--color-text)",
             margin: "0 0 6px",
@@ -403,7 +403,7 @@ export function AdminHomework({
           {selectedAssignment.title}
         </h2>
         {selectedAssignment.conceptName && (
-          <div style={{ marginBottom: 14 }}>
+          <div style={{ marginBottom: "var(--space-4)" }}>
             <StatusTag tone="accent">
               {selectedAssignment.conceptName}
             </StatusTag>
@@ -411,7 +411,7 @@ export function AdminHomework({
         )}
         <p
           style={{
-            fontSize: 13.5,
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-2)",
             margin: "0 0 32px",
             lineHeight: 1.6,
@@ -425,12 +425,12 @@ export function AdminHomework({
             display: "flex",
             alignItems: "baseline",
             justifyContent: "space-between",
-            marginBottom: 12,
+            marginBottom: "var(--space-3)",
           }}
         >
           <h3
             style={{
-              fontSize: 15,
+              fontSize: "var(--text-md)",
               fontWeight: 600,
               color: "var(--color-text)",
               margin: 0,
@@ -440,7 +440,7 @@ export function AdminHomework({
           </h3>
           <span
             style={{
-              fontSize: 12,
+              fontSize: "var(--text-xs)",
               color: "var(--color-text-3)",
             }}
           >
@@ -451,7 +451,7 @@ export function AdminHomework({
         {loadingSubmissions ? (
           <div
             style={{
-              fontSize: 13,
+              fontSize: "var(--text-sm)",
               color: "var(--color-text-3)",
               padding: "20px 0",
             }}
@@ -468,7 +468,7 @@ export function AdminHomework({
           <div
             style={{
               border: "1px solid var(--color-border)",
-              borderRadius: 12,
+              borderRadius: "var(--radius-3)",
               backgroundColor: "var(--color-surface)",
               boxShadow: "var(--shadow-card)",
               overflow: "hidden",
@@ -489,7 +489,7 @@ export function AdminHomework({
                     style={{
                       display: "grid",
                       gridTemplateColumns: "1fr 160px 110px 110px",
-                      gap: 12,
+                      gap: "var(--space-3)",
                       padding: "14px 18px",
                       alignItems: "center",
                     }}
@@ -497,7 +497,7 @@ export function AdminHomework({
                     <div style={{ minWidth: 0 }}>
                       <div
                         style={{
-                          fontSize: 13.5,
+                          fontSize: "var(--text-sm)",
                           fontWeight: 600,
                           color: "var(--color-text)",
                         }}
@@ -506,9 +506,9 @@ export function AdminHomework({
                       </div>
                       <div
                         style={{
-                          fontSize: 12.5,
+                          fontSize: "var(--text-sm)",
                           color: "var(--color-text-3)",
-                          marginTop: 2,
+                          marginTop: "var(--space-1)",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
@@ -521,7 +521,7 @@ export function AdminHomework({
 
                     <span
                       style={{
-                        fontSize: 12.5,
+                        fontSize: "var(--text-sm)",
                         color: "var(--color-text-2)",
                       }}
                     >
@@ -534,7 +534,7 @@ export function AdminHomework({
                       ) : (
                         <span
                           style={{
-                            fontSize: 12,
+                            fontSize: "var(--text-xs)",
                             color: "var(--color-text-3)",
                           }}
                         >
@@ -566,14 +566,14 @@ export function AdminHomework({
                       <div style={labelStyle}>Submission</div>
                       <div
                         style={{
-                          fontSize: 13.5,
+                          fontSize: "var(--text-sm)",
                           color: "var(--color-text)",
                           lineHeight: 1.6,
-                          marginBottom: 18,
+                          marginBottom: "var(--space-5)",
                           padding: "14px 16px",
                           backgroundColor: "var(--color-surface)",
                           border: "1px solid var(--color-border-subtle)",
-                          borderRadius: 8,
+                          borderRadius: "var(--radius-2)",
                           whiteSpace: "pre-wrap",
                           wordBreak: "break-word",
                         }}
@@ -584,7 +584,7 @@ export function AdminHomework({
                       <div
                         style={{
                           display: "flex",
-                          gap: 12,
+                          gap: "var(--space-3)",
                           alignItems: "flex-end",
                           flexWrap: "wrap",
                         }}
@@ -646,12 +646,12 @@ export function AdminHomework({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 18,
+          marginBottom: "var(--space-5)",
         }}
       >
         <h2
           style={{
-            fontSize: 18,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
             margin: 0,
@@ -680,7 +680,7 @@ export function AdminHomework({
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: 10,
+            gap: "var(--space-3)",
           }}
         >
           {assignments.map((a) => {
@@ -691,12 +691,12 @@ export function AdminHomework({
                 style={{
                   backgroundColor: "var(--color-surface)",
                   border: "1px solid var(--color-border)",
-                  borderRadius: 12,
+                  borderRadius: "var(--radius-3)",
                   padding: "16px 18px",
                   boxShadow: "var(--shadow-card)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 14,
+                  gap: "var(--space-4)",
                 }}
               >
                 <IconTile
@@ -708,11 +708,11 @@ export function AdminHomework({
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div
                     style={{
-                      fontSize: 15,
+                      fontSize: "var(--text-md)",
                       fontWeight: 600,
                       color: "var(--color-text)",
                       letterSpacing: "-0.005em",
-                      marginBottom: 4,
+                      marginBottom: "var(--space-1)",
                     }}
                   >
                     {a.title}
@@ -721,9 +721,9 @@ export function AdminHomework({
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 10,
+                      gap: "var(--space-3)",
                       flexWrap: "wrap",
-                      fontSize: 12.5,
+                      fontSize: "var(--text-sm)",
                       color: "var(--color-text-3)",
                     }}
                   >
@@ -778,10 +778,10 @@ function EmptyCard({
         alignItems: "center",
         justifyContent: "center",
         padding: "60px 24px",
-        gap: 12,
+        gap: "var(--space-3)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         boxShadow: "var(--shadow-card)",
         textAlign: "center",
       }}
@@ -790,15 +790,15 @@ function EmptyCard({
       <div>
         <div
           style={{
-            fontSize: 14.5,
+            fontSize: "var(--text-base)",
             fontWeight: 600,
             color: "var(--color-text)",
-            marginBottom: 4,
+            marginBottom: "var(--space-1)",
           }}
         >
           {title}
         </div>
-        <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
+        <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
           {description}
         </div>
       </div>
