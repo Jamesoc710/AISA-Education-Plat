@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { SearchInput } from "@/components/ui/search-input";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { createClient } from "@/lib/supabase/client";
-import { MENTOR_EMAILS } from "@/lib/config";
 import type { ShellUser } from "@/components/main-shell";
 
 /**
@@ -47,11 +47,7 @@ export function TopChrome({ user }: { user: ShellUser | null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  const mentorHref = (() => {
-    if (MENTOR_EMAILS.length === 0) return "#";
-    const subject = encodeURIComponent("Atlas: Mentor question");
-    return `mailto:${MENTOR_EMAILS.join(",")}?subject=${subject}`;
-  })();
+  const [mentorDialogOpen, setMentorDialogOpen] = useState(false);
 
   return (
     <header
@@ -78,9 +74,7 @@ export function TopChrome({ user }: { user: ShellUser | null }) {
         variant="secondary"
         size="sm"
         leftIcon={<Icon name="sparkle" size={14} strokeWidth={1.85} />}
-        onClick={() => {
-          window.location.href = mentorHref;
-        }}
+        onClick={() => setMentorDialogOpen(true)}
       >
         Ask a mentor
       </Button>
@@ -92,7 +86,107 @@ export function TopChrome({ user }: { user: ShellUser | null }) {
 
       {/* Avatar / sign-in */}
       {user ? <UserMenu user={user} /> : <SignInLink />}
+
+      <MentorComingSoonDialog
+        open={mentorDialogOpen}
+        onClose={() => setMentorDialogOpen(false)}
+      />
     </header>
+  );
+}
+
+function MentorComingSoonDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  if (!mounted || !open) return null;
+
+  return createPortal(
+    <div
+      data-theme="light"
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(20, 20, 30, 0.45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 100,
+        padding: "var(--space-5)",
+      }}
+    >
+      <div
+        className="animate-fade-in"
+        role="dialog"
+        aria-labelledby="mentor-coming-soon-title"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-3)",
+          padding: "var(--space-5)",
+          maxWidth: 420,
+          width: "100%",
+          boxShadow: "var(--shadow-popover)",
+          textAlign: "center",
+        }}
+      >
+        <div
+          aria-hidden
+          style={{
+            width: 52,
+            height: 52,
+            margin: "0 auto var(--space-4)",
+            borderRadius: "var(--radius-3)",
+            backgroundColor: "var(--color-accent-soft)",
+            color: "var(--color-accent-on-soft)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Icon name="sparkle" size={26} strokeWidth={1.85} />
+        </div>
+        <h2
+          id="mentor-coming-soon-title"
+          style={{
+            margin: 0,
+            fontSize: "var(--text-lg)",
+            fontWeight: 600,
+            color: "var(--color-text)",
+            letterSpacing: "-0.015em",
+          }}
+        >
+          Ask a mentor is coming soon
+        </h2>
+        <p
+          style={{
+            margin: "var(--space-3) 0 var(--space-5)",
+            fontSize: "var(--text-sm)",
+            color: "var(--color-text-2)",
+            lineHeight: 1.55,
+          }}
+        >
+          We're building a way to send questions straight to your mentor from
+          here. For now, reach out through your usual channel.
+        </p>
+        <Button variant="primary" size="md" onClick={onClose}>
+          Got it
+        </Button>
+      </div>
+    </div>,
+    document.body,
   );
 }
 
