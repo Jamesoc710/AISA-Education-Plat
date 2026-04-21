@@ -57,7 +57,7 @@ export function SearchInput({
       <span
         style={{
           position: "absolute",
-          left: 12,
+          left: "var(--space-3)",
           color: focused ? "var(--color-text-2)" : "var(--color-text-3)",
           pointerEvents: "none",
           display: "flex",
@@ -89,9 +89,9 @@ export function SearchInput({
           boxShadow: focused
             ? "0 0 0 3px var(--color-accent-dim)"
             : "var(--shadow-card)",
-          borderRadius: 10,
+          borderRadius: "var(--radius-2)",
           padding: "0 36px 0 36px",
-          fontSize: 13.5,
+          fontSize: "var(--text-sm)",
           color: "var(--color-text)",
           fontFamily: "inherit",
           outline: "none",
@@ -109,7 +109,7 @@ export function SearchInput({
           aria-label="Clear search"
           style={{
             position: "absolute",
-            right: 8,
+            right: "var(--space-2)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -120,7 +120,7 @@ export function SearchInput({
             cursor: "pointer",
             color: "var(--color-text-3)",
             padding: 0,
-            borderRadius: 4,
+            borderRadius: "var(--radius-1)",
           }}
         >
           <Icon name="x" size={13} strokeWidth={2.25} />
@@ -131,20 +131,20 @@ export function SearchInput({
             aria-hidden
             style={{
               position: "absolute",
-              right: 10,
+              right: "var(--space-3)",
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
               minWidth: 18,
               height: 18,
               padding: "0 5px",
-              fontSize: 11,
+              fontSize: "var(--text-xs)",
               lineHeight: 1,
               fontFamily: "inherit",
               color: "var(--color-text-3)",
               backgroundColor: "var(--color-surface-2)",
               border: "1px solid var(--color-border)",
-              borderRadius: 5,
+              borderRadius: "var(--radius-1)",
               pointerEvents: "none",
             }}
           >

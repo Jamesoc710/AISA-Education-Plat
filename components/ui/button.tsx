@@ -6,9 +6,9 @@ import type { ReactNode, CSSProperties, MouseEventHandler } from "react";
 type Variant = "primary" | "secondary" | "ghost";
 type Size = "sm" | "md";
 
-const SIZES: Record<Size, { height: number; padX: number; font: number; radius: number; gap: number }> = {
-  sm: { height: 28, padX: 10, font: 13, radius: 8,  gap: 6 },
-  md: { height: 34, padX: 14, font: 13.5, radius: 10, gap: 7 },
+const SIZES: Record<Size, { height: string; padX: string; font: string; radius: string; gap: string }> = {
+  sm: { height: "28px", padX: "var(--space-3)", font: "var(--text-sm)", radius: "var(--radius-2)", gap: "var(--space-2)" },
+  md: { height: "34px", padX: "var(--space-4)", font: "var(--text-sm)", radius: "var(--radius-2)", gap: "var(--space-2)" },
 };
 
 export function Button({
@@ -77,10 +77,10 @@ export function Button({
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        gap: `${sz.gap}px`,
-        height: `${sz.height}px`,
-        padding: `0 ${sz.padX}px`,
-        fontSize: `${sz.font}px`,
+        gap: sz.gap,
+        height: sz.height,
+        padding: `0 ${sz.padX}`,
+        fontSize: sz.font,
         fontWeight: 500,
         fontFamily: "inherit",
         lineHeight: 1,
@@ -88,7 +88,7 @@ export function Button({
         backgroundColor: p.bg,
         color: p.color,
         border: p.border,
-        borderRadius: `${sz.radius}px`,
+        borderRadius: sz.radius,
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.5 : 1,
         boxShadow: p.shadow,

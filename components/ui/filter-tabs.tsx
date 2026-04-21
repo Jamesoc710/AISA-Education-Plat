@@ -36,7 +36,7 @@ export function FilterTabs<T extends string>({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 2,
+        gap: "var(--space-1)",
         borderBottom: "1px solid var(--color-border)",
         ...style,
       }}
@@ -87,9 +87,9 @@ function FilterTab<T extends string>({
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: 7,
+        gap: "var(--space-2)",
         padding: "10px 14px",
-        fontSize: 13.5,
+        fontSize: "var(--text-sm)",
         fontFamily: "inherit",
         fontWeight: isActive ? 600 : 500,
         color: labelColor,
@@ -125,14 +125,14 @@ function CountBadge({ color, children }: { color: string; children: ReactNode })
       style={{
         display: "inline-flex",
         alignItems: "center",
-        marginLeft: 2,
+        marginLeft: "var(--space-1)",
         padding: "0 5px",
-        fontSize: 11,
+        fontSize: "var(--text-xs)",
         fontWeight: 600,
         lineHeight: 1.5,
         color,
         backgroundColor: "var(--color-surface-2)",
-        borderRadius: 3,
+        borderRadius: "var(--radius-1)",
       }}
     >
       {children}

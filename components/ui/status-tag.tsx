@@ -89,7 +89,7 @@ export function StatusTag({
         lineHeight: 1.35,
         letterSpacing: uppercase ? "0.05em" : "0.01em",
         textTransform: uppercase ? "uppercase" : undefined,
-        borderRadius: 3,
+        borderRadius: "var(--radius-1)",
         backgroundColor: t.bg,
         color: t.fg,
         border: t.border ? `1px solid ${t.border}` : undefined,
