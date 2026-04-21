@@ -37,6 +37,57 @@
   --font-mono: var(--font-geist-mono), monospace;
 }
 
+/* ── Design scales — radius, type, spacing ─────────────────────
+   Viewport-agnostic primitives used across both themes.
+   See docs/design-tokens.md for the full mapping from legacy
+   inline magic numbers to these tokens. */
+:root {
+  /* Radius — 3 tiers. 999 stays literal (pure circles).
+     Mapping from legacy values:
+       1, 1.5, 3, 4, 5, 6  →  --radius-1
+       7, 8, 9, 10         →  --radius-2
+       12, 14, 16, 22      →  --radius-3 */
+  --radius-1: 4px;
+  --radius-2: 8px;
+  --radius-3: 12px;
+
+  /* Type — 9-step ramp. Legacy page-specific sizes collapse:
+       10, 10.5, 11, 11.5, 12         →  --text-xs
+       12.5, 13, 13.5                 →  --text-sm
+       14, 14.5                       →  --text-base
+       15, 15.5, 16, 17, 18           →  --text-md
+       20, 22                         →  --text-lg
+       24, 26                         →  --text-xl
+       28, 30                         →  --text-2xl   (page H1)
+       32, 36                         →  --text-3xl   (hero heading)
+       56                             →  --text-display (oversized) */
+  --text-xs:      12px;
+  --text-sm:      13px;
+  --text-base:    14px;
+  --text-md:      16px;
+  --text-lg:      20px;
+  --text-xl:      24px;
+  --text-2xl:     28px;
+  --text-3xl:     32px;
+  --text-display: 56px;
+
+  /* Spacing — t-shirt scale for padding, gap, margin.
+     Most inline values round to the nearest token. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 80px;
+
+  /* Page frame — used by the <PageFrame> primitive in Phase 3. */
+  --pad-page-y:   56px;
+  --pad-page-x:   40px;
+  --maxw-content: 1040px;
+}
+
 /* ── Light theme — opt-in, scoped to pages inside (main) ──────── */
 /*
    Pages migrated to the new design wrap their tree in an element
