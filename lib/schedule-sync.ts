@@ -145,14 +145,30 @@ function parseCell(cell: ExcelJS.Cell): ParsedEvent[] {
     const stripped = text.replace(BULLET_RE, "").trim();
     if (!stripped) continue;
     const isBullet = BULLET_RE.test(text);
+    // A type mismatch signals a different team/session — never fold into the
+    // previous event as a description. GENERAL is the "unknown" fallback and
+    // is tolerated either way so notes under a colored header still attach.
+    const typeMismatch =
+      pending != null &&
+      pending.type !== "GENERAL" &&
+      type !== "GENERAL" &&
+      pending.type !== type;
+    // Bullets are sub-topics of the preceding event. If the bullet itself is
+    // uncolored (GENERAL) but the parent is colored, treat authoring omission
+    // as inheritance — otherwise the LLM's "different colors stay separate"
+    // rule strands the bullet as its own event.
+    const effectiveType: string =
+      isBullet && type === "GENERAL" && pending != null && pending.type !== "GENERAL"
+        ? pending.type
+        : type;
 
-    if (isBullet || !pending) {
+    if (isBullet || !pending || typeMismatch) {
       if (pending) events.push(pending);
       const time = extractTime(stripped);
       pending = {
         title: stripped.replace(/\s+/g, " "),
         description: null,
-        type,
+        type: effectiveType,
         startTime: time.startTime,
         endTime: time.endTime,
       };
@@ -203,6 +219,7 @@ Rules:
 - Preserve exact wording for titles and topics, do not paraphrase or invent text.
 - When merging: the first line becomes the title; subsequent same-type lines become topics. Keep time hints from the title line if present.
 - If a merged event's title contains a trailing time range like "7 - 9" or "5:30 - 6:30", strip it from the title and populate startTime/endTime instead.
+- Preserve time strings exactly as they appear in the input. If the source says "12 - 1", emit startTime "12" and endTime "1" — do NOT pad with ":00", do NOT convert to 24-hour, do NOT add am/pm that wasn't there.
 - Never merge across types. Never merge if the lines look like independent items.
 
 Output strict JSON only, no markdown fences, no prose:

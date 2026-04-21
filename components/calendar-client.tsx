@@ -85,6 +85,26 @@ function formatRange(start: Date, end: Date): string {
   return `${formatDayDate(start)} – ${formatDayDate(end)}`;
 }
 
+// Source times may arrive as "12", "12:00", "13:00", or "6:30pm" depending on
+// whether the LLM normalized a cell. Collapse to a compact 12-hour form so
+// "12:00–13:00" renders the way the sheet author meant it: "12–1".
+function simplifyTime(t: string): string {
+  const m = t.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i);
+  if (!m) return t;
+  let hour = parseInt(m[1], 10);
+  const minStr = m[2] && m[2] !== "00" ? `:${m[2]}` : "";
+  const suffix = m[3] ? m[3].toLowerCase() : "";
+  if (hour >= 13 && hour <= 23) hour -= 12;
+  else if (hour === 0) hour = 12;
+  return `${hour}${minStr}${suffix}`;
+}
+
+function formatEventTime(start: string | null, end: string | null): string | null {
+  if (!start) return null;
+  if (!end) return simplifyTime(start);
+  return `${simplifyTime(start)}–${simplifyTime(end)}`;
+}
+
 function relativeTime(timestamp: string): string {
   const diff = Date.now() - new Date(timestamp).getTime();
   const min = Math.floor(diff / 60000);
@@ -380,6 +400,7 @@ function EventCard({
   const tokens = TYPE_TOKENS[event.type] ?? TYPE_TOKENS.GENERAL;
   const topicCount = event.topics?.length ?? 0;
   const hasExpandable = topicCount > 0 || !!event.description;
+  const timeLabel = formatEventTime(event.startTime, event.endTime);
   return (
     <button
       onClick={hasExpandable ? onToggle : undefined}
@@ -409,7 +430,7 @@ function EventCard({
       >
         {event.title}
       </div>
-      {(event.startTime || event.location) && (
+      {(timeLabel || event.location) && (
         <div
           style={{
             display: "flex",
@@ -419,10 +440,9 @@ function EventCard({
             flexWrap: "wrap",
           }}
         >
-          {event.startTime && (
+          {timeLabel && (
             <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", fontVariantNumeric: "tabular-nums" }}>
-              {event.startTime}
-              {event.endTime && `–${event.endTime}`}
+              {timeLabel}
             </span>
           )}
           {event.location && (
