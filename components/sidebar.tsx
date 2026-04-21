@@ -47,20 +47,20 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 9,
+          gap: "var(--space-3)",
           padding: "4px 8px 12px",
           textDecoration: "none",
           color: "var(--color-text)",
         }}
       >
         <img src="/assets/aisa-logo.png" alt="" style={{ width: 26, height: 26, flexShrink: 0 }} />
-        <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.015em" }}>
+        <span style={{ fontSize: "var(--text-md)", fontWeight: 600, letterSpacing: "-0.015em" }}>
           Atlas
         </span>
       </Link>
 
       {/* ── Scrollable nav body ──────────────────────────────── */}
-      <nav style={{ flex: 1, overflowY: "auto", paddingTop: 4 }}>
+      <nav style={{ flex: 1, overflowY: "auto", paddingTop: "var(--space-1)" }}>
         {/* Primary group (unlabeled) */}
         <div>
           <SidebarNavItem
@@ -160,17 +160,17 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
       </nav>
 
       {/* ── Feedback button (pinned bottom) ──────────────────── */}
-      <div style={{ paddingTop: 10, borderTop: "1px solid var(--color-border)", marginTop: 8 }}>
+      <div style={{ paddingTop: "var(--space-3)", borderTop: "1px solid var(--color-border)", marginTop: "var(--space-2)" }}>
         <button
           type="button"
           onClick={() => setFeedbackOpen(true)}
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 9,
+            gap: "var(--space-3)",
             padding: "8px 10px",
-            borderRadius: 8,
-            fontSize: 13,
+            borderRadius: "var(--radius-2)",
+            fontSize: "var(--text-sm)",
             fontWeight: 500,
             color: "var(--color-text-2)",
             background: "transparent",
@@ -203,7 +203,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     <div
       style={{
         padding: "16px 10px 6px",
-        fontSize: 11,
+        fontSize: "var(--text-xs)",
         fontWeight: 600,
         textTransform: "uppercase",
         letterSpacing: "0.06em",

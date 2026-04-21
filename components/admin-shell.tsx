@@ -29,15 +29,15 @@ export function AdminShell({
         padding: "40px 40px 80px",
       }}
     >
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: "var(--space-5)" }}>
         <div
           style={{
-            fontSize: 11,
+            fontSize: "var(--text-xs)",
             fontWeight: 600,
             color: "var(--color-accent)",
             letterSpacing: "0.08em",
             textTransform: "uppercase",
-            marginBottom: 6,
+            marginBottom: "var(--space-2)",
           }}
         >
           Admin
@@ -45,7 +45,7 @@ export function AdminShell({
         <h1
           style={{
             margin: "0 0 4px",
-            fontSize: 28,
+            fontSize: "var(--text-2xl)",
             fontWeight: 600,
             color: "var(--color-text)",
             letterSpacing: "-0.02em",
@@ -56,7 +56,7 @@ export function AdminShell({
         <p
           style={{
             margin: 0,
-            fontSize: 13,
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-3)",
           }}
         >
@@ -67,9 +67,9 @@ export function AdminShell({
       <nav
         style={{
           display: "flex",
-          gap: 2,
+          gap: "var(--space-1)",
           borderBottom: "1px solid var(--color-border)",
-          marginBottom: 32,
+          marginBottom: "var(--space-6)",
         }}
       >
         {NAV_ITEMS.map((item) => {
@@ -85,9 +85,9 @@ export function AdminShell({
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 8,
+                gap: "var(--space-2)",
                 padding: "10px 14px",
-                fontSize: 13.5,
+                fontSize: "var(--text-sm)",
                 fontWeight: 500,
                 color: isActive
                   ? "var(--color-text)"
