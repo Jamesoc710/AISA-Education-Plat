@@ -29,7 +29,7 @@ export function AssessmentsListClient({ items }: { items: AssessmentItem[] }) {
       <h1
         style={{
           margin: "0 0 6px",
-          fontSize: 28,
+          fontSize: "var(--text-2xl)",
           fontWeight: 600,
           color: "var(--color-text)",
           letterSpacing: "-0.02em",
@@ -40,7 +40,7 @@ export function AssessmentsListClient({ items }: { items: AssessmentItem[] }) {
       <p
         style={{
           margin: "0 0 32px",
-          fontSize: 14,
+          fontSize: "var(--text-base)",
           color: "var(--color-text-2)",
           lineHeight: 1.55,
         }}
@@ -51,7 +51,7 @@ export function AssessmentsListClient({ items }: { items: AssessmentItem[] }) {
       {items.length === 0 ? (
         <EmptyState />
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
           {items.map((a) => (
             <AssessmentRow key={a.id} item={a} />
           ))}
@@ -70,10 +70,10 @@ function EmptyState() {
         alignItems: "center",
         justifyContent: "center",
         padding: "72px 24px",
-        gap: 14,
+        gap: "var(--space-4)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         textAlign: "center",
         boxShadow: "var(--shadow-card)",
       }}
@@ -82,15 +82,15 @@ function EmptyState() {
       <div>
         <div
           style={{
-            fontSize: 15,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
-            marginBottom: 4,
+            marginBottom: "var(--space-1)",
           }}
         >
           No assessments yet
         </div>
-        <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
+        <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
           New assessments will appear here when your mentors post them.
         </div>
       </div>
@@ -112,10 +112,10 @@ function AssessmentRow({ item: a }: { item: AssessmentItem }) {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 14,
+        gap: "var(--space-4)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         padding: "16px 18px",
         boxShadow: "var(--shadow-card)",
       }}
@@ -125,11 +125,11 @@ function AssessmentRow({ item: a }: { item: AssessmentItem }) {
       <div style={{ minWidth: 0, flex: 1 }}>
         <div
           style={{
-            fontSize: 15,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
             letterSpacing: "-0.005em",
-            marginBottom: 4,
+            marginBottom: "var(--space-1)",
           }}
         >
           {a.title}
@@ -138,9 +138,9 @@ function AssessmentRow({ item: a }: { item: AssessmentItem }) {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 12,
+            gap: "var(--space-3)",
             flexWrap: "wrap",
-            fontSize: 12.5,
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-3)",
           }}
         >
@@ -154,7 +154,7 @@ function AssessmentRow({ item: a }: { item: AssessmentItem }) {
                 style={{
                   display: "inline-block",
                   verticalAlign: "-1px",
-                  marginRight: 4,
+                  marginRight: "var(--space-1)",
                 }}
               />
               {a.timeLimit} min
@@ -169,7 +169,7 @@ function AssessmentRow({ item: a }: { item: AssessmentItem }) {
           flexShrink: 0,
           display: "flex",
           alignItems: "center",
-          gap: 10,
+          gap: "var(--space-3)",
         }}
       >
         {a.completed ? (

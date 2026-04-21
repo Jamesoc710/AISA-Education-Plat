@@ -55,16 +55,16 @@ function BackButton({ onClick }: { onClick: () => void }) {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: 6,
+        gap: "var(--space-2)",
         padding: "6px 10px 6px 6px",
-        marginBottom: 24,
-        fontSize: 13,
+        marginBottom: "var(--space-5)",
+        fontSize: "var(--text-sm)",
         fontWeight: 500,
         fontFamily: "inherit",
         color: hov ? "var(--color-text)" : "var(--color-text-2)",
         backgroundColor: hov ? "var(--color-surface-2)" : "transparent",
         border: "none",
-        borderRadius: 8,
+        borderRadius: "var(--radius-2)",
         cursor: "pointer",
         transition: "color 120ms ease, background-color 120ms ease",
       }}
@@ -331,7 +331,7 @@ function ModeSelect({
       <h1
         style={{
           margin: "0 0 12px",
-          fontSize: 36,
+          fontSize: "var(--text-3xl)",
           fontWeight: 600,
           color: "var(--color-text)",
           letterSpacing: "-0.025em",
@@ -343,7 +343,7 @@ function ModeSelect({
       <p
         style={{
           margin: "0 0 36px",
-          fontSize: 16,
+          fontSize: "var(--text-md)",
           color: "var(--color-text-2)",
           lineHeight: 1.55,
           maxWidth: 580,
@@ -356,13 +356,13 @@ function ModeSelect({
       {error && (
         <p
           style={{
-            fontSize: 13,
+            fontSize: "var(--text-sm)",
             color: "var(--color-incorrect)",
             backgroundColor: "var(--color-incorrect-dim)",
             border: "1px solid var(--color-incorrect-border)",
             padding: "10px 14px",
-            borderRadius: 8,
-            marginBottom: 20,
+            borderRadius: "var(--radius-2)",
+            marginBottom: "var(--space-5)",
           }}
         >
           {error}
@@ -374,7 +374,7 @@ function ModeSelect({
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          gap: 14,
+          gap: "var(--space-4)",
         }}
       >
         {MODE_CARDS.map((m) => (
@@ -402,11 +402,11 @@ function ModeCard({
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
-        gap: 18,
+        gap: "var(--space-5)",
         padding: "24px 22px 22px",
         backgroundColor: "var(--color-surface)",
         border: `1px solid ${hov ? "var(--color-accent)" : "var(--color-border)"}`,
-        borderRadius: 14,
+        borderRadius: "var(--radius-3)",
         cursor: "pointer",
         textAlign: "left",
         fontFamily: "inherit",
@@ -420,10 +420,10 @@ function ModeCard({
       <div>
         <div
           style={{
-            fontSize: 17,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
-            marginBottom: 6,
+            marginBottom: "var(--space-2)",
             letterSpacing: "-0.01em",
           }}
         >
@@ -431,7 +431,7 @@ function ModeCard({
         </div>
         <div
           style={{
-            fontSize: 13.5,
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-2)",
             lineHeight: 1.5,
           }}
@@ -465,13 +465,13 @@ function TargetSelect({
       {error && (
         <p
           style={{
-            fontSize: 13,
+            fontSize: "var(--text-sm)",
             color: "var(--color-incorrect)",
             backgroundColor: "var(--color-incorrect-dim)",
             border: "1px solid var(--color-incorrect-border)",
             padding: "10px 14px",
-            borderRadius: 8,
-            marginBottom: 16,
+            borderRadius: "var(--radius-2)",
+            marginBottom: "var(--space-4)",
           }}
         >
           {error}
@@ -545,7 +545,7 @@ function ConceptPicker({
       <h2
         style={{
           margin: "0 0 8px",
-          fontSize: 22,
+          fontSize: "var(--text-lg)",
           fontWeight: 600,
           color: "var(--color-text)",
           letterSpacing: "-0.02em",
@@ -556,14 +556,14 @@ function ConceptPicker({
       <p
         style={{
           margin: "0 0 24px",
-          fontSize: 14,
+          fontSize: "var(--text-base)",
           color: "var(--color-text-2)",
         }}
       >
         Pick a topic to quiz yourself on.
       </p>
 
-      <div style={{ marginBottom: 18 }}>
+      <div style={{ marginBottom: "var(--space-5)" }}>
         <SearchInput
           value={search}
           onChange={setSearch}
@@ -576,7 +576,7 @@ function ConceptPicker({
       {filteredTiers.length === 0 && (
         <p
           style={{
-            fontSize: 13,
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-3)",
             textAlign: "center",
             padding: "32px 0",
@@ -586,7 +586,7 @@ function ConceptPicker({
         </p>
       )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
         {filteredTiers.map((tier) => {
           const isTierOpen = query.length > 0 || expandedTiers.has(tier.id);
 
@@ -596,7 +596,7 @@ function ConceptPicker({
               style={{
                 backgroundColor: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
-                borderRadius: 12,
+                borderRadius: "var(--radius-3)",
                 overflow: "hidden",
                 boxShadow: "var(--shadow-card)",
               }}
@@ -608,7 +608,7 @@ function ConceptPicker({
                   width: "100%",
                   display: "flex",
                   alignItems: "center",
-                  gap: 12,
+                  gap: "var(--space-3)",
                   padding: "14px 16px",
                   backgroundColor: "transparent",
                   border: "none",
@@ -621,7 +621,7 @@ function ConceptPicker({
                 <span style={{ flex: 1 }} />
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: "var(--text-xs)",
                     color: "var(--color-text-3)",
                   }}
                 >
@@ -659,7 +659,7 @@ function ConceptPicker({
                             style={{
                               height: 1,
                               backgroundColor: "var(--color-border-subtle)",
-                              marginLeft: 16,
+                              marginLeft: "var(--space-4)",
                             }}
                           />
                         )}
@@ -669,7 +669,7 @@ function ConceptPicker({
                             width: "100%",
                             display: "flex",
                             alignItems: "center",
-                            gap: 8,
+                            gap: "var(--space-2)",
                             padding: "10px 16px 10px 22px",
                             backgroundColor: "transparent",
                             border: "none",
@@ -697,7 +697,7 @@ function ConceptPicker({
                           <span
                             style={{
                               flex: 1,
-                              fontSize: 12.5,
+                              fontSize: "var(--text-sm)",
                               fontWeight: 550,
                               color: "var(--color-text-2)",
                             }}
@@ -706,7 +706,7 @@ function ConceptPicker({
                           </span>
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: "var(--text-xs)",
                               color: "var(--color-text-3)",
                             }}
                           >
@@ -715,7 +715,7 @@ function ConceptPicker({
                         </button>
 
                         {isSectionOpen && (
-                          <div style={{ paddingBottom: 6 }}>
+                          <div style={{ paddingBottom: "var(--space-2)" }}>
                             {section.concepts.map((concept) => (
                               <ConceptRow
                                 key={concept.id}
@@ -755,7 +755,7 @@ function ConceptRow({
         width: "100%",
         display: "flex",
         alignItems: "center",
-        gap: 8,
+        gap: "var(--space-2)",
         padding: "8px 16px 8px 42px",
         backgroundColor: hov ? "var(--color-accent-soft)" : "transparent",
         border: "none",
@@ -768,7 +768,7 @@ function ConceptRow({
       <span
         style={{
           flex: 1,
-          fontSize: 13.5,
+          fontSize: "var(--text-sm)",
           fontWeight: 500,
           color: hov ? "var(--color-accent-on-soft)" : "var(--color-text)",
           transition: "color 100ms ease",
@@ -778,7 +778,7 @@ function ConceptRow({
       </span>
       <span
         style={{
-          fontSize: 11,
+          fontSize: "var(--text-xs)",
           color: "var(--color-text-3)",
           flexShrink: 0,
         }}
@@ -813,7 +813,7 @@ function SectionPicker({
       <h2
         style={{
           margin: "0 0 8px",
-          fontSize: 22,
+          fontSize: "var(--text-lg)",
           fontWeight: 600,
           color: "var(--color-text)",
           letterSpacing: "-0.02em",
@@ -824,7 +824,7 @@ function SectionPicker({
       <p
         style={{
           margin: "0 0 28px",
-          fontSize: 14,
+          fontSize: "var(--text-base)",
           color: "var(--color-text-2)",
         }}
       >
@@ -835,7 +835,7 @@ function SectionPicker({
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 28,
+          gap: "var(--space-6)",
         }}
       >
         {tiers.map((tier) => (
@@ -844,14 +844,14 @@ function SectionPicker({
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
-                marginBottom: 12,
+                gap: "var(--space-3)",
+                marginBottom: "var(--space-3)",
               }}
             >
               <TierBadge slug={tier.slug} label={tier.name} />
               <span
                 style={{
-                  fontSize: 12,
+                  fontSize: "var(--text-xs)",
                   color: "var(--color-text-3)",
                 }}
               >
@@ -863,7 +863,7 @@ function SectionPicker({
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 6,
+                gap: "var(--space-2)",
               }}
             >
               {tier.sections.map((section) => (
@@ -904,11 +904,11 @@ function SectionRow({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 14,
+        gap: "var(--space-4)",
         padding: "14px 16px",
         backgroundColor: "var(--color-surface)",
         border: `1px solid ${hov ? "var(--color-accent)" : "var(--color-border)"}`,
-        borderRadius: 10,
+        borderRadius: "var(--radius-2)",
         cursor: "pointer",
         fontFamily: "inherit",
         textAlign: "left",
@@ -922,10 +922,10 @@ function SectionRow({
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            fontSize: 14,
+            fontSize: "var(--text-base)",
             fontWeight: 550,
             color: "var(--color-text)",
-            marginBottom: 2,
+            marginBottom: "var(--space-1)",
             letterSpacing: "-0.005em",
           }}
         >
@@ -933,7 +933,7 @@ function SectionRow({
         </div>
         <div
           style={{
-            fontSize: 12,
+            fontSize: "var(--text-xs)",
             color: "var(--color-text-3)",
           }}
         >
@@ -967,7 +967,7 @@ function TierPicker({
       <h2
         style={{
           margin: "0 0 8px",
-          fontSize: 22,
+          fontSize: "var(--text-lg)",
           fontWeight: 600,
           color: "var(--color-text)",
           letterSpacing: "-0.02em",
@@ -978,7 +978,7 @@ function TierPicker({
       <p
         style={{
           margin: "0 0 28px",
-          fontSize: 14,
+          fontSize: "var(--text-base)",
           color: "var(--color-text-2)",
         }}
       >
@@ -989,7 +989,7 @@ function TierPicker({
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 12,
+          gap: "var(--space-3)",
         }}
       >
         {tiers.map((tier) => (
@@ -1030,11 +1030,11 @@ function TierRow({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 18,
+        gap: "var(--space-5)",
         padding: "22px 22px",
         backgroundColor: "var(--color-surface)",
         border: `1px solid ${hov ? "var(--color-accent)" : "var(--color-border)"}`,
-        borderRadius: 14,
+        borderRadius: "var(--radius-3)",
         cursor: "pointer",
         fontFamily: "inherit",
         textAlign: "left",
@@ -1048,10 +1048,10 @@ function TierRow({
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            fontSize: 16,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
-            marginBottom: 4,
+            marginBottom: "var(--space-1)",
             letterSpacing: "-0.01em",
           }}
         >
@@ -1059,7 +1059,7 @@ function TierRow({
         </div>
         <div
           style={{
-            fontSize: 12.5,
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-3)",
           }}
         >
@@ -1088,23 +1088,23 @@ function LoadingState() {
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: 14,
-        paddingTop: 24,
+        gap: "var(--space-4)",
+        paddingTop: "var(--space-5)",
       }}
     >
       <div
         className="skeleton"
-        style={{ height: 18, width: "30%", borderRadius: 6 }}
+        style={{ height: 18, width: "30%", borderRadius: "var(--radius-1)" }}
       />
       <div
         className="skeleton"
-        style={{ height: 28, width: "70%", borderRadius: 6, marginBottom: 8 }}
+        style={{ height: 28, width: "70%", borderRadius: "var(--radius-1)", marginBottom: "var(--space-2)" }}
       />
       {[0, 1, 2, 3].map((i) => (
         <div
           key={i}
           className="skeleton"
-          style={{ height: 56, width: "100%", borderRadius: 12 }}
+          style={{ height: 56, width: "100%", borderRadius: "var(--radius-3)" }}
         />
       ))}
     </div>
@@ -1157,12 +1157,12 @@ function QuizFlow({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 10,
+          marginBottom: "var(--space-3)",
         }}
       >
         <span
           style={{
-            fontSize: 11,
+            fontSize: "var(--text-xs)",
             fontWeight: 600,
             color: "var(--color-text-3)",
             letterSpacing: "0.06em",
@@ -1173,7 +1173,7 @@ function QuizFlow({
         </span>
         <span
           style={{
-            fontSize: 11,
+            fontSize: "var(--text-xs)",
             fontWeight: 500,
             color: "var(--color-text-3)",
           }}
@@ -1188,7 +1188,7 @@ function QuizFlow({
           height: 4,
           backgroundColor: "var(--color-surface-2)",
           borderRadius: 999,
-          marginBottom: 28,
+          marginBottom: "var(--space-6)",
           overflow: "hidden",
         }}
       >
@@ -1208,8 +1208,8 @@ function QuizFlow({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 10,
-          marginBottom: 16,
+          gap: "var(--space-3)",
+          marginBottom: "var(--space-4)",
           flexWrap: "wrap",
         }}
       >
@@ -1218,7 +1218,7 @@ function QuizFlow({
         </StatusTag>
         <span
           style={{
-            fontSize: 11,
+            fontSize: "var(--text-xs)",
             color: "var(--color-text-3)",
             letterSpacing: "0.04em",
             textTransform: "uppercase",
@@ -1249,7 +1249,7 @@ function QuizFlow({
 
       {/* Next / Finish */}
       {answered && (
-        <div className="animate-fade-in" style={{ marginTop: 28 }}>
+        <div className="animate-fade-in" style={{ marginTop: "var(--space-6)" }}>
           <Button
             variant="primary"
             size="md"

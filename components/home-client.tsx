@@ -74,7 +74,7 @@ export function HomeClient(props: HomeClientProps) {
         <h1
           style={{
             margin: 0,
-            fontSize: 32,
+            fontSize: "var(--text-3xl)",
             fontWeight: 600,
             letterSpacing: "-0.02em",
             color: "var(--color-text)",
@@ -91,8 +91,8 @@ export function HomeClient(props: HomeClientProps) {
         style={{
           display: "grid",
           gridTemplateColumns: "3fr 2fr",
-          gap: 16,
-          marginBottom: 16,
+          gap: "var(--space-4)",
+          marginBottom: "var(--space-4)",
           alignItems: "start",
         }}
       >
@@ -115,7 +115,7 @@ export function HomeClient(props: HomeClientProps) {
         style={{
           display: "grid",
           gridTemplateColumns: "3fr 2fr",
-          gap: 16,
+          gap: "var(--space-4)",
           marginBottom: 36,
           alignItems: "start",
         }}
@@ -136,12 +136,12 @@ export function HomeClient(props: HomeClientProps) {
             display: "flex",
             alignItems: "baseline",
             justifyContent: "space-between",
-            marginBottom: 12,
+            marginBottom: "var(--space-3)",
           }}
         >
           <h2
             style={{
-              fontSize: 16,
+              fontSize: "var(--text-md)",
               fontWeight: 600,
               letterSpacing: "-0.01em",
               color: "var(--color-text)",
@@ -154,7 +154,7 @@ export function HomeClient(props: HomeClientProps) {
             <Link
               href="/browse?filter=bookmarked"
               style={{
-                fontSize: 13,
+                fontSize: "var(--text-sm)",
                 fontWeight: 500,
                 color: "var(--color-accent)",
                 textDecoration: "none",
@@ -177,11 +177,11 @@ function ProgramSubLine({ label, week, total }: { label: string; week: number; t
   return (
     <div
       style={{
-        marginTop: 10,
+        marginTop: "var(--space-3)",
         display: "flex",
         alignItems: "center",
-        gap: 10,
-        fontSize: 13.5,
+        gap: "var(--space-3)",
+        fontSize: "var(--text-sm)",
         color: "var(--color-text-2)",
       }}
     >
@@ -211,7 +211,7 @@ function Panel({
       style={{
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         boxShadow: "var(--shadow-card)",
         padding: "18px 20px 16px",
         display: "flex",
@@ -220,12 +220,12 @@ function Panel({
     >
       <div
         style={{
-          fontSize: 11,
+          fontSize: "var(--text-xs)",
           fontWeight: 650,
           letterSpacing: "0.08em",
           textTransform: "uppercase",
           color: "var(--color-text-3)",
-          marginBottom: 4,
+          marginBottom: "var(--space-1)",
         }}
       >
         {eyebrow}
@@ -233,22 +233,22 @@ function Panel({
       <h2
         style={{
           margin: 0,
-          fontSize: 17,
+          fontSize: "var(--text-md)",
           fontWeight: 600,
           letterSpacing: "-0.01em",
           color: "var(--color-text)",
-          marginBottom: 14,
+          marginBottom: "var(--space-4)",
         }}
       >
         {title}
       </h2>
       <div>{children}</div>
       {footerHref && footerLabel && (
-        <div style={{ marginTop: "auto", paddingTop: 12 }}>
+        <div style={{ marginTop: "auto", paddingTop: "var(--space-3)" }}>
           <Link
             href={footerHref}
             style={{
-              fontSize: 12.5,
+              fontSize: "var(--text-sm)",
               fontWeight: 500,
               color: "var(--color-accent)",
               textDecoration: "none",
@@ -285,9 +285,9 @@ function ContinueCard({ pick }: { pick: ContinuePick | null }) {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 16,
+        gap: "var(--space-4)",
         padding: "14px 16px",
-        borderRadius: 10,
+        borderRadius: "var(--radius-2)",
         backgroundColor: "var(--color-surface-2)",
         border: "1px solid var(--color-border)",
         textDecoration: "none",
@@ -305,7 +305,7 @@ function ContinueCard({ pick }: { pick: ContinuePick | null }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            fontSize: 11.5,
+            fontSize: "var(--text-xs)",
             fontWeight: 600,
             textTransform: "uppercase",
             letterSpacing: "0.05em",
@@ -317,19 +317,19 @@ function ContinueCard({ pick }: { pick: ContinuePick | null }) {
         </div>
         <div
           style={{
-            fontSize: 16,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
             letterSpacing: "-0.01em",
             lineHeight: 1.25,
-            marginBottom: 4,
+            marginBottom: "var(--space-1)",
           }}
         >
           {pick.conceptName}
         </div>
         <div
           style={{
-            fontSize: 12.5,
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-2)",
             lineHeight: 1.45,
             display: "-webkit-box",
@@ -345,10 +345,10 @@ function ContinueCard({ pick }: { pick: ContinuePick | null }) {
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: 6,
+          gap: "var(--space-2)",
           padding: "8px 14px",
-          borderRadius: 8,
-          fontSize: 13,
+          borderRadius: "var(--radius-2)",
+          fontSize: "var(--text-sm)",
           fontWeight: 600,
           color: "var(--color-accent-on-soft)",
           backgroundColor: "var(--color-accent-soft)",
@@ -379,7 +379,7 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
   const shown = upcoming.length > 0 ? upcoming : events.slice(0, 4);
 
   return (
-    <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+    <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
       {shown.map((e) => {
         const isToday = e.dayOfWeek === todayDayIdx;
         const time = formatTime(e.startTime, e.endTime);
@@ -389,7 +389,7 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
             style={{
               display: "flex",
               alignItems: "flex-start",
-              gap: 10,
+              gap: "var(--space-3)",
               padding: "6px 2px",
             }}
           >
@@ -399,7 +399,7 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
                 width: 8,
                 height: 8,
                 borderRadius: 999,
-                marginTop: 7,
+                marginTop: "var(--space-2)",
                 backgroundColor: TYPE_DOT[e.type] ?? TYPE_DOT.GENERAL,
                 flexShrink: 0,
               }}
@@ -409,10 +409,10 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
                 style={{
                   display: "flex",
                   alignItems: "baseline",
-                  gap: 8,
-                  fontSize: 12,
+                  gap: "var(--space-2)",
+                  fontSize: "var(--text-xs)",
                   color: "var(--color-text-3)",
-                  marginBottom: 2,
+                  marginBottom: "var(--space-1)",
                 }}
               >
                 <span style={{ fontWeight: 600, color: isToday ? "var(--color-accent)" : "var(--color-text-3)" }}>
@@ -422,7 +422,7 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
               </div>
               <div
                 style={{
-                  fontSize: 13.5,
+                  fontSize: "var(--text-sm)",
                   fontWeight: 500,
                   color: "var(--color-text)",
                   lineHeight: 1.35,
@@ -458,7 +458,7 @@ function DueList({ items, todayISO }: { items: DueItem[]; todayISO: string }) {
 
   const now = new Date(todayISO);
   return (
-    <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+    <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
       {items.map((it) => {
         const dd = daysUntil(it.dueDate, now);
         let dueLabel = "No due date";
@@ -495,9 +495,9 @@ function DueList({ items, todayISO }: { items: DueItem[]; todayISO: string }) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
+                gap: "var(--space-3)",
                 padding: "10px 12px",
-                borderRadius: 8,
+                borderRadius: "var(--radius-2)",
                 border: "1px solid var(--color-border)",
                 backgroundColor: "var(--color-surface-2)",
                 textDecoration: "none",
@@ -519,7 +519,7 @@ function DueList({ items, todayISO }: { items: DueItem[]; todayISO: string }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div
                   style={{
-                    fontSize: 13.5,
+                    fontSize: "var(--text-sm)",
                     fontWeight: 600,
                     color: "var(--color-text)",
                     lineHeight: 1.3,
@@ -530,7 +530,7 @@ function DueList({ items, todayISO }: { items: DueItem[]; todayISO: string }) {
                 >
                   {it.title}
                 </div>
-                <div style={{ fontSize: 12, color: toneFg, fontWeight: 500 }}>{dueLabel}</div>
+                <div style={{ fontSize: "var(--text-xs)", color: toneFg, fontWeight: 500 }}>{dueLabel}</div>
               </div>
               <Icon name="chevron-right" size={14} />
             </Link>
@@ -545,29 +545,29 @@ function DueList({ items, todayISO }: { items: DueItem[]; todayISO: string }) {
 
 function PracticeBlock({ weak }: { weak: WeakConcept | null }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
       {weak && (
         <Link
           href="/quiz"
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: 4,
+            gap: "var(--space-1)",
             padding: "10px 12px",
-            borderRadius: 8,
+            borderRadius: "var(--radius-2)",
             border: "1px solid var(--color-border)",
             backgroundColor: "var(--color-incorrect-dim)",
             textDecoration: "none",
             color: "inherit",
           }}
         >
-          <div style={{ fontSize: 11.5, fontWeight: 650, color: "var(--color-incorrect)", letterSpacing: "0.04em", textTransform: "uppercase" }}>
+          <div style={{ fontSize: "var(--text-xs)", fontWeight: 650, color: "var(--color-incorrect)", letterSpacing: "0.04em", textTransform: "uppercase" }}>
             Shaky area
           </div>
-          <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--color-text)", lineHeight: 1.3 }}>
+          <div style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)", lineHeight: 1.3 }}>
             {weak.conceptName}
           </div>
-          <div style={{ fontSize: 12, color: "var(--color-text-2)" }}>
+          <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-2)" }}>
             {weak.accuracyPct}% across {weak.attempts} attempts
           </div>
         </Link>
@@ -578,12 +578,12 @@ function PracticeBlock({ weak }: { weak: WeakConcept | null }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: 8,
+          gap: "var(--space-2)",
           padding: "12px 14px",
-          borderRadius: 8,
+          borderRadius: "var(--radius-2)",
           backgroundColor: "var(--color-accent)",
           color: "white",
-          fontSize: 13.5,
+          fontSize: "var(--text-sm)",
           fontWeight: 600,
           textDecoration: "none",
         }}
@@ -592,7 +592,7 @@ function PracticeBlock({ weak }: { weak: WeakConcept | null }) {
         Take a practice quiz
       </Link>
       {!weak && (
-        <div style={{ fontSize: 12, color: "var(--color-text-3)", textAlign: "center", marginTop: 4 }}>
+        <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", textAlign: "center", marginTop: "var(--space-1)" }}>
           5 random questions from your curriculum.
         </div>
       )}
@@ -609,26 +609,26 @@ function BookmarksRow({ bookmarks }: { bookmarks: BookmarkPreview[] }) {
         style={{
           backgroundColor: "var(--color-surface)",
           border: "1px dashed var(--color-border)",
-          borderRadius: 12,
+          borderRadius: "var(--radius-3)",
           padding: "24px 20px",
           display: "flex",
           alignItems: "center",
-          gap: 14,
+          gap: "var(--space-4)",
         }}
       >
         <IconTile icon="bookmark" color="honey" size="sm" />
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--color-text)" }}>
+          <div style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)" }}>
             Bookmark concepts you want to revisit
           </div>
-          <div style={{ fontSize: 12.5, color: "var(--color-text-3)", marginTop: 2 }}>
+          <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)", marginTop: "var(--space-1)" }}>
             Click the bookmark icon on any concept card — they'll show up here.
           </div>
         </div>
         <Link
           href="/browse"
           style={{
-            fontSize: 13,
+            fontSize: "var(--text-sm)",
             fontWeight: 500,
             color: "var(--color-accent)",
             textDecoration: "none",
@@ -642,7 +642,7 @@ function BookmarksRow({ bookmarks }: { bookmarks: BookmarkPreview[] }) {
   }
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--space-3)" }}>
       {bookmarks.map((b) => {
         const visual = getConceptVisual(b.conceptSlug, b.sectionSlug);
         return (
@@ -652,9 +652,9 @@ function BookmarksRow({ bookmarks }: { bookmarks: BookmarkPreview[] }) {
             style={{
               display: "flex",
               alignItems: "flex-start",
-              gap: 12,
+              gap: "var(--space-3)",
               padding: "14px 16px",
-              borderRadius: 12,
+              borderRadius: "var(--radius-3)",
               backgroundColor: "var(--color-surface)",
               border: "1px solid var(--color-border)",
               boxShadow: "var(--shadow-card)",
@@ -676,7 +676,7 @@ function BookmarksRow({ bookmarks }: { bookmarks: BookmarkPreview[] }) {
               <h3
                 style={{
                   margin: 0,
-                  fontSize: 14,
+                  fontSize: "var(--text-base)",
                   fontWeight: 600,
                   color: "var(--color-text)",
                   lineHeight: 1.3,
@@ -688,7 +688,7 @@ function BookmarksRow({ bookmarks }: { bookmarks: BookmarkPreview[] }) {
               <p
                 style={{
                   margin: "4px 0 0 0",
-                  fontSize: 12,
+                  fontSize: "var(--text-xs)",
                   color: "var(--color-text-2)",
                   lineHeight: 1.45,
                   display: "-webkit-box",
@@ -726,27 +726,27 @@ function EmptyBlock({
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
-        gap: 8,
+        gap: "var(--space-2)",
         padding: "14px 16px",
-        borderRadius: 10,
+        borderRadius: "var(--radius-2)",
         backgroundColor: "var(--color-surface-2)",
         border: "1px dashed var(--color-border)",
       }}
     >
       <IconTile icon={icon} color="stone" size="sm" />
       <div>
-        <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--color-text)" }}>{title}</div>
-        <div style={{ fontSize: 12.5, color: "var(--color-text-3)", marginTop: 2 }}>{body}</div>
+        <div style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)" }}>{title}</div>
+        <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)", marginTop: "var(--space-1)" }}>{body}</div>
       </div>
       {cta && (
         <Link
           href={cta.href}
           style={{
-            fontSize: 12.5,
+            fontSize: "var(--text-sm)",
             fontWeight: 500,
             color: "var(--color-accent)",
             textDecoration: "none",
-            marginTop: 2,
+            marginTop: "var(--space-1)",
           }}
         >
           {cta.label}

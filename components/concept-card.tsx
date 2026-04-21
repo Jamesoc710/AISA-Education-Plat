@@ -34,12 +34,12 @@ export function ConceptCard({
         position: "relative",
         backgroundColor: hovered ? "var(--color-surface-2)" : "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 4,
+        borderRadius: "var(--radius-1)",
         transition: "background-color 140ms ease",
       }}
     >
       {/* Bookmark button — absolute, outside the Link */}
-      <div style={{ position: "absolute", top: 10, right: 10, zIndex: 1 }}>
+      <div style={{ position: "absolute", top: "var(--space-3)", right: "var(--space-3)", zIndex: 1 }}>
         <BookmarkButton
           bookmarked={bookmarked}
           visible={hovered || bookmarked}
@@ -52,7 +52,7 @@ export function ConceptCard({
         style={{
           display: "flex",
           alignItems: "flex-start",
-          gap: 12,
+          gap: "var(--space-3)",
           padding: "16px 18px",
           textDecoration: "none",
           color: "inherit",
@@ -60,11 +60,11 @@ export function ConceptCard({
       >
         <IconTile icon={visual.icon} color={visual.color} size="sm" />
 
-        <div style={{ flex: 1, minWidth: 0, paddingRight: 24 }}>
+        <div style={{ flex: 1, minWidth: 0, paddingRight: "var(--space-5)" }}>
           <h3
             style={{
               margin: 0,
-              fontSize: 14.5,
+              fontSize: "var(--text-base)",
               fontWeight: 550,
               color: "var(--color-text)",
               lineHeight: 1.3,
@@ -76,7 +76,7 @@ export function ConceptCard({
           <p
             style={{
               margin: "5px 0 0 0",
-              fontSize: 12.5,
+              fontSize: "var(--text-sm)",
               color: "var(--color-text-2)",
               lineHeight: 1.5,
               display: "-webkit-box",
@@ -125,7 +125,7 @@ function BookmarkButton({
         background: hov ? "var(--color-surface-2)" : "transparent",
         cursor: "pointer",
         padding: 0,
-        borderRadius: 6,
+        borderRadius: "var(--radius-1)",
         opacity: visible ? 1 : 0,
         transition: "opacity 120ms ease, background-color 120ms ease",
         color: bookmarked

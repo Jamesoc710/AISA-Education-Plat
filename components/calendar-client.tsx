@@ -165,17 +165,17 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
           display: "flex",
           alignItems: "flex-start",
           justifyContent: "space-between",
-          gap: 24,
-          marginBottom: 28,
+          gap: "var(--space-5)",
+          marginBottom: "var(--space-6)",
         }}
       >
-        <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "var(--space-4)", alignItems: "center" }}>
           <IconTile icon="calendar" color="indigo" size="md" />
           <div>
             <h1
               style={{
                 margin: 0,
-                fontSize: 26,
+                fontSize: "var(--text-xl)",
                 fontWeight: 600,
                 color: "var(--color-text)",
                 letterSpacing: "-0.02em",
@@ -186,7 +186,7 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
             <p
               style={{
                 margin: "2px 0 0",
-                fontSize: 13.5,
+                fontSize: "var(--text-sm)",
                 color: "var(--color-text-2)",
               }}
             >
@@ -197,9 +197,9 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
         {lastSyncedAt && (
           <div
             style={{
-              fontSize: 12,
+              fontSize: "var(--text-xs)",
               color: "var(--color-text-3)",
-              marginTop: 4,
+              marginTop: "var(--space-1)",
               whiteSpace: "nowrap",
             }}
           >
@@ -217,8 +217,8 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
           padding: "14px 18px",
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: 12,
-          marginBottom: 16,
+          borderRadius: "var(--radius-3)",
+          marginBottom: "var(--space-4)",
           boxShadow: "var(--shadow-card)",
         }}
       >
@@ -231,13 +231,13 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
           <Icon name="arrow-left" size={16} />
         </button>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
           <StatusTag tone="accent" uppercase>
             Week {currentWeek.weekNumber}
           </StatusTag>
           <span
             style={{
-              fontSize: 15,
+              fontSize: "var(--text-md)",
               fontWeight: 600,
               color: "var(--color-text)",
               letterSpacing: "-0.01em",
@@ -253,7 +253,7 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
                 border: "none",
                 color: "var(--color-accent)",
                 fontFamily: "inherit",
-                fontSize: 12.5,
+                fontSize: "var(--text-sm)",
                 fontWeight: 600,
                 cursor: "pointer",
                 padding: 0,
@@ -283,8 +283,8 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(5, 1fr)",
-          gap: 10,
-          marginBottom: 24,
+          gap: "var(--space-3)",
+          marginBottom: "var(--space-5)",
         }}
       >
         {DAY_LABELS.map((label, i) => {
@@ -297,7 +297,7 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
               style={{
                 backgroundColor: isToday ? "var(--color-accent-soft)" : "var(--color-surface)",
                 border: `1px solid ${isToday ? "var(--color-accent)" : "var(--color-border)"}`,
-                borderRadius: 12,
+                borderRadius: "var(--radius-3)",
                 padding: 0,
                 boxShadow: "var(--shadow-card)",
                 display: "flex",
@@ -315,7 +315,7 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
               >
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: "var(--text-xs)",
                     fontWeight: 650,
                     color: isToday ? "var(--color-accent-on-soft)" : "var(--color-text-3)",
                     letterSpacing: "0.04em",
@@ -326,18 +326,18 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
                 </div>
                 <div
                   style={{
-                    fontSize: 14.5,
+                    fontSize: "var(--text-base)",
                     fontWeight: 600,
                     color: isToday ? "var(--color-accent-on-soft)" : "var(--color-text)",
-                    marginTop: 2,
+                    marginTop: "var(--space-1)",
                   }}
                 >
                   {formatDayDate(dayDate)}
                 </div>
               </div>
-              <div style={{ padding: 10, display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
+              <div style={{ padding: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-2)", flex: 1 }}>
                 {dayEvents.length === 0 ? (
-                  <div style={{ fontSize: 12, color: "var(--color-text-3)", padding: "8px 4px" }}>
+                  <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", padding: "8px 4px" }}>
                     No events
                   </div>
                 ) : (
@@ -391,7 +391,7 @@ function EventCard({
         background: "var(--color-surface)",
         border: "1px solid var(--color-border)",
         borderLeft: `3px solid ${tokens.bar}`,
-        borderRadius: 8,
+        borderRadius: "var(--radius-2)",
         padding: "8px 10px",
         cursor: hasExpandable ? "pointer" : "default",
         fontFamily: "inherit",
@@ -400,7 +400,7 @@ function EventCard({
     >
       <div
         style={{
-          fontSize: 12.5,
+          fontSize: "var(--text-sm)",
           fontWeight: 600,
           color: "var(--color-text)",
           lineHeight: 1.35,
@@ -413,20 +413,20 @@ function EventCard({
         <div
           style={{
             display: "flex",
-            gap: 8,
+            gap: "var(--space-2)",
             alignItems: "center",
-            marginTop: 4,
+            marginTop: "var(--space-1)",
             flexWrap: "wrap",
           }}
         >
           {event.startTime && (
-            <span style={{ fontSize: 11, color: "var(--color-text-3)", fontVariantNumeric: "tabular-nums" }}>
+            <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", fontVariantNumeric: "tabular-nums" }}>
               {event.startTime}
               {event.endTime && `–${event.endTime}`}
             </span>
           )}
           {event.location && (
-            <span style={{ fontSize: 10.5, color: "var(--color-text-3)" }}>
+            <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
               · {event.location}
             </span>
           )}
@@ -437,9 +437,9 @@ function EventCard({
           style={{
             display: "inline-flex",
             alignItems: "center",
-            gap: 4,
-            marginTop: 6,
-            fontSize: 11,
+            gap: "var(--space-1)",
+            marginTop: "var(--space-2)",
+            fontSize: "var(--text-xs)",
             color: "var(--color-text-3)",
             fontWeight: 500,
           }}
@@ -459,8 +459,8 @@ function EventCard({
       {expanded && (topicCount > 0 || event.description) && (
         <div
           style={{
-            marginTop: 8,
-            paddingTop: 8,
+            marginTop: "var(--space-2)",
+            paddingTop: "var(--space-2)",
             borderTop: "1px solid var(--color-border-subtle)",
           }}
         >
@@ -469,12 +469,12 @@ function EventCard({
               style={{
                 margin: 0,
                 padding: "0 0 0 16px",
-                fontSize: 12,
+                fontSize: "var(--text-xs)",
                 color: "var(--color-text-2)",
                 lineHeight: 1.5,
                 display: "flex",
                 flexDirection: "column",
-                gap: 2,
+                gap: "var(--space-1)",
               }}
             >
               {event.topics!.map((t, i) => (
@@ -488,7 +488,7 @@ function EventCard({
             <div
               style={{
                 marginTop: topicCount > 0 ? 8 : 0,
-                fontSize: 12,
+                fontSize: "var(--text-xs)",
                 color: "var(--color-text-2)",
                 lineHeight: 1.5,
                 whiteSpace: "pre-wrap",
@@ -500,7 +500,7 @@ function EventCard({
         </div>
       )}
       {event.type !== "GENERAL" && (
-        <div style={{ marginTop: 6 }}>
+        <div style={{ marginTop: "var(--space-2)" }}>
           <StatusTag
             tone="neutral"
             size="xs"
@@ -532,7 +532,7 @@ function HomeworkPanel({
       style={{
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         boxShadow: "var(--shadow-card)",
         overflow: "hidden",
       }}
@@ -541,7 +541,7 @@ function HomeworkPanel({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 10,
+          gap: "var(--space-3)",
           padding: "14px 18px",
           backgroundColor: "var(--color-surface-2)",
           borderBottom: "1px solid var(--color-border-subtle)",
@@ -551,7 +551,7 @@ function HomeworkPanel({
         <h2
           style={{
             margin: 0,
-            fontSize: 15,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
             letterSpacing: "-0.01em",
@@ -559,7 +559,7 @@ function HomeworkPanel({
         >
           Homework & Deadlines
         </h2>
-        <span style={{ fontSize: 12, color: "var(--color-text-3)", marginLeft: "auto" }}>
+        <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", marginLeft: "auto" }}>
           {events.length} {events.length === 1 ? "item" : "items"}
         </span>
       </div>
@@ -585,21 +585,21 @@ function HomeworkPanel({
                 fontFamily: "inherit",
               }}
             >
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-3)" }}>
                 <span
                   style={{
                     width: 6,
                     height: 6,
                     borderRadius: "50%",
                     backgroundColor: tokens.bar,
-                    marginTop: 7,
+                    marginTop: "var(--space-2)",
                     flexShrink: 0,
                   }}
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div
                     style={{
-                      fontSize: 13.5,
+                      fontSize: "var(--text-sm)",
                       color: "var(--color-text)",
                       lineHeight: 1.45,
                     }}
@@ -609,8 +609,8 @@ function HomeworkPanel({
                   {isOpen && e.description && (
                     <div
                       style={{
-                        marginTop: 6,
-                        fontSize: 12.5,
+                        marginTop: "var(--space-2)",
+                        fontSize: "var(--text-sm)",
                         color: "var(--color-text-2)",
                         lineHeight: 1.5,
                         whiteSpace: "pre-wrap",
@@ -650,13 +650,13 @@ function EmptyState({ lastSyncedAt }: { lastSyncedAt: string | null }) {
         textAlign: "center",
       }}
     >
-      <div style={{ display: "inline-flex", marginBottom: 16 }}>
+      <div style={{ display: "inline-flex", marginBottom: "var(--space-4)" }}>
         <IconTile icon="calendar" color="indigo" size="lg" />
       </div>
-      <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--color-text)", margin: "0 0 8px" }}>
+      <h1 style={{ fontSize: "var(--text-lg)", fontWeight: 600, color: "var(--color-text)", margin: "0 0 8px" }}>
         No events yet
       </h1>
-      <p style={{ fontSize: 14, color: "var(--color-text-2)", margin: 0 }}>
+      <p style={{ fontSize: "var(--text-base)", color: "var(--color-text-2)", margin: 0 }}>
         The calendar syncs from the TCO Master Calendar every 30 minutes.{" "}
         {lastSyncedAt && `Last synced ${relativeTime(lastSyncedAt)}.`}
       </p>
@@ -675,7 +675,7 @@ function navButtonStyle(disabled: boolean): React.CSSProperties {
     height: 32,
     background: "var(--color-surface-2)",
     border: "1px solid var(--color-border)",
-    borderRadius: 8,
+    borderRadius: "var(--radius-2)",
     color: disabled ? "var(--color-text-3)" : "var(--color-text)",
     cursor: disabled ? "not-allowed" : "pointer",
     opacity: disabled ? 0.5 : 1,

@@ -21,8 +21,8 @@ export function ConceptPager({
       style={{
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
-        gap: 12,
-        marginTop: 48,
+        gap: "var(--space-3)",
+        marginTop: "var(--space-7)",
       }}
     >
       <PagerCard direction="prev" item={prev} />
@@ -44,7 +44,7 @@ function PagerCard({
         aria-hidden
         style={{
           minHeight: 64,
-          borderRadius: 12,
+          borderRadius: "var(--radius-3)",
           border: "1px dashed var(--color-border-subtle)",
           opacity: 0,
         }}
@@ -61,9 +61,9 @@ function PagerCard({
         display: "flex",
         flexDirection: "column",
         alignItems: align,
-        gap: 4,
+        gap: "var(--space-1)",
         padding: "14px 18px",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
         boxShadow: "var(--shadow-card)",
@@ -85,8 +85,8 @@ function PagerCard({
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: 6,
-          fontSize: 11,
+          gap: "var(--space-2)",
+          fontSize: "var(--text-xs)",
           fontWeight: 600,
           letterSpacing: "0.06em",
           textTransform: "uppercase",
@@ -103,7 +103,7 @@ function PagerCard({
       </span>
       <span
         style={{
-          fontSize: 14.5,
+          fontSize: "var(--text-base)",
           fontWeight: 550,
           color: "var(--color-text)",
           lineHeight: 1.35,

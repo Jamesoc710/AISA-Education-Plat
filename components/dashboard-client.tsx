@@ -113,17 +113,17 @@ export function DashboardClient({
   return (
     <div style={{ maxWidth: 1040, margin: "0 auto", padding: "56px 40px 80px" }}>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section style={{ marginBottom: 28, display: "flex", alignItems: "center", gap: 20 }}>
+      <section style={{ marginBottom: "var(--space-6)", display: "flex", alignItems: "center", gap: "var(--space-5)" }}>
         <IconTile icon="chart-line-up" color="indigo" size="lg" />
         <div style={{ minWidth: 0 }}>
           <div
             style={{
-              fontSize: 11.5,
+              fontSize: "var(--text-xs)",
               fontWeight: 600,
               textTransform: "uppercase",
               letterSpacing: "0.06em",
               color: "var(--color-text-3)",
-              marginBottom: 4,
+              marginBottom: "var(--space-1)",
             }}
           >
             Dashboard
@@ -131,7 +131,7 @@ export function DashboardClient({
           <h1
             style={{
               margin: 0,
-              fontSize: 30,
+              fontSize: "var(--text-2xl)",
               fontWeight: 600,
               letterSpacing: "-0.02em",
               color: "var(--color-text)",
@@ -143,7 +143,7 @@ export function DashboardClient({
           <p
             style={{
               margin: "6px 0 0",
-              fontSize: 14,
+              fontSize: "var(--text-base)",
               color: "var(--color-text-2)",
             }}
           >
@@ -173,8 +173,8 @@ export function DashboardClient({
         style={{
           display: "grid",
           gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.3fr)",
-          gap: 16,
-          marginBottom: 28,
+          gap: "var(--space-4)",
+          marginBottom: "var(--space-6)",
         }}
       >
         <MasteryPanel
@@ -260,7 +260,7 @@ function UpcomingStrip({
   }
 
   return (
-    <div style={{ marginBottom: 28 }}>
+    <div style={{ marginBottom: "var(--space-6)" }}>
       <button
         onClick={() => setOpen((v) => !v)}
         style={{
@@ -269,7 +269,7 @@ function UpcomingStrip({
           justifyContent: "space-between",
           width: "100%",
           padding: "12px 16px",
-          borderRadius: 10,
+          borderRadius: "var(--radius-2)",
           border: "1px solid var(--color-border)",
           backgroundColor: "var(--color-surface)",
           cursor: "pointer",
@@ -280,7 +280,7 @@ function UpcomingStrip({
         onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--color-accent)")}
         onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--color-border)")}
       >
-        <span style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}>
+        <span style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", minWidth: 0, flex: 1 }}>
           <span
             style={{
               display: "inline-flex",
@@ -288,7 +288,7 @@ function UpcomingStrip({
               justifyContent: "center",
               width: 28,
               height: 28,
-              borderRadius: 7,
+              borderRadius: "var(--radius-2)",
               backgroundColor: "var(--tile-indigo-bg)",
               color: "var(--tile-indigo-fg)",
               flexShrink: 0,
@@ -298,7 +298,7 @@ function UpcomingStrip({
           </span>
           <span
             style={{
-              fontSize: 13.5,
+              fontSize: "var(--text-sm)",
               fontWeight: 500,
               color: "var(--color-text)",
               overflow: "hidden",
@@ -319,7 +319,7 @@ function UpcomingStrip({
             transform: open ? "rotate(90deg)" : "rotate(0deg)",
             transition: "transform 140ms ease",
             color: "var(--color-text-3)",
-            marginLeft: 10,
+            marginLeft: "var(--space-3)",
           }}
         >
           <Icon name="chevron-right" size={14} />
@@ -327,7 +327,7 @@ function UpcomingStrip({
       </button>
 
       {open && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", marginTop: "var(--space-2)" }}>
           {assessments.map((a) => (
             <AssessmentRow key={a.id} a={a} />
           ))}
@@ -351,26 +351,26 @@ function AssessmentRow({ a }: { a: PendingAssessment }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 12,
+        gap: "var(--space-3)",
         padding: "12px 16px",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 8,
+        borderRadius: "var(--radius-2)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", minWidth: 0 }}>
         <IconTile icon="clipboard-check" color="honey" size="sm" />
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--color-text)" }}>
+          <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text)" }}>
             {a.title}
           </div>
           <div
             style={{
-              fontSize: 11.5,
+              fontSize: "var(--text-xs)",
               color: "var(--color-text-3)",
-              marginTop: 2,
+              marginTop: "var(--space-1)",
               display: "flex",
-              gap: 8,
+              gap: "var(--space-2)",
               flexWrap: "wrap",
             }}
           >
@@ -380,24 +380,24 @@ function AssessmentRow({ a }: { a: PendingAssessment }) {
           </div>
         </div>
       </div>
-      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
         {a.completed ? (
           <>
             {a.score !== null && (
               <span
                 style={{
-                  fontSize: 12,
+                  fontSize: "var(--text-xs)",
                   fontWeight: 600,
                   color: scoreColor,
                   backgroundColor: scoreBg,
                   padding: "4px 10px",
-                  borderRadius: 6,
+                  borderRadius: "var(--radius-1)",
                 }}
               >
                 {a.score}%
               </span>
             )}
-            <span style={{ fontSize: 12, color: "var(--color-text-3)" }}>Completed</span>
+            <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>Completed</span>
           </>
         ) : (
           <Link
@@ -405,9 +405,9 @@ function AssessmentRow({ a }: { a: PendingAssessment }) {
             style={{
               backgroundColor: "var(--color-accent)",
               color: "#fff",
-              fontSize: 12,
+              fontSize: "var(--text-xs)",
               fontWeight: 500,
-              borderRadius: 6,
+              borderRadius: "var(--radius-1)",
               padding: "6px 14px",
               textDecoration: "none",
             }}
@@ -428,26 +428,26 @@ function HomeworkRow({ h }: { h: HomeworkItem }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 12,
+        gap: "var(--space-3)",
         padding: "12px 16px",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 8,
+        borderRadius: "var(--radius-2)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", minWidth: 0 }}>
         <IconTile icon="file-text" color="sage" size="sm" />
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--color-text)" }}>
+          <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text)" }}>
             {h.title}
           </div>
           <div
             style={{
-              fontSize: 11.5,
+              fontSize: "var(--text-xs)",
               color: "var(--color-text-3)",
-              marginTop: 2,
+              marginTop: "var(--space-1)",
               display: "flex",
-              gap: 8,
+              gap: "var(--space-2)",
               flexWrap: "wrap",
             }}
           >
@@ -456,7 +456,7 @@ function HomeworkRow({ h }: { h: HomeworkItem }) {
           </div>
         </div>
       </div>
-      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
         {!h.submitted ? (
           <Link
             href={`/homework/${h.id}`}
@@ -464,9 +464,9 @@ function HomeworkRow({ h }: { h: HomeworkItem }) {
               border: "1px solid var(--color-accent)",
               color: "var(--color-accent)",
               backgroundColor: "transparent",
-              fontSize: 12,
+              fontSize: "var(--text-xs)",
               fontWeight: 500,
-              borderRadius: 6,
+              borderRadius: "var(--radius-1)",
               padding: "6px 14px",
               textDecoration: "none",
             }}
@@ -477,22 +477,22 @@ function HomeworkRow({ h }: { h: HomeworkItem }) {
           <>
             <span
               style={{
-                fontSize: 12,
+                fontSize: "var(--text-xs)",
                 fontWeight: 600,
                 color: "#fff",
                 backgroundColor: "var(--color-correct)",
                 padding: "4px 10px",
-                borderRadius: 6,
+                borderRadius: "var(--radius-1)",
               }}
             >
               {h.grade}
             </span>
-            <span style={{ fontSize: 12, color: "var(--color-text-3)" }}>Graded</span>
+            <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>Graded</span>
           </>
         ) : (
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>Submitted</div>
-            <div style={{ fontSize: 11, color: "var(--color-text-3)" }}>Awaiting review</div>
+            <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>Submitted</div>
+            <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>Awaiting review</div>
           </div>
         )}
       </div>
@@ -559,28 +559,28 @@ function OverviewStrip({
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(4, 1fr)",
-        gap: 10,
-        marginBottom: 28,
+        gap: "var(--space-3)",
+        marginBottom: "var(--space-6)",
       }}
     >
       {stats.map((s) => (
         <div
           key={s.label}
           style={{
-            padding: 16,
+            padding: "var(--space-4)",
             backgroundColor: "var(--color-surface)",
             border: "1px solid var(--color-border)",
-            borderRadius: 10,
+            borderRadius: "var(--radius-2)",
             display: "flex",
             flexDirection: "column",
-            gap: 10,
+            gap: "var(--space-3)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
             <IconTile icon={s.icon} color={s.tile} size="sm" />
             <span
               style={{
-                fontSize: 11,
+                fontSize: "var(--text-xs)",
                 fontWeight: 600,
                 color: "var(--color-text-3)",
                 letterSpacing: "0.04em",
@@ -590,10 +590,10 @@ function OverviewStrip({
               {s.label}
             </span>
           </div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-2)" }}>
             <span
               style={{
-                fontSize: 28,
+                fontSize: "var(--text-2xl)",
                 fontWeight: 600,
                 color: s.valueColor ?? "var(--color-text)",
                 letterSpacing: "-0.02em",
@@ -603,7 +603,7 @@ function OverviewStrip({
               {s.value}
             </span>
             {s.sub && (
-              <span style={{ fontSize: 12.5, color: "var(--color-text-3)" }}>
+              <span style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
                 {s.sub}
               </span>
             )}
@@ -635,13 +635,13 @@ function MasteryPanel({
   return (
     <div
       style={{
-        padding: 20,
+        padding: "var(--space-5)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 10,
+        borderRadius: "var(--radius-2)",
         display: "flex",
         alignItems: "center",
-        gap: 20,
+        gap: "var(--space-5)",
       }}
     >
       <svg width={132} height={132} viewBox="0 0 132 132" style={{ flexShrink: 0 }}>
@@ -705,24 +705,24 @@ function MasteryPanel({
       <div style={{ minWidth: 0 }}>
         <div
           style={{
-            fontSize: 11,
+            fontSize: "var(--text-xs)",
             fontWeight: 600,
             color: "var(--color-text-3)",
             letterSpacing: "0.04em",
             textTransform: "uppercase",
-            marginBottom: 6,
+            marginBottom: "var(--space-2)",
           }}
         >
           Mastery
         </div>
         <div
           style={{
-            fontSize: 16,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
             letterSpacing: "-0.01em",
             lineHeight: 1.3,
-            marginBottom: 8,
+            marginBottom: "var(--space-2)",
           }}
         >
           {masteredCount === 0
@@ -731,7 +731,7 @@ function MasteryPanel({
               : `${touchedCount} in progress`
             : `${Math.round(masteredPct * 100)}% at mastery`}
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: "var(--color-text-2)" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "var(--text-xs)", color: "var(--color-text-2)" }}>
           <span>
             <span style={{ color: "var(--color-correct)", fontWeight: 600 }}>
               {masteredCount} mastered
@@ -776,18 +776,18 @@ function TierBars({
   return (
     <div
       style={{
-        padding: 20,
+        padding: "var(--space-5)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 10,
+        borderRadius: "var(--radius-2)",
         display: "flex",
         flexDirection: "column",
-        gap: 14,
+        gap: "var(--space-4)",
       }}
     >
       <div
         style={{
-          fontSize: 11,
+          fontSize: "var(--text-xs)",
           fontWeight: 600,
           color: "var(--color-text-3)",
           letterSpacing: "0.04em",
@@ -799,17 +799,17 @@ function TierBars({
       {rows.map(({ tier, total, mastered, touched, visual, pct }) => {
         const touchedPct = total > 0 ? touched / total : 0;
         return (
-          <div key={tier.id} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div key={tier.id} style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: `var(--tile-${visual.color}-fg)` }}>
+              <span style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: `var(--tile-${visual.color}-fg)` }}>
                 {visual.label}
               </span>
-              <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
                 <span style={{ color: "var(--color-text-2)", fontWeight: 600 }}>
                   {mastered}/{total}
                 </span>
-                <span style={{ marginLeft: 4 }}>mastered</span>
-                <span style={{ marginLeft: 8, opacity: 0.75 }}>· {touched} touched</span>
+                <span style={{ marginLeft: "var(--space-1)" }}>mastered</span>
+                <span style={{ marginLeft: "var(--space-2)", opacity: 0.75 }}>· {touched} touched</span>
               </div>
             </div>
             <div
@@ -914,11 +914,11 @@ function ActivityPulse({ activity }: { activity: ActivityBucket[] }) {
   return (
     <div
       style={{
-        padding: 20,
+        padding: "var(--space-5)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 10,
-        marginBottom: 28,
+        borderRadius: "var(--radius-2)",
+        marginBottom: "var(--space-6)",
       }}
     >
       <div
@@ -926,31 +926,31 @@ function ActivityPulse({ activity }: { activity: ActivityBucket[] }) {
           display: "flex",
           alignItems: "baseline",
           justifyContent: "space-between",
-          marginBottom: 14,
-          gap: 16,
+          marginBottom: "var(--space-4)",
+          gap: "var(--space-4)",
           flexWrap: "wrap",
         }}
       >
         <div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: "var(--text-xs)",
               fontWeight: 600,
               color: "var(--color-text-3)",
               letterSpacing: "0.04em",
               textTransform: "uppercase",
-              marginBottom: 2,
+              marginBottom: "var(--space-1)",
             }}
           >
             Study activity
           </div>
-          <div style={{ fontSize: 13, color: "var(--color-text-2)" }}>
+          <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-2)" }}>
             {activeDays === 0
               ? "No activity in the last 30 days"
               : `You studied ${activeDays} of the last 30 days`}
           </div>
         </div>
-        <div style={{ display: "flex", gap: 20 }}>
+        <div style={{ display: "flex", gap: "var(--space-5)" }}>
           <StreakStat
             label="Current streak"
             value={currentStreak}
@@ -974,8 +974,8 @@ function ActivityPulse({ activity }: { activity: ActivityBucket[] }) {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(30, 1fr)",
-          gap: 4,
-          marginBottom: 4,
+          gap: "var(--space-1)",
+          marginBottom: "var(--space-1)",
           height: 14,
           position: "relative",
         }}
@@ -985,7 +985,7 @@ function ActivityPulse({ activity }: { activity: ActivityBucket[] }) {
             key={t.index}
             style={{
               gridColumn: `${t.index + 1} / span 2`,
-              fontSize: 10.5,
+              fontSize: "var(--text-xs)",
               color: "var(--color-text-3)",
               letterSpacing: "0.03em",
             }}
@@ -1000,7 +1000,7 @@ function ActivityPulse({ activity }: { activity: ActivityBucket[] }) {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(30, 1fr)",
-          gap: 4,
+          gap: "var(--space-1)",
         }}
       >
         {activity.map((a) => {
@@ -1021,7 +1021,7 @@ function ActivityPulse({ activity }: { activity: ActivityBucket[] }) {
               title={tooltip}
               style={{
                 aspectRatio: "1 / 1",
-                borderRadius: 3,
+                borderRadius: "var(--radius-1)",
                 backgroundColor: LEVEL_BG[level],
                 opacity: LEVEL_OPACITY[level],
                 border: level === 0 ? "1px solid var(--color-border)" : "none",
@@ -1039,9 +1039,9 @@ function ActivityPulse({ activity }: { activity: ActivityBucket[] }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-end",
-          gap: 8,
-          marginTop: 12,
-          fontSize: 11,
+          gap: "var(--space-2)",
+          marginTop: "var(--space-3)",
+          fontSize: "var(--text-xs)",
           color: "var(--color-text-3)",
         }}
       >
@@ -1052,7 +1052,7 @@ function ActivityPulse({ activity }: { activity: ActivityBucket[] }) {
             style={{
               width: 12,
               height: 12,
-              borderRadius: 3,
+              borderRadius: "var(--radius-1)",
               backgroundColor: LEVEL_BG[lv as 0 | 1 | 2 | 3],
               opacity: LEVEL_OPACITY[lv as 0 | 1 | 2 | 3],
               border: lv === 0 ? "1px solid var(--color-border)" : "none",
@@ -1078,7 +1078,7 @@ function StreakStat({
     <div style={{ textAlign: "right" }}>
       <div
         style={{
-          fontSize: 10.5,
+          fontSize: "var(--text-xs)",
           fontWeight: 600,
           color: "var(--color-text-3)",
           letterSpacing: "0.04em",
@@ -1089,7 +1089,7 @@ function StreakStat({
       </div>
       <div
         style={{
-          fontSize: 18,
+          fontSize: "var(--text-md)",
           fontWeight: 600,
           color: emphasis ? "var(--color-correct)" : "var(--color-text)",
           letterSpacing: "-0.02em",
@@ -1120,12 +1120,12 @@ function KnowledgeMap({
   } | null>(null);
 
   return (
-    <div style={{ marginBottom: 28 }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>
+    <div style={{ marginBottom: "var(--space-6)" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "var(--space-1)" }}>
         <h2
           style={{
             margin: 0,
-            fontSize: 16,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
             letterSpacing: "-0.01em",
@@ -1138,30 +1138,30 @@ function KnowledgeMap({
       <p
         style={{
           margin: "0 0 16px",
-          fontSize: 13,
+          fontSize: "var(--text-sm)",
           color: "var(--color-text-3)",
         }}
       >
         Each dot is a concept. Hover for name, click to open.
       </p>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, position: "relative" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", position: "relative" }}>
         {tiers.map((tier) => {
           const visual = TIER_VISUAL[tier.slug] ?? { color: "stone", label: tier.name };
           return (
             <div
               key={tier.id}
               style={{
-                padding: 14,
+                padding: "var(--space-4)",
                 backgroundColor: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
-                borderRadius: 10,
+                borderRadius: "var(--radius-2)",
               }}
             >
-              <div style={{ marginBottom: 12 }}>
+              <div style={{ marginBottom: "var(--space-3)" }}>
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: "var(--text-xs)",
                     fontWeight: 700,
                     color: `var(--tile-${visual.color}-fg)`,
                     letterSpacing: "0.04em",
@@ -1172,7 +1172,7 @@ function KnowledgeMap({
                 </span>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
                 {tier.sections.map((section) => {
                   const total = section.concepts.length;
                   let mastered = 0;
@@ -1193,13 +1193,13 @@ function KnowledgeMap({
                         display: "grid",
                         gridTemplateColumns: "minmax(0, 180px) minmax(0, 1fr) 72px",
                         alignItems: "center",
-                        gap: 14,
+                        gap: "var(--space-4)",
                       }}
                     >
                       <div style={{ minWidth: 0 }}>
                         <div
                           style={{
-                            fontSize: 12.5,
+                            fontSize: "var(--text-sm)",
                             fontWeight: 600,
                             color: "var(--color-text)",
                             overflow: "hidden",
@@ -1209,12 +1209,12 @@ function KnowledgeMap({
                         >
                           {section.name}
                         </div>
-                        <div style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 1 }}>
+                        <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", marginTop: 1 }}>
                           {touched}/{total} touched
                         </div>
                       </div>
 
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)" }}>
                         {section.concepts.map((concept) => {
                           const score = conceptScores[concept.id] ?? null;
                           let bg = "var(--color-surface-2)";
@@ -1234,7 +1234,7 @@ function KnowledgeMap({
                               style={{
                                 width: 18,
                                 height: 18,
-                                borderRadius: 4,
+                                borderRadius: "var(--radius-1)",
                                 backgroundColor: bg,
                                 border: `1px solid ${border}`,
                                 cursor: "pointer",
@@ -1267,7 +1267,7 @@ function KnowledgeMap({
 
                       <div
                         style={{
-                          fontSize: 12,
+                          fontSize: "var(--text-xs)",
                           fontWeight: 600,
                           color: sectionPct >= 80
                             ? "var(--color-correct)"
@@ -1297,17 +1297,17 @@ function KnowledgeMap({
               padding: "8px 12px",
               backgroundColor: "var(--color-surface-3)",
               border: "1px solid var(--color-border)",
-              borderRadius: 6,
+              borderRadius: "var(--radius-1)",
               pointerEvents: "none",
               zIndex: 100,
               whiteSpace: "nowrap",
               boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
             }}
           >
-            <div style={{ fontSize: 12, fontWeight: 500, color: "var(--color-text)", marginBottom: 2 }}>
+            <div style={{ fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-text)", marginBottom: "var(--space-1)" }}>
               {tooltip.text}
             </div>
-            <div style={{ fontSize: 11, color: tooltip.color }}>{tooltip.sub}</div>
+            <div style={{ fontSize: "var(--text-xs)", color: tooltip.color }}>{tooltip.sub}</div>
           </div>
         )}
       </div>
@@ -1323,9 +1323,9 @@ function Legend() {
     { label: "80%+", color: "var(--color-correct)" },
   ];
   return (
-    <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+    <div style={{ display: "flex", gap: "var(--space-4)", flexWrap: "wrap" }}>
       {items.map((it) => (
-        <span key={it.label} style={{ fontSize: 11, fontWeight: 600, color: it.color }}>
+        <span key={it.label} style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: it.color }}>
           {it.label}
         </span>
       ))}
@@ -1387,16 +1387,16 @@ function SuggestedReview({
           textAlign: "center",
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: 10,
+          borderRadius: "var(--radius-2)",
         }}
       >
-        <div style={{ fontSize: 15, fontWeight: 500, color: "var(--color-text)", marginBottom: 8 }}>
+        <div style={{ fontSize: "var(--text-md)", fontWeight: 500, color: "var(--color-text)", marginBottom: "var(--space-2)" }}>
           No quiz data yet
         </div>
         <p
           style={{
             margin: "0 0 20px",
-            fontSize: 13,
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-3)",
             lineHeight: 1.6,
           }}
@@ -1408,11 +1408,11 @@ function SuggestedReview({
           style={{
             display: "inline-block",
             padding: "10px 24px",
-            fontSize: 13,
+            fontSize: "var(--text-sm)",
             fontWeight: 500,
             color: "#fff",
             backgroundColor: "var(--color-accent)",
-            borderRadius: 6,
+            borderRadius: "var(--radius-1)",
             textDecoration: "none",
           }}
         >
@@ -1426,17 +1426,17 @@ function SuggestedReview({
     return (
       <div
         style={{
-          padding: 24,
+          padding: "var(--space-5)",
           textAlign: "center",
           backgroundColor: "var(--color-correct-dim)",
           border: "1px solid var(--color-correct-border)",
-          borderRadius: 10,
+          borderRadius: "var(--radius-2)",
         }}
       >
-        <div style={{ fontSize: 15, fontWeight: 500, color: "var(--color-correct)", marginBottom: 4 }}>
+        <div style={{ fontSize: "var(--text-md)", fontWeight: 500, color: "var(--color-correct)", marginBottom: "var(--space-1)" }}>
           All concepts at 80%+
         </div>
-        <p style={{ margin: 0, fontSize: 13, color: "var(--color-text-2)" }}>
+        <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--color-text-2)" }}>
           You&apos;re mastering the Atlas. Keep it up!
         </p>
       </div>
@@ -1448,7 +1448,7 @@ function SuggestedReview({
       <h2
         style={{
           margin: "0 0 6px",
-          fontSize: 16,
+          fontSize: "var(--text-md)",
           fontWeight: 600,
           color: "var(--color-text)",
           letterSpacing: "-0.01em",
@@ -1456,11 +1456,11 @@ function SuggestedReview({
       >
         Suggested Review
       </h2>
-      <p style={{ margin: "0 0 16px", fontSize: 13, color: "var(--color-text-3)" }}>
+      <p style={{ margin: "0 0 16px", fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
         Concepts that need more attention, sorted by score.
       </p>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
         {weakItems.map((item) => {
           return (
             <div
@@ -1468,18 +1468,18 @@ function SuggestedReview({
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
+                gap: "var(--space-3)",
                 padding: "12px 16px",
                 backgroundColor: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
-                borderRadius: 8,
+                borderRadius: "var(--radius-2)",
               }}
             >
               <div
                 style={{
                   width: 40,
                   height: 40,
-                  borderRadius: 8,
+                  borderRadius: "var(--radius-2)",
                   backgroundColor: item.score
                     ? getMasteryBg(item.score.pct)
                     : "var(--color-surface-2)",
@@ -1498,7 +1498,7 @@ function SuggestedReview({
               >
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: "var(--text-xs)",
                     fontWeight: 700,
                     color: item.score
                       ? getMasteryColor(item.score.pct)
@@ -1511,10 +1511,10 @@ function SuggestedReview({
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div
                   style={{
-                    fontSize: 13.5,
+                    fontSize: "var(--text-sm)",
                     fontWeight: 600,
                     color: "var(--color-text)",
-                    marginBottom: 2,
+                    marginBottom: "var(--space-1)",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -1526,8 +1526,8 @@ function SuggestedReview({
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 6,
-                    fontSize: 11.5,
+                    gap: "var(--space-2)",
+                    fontSize: "var(--text-xs)",
                     color: "var(--color-text-3)",
                   }}
                 >
@@ -1546,11 +1546,11 @@ function SuggestedReview({
                 href={`/quiz?mode=concept&id=${item.concept.id}`}
                 style={{
                   padding: "6px 14px",
-                  fontSize: 12,
+                  fontSize: "var(--text-xs)",
                   fontWeight: 500,
                   color: "var(--color-accent-on-soft)",
                   backgroundColor: "var(--color-accent-soft)",
-                  borderRadius: 6,
+                  borderRadius: "var(--radius-1)",
                   textDecoration: "none",
                   flexShrink: 0,
                   whiteSpace: "nowrap",
@@ -1766,10 +1766,10 @@ function NextBestActionCard({ action }: { action: NextAction }) {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 16,
+        gap: "var(--space-4)",
         padding: "16px 18px",
-        marginBottom: 20,
-        borderRadius: 12,
+        marginBottom: "var(--space-5)",
+        borderRadius: "var(--radius-3)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
         textDecoration: "none",
@@ -1787,7 +1787,7 @@ function NextBestActionCard({ action }: { action: NextAction }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            fontSize: 11,
+            fontSize: "var(--text-xs)",
             fontWeight: 600,
             textTransform: "uppercase",
             letterSpacing: "0.05em",
@@ -1799,7 +1799,7 @@ function NextBestActionCard({ action }: { action: NextAction }) {
         </div>
         <div
           style={{
-            fontSize: 16,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
             letterSpacing: "-0.01em",
@@ -1814,7 +1814,7 @@ function NextBestActionCard({ action }: { action: NextAction }) {
         </div>
         <div
           style={{
-            fontSize: 12.5,
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-2)",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -1828,10 +1828,10 @@ function NextBestActionCard({ action }: { action: NextAction }) {
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: 6,
+          gap: "var(--space-2)",
           padding: "8px 14px",
-          borderRadius: 8,
-          fontSize: 13,
+          borderRadius: "var(--radius-2)",
+          fontSize: "var(--text-sm)",
           fontWeight: 600,
           color: "var(--color-accent-on-soft)",
           backgroundColor: "var(--color-accent-soft)",

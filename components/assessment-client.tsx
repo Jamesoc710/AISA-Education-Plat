@@ -157,12 +157,12 @@ export function AssessmentClient({
           style={{
             display: "inline-flex",
             alignItems: "center",
-            gap: 4,
-            fontSize: 12.5,
+            gap: "var(--space-1)",
+            fontSize: "var(--text-sm)",
             fontWeight: 500,
             color: "var(--color-text-3)",
             textDecoration: "none",
-            marginBottom: 20,
+            marginBottom: "var(--space-5)",
           }}
         >
           <Icon
@@ -178,8 +178,8 @@ export function AssessmentClient({
           style={{
             display: "flex",
             alignItems: "flex-start",
-            gap: 16,
-            marginBottom: 16,
+            gap: "var(--space-4)",
+            marginBottom: "var(--space-4)",
           }}
         >
           <IconTile icon="bar-chart" color="indigo" size="lg" />
@@ -187,7 +187,7 @@ export function AssessmentClient({
             <h1
               style={{
                 margin: "0 0 8px",
-                fontSize: 28,
+                fontSize: "var(--text-2xl)",
                 fontWeight: 600,
                 color: "var(--color-text)",
                 letterSpacing: "-0.02em",
@@ -200,7 +200,7 @@ export function AssessmentClient({
               <p
                 style={{
                   margin: 0,
-                  fontSize: 14,
+                  fontSize: "var(--text-base)",
                   color: "var(--color-text-2)",
                   lineHeight: 1.6,
                 }}
@@ -216,11 +216,11 @@ export function AssessmentClient({
             padding: "20px 22px",
             backgroundColor: "var(--color-surface)",
             border: "1px solid var(--color-border)",
-            borderRadius: 12,
+            borderRadius: "var(--radius-3)",
             margin: "28px 0",
             display: "flex",
             flexDirection: "column",
-            gap: 12,
+            gap: "var(--space-3)",
             boxShadow: "var(--shadow-card)",
           }}
         >
@@ -271,7 +271,7 @@ export function AssessmentClient({
         <h1
           style={{
             margin: "0 0 6px",
-            fontSize: 32,
+            fontSize: "var(--text-3xl)",
             fontWeight: 600,
             color: "var(--color-text)",
             letterSpacing: "-0.025em",
@@ -282,7 +282,7 @@ export function AssessmentClient({
         <p
           style={{
             margin: "0 0 32px",
-            fontSize: 14,
+            fontSize: "var(--text-base)",
             color: "var(--color-text-2)",
             lineHeight: 1.55,
           }}
@@ -295,9 +295,9 @@ export function AssessmentClient({
             padding: "32px 28px",
             backgroundColor: "var(--color-surface)",
             border: "1px solid var(--color-border)",
-            borderRadius: 14,
+            borderRadius: "var(--radius-3)",
             textAlign: "center",
-            marginBottom: 28,
+            marginBottom: "var(--space-6)",
             boxShadow: "var(--shadow-card)",
           }}
         >
@@ -305,12 +305,12 @@ export function AssessmentClient({
             <>
               <div
                 style={{
-                  fontSize: 56,
+                  fontSize: "var(--text-display)",
                   fontWeight: 700,
                   color: tone.fg,
                   letterSpacing: "-0.03em",
                   lineHeight: 1,
-                  marginBottom: 14,
+                  marginBottom: "var(--space-4)",
                 }}
               >
                 {percentage}%
@@ -319,7 +319,7 @@ export function AssessmentClient({
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 10,
+                  gap: "var(--space-3)",
                 }}
               >
                 <StatusTag tone={tone.tag} uppercase>
@@ -327,7 +327,7 @@ export function AssessmentClient({
                 </StatusTag>
                 <span
                   style={{
-                    fontSize: 13.5,
+                    fontSize: "var(--text-sm)",
                     color: "var(--color-text-2)",
                   }}
                 >
@@ -339,7 +339,7 @@ export function AssessmentClient({
           {saCount > 0 && (
             <div
               style={{
-                fontSize: 12.5,
+                fontSize: "var(--text-sm)",
                 color: "var(--color-text-3)",
                 marginTop: mcTotal > 0 ? 18 : 0,
                 paddingTop: mcTotal > 0 ? 18 : 0,
@@ -353,7 +353,7 @@ export function AssessmentClient({
           )}
         </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ display: "flex", gap: "var(--space-3)" }}>
           <Link href="/dashboard" style={{ textDecoration: "none", flex: 1 }}>
             <Button variant="primary" size="md" fullWidth>
               Back to dashboard
@@ -387,7 +387,7 @@ export function AssessmentClient({
           marginBottom: 22,
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: 12,
+          borderRadius: "var(--radius-3)",
           boxShadow: "var(--shadow-card)",
         }}
       >
@@ -396,25 +396,25 @@ export function AssessmentClient({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: 10,
+            marginBottom: "var(--space-3)",
           }}
         >
           <div style={{ minWidth: 0 }}>
             <div
               style={{
-                fontSize: 11,
+                fontSize: "var(--text-xs)",
                 fontWeight: 650,
                 letterSpacing: "0.06em",
                 textTransform: "uppercase",
                 color: "var(--color-text-3)",
-                marginBottom: 2,
+                marginBottom: "var(--space-1)",
               }}
             >
               {answeredCount} of {questions.length} answered
             </div>
             <div
               style={{
-                fontSize: 14,
+                fontSize: "var(--text-base)",
                 fontWeight: 600,
                 color: "var(--color-text)",
                 letterSpacing: "-0.01em",
@@ -431,9 +431,9 @@ export function AssessmentClient({
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 6,
+                gap: "var(--space-2)",
                 padding: "5px 11px",
-                fontSize: 13,
+                fontSize: "var(--text-sm)",
                 fontWeight: 600,
                 fontVariantNumeric: "tabular-nums",
                 color:
@@ -444,7 +444,7 @@ export function AssessmentClient({
                   secondsLeft < 300
                     ? "var(--color-incorrect-dim)"
                     : "var(--color-surface-2)",
-                borderRadius: 4,
+                borderRadius: "var(--radius-1)",
                 flexShrink: 0,
               }}
             >
@@ -474,7 +474,7 @@ export function AssessmentClient({
       </div>
 
       {/* Question list */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
         {questions.map((q, idx) => (
           <QuestionCard
             key={q.id}
@@ -489,15 +489,15 @@ export function AssessmentClient({
       {/* Submit row */}
       <div
         style={{
-          marginTop: 28,
+          marginTop: "var(--space-6)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 12,
+          gap: "var(--space-3)",
           flexWrap: "wrap",
         }}
       >
-        <div style={{ fontSize: 12.5, color: "var(--color-text-3)" }}>
+        <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
           {answeredCount === questions.length
             ? "All questions answered."
             : `${questions.length - answeredCount} unanswered`}
@@ -562,8 +562,8 @@ function ConfirmDialog({
         style={{
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: 14,
-          padding: 28,
+          borderRadius: "var(--radius-3)",
+          padding: "var(--space-6)",
           maxWidth: 440,
           width: "92%",
           boxShadow: "var(--shadow-popover)",
@@ -572,7 +572,7 @@ function ConfirmDialog({
         <h2
           style={{
             margin: "0 0 10px",
-            fontSize: 18,
+            fontSize: "var(--text-md)",
             fontWeight: 600,
             color: "var(--color-text)",
             letterSpacing: "-0.015em",
@@ -583,7 +583,7 @@ function ConfirmDialog({
         <p
           style={{
             margin: "0 0 8px",
-            fontSize: 13.5,
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-2)",
             lineHeight: 1.6,
           }}
@@ -594,7 +594,7 @@ function ConfirmDialog({
           <p
             style={{
               margin: "0 0 20px",
-              fontSize: 13,
+              fontSize: "var(--text-sm)",
               color: "var(--color-incorrect)",
               lineHeight: 1.5,
             }}
@@ -605,7 +605,7 @@ function ConfirmDialog({
         <div
           style={{
             display: "flex",
-            gap: 10,
+            gap: "var(--space-3)",
             justifyContent: "flex-end",
             marginTop: 22,
           }}
@@ -640,19 +640,19 @@ function QuestionCard({
       style={{
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         padding: "20px 22px",
         boxShadow: "var(--shadow-card)",
       }}
     >
       <div
         style={{
-          fontSize: 11,
+          fontSize: "var(--text-xs)",
           fontWeight: 650,
           letterSpacing: "0.06em",
           textTransform: "uppercase",
           color: "var(--color-text-3)",
-          marginBottom: 8,
+          marginBottom: "var(--space-2)",
         }}
       >
         Question {index + 1}
@@ -660,7 +660,7 @@ function QuestionCard({
       <h3
         style={{
           margin: "0 0 16px",
-          fontSize: 16,
+          fontSize: "var(--text-md)",
           fontWeight: 600,
           color: "var(--color-text)",
           lineHeight: 1.45,
@@ -688,13 +688,13 @@ function QuestionCard({
           style={{
             width: "100%",
             padding: "12px 14px",
-            fontSize: 14,
+            fontSize: "var(--text-base)",
             fontFamily: "inherit",
             color: "var(--color-text)",
             backgroundColor: "var(--color-surface)",
             border: `1px solid ${focused ? "var(--color-accent)" : "var(--color-border)"}`,
             boxShadow: focused ? "0 0 0 3px var(--color-accent-dim)" : "none",
-            borderRadius: 10,
+            borderRadius: "var(--radius-2)",
             resize: "vertical",
             outline: "none",
             lineHeight: 1.6,
@@ -719,7 +719,7 @@ function MCOptions({
   onSelect: (text: string) => void;
 }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
       {options.map((opt, idx) => (
         <MCOptionButton
           key={`${questionId}-${idx}`}
@@ -773,11 +773,11 @@ function MCOptionButton({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 12,
+        gap: "var(--space-3)",
         padding: "12px 14px",
         backgroundColor: bgColor,
         border: `1px solid ${borderColor}`,
-        borderRadius: 10,
+        borderRadius: "var(--radius-2)",
         cursor: "pointer",
         textAlign: "left",
         fontFamily: "inherit",
@@ -796,7 +796,7 @@ function MCOptionButton({
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
-          fontSize: 12,
+          fontSize: "var(--text-xs)",
           fontWeight: 650,
           color: indicatorColor,
           transition: "all 180ms ease",
@@ -806,7 +806,7 @@ function MCOptionButton({
       </span>
       <span
         style={{
-          fontSize: 14,
+          fontSize: "var(--text-base)",
           color: "var(--color-text)",
           lineHeight: 1.5,
           fontWeight: 500,
@@ -826,7 +826,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        fontSize: 13.5,
+        fontSize: "var(--text-sm)",
       }}
     >
       <span style={{ color: "var(--color-text-3)" }}>{label}</span>

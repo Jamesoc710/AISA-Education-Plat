@@ -158,11 +158,11 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
     <div style={{ padding: "32px 32px 80px" }}>
       <div style={{ maxWidth: 1040, margin: "0 auto" }}>
         {/* ── Page header ─────────────────────────────────────── */}
-        <div style={{ marginBottom: 28 }}>
+        <div style={{ marginBottom: "var(--space-6)" }}>
           <h1
             style={{
               margin: 0,
-              fontSize: 30,
+              fontSize: "var(--text-2xl)",
               fontWeight: 600,
               letterSpacing: "-0.02em",
               color: "var(--color-text)",
@@ -174,7 +174,7 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
           <p
             style={{
               margin: "8px 0 0 0",
-              fontSize: 14.5,
+              fontSize: "var(--text-base)",
               color: "var(--color-text-2)",
               lineHeight: 1.55,
               maxWidth: 680,
@@ -189,9 +189,9 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 5,
-                marginTop: 12,
-                fontSize: 12.5,
+                gap: "var(--space-2)",
+                marginTop: "var(--space-3)",
+                fontSize: "var(--text-sm)",
                 fontWeight: 500,
                 color: "var(--color-text-2)",
                 textDecoration: "none",
@@ -217,7 +217,7 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
               display: "flex",
               justifyContent: "flex-end",
               alignItems: "center",
-              marginBottom: 8,
+              marginBottom: "var(--space-2)",
               minHeight: 24,
             }}
           >
@@ -233,7 +233,7 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
                 background: "none",
                 border: "none",
                 padding: "4px 8px",
-                fontSize: 12.5,
+                fontSize: "var(--text-sm)",
                 fontFamily: "inherit",
                 color: "var(--color-text-2)",
                 cursor: isSearching ? "default" : "pointer",
@@ -305,11 +305,11 @@ function SectionRow({
         style={{
           display: "flex",
           alignItems: "flex-start",
-          gap: 14,
+          gap: "var(--space-4)",
           width: "100%",
           backgroundColor: hovered ? "var(--color-surface-2)" : "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: 4,
+          borderRadius: "var(--radius-1)",
           padding: "16px 18px",
           cursor: "pointer",
           fontFamily: "inherit",
@@ -321,11 +321,11 @@ function SectionRow({
         <IconTile icon={visual.icon} color={visual.color} size="md" />
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", flexWrap: "wrap" }}>
             <h2
               style={{
                 margin: 0,
-                fontSize: 18,
+                fontSize: "var(--text-md)",
                 fontWeight: 600,
                 color: "var(--color-text)",
                 letterSpacing: "-0.015em",
@@ -336,7 +336,7 @@ function SectionRow({
             </h2>
             <span
               style={{
-                fontSize: 12.5,
+                fontSize: "var(--text-sm)",
                 color: "var(--color-text-3)",
                 fontWeight: 500,
               }}
@@ -348,7 +348,7 @@ function SectionRow({
             <p
               style={{
                 margin: "6px 0 0 0",
-                fontSize: 13.5,
+                fontSize: "var(--text-sm)",
                 color: "var(--color-text-2)",
                 lineHeight: 1.55,
               }}
@@ -360,7 +360,7 @@ function SectionRow({
             <p
               style={{
                 margin: "8px 0 0 0",
-                fontSize: 12.5,
+                fontSize: "var(--text-sm)",
                 color: "var(--color-text-3)",
                 lineHeight: 1.4,
                 whiteSpace: "nowrap",
@@ -381,7 +381,7 @@ function SectionRow({
             color: "var(--color-text-3)",
             transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
             transition: "transform 220ms cubic-bezier(0.2, 0, 0, 1)",
-            marginTop: 14,
+            marginTop: "var(--space-4)",
             flexShrink: 0,
           }}
         >
@@ -401,7 +401,7 @@ function SectionRow({
           <div
             className="browse-grid"
             style={{
-              paddingTop: 14,
+              paddingTop: "var(--space-4)",
               opacity: expanded ? 1 : 0,
               transform: expanded ? "translateY(0)" : "translateY(-4px)",
               transition: "opacity 220ms ease-out, transform 220ms ease-out",
@@ -435,25 +435,25 @@ function EmptyState({ query, filter }: { query: string; filter: "all" | "bookmar
         alignItems: "center",
         justifyContent: "center",
         padding: "80px 24px",
-        gap: 14,
+        gap: "var(--space-4)",
         color: "var(--color-text-2)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 4,
+        borderRadius: "var(--radius-1)",
         textAlign: "center",
       }}
     >
       <span style={{ color: "var(--color-text-3)" }}>
         <Icon name="search" size={28} strokeWidth={1.5} />
       </span>
-      <p style={{ fontSize: 14.5, margin: 0, fontWeight: 500, color: "var(--color-text)" }}>
+      <p style={{ fontSize: "var(--text-base)", margin: 0, fontWeight: 500, color: "var(--color-text)" }}>
         {filter === "bookmarked"
           ? "No bookmarks yet"
           : query
           ? `No concepts match "${query}"`
           : "No concepts found"}
       </p>
-      <p style={{ fontSize: 13, margin: 0, color: "var(--color-text-2)", maxWidth: 380 }}>
+      <p style={{ fontSize: "var(--text-sm)", margin: 0, color: "var(--color-text-2)", maxWidth: 380 }}>
         {filter === "bookmarked"
           ? "Star a concept on any card to save it for later."
           : "Try adjusting your search or clearing the filter."}

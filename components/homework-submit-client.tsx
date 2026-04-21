@@ -99,12 +99,12 @@ export function HomeworkSubmitClient({
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: 4,
-          fontSize: 12.5,
+          gap: "var(--space-1)",
+          fontSize: "var(--text-sm)",
           fontWeight: 500,
           color: "var(--color-text-3)",
           textDecoration: "none",
-          marginBottom: 18,
+          marginBottom: "var(--space-5)",
         }}
       >
         <Icon
@@ -116,11 +116,11 @@ export function HomeworkSubmitClient({
         Homework
       </Link>
 
-      <div style={{ marginBottom: 28 }}>
+      <div style={{ marginBottom: "var(--space-6)" }}>
         <h1
           style={{
             margin: "0 0 10px",
-            fontSize: 28,
+            fontSize: "var(--text-2xl)",
             fontWeight: 600,
             color: "var(--color-text)",
             lineHeight: 1.25,
@@ -133,7 +133,7 @@ export function HomeworkSubmitClient({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 10,
+            gap: "var(--space-3)",
             flexWrap: "wrap",
           }}
         >
@@ -146,7 +146,7 @@ export function HomeworkSubmitClient({
             </Link>
           )}
           {formattedDue && (
-            <span style={{ fontSize: 12.5, color: "var(--color-text-3)" }}>
+            <span style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
               Due {formattedDue}
             </span>
           )}
@@ -158,20 +158,20 @@ export function HomeworkSubmitClient({
         style={{
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: 12,
+          borderRadius: "var(--radius-3)",
           padding: "22px 24px",
-          marginBottom: 28,
+          marginBottom: "var(--space-6)",
           boxShadow: "var(--shadow-card)",
         }}
       >
         <div
           style={{
-            fontSize: 11,
+            fontSize: "var(--text-xs)",
             fontWeight: 650,
             letterSpacing: "0.06em",
             textTransform: "uppercase",
             color: "var(--color-text-3)",
-            marginBottom: 14,
+            marginBottom: "var(--space-4)",
           }}
         >
           Assignment
@@ -183,7 +183,7 @@ export function HomeworkSubmitClient({
               <p
                 style={{
                   margin: "0 0 14px",
-                  fontSize: 14,
+                  fontSize: "var(--text-base)",
                   lineHeight: 1.7,
                   color: "var(--color-text)",
                 }}
@@ -213,7 +213,7 @@ export function HomeworkSubmitClient({
                 style={{
                   margin: "0 0 14px",
                   paddingLeft: 22,
-                  fontSize: 14,
+                  fontSize: "var(--text-base)",
                   lineHeight: 1.7,
                   color: "var(--color-text)",
                 }}
@@ -226,7 +226,7 @@ export function HomeworkSubmitClient({
                 style={{
                   margin: "0 0 14px",
                   paddingLeft: 22,
-                  fontSize: 14,
+                  fontSize: "var(--text-base)",
                   lineHeight: 1.7,
                   color: "var(--color-text)",
                 }}
@@ -235,7 +235,7 @@ export function HomeworkSubmitClient({
               </ol>
             ),
             li: ({ children }) => (
-              <li style={{ marginBottom: 4 }}>{children}</li>
+              <li style={{ marginBottom: "var(--space-1)" }}>{children}</li>
             ),
             code: ({ children, className }) => {
               const isBlock = className?.includes("language-");
@@ -246,8 +246,8 @@ export function HomeworkSubmitClient({
                     padding: "12px 16px",
                     backgroundColor: "var(--color-surface-2)",
                     border: "1px solid var(--color-border)",
-                    borderRadius: 8,
-                    fontSize: 12.5,
+                    borderRadius: "var(--radius-2)",
+                    fontSize: "var(--text-sm)",
                     fontFamily: "var(--font-mono)",
                     color: "var(--color-text)",
                     overflowX: "auto",
@@ -263,8 +263,8 @@ export function HomeworkSubmitClient({
                     padding: "1px 6px",
                     backgroundColor: "var(--color-surface-2)",
                     border: "1px solid var(--color-border)",
-                    borderRadius: 4,
-                    fontSize: 12.5,
+                    borderRadius: "var(--radius-1)",
+                    fontSize: "var(--text-sm)",
                     fontFamily: "var(--font-mono)",
                     color: "var(--color-text)",
                   }}
@@ -289,12 +289,12 @@ export function HomeworkSubmitClient({
         <div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: "var(--text-xs)",
               fontWeight: 650,
               letterSpacing: "0.06em",
               textTransform: "uppercase",
               color: "var(--color-text-3)",
-              marginBottom: 8,
+              marginBottom: "var(--space-2)",
             }}
           >
             Your submission
@@ -309,7 +309,7 @@ export function HomeworkSubmitClient({
             style={{
               width: "100%",
               padding: "14px 16px",
-              fontSize: 14,
+              fontSize: "var(--text-base)",
               fontFamily: "inherit",
               color: "var(--color-text)",
               backgroundColor: "var(--color-surface)",
@@ -317,7 +317,7 @@ export function HomeworkSubmitClient({
               boxShadow: focused
                 ? "0 0 0 3px var(--color-accent-dim)"
                 : "var(--shadow-card)",
-              borderRadius: 10,
+              borderRadius: "var(--radius-2)",
               resize: "vertical",
               outline: "none",
               lineHeight: 1.65,
@@ -332,8 +332,8 @@ export function HomeworkSubmitClient({
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              marginTop: 10,
-              fontSize: 12,
+              marginTop: "var(--space-3)",
+              fontSize: "var(--text-xs)",
               color: "var(--color-text-3)",
             }}
           >
@@ -343,7 +343,7 @@ export function HomeworkSubmitClient({
             )}
           </div>
 
-          <div style={{ marginTop: 18 }}>
+          <div style={{ marginTop: "var(--space-5)" }}>
             <Button
               variant="primary"
               size="md"
@@ -380,16 +380,16 @@ function SubmissionView({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 10,
-          marginBottom: 18,
+          gap: "var(--space-3)",
+          marginBottom: "var(--space-5)",
         }}
       >
-        <StatusTag tone="green" style={{ gap: 6 }}>
+        <StatusTag tone="green" style={{ gap: "var(--space-2)" }}>
           <Icon name="clipboard-check" size={11} strokeWidth={2.25} />
           Submitted
         </StatusTag>
         {formattedSubmittedAt && (
-          <span style={{ fontSize: 12, color: "var(--color-text-3)" }}>
+          <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
             {formattedSubmittedAt}
           </span>
         )}
@@ -408,8 +408,8 @@ function SubmissionView({
                 ? "var(--color-correct-border)"
                 : "var(--color-border)"
             }`,
-            borderRadius: 12,
-            marginBottom: 18,
+            borderRadius: "var(--radius-3)",
+            marginBottom: "var(--space-5)",
             boxShadow: passed ? "none" : "var(--shadow-card)",
           }}
         >
@@ -418,13 +418,13 @@ function SubmissionView({
               style={{
                 display: "flex",
                 alignItems: "baseline",
-                gap: 14,
+                gap: "var(--space-4)",
                 marginBottom: submission.feedback ? 12 : 0,
               }}
             >
               <span
                 style={{
-                  fontSize: 36,
+                  fontSize: "var(--text-3xl)",
                   fontWeight: 700,
                   color: passed
                     ? "var(--color-correct)"
@@ -437,7 +437,7 @@ function SubmissionView({
               </span>
               <span
                 style={{
-                  fontSize: 11,
+                  fontSize: "var(--text-xs)",
                   fontWeight: 650,
                   letterSpacing: "0.06em",
                   textTransform: "uppercase",
@@ -452,7 +452,7 @@ function SubmissionView({
             <p
               style={{
                 margin: 0,
-                fontSize: 14,
+                fontSize: "var(--text-base)",
                 color: "var(--color-text-2)",
                 lineHeight: 1.65,
               }}
@@ -467,7 +467,7 @@ function SubmissionView({
         <p
           style={{
             margin: "0 0 18px",
-            fontSize: 13,
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-3)",
           }}
         >
@@ -478,12 +478,12 @@ function SubmissionView({
       {/* Submitted content */}
       <div
         style={{
-          fontSize: 11,
+          fontSize: "var(--text-xs)",
           fontWeight: 650,
           letterSpacing: "0.06em",
           textTransform: "uppercase",
           color: "var(--color-text-3)",
-          marginBottom: 8,
+          marginBottom: "var(--space-2)",
         }}
       >
         Your submission
@@ -492,9 +492,9 @@ function SubmissionView({
         style={{
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: 12,
+          borderRadius: "var(--radius-3)",
           padding: "18px 20px",
-          fontSize: 14,
+          fontSize: "var(--text-base)",
           lineHeight: 1.7,
           color: "var(--color-text)",
           whiteSpace: "pre-wrap",

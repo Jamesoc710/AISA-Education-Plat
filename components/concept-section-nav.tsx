@@ -34,23 +34,23 @@ export function ConceptSectionNav({
     <aside
       style={{
         position: "sticky",
-        top: 24,
+        top: "var(--space-5)",
         alignSelf: "start",
         width: 260,
         flexShrink: 0,
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
+        borderRadius: "var(--radius-3)",
         padding: "16px 14px 12px",
         boxShadow: "var(--shadow-card)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 4px 12px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", padding: "0 4px 12px" }}>
         <IconTile icon={visual.icon} color={visual.color} size="sm" />
         <div style={{ minWidth: 0 }}>
           <div
             style={{
-              fontSize: 10.5,
+              fontSize: "var(--text-xs)",
               fontWeight: 600,
               letterSpacing: "0.07em",
               textTransform: "uppercase",
@@ -62,7 +62,7 @@ export function ConceptSectionNav({
           </div>
           <div
             style={{
-              fontSize: 13.5,
+              fontSize: "var(--text-sm)",
               fontWeight: 600,
               color: "var(--color-text)",
               lineHeight: 1.3,
@@ -114,11 +114,11 @@ const SiblingLink = forwardRef<
         position: "relative",
         display: "flex",
         alignItems: "center",
-        gap: 10,
+        gap: "var(--space-3)",
         padding: "8px 10px 8px 12px",
         margin: "1px 4px",
-        borderRadius: 8,
-        fontSize: 13,
+        borderRadius: "var(--radius-2)",
+        fontSize: "var(--text-sm)",
         fontWeight: current ? 550 : 450,
         color: current ? "var(--color-accent-on-soft)" : "var(--color-text-2)",
         backgroundColor: current ? "var(--color-accent-soft)" : "transparent",
@@ -144,10 +144,10 @@ const SiblingLink = forwardRef<
           style={{
             position: "absolute",
             left: 0,
-            top: 8,
-            bottom: 8,
+            top: "var(--space-2)",
+            bottom: "var(--space-2)",
             width: 2,
-            borderRadius: 1,
+            borderRadius: "var(--radius-1)",
             backgroundColor: "var(--color-accent)",
           }}
         />
@@ -155,7 +155,7 @@ const SiblingLink = forwardRef<
       <span
         aria-hidden
         style={{
-          fontSize: 11,
+          fontSize: "var(--text-xs)",
           fontWeight: 500,
           color: current ? "var(--color-accent)" : "var(--color-text-3)",
           minWidth: 16,

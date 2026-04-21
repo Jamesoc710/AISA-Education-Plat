@@ -81,12 +81,12 @@ export function LoginClient() {
     return {
       width: "100%",
       padding: "10px 14px",
-      fontSize: 13.5,
+      fontSize: "var(--text-sm)",
       fontFamily: "inherit",
       color: "var(--color-text)",
       backgroundColor: "var(--color-surface)",
       border: `1px solid ${focused ? "var(--color-accent)" : "var(--color-border)"}`,
-      borderRadius: 8,
+      borderRadius: "var(--radius-2)",
       outline: "none",
       boxSizing: "border-box",
       boxShadow: focused ? "0 0 0 3px var(--color-accent-dim)" : "none",
@@ -109,15 +109,15 @@ export function LoginClient() {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            marginBottom: 28,
-            gap: 14,
+            marginBottom: "var(--space-6)",
+            gap: "var(--space-4)",
           }}
         >
           <div style={{ textAlign: "center" }}>
             <h1
               style={{
                 margin: "0 0 6px",
-                fontSize: 26,
+                fontSize: "var(--text-xl)",
                 fontWeight: 600,
                 color: "var(--color-text)",
                 letterSpacing: "-0.02em",
@@ -128,7 +128,7 @@ export function LoginClient() {
             <p
               style={{
                 margin: 0,
-                fontSize: 14,
+                fontSize: "var(--text-base)",
                 color: "var(--color-text-2)",
                 lineHeight: 1.55,
               }}
@@ -144,8 +144,8 @@ export function LoginClient() {
           style={{
             backgroundColor: "var(--color-surface)",
             border: "1px solid var(--color-border)",
-            borderRadius: 12,
-            padding: 24,
+            borderRadius: "var(--radius-3)",
+            padding: "var(--space-5)",
             boxShadow: "var(--shadow-card)",
           }}
         >
@@ -154,7 +154,7 @@ export function LoginClient() {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 16,
+                gap: "var(--space-4)",
               }}
             >
               {mode === "signup" && (
@@ -209,12 +209,12 @@ export function LoginClient() {
             {error && (
               <div
                 style={{
-                  marginTop: 16,
+                  marginTop: "var(--space-4)",
                   padding: "10px 14px",
                   backgroundColor: "var(--color-incorrect-dim)",
                   border: "1px solid var(--color-incorrect)",
-                  borderRadius: 8,
-                  fontSize: 13,
+                  borderRadius: "var(--radius-2)",
+                  fontSize: "var(--text-sm)",
                   color: "var(--color-incorrect)",
                 }}
               >
@@ -241,8 +241,8 @@ export function LoginClient() {
 
         <p
           style={{
-            marginTop: 20,
-            fontSize: 13,
+            marginTop: "var(--space-5)",
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-2)",
             textAlign: "center",
           }}
@@ -284,10 +284,10 @@ export function LoginClient() {
 
 const labelStyle: React.CSSProperties = {
   display: "block",
-  fontSize: 12,
+  fontSize: "var(--text-xs)",
   fontWeight: 600,
   color: "var(--color-text-2)",
-  marginBottom: 6,
+  marginBottom: "var(--space-2)",
 };
 
 const toggleButtonStyle: React.CSSProperties = {
@@ -296,7 +296,7 @@ const toggleButtonStyle: React.CSSProperties = {
   color: "var(--color-accent)",
   cursor: "pointer",
   fontFamily: "inherit",
-  fontSize: 13,
+  fontSize: "var(--text-sm)",
   fontWeight: 600,
   padding: 0,
   textDecoration: "underline",

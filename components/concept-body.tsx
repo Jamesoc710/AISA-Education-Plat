@@ -40,7 +40,7 @@ export function ConceptBody({
       style={{
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 16,
+        borderRadius: "var(--radius-3)",
         boxShadow: "var(--shadow-card)",
       }}
     >
@@ -50,9 +50,9 @@ export function ConceptBody({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 6,
-          marginBottom: 18,
-          fontSize: 12.5,
+          gap: "var(--space-2)",
+          marginBottom: "var(--space-5)",
+          fontSize: "var(--text-sm)",
           color: "var(--color-text-3)",
         }}
       >
@@ -86,9 +86,9 @@ export function ConceptBody({
       </nav>
 
       {/* ── Header ─────────────────────────────────────────── */}
-      <header style={{ marginBottom: 28 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-          <span style={{ fontSize: 12.5, color: "var(--color-text-2)", fontWeight: 500 }}>
+      <header style={{ marginBottom: "var(--space-6)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-4)" }}>
+          <span style={{ fontSize: "var(--text-sm)", color: "var(--color-text-2)", fontWeight: 500 }}>
             {concept.section.name}
           </span>
         </div>
@@ -98,13 +98,13 @@ export function ConceptBody({
             display: "flex",
             alignItems: "flex-start",
             justifyContent: "space-between",
-            gap: 16,
+            gap: "var(--space-4)",
           }}
         >
           <h1
             style={{
               margin: 0,
-              fontSize: 32,
+              fontSize: "var(--text-3xl)",
               fontWeight: 600,
               color: "var(--color-text)",
               lineHeight: 1.2,
@@ -120,7 +120,7 @@ export function ConceptBody({
         <p
           style={{
             margin: "12px 0 0",
-            fontSize: 16,
+            fontSize: "var(--text-md)",
             color: "var(--color-text-2)",
             lineHeight: 1.6,
             maxWidth: "62ch",
@@ -130,7 +130,7 @@ export function ConceptBody({
         </p>
       </header>
 
-      <div style={{ height: 1, backgroundColor: "var(--color-border-subtle)", marginBottom: 32 }} />
+      <div style={{ height: 1, backgroundColor: "var(--color-border-subtle)", marginBottom: "var(--space-6)" }} />
 
       {/* ── What it is ──────────────────────────────────────── */}
       <section style={{ marginBottom: 36 }}>
@@ -139,7 +139,7 @@ export function ConceptBody({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: 14,
+            marginBottom: "var(--space-4)",
           }}
         >
           <SectionLabel>What it is</SectionLabel>
@@ -167,7 +167,7 @@ export function ConceptBody({
             margin: "10px 0 0",
             padding: "18px 22px 18px 26px",
             backgroundColor: "var(--color-accent-soft)",
-            borderRadius: 12,
+            borderRadius: "var(--radius-3)",
             overflow: "hidden",
           }}
         >
@@ -176,10 +176,10 @@ export function ConceptBody({
             style={{
               position: "absolute",
               left: 0,
-              top: 14,
-              bottom: 14,
+              top: "var(--space-4)",
+              bottom: "var(--space-4)",
               width: 3,
-              borderRadius: 1.5,
+              borderRadius: "var(--radius-1)",
               backgroundColor: "var(--color-accent)",
             }}
           />
@@ -196,12 +196,12 @@ export function ConceptBody({
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 10,
+              gap: "var(--space-3)",
               padding: "12px 16px",
               width: "100%",
               backgroundColor: deeperOpen ? "var(--color-surface-2)" : "var(--color-surface)",
               border: "1px solid var(--color-border)",
-              borderRadius: 12,
+              borderRadius: "var(--radius-3)",
               borderBottomLeftRadius: deeperOpen ? 0 : 12,
               borderBottomRightRadius: deeperOpen ? 0 : 12,
               cursor: "pointer",
@@ -223,7 +223,7 @@ export function ConceptBody({
             </span>
             <span
               style={{
-                fontSize: 13.5,
+                fontSize: "var(--text-sm)",
                 fontWeight: 600,
                 color: "var(--color-text)",
                 letterSpacing: "-0.005em",
@@ -233,7 +233,7 @@ export function ConceptBody({
             </span>
             <span
               style={{
-                fontSize: 12.5,
+                fontSize: "var(--text-sm)",
                 color: "var(--color-text-3)",
                 marginLeft: "auto",
               }}
@@ -249,8 +249,8 @@ export function ConceptBody({
                 backgroundColor: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
                 borderTop: "none",
-                borderBottomLeftRadius: 12,
-                borderBottomRightRadius: 12,
+                borderBottomLeftRadius: "var(--radius-3)",
+                borderBottomRightRadius: "var(--radius-3)",
               }}
             >
               <MarkdownBody content={concept.goDeeper} />
@@ -267,8 +267,8 @@ export function ConceptBody({
             style={{
               display: "flex",
               flexWrap: "wrap",
-              gap: 8,
-              marginTop: 10,
+              gap: "var(--space-2)",
+              marginTop: "var(--space-3)",
             }}
           >
             {concept.relatedFrom.map((r) => (
@@ -286,7 +286,7 @@ export function ConceptBody({
       {concept.resources.length > 0 && (
         <section>
           <SectionLabel>Resources</SectionLabel>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", marginTop: "var(--space-3)" }}>
             {concept.resources.map((resource) => (
               <ResourceRow key={resource.id} resource={resource} />
             ))}
@@ -304,7 +304,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     <h2
       style={{
         margin: 0,
-        fontSize: 11,
+        fontSize: "var(--text-xs)",
         fontWeight: 600,
         letterSpacing: "0.08em",
         textTransform: "uppercase",
@@ -341,19 +341,19 @@ function BookmarkButton({
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: 6,
+        gap: "var(--space-2)",
         padding: "7px 12px",
-        marginTop: 4,
+        marginTop: "var(--space-1)",
         backgroundColor: bookmarked
           ? "var(--color-gold-soft)"
           : hov
           ? "var(--color-surface-2)"
           : "var(--color-surface)",
         border: `1px solid ${bookmarked ? "var(--color-gold-soft)" : "var(--color-border)"}`,
-        borderRadius: 8,
+        borderRadius: "var(--radius-2)",
         cursor: "pointer",
         fontFamily: "inherit",
-        fontSize: 12.5,
+        fontSize: "var(--text-sm)",
         fontWeight: 500,
         color: baseColor,
         flexShrink: 0,
@@ -385,9 +385,9 @@ function ModeToggle({
         display: "inline-flex",
         backgroundColor: "var(--color-surface-2)",
         border: "1px solid var(--color-border-subtle)",
-        borderRadius: 8,
-        padding: 2,
-        gap: 2,
+        borderRadius: "var(--radius-2)",
+        padding: "var(--space-1)",
+        gap: "var(--space-1)",
       }}
     >
       {(["simple", "detailed"] as const).map((m) => {
@@ -399,13 +399,13 @@ function ModeToggle({
             onClick={() => setMode(m)}
             style={{
               padding: "4px 12px",
-              fontSize: 12,
+              fontSize: "var(--text-xs)",
               fontWeight: active ? 600 : 500,
               fontFamily: "inherit",
               color: active ? "var(--color-accent-on-soft)" : "var(--color-text-2)",
               backgroundColor: active ? "var(--color-surface)" : "transparent",
               border: "none",
-              borderRadius: 6,
+              borderRadius: "var(--radius-1)",
               cursor: "pointer",
               textTransform: "capitalize",
               boxShadow: active ? "0 1px 2px rgba(20,20,30,0.05)" : "none",
@@ -432,12 +432,12 @@ function RelatedChip({ href, name }: { href: string; name: string }) {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: 6,
+        gap: "var(--space-2)",
         padding: "7px 12px 7px 14px",
         backgroundColor: hov ? "var(--color-accent-soft)" : "var(--color-surface)",
         border: `1px solid ${hov ? "var(--color-accent-soft)" : "var(--color-border)"}`,
-        borderRadius: 6,
-        fontSize: 13,
+        borderRadius: "var(--radius-1)",
+        fontSize: "var(--text-sm)",
         fontWeight: 500,
         color: hov ? "var(--color-accent-on-soft)" : "var(--color-text)",
         textDecoration: "none",
@@ -469,11 +469,11 @@ function ResourceRow({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 14,
+        gap: "var(--space-4)",
         padding: "12px 14px",
         backgroundColor: hov ? "var(--color-surface-2)" : "var(--color-surface)",
         border: `1px solid ${hov ? "var(--color-border)" : "var(--color-border-subtle)"}`,
-        borderRadius: 10,
+        borderRadius: "var(--radius-2)",
         textDecoration: "none",
         transition:
           "background-color 120ms ease, border-color 120ms ease, transform 120ms ease",
@@ -487,12 +487,12 @@ function ResourceRow({
           alignItems: "center",
           justifyContent: "center",
           padding: "3px 9px",
-          fontSize: 10,
+          fontSize: "var(--text-xs)",
           fontWeight: 700,
           letterSpacing: "0.06em",
           color: `var(--tile-${palette}-fg)`,
           backgroundColor: `var(--tile-${palette}-bg)`,
-          borderRadius: 6,
+          borderRadius: "var(--radius-1)",
           minWidth: 56,
           flexShrink: 0,
         }}
@@ -503,7 +503,7 @@ function ResourceRow({
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            fontSize: 13.5,
+            fontSize: "var(--text-sm)",
             fontWeight: 550,
             color: "var(--color-text)",
             lineHeight: 1.4,
@@ -517,9 +517,9 @@ function ResourceRow({
         </div>
         <div
           style={{
-            fontSize: 11.5,
+            fontSize: "var(--text-xs)",
             color: "var(--color-text-3)",
-            marginTop: 2,
+            marginTop: "var(--space-1)",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -532,7 +532,7 @@ function ResourceRow({
         >
           {resource.sourceDomain}
           {resource.description && (
-            <span style={{ marginLeft: 6 }}>· {resource.description}</span>
+            <span style={{ marginLeft: "var(--space-2)" }}>· {resource.description}</span>
           )}
         </div>
       </div>
@@ -540,7 +540,7 @@ function ResourceRow({
       {resource.estimatedMinutes && (
         <span
           style={{
-            fontSize: 11.5,
+            fontSize: "var(--text-xs)",
             fontWeight: 500,
             color: "var(--color-text-3)",
             flexShrink: 0,
@@ -613,8 +613,8 @@ function MarkdownBody({
                 padding: "14px 16px",
                 backgroundColor: "var(--color-surface-2)",
                 border: "1px solid var(--color-border-subtle)",
-                borderRadius: 8,
-                fontSize: 12.5,
+                borderRadius: "var(--radius-2)",
+                fontSize: "var(--text-sm)",
                 fontFamily: "var(--font-mono)",
                 color: "var(--color-text)",
                 overflowX: "auto",
@@ -630,8 +630,8 @@ function MarkdownBody({
                 padding: "1px 6px",
                 backgroundColor: "var(--color-surface-2)",
                 border: "1px solid var(--color-border-subtle)",
-                borderRadius: 4,
-                fontSize: 12.5,
+                borderRadius: "var(--radius-1)",
+                fontSize: "var(--text-sm)",
                 fontFamily: "var(--font-mono)",
                 color: "var(--color-accent-on-soft)",
               }}
@@ -667,13 +667,13 @@ function MarkdownBody({
           </ol>
         ),
         li: ({ children }) => (
-          <li style={{ marginBottom: 4, color: baseColor }}>{children}</li>
+          <li style={{ marginBottom: "var(--space-1)", color: baseColor }}>{children}</li>
         ),
         h3: ({ children }) => (
           <h3
             style={{
               margin: "22px 0 8px",
-              fontSize: 15.5,
+              fontSize: "var(--text-md)",
               fontWeight: 600,
               color: "var(--color-text)",
               letterSpacing: "-0.01em",
@@ -686,7 +686,7 @@ function MarkdownBody({
           <h4
             style={{
               margin: "16px 0 6px",
-              fontSize: 13.5,
+              fontSize: "var(--text-sm)",
               fontWeight: 600,
               color: "var(--color-text-2)",
             }}
@@ -698,7 +698,7 @@ function MarkdownBody({
           <blockquote
             style={{
               margin: "0 0 14px",
-              paddingLeft: 14,
+              paddingLeft: "var(--space-4)",
               borderLeft: "2px solid var(--color-border)",
               color: "var(--color-text-2)",
               fontSize,
