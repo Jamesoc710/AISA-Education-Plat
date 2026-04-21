@@ -35,15 +35,7 @@ export function ConceptBody({
   const hasSimple = Boolean(concept.simpleExplanation);
 
   return (
-    <article
-      className="concept-body-padding"
-      style={{
-        backgroundColor: "var(--color-surface)",
-        border: "1px solid var(--color-border)",
-        borderRadius: "var(--radius-3)",
-        boxShadow: "var(--shadow-card)",
-      }}
-    >
+    <article className="concept-body-padding">
       {/* ── Breadcrumb ─────────────────────────────────────── */}
       <nav
         aria-label="Breadcrumb"
