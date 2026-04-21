@@ -120,6 +120,12 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
             iconName="help-circle"
             active={isActive("/quiz")}
           />
+          <SidebarNavItem
+            href="/flashcards"
+            label="Flashcards"
+            iconName="cards-three"
+            active={isActive("/flashcards")}
+          />
         </div>
 
         {/* PREPARE group */}

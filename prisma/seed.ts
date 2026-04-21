@@ -7,6 +7,8 @@ import { TIERS, SECTIONS, CONCEPTS, CONCEPT_RELATIONS } from "./seed-data/curric
 import { QUESTIONS } from "./seed-data/questions";
 import { RESOURCES } from "./seed-data/resources";
 import { SIMPLE_EXPLANATIONS } from "./seed-data/simple-explanations";
+import { FLASHCARD_DEFINITIONS } from "./seed-data/flashcard-definitions";
+import { FLASHCARD_SHORTS } from "./seed-data/flashcard-shorts";
 
 // Use DIRECT_URL (session-mode pooler) for seeding — supports transactions
 const url = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
@@ -59,11 +61,21 @@ async function main() {
   for (const concept of CONCEPTS) {
     const { sectionSlug, ...rest } = concept;
     const simpleExplanation = SIMPLE_EXPLANATIONS[concept.slug] ?? null;
+    const flashcardShort = FLASHCARD_SHORTS[concept.slug] ?? null;
+    const flashcardDefinition = FLASHCARD_DEFINITIONS[concept.slug] ?? null;
     const created = await prisma.concept.create({
-      data: { ...rest, simpleExplanation, sectionId: sectionMap[sectionSlug] },
+      data: {
+        ...rest,
+        simpleExplanation,
+        flashcardShort,
+        flashcardDefinition,
+        sectionId: sectionMap[sectionSlug],
+      },
     });
     conceptMap[concept.slug] = created.id;
-    console.log(`    ✓ Concept: ${concept.name}${simpleExplanation ? " (+simple)" : ""}`);
+    console.log(
+      `    ✓ Concept: ${concept.name}${simpleExplanation ? " (+simple)" : ""}${flashcardShort ? " (+short)" : ""}${flashcardDefinition ? " (+flash)" : ""}`,
+    );
   }
 
   // ── Output simple explanations for review ───────────────────────────────

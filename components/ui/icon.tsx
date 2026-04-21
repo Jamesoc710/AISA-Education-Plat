@@ -90,6 +90,10 @@ import {
   CircleDashed,
   CircleHalf,
   CirclesThreePlus,
+  CardsThree,
+  Shuffle,
+  Star,
+  ArrowRight,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon, IconWeight } from "@phosphor-icons/react";
 
@@ -117,7 +121,9 @@ export type IconName =
   | "planet" | "car" | "dna" | "chat-circle-dots" | "sliders-horizontal"
   | "file-text" | "funnel" | "magnifying-glass"
   // Tier indicators
-  | "circle-dashed" | "circle-half" | "circles-three-plus";
+  | "circle-dashed" | "circle-half" | "circles-three-plus"
+  // Flashcards
+  | "cards-three" | "shuffle" | "star" | "star-filled" | "arrow-right";
 
 const REGISTRY: Record<IconName, PhosphorIcon> = {
   // Section tiles
@@ -215,6 +221,12 @@ const REGISTRY: Record<IconName, PhosphorIcon> = {
   "circle-dashed": CircleDashed,
   "circle-half": CircleHalf,
   "circles-three-plus": CirclesThreePlus,
+  // Flashcards
+  "cards-three": CardsThree,
+  "shuffle": Shuffle,
+  "star": Star,
+  "star-filled": Star,
+  "arrow-right": ArrowRight,
 };
 
 export function Icon({
@@ -233,7 +245,9 @@ export function Icon({
   strokeWidth?: number;
 }) {
   const Cmp = REGISTRY[name];
-  const resolvedWeight: IconWeight = weight ?? (name === "bookmark-filled" ? "fill" : "regular");
+  const resolvedWeight: IconWeight =
+    weight ??
+    (name === "bookmark-filled" || name === "star-filled" ? "fill" : "regular");
   return (
     <Cmp
       size={size}
