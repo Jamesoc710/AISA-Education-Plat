@@ -293,7 +293,7 @@ const labelStyle: React.CSSProperties = {
 const toggleButtonStyle: React.CSSProperties = {
   background: "none",
   border: "none",
-  color: "var(--color-accent)",
+  color: "var(--color-accent-on-soft)",
   cursor: "pointer",
   fontFamily: "inherit",
   fontSize: "var(--text-sm)",

@@ -32,6 +32,7 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
 
   return (
     <aside
+      aria-label="Primary"
       style={{
         display: "flex",
         flexDirection: "column",

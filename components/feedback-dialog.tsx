@@ -286,7 +286,6 @@ export function FeedbackDialog({ open, onClose }: Props) {
                 fontFamily: "inherit",
                 lineHeight: 1.5,
                 resize: "vertical",
-                outline: "none",
                 boxSizing: "border-box",
               }}
             />

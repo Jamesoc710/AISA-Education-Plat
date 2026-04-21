@@ -2437,7 +2437,7 @@
       },
       {
         "value": "12px",
-        "count": 6
+        "count": 5
       }
     ],
     "uniqueFonts": [
@@ -2508,7 +2508,7 @@
     "uniqueShadows": [
       {
         "value": "rgba(20, 20, 30, 0.04) 0px 1px 2px 0px, rgba(20, 20, 30, 0.02) 0px 1px 1px 0px",
-        "count": 4
+        "count": 3
       },
       {
         "value": "rgba(20, 20, 30, 0.05) 0px 1px 2px 0px",
@@ -2517,8 +2517,8 @@
     ],
     "gradients": [],
     "roundedFullCount": 0,
-    "cardPatternCount": 10,
-    "cardNestingCount": 7,
+    "cardPatternCount": 9,
+    "cardNestingCount": 0,
     "axeViolations": [
       {
         "id": "color-contrast",
@@ -2884,7 +2884,7 @@
       },
       {
         "value": "12px",
-        "count": 6
+        "count": 5
       }
     ],
     "uniqueFonts": [
@@ -2955,7 +2955,7 @@
     "uniqueShadows": [
       {
         "value": "rgba(20, 20, 30, 0.04) 0px 1px 2px 0px, rgba(20, 20, 30, 0.02) 0px 1px 1px 0px",
-        "count": 4
+        "count": 3
       },
       {
         "value": "rgba(20, 20, 30, 0.05) 0px 1px 2px 0px",
@@ -2964,8 +2964,8 @@
     ],
     "gradients": [],
     "roundedFullCount": 0,
-    "cardPatternCount": 10,
-    "cardNestingCount": 7,
+    "cardPatternCount": 9,
+    "cardNestingCount": 0,
     "axeViolations": [],
     "focusStates": [
       {
@@ -4113,7 +4113,7 @@
     "uniqueFontSizes": [
       {
         "value": "16px",
-        "count": 143
+        "count": 144
       },
       {
         "value": "13px",
@@ -4143,7 +4143,7 @@
     "uniqueFontWeights": [
       {
         "value": "400",
-        "count": 158
+        "count": 159
       },
       {
         "value": "450",
@@ -4560,7 +4560,7 @@
     "uniqueFontSizes": [
       {
         "value": "16px",
-        "count": 143
+        "count": 144
       },
       {
         "value": "13px",
@@ -4590,7 +4590,7 @@
     "uniqueFontWeights": [
       {
         "value": "400",
-        "count": 158
+        "count": 159
       },
       {
         "value": "450",

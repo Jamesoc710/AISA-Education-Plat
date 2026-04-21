@@ -1,0 +1,13 @@
+[/] status=200 final=/login contrast=0 landmark=0
+[/login] status=200 final=/login contrast=0 landmark=0
+[/browse] status=200 final=/browse contrast=0 landmark=0
+[/concepts/transformers] status=200 final=/concepts/transformers contrast=0 landmark=0
+[/quiz] status=200 final=/quiz contrast=0 landmark=0
+[/calendar] status=200 final=/calendar contrast=0 landmark=0
+[/home] status=200 final=/login contrast=0 landmark=0
+[/dashboard] status=200 final=/login?redirect=%2Fdashboard contrast=0 landmark=0
+[/admin] status=200 final=/login?redirect=%2Fadmin contrast=0 landmark=0
+[/homework] status=200 final=/login?redirect=/homework contrast=0 landmark=0
+[/assessments] status=200 final=/login?redirect=/assessments contrast=0 landmark=0
+
+TOTAL: contrast=0 landmark=0

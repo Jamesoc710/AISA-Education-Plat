@@ -32,6 +32,7 @@ export function ConceptSectionNav({
 
   return (
     <aside
+      aria-label="Concept sections"
       style={{
         position: "sticky",
         top: "var(--space-5)",
@@ -157,7 +158,7 @@ const SiblingLink = forwardRef<
         style={{
           fontSize: "var(--text-xs)",
           fontWeight: 500,
-          color: current ? "var(--color-accent)" : "var(--color-text-3)",
+          color: current ? "var(--color-accent-on-soft)" : "var(--color-text-3)",
           minWidth: 16,
           flexShrink: 0,
           fontVariantNumeric: "tabular-nums",
