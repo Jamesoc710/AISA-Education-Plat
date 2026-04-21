@@ -6,7 +6,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { ConceptDetail } from "@/lib/concepts";
 import { Icon } from "@/components/ui/icon";
-import { TierBadge } from "@/components/ui/tier-badge";
 
 /**
  * Resource-type tag colors — reuse the section pastel tokens.
@@ -89,8 +88,6 @@ export function ConceptBody({
       {/* ── Header ─────────────────────────────────────────── */}
       <header style={{ marginBottom: 28 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-          <TierBadge slug={concept.section.tier.slug} size="xs" />
-          <span style={{ fontSize: 12, color: "var(--color-text-3)" }}>·</span>
           <span style={{ fontSize: 12.5, color: "var(--color-text-2)", fontWeight: 500 }}>
             {concept.section.name}
           </span>
@@ -439,7 +436,7 @@ function RelatedChip({ href, name }: { href: string; name: string }) {
         padding: "7px 12px 7px 14px",
         backgroundColor: hov ? "var(--color-accent-soft)" : "var(--color-surface)",
         border: `1px solid ${hov ? "var(--color-accent-soft)" : "var(--color-border)"}`,
-        borderRadius: 999,
+        borderRadius: 6,
         fontSize: 13,
         fontWeight: 500,
         color: hov ? "var(--color-accent-on-soft)" : "var(--color-text)",

@@ -17,6 +17,7 @@ export function SidebarNavItem({
   iconNode,
   active,
   rightSlot,
+  defaultIconColor,
 }: {
   href: string;
   label: string;
@@ -24,6 +25,8 @@ export function SidebarNavItem({
   iconNode?: ReactNode;
   active?: boolean;
   rightSlot?: ReactNode;
+  /** Overrides the icon's resting color; hover/active still use the normal text colors. */
+  defaultIconColor?: string;
 }) {
   const [hovered, setHovered] = useState(false);
 
@@ -37,6 +40,7 @@ export function SidebarNavItem({
     : hovered
     ? "var(--color-text)"
     : "var(--color-text-2)";
+  const iconColor = defaultIconColor && !active && !hovered ? defaultIconColor : color;
 
   return (
     <Link
@@ -59,7 +63,7 @@ export function SidebarNavItem({
         lineHeight: 1.2,
       }}
     >
-      <span style={{ display: "flex", flexShrink: 0, color }}>
+      <span style={{ display: "flex", flexShrink: 0, color: iconColor }}>
         {iconNode ?? (iconName && <Icon name={iconName} size={17} strokeWidth={1.85} />)}
       </span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

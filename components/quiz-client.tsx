@@ -8,6 +8,7 @@ import type { QuizQuestion, MCAnswer } from "@/components/quiz-results";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 import { TierBadge } from "@/components/ui/tier-badge";
+import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
 
@@ -1047,16 +1048,6 @@ function TierRow({
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 6,
-          }}
-        >
-          <TierBadge slug={tier.slug} label={tier.name} size="xs" />
-        </div>
-        <div
-          style={{
             fontSize: 16,
             fontWeight: 600,
             color: "var(--color-text)",
@@ -1222,20 +1213,9 @@ function QuizFlow({
           flexWrap: "wrap",
         }}
       >
-        <span
-          style={{
-            fontSize: 11,
-            fontWeight: 600,
-            color: "var(--color-text-2)",
-            letterSpacing: "0.05em",
-            textTransform: "uppercase",
-            backgroundColor: "var(--color-surface-2)",
-            padding: "3px 9px",
-            borderRadius: 999,
-          }}
-        >
+        <StatusTag tone="neutral" uppercase>
           {question.conceptName}
-        </span>
+        </StatusTag>
         <span
           style={{
             fontSize: 11,

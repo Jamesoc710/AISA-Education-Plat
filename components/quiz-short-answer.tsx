@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 
 type GradeResult = {
   score: "correct" | "partial" | "incorrect";
@@ -20,27 +21,24 @@ type ShortAnswerProps = {
 
 const SCORE_TOKENS: Record<
   string,
-  { bg: string; border: string; chipBg: string; chipFg: string; label: string }
+  { bg: string; border: string; tone: StatusTagTone; label: string }
 > = {
   correct: {
     bg: "var(--color-correct-dim)",
     border: "var(--color-correct-border)",
-    chipBg: "var(--color-correct)",
-    chipFg: "#fff",
+    tone: "green",
     label: "Correct",
   },
   partial: {
     bg: "var(--color-gold-soft)",
     border: "rgba(184, 134, 12, 0.28)",
-    chipBg: "var(--color-gold)",
-    chipFg: "#fff",
+    tone: "gold",
     label: "Partially correct",
   },
   incorrect: {
     bg: "var(--color-incorrect-dim)",
     border: "var(--color-incorrect-border)",
-    chipBg: "var(--color-incorrect)",
-    chipFg: "#fff",
+    tone: "red",
     label: "Needs review",
   },
 };
@@ -191,22 +189,10 @@ export function ShortAnswerQuestion({
             borderRadius: 12,
           }}
         >
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              padding: "3px 10px",
-              fontSize: 11,
-              fontWeight: 650,
-              letterSpacing: "0.05em",
-              textTransform: "uppercase",
-              color: SCORE_TOKENS[gradeResult.score].chipFg,
-              backgroundColor: SCORE_TOKENS[gradeResult.score].chipBg,
-              borderRadius: 999,
-              marginBottom: 12,
-            }}
-          >
-            {SCORE_TOKENS[gradeResult.score].label}
+          <div style={{ marginBottom: 12 }}>
+            <StatusTag tone={SCORE_TOKENS[gradeResult.score].tone} uppercase>
+              {SCORE_TOKENS[gradeResult.score].label}
+            </StatusTag>
           </div>
 
           <p

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
+import { StatusTag } from "@/components/ui/status-tag";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -309,21 +310,7 @@ function UpcomingStrip({
           >
             {inlineText}
           </span>
-          {rest > 0 && (
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                padding: "2px 8px",
-                borderRadius: 999,
-                backgroundColor: "var(--color-accent-soft)",
-                color: "var(--color-accent-on-soft)",
-                flexShrink: 0,
-              }}
-            >
-              +{rest} more
-            </span>
-          )}
+          {rest > 0 && <StatusTag tone="accent">+{rest} more</StatusTag>}
         </span>
         <span
           aria-hidden
@@ -745,31 +732,13 @@ function MasteryPanel({
             : `${Math.round(masteredPct * 100)}% at mastery`}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: "var(--color-text-2)" }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: 2,
-                backgroundColor: "var(--color-correct)",
-                flexShrink: 0,
-              }}
-            />
-            {masteredCount} mastered (80%+)
+          <span>
+            <span style={{ color: "var(--color-correct)", fontWeight: 600 }}>
+              {masteredCount} mastered
+            </span>{" "}
+            (80%+)
           </span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: 2,
-                backgroundColor: "var(--tile-sage-bg)",
-                border: "1px solid var(--color-border)",
-                flexShrink: 0,
-              }}
-            />
-            {touchedCount - masteredCount} in progress
-          </span>
+          <span>{touchedCount - masteredCount} in progress</span>
         </div>
       </div>
     </div>
@@ -832,20 +801,9 @@ function TierBars({
         return (
           <div key={tier.id} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span
-                  style={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: 999,
-                    backgroundColor: `var(--tile-${visual.color}-fg)`,
-                    flexShrink: 0,
-                  }}
-                />
-                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text)" }}>
-                  {visual.label}
-                </span>
-              </div>
+              <span style={{ fontSize: 13, fontWeight: 600, color: `var(--tile-${visual.color}-fg)` }}>
+                {visual.label}
+              </span>
               <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>
                 <span style={{ color: "var(--color-text-2)", fontWeight: 600 }}>
                   {mastered}/{total}
@@ -1200,23 +1158,7 @@ function KnowledgeMap({
                 borderRadius: 10,
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 12,
-                }}
-              >
-                <span
-                  style={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: 999,
-                    backgroundColor: `var(--tile-${visual.color}-fg)`,
-                    flexShrink: 0,
-                  }}
-                />
+              <div style={{ marginBottom: 12 }}>
                 <span
                   style={{
                     fontSize: 12,
@@ -1375,27 +1317,17 @@ function KnowledgeMap({
 
 function Legend() {
   const items = [
-    { label: "New", bg: "var(--color-surface-2)", border: "var(--color-border)" },
-    { label: "<50%", bg: "var(--color-incorrect-dim)", border: "var(--color-incorrect-border)" },
-    { label: "50–79%", bg: "var(--color-gold-dim)", border: "rgba(232, 181, 74, 0.35)" },
-    { label: "80%+", bg: "var(--color-correct-dim)", border: "var(--color-correct-border)" },
+    { label: "New", color: "var(--color-text-3)" },
+    { label: "<50%", color: "var(--color-incorrect)" },
+    { label: "50–79%", color: "var(--color-gold)" },
+    { label: "80%+", color: "var(--color-correct)" },
   ];
   return (
-    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+    <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
       {items.map((it) => (
-        <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <span
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: 3,
-              backgroundColor: it.bg,
-              border: `1px solid ${it.border}`,
-              flexShrink: 0,
-            }}
-          />
-          <span style={{ fontSize: 11, color: "var(--color-text-3)" }}>{it.label}</span>
-        </div>
+        <span key={it.label} style={{ fontSize: 11, fontWeight: 600, color: it.color }}>
+          {it.label}
+        </span>
       ))}
     </div>
   );
@@ -1530,7 +1462,6 @@ function SuggestedReview({
 
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {weakItems.map((item) => {
-          const visual = TIER_VISUAL[item.tierSlug] ?? { color: "stone", label: item.tierSlug };
           return (
             <div
               key={item.concept.id}
@@ -1600,15 +1531,6 @@ function SuggestedReview({
                     color: "var(--color-text-3)",
                   }}
                 >
-                  <span
-                    style={{
-                      width: 7,
-                      height: 7,
-                      borderRadius: 999,
-                      backgroundColor: `var(--tile-${visual.color}-fg)`,
-                      flexShrink: 0,
-                    }}
-                  />
                   {item.sectionName}
                   {item.score && (
                     <>

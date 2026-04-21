@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
+import { StatusTag } from "@/components/ui/status-tag";
 
 interface CalEvent {
   id: string;
@@ -231,19 +232,9 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
         </button>
 
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 650,
-              color: "var(--color-accent-on-soft)",
-              backgroundColor: "var(--color-accent-soft)",
-              padding: "3px 10px",
-              borderRadius: 999,
-              letterSpacing: "0.04em",
-            }}
-          >
-            WEEK {currentWeek.weekNumber}
-          </span>
+          <StatusTag tone="accent" uppercase>
+            Week {currentWeek.weekNumber}
+          </StatusTag>
           <span
             style={{
               fontSize: 15,
@@ -509,21 +500,16 @@ function EventCard({
         </div>
       )}
       {event.type !== "GENERAL" && (
-        <span
-          style={{
-            display: "inline-block",
-            marginTop: 6,
-            fontSize: 10,
-            fontWeight: 650,
-            color: tokens.fg,
-            backgroundColor: tokens.bg,
-            padding: "2px 7px",
-            borderRadius: 999,
-            letterSpacing: "0.03em",
-          }}
-        >
-          {tokens.label}
-        </span>
+        <div style={{ marginTop: 6 }}>
+          <StatusTag
+            tone="neutral"
+            size="xs"
+            uppercase
+            style={{ color: tokens.fg, backgroundColor: tokens.bg }}
+          >
+            {tokens.label}
+          </StatusTag>
+        </div>
       )}
     </button>
   );
@@ -635,20 +621,13 @@ function HomeworkPanel({
                   )}
                 </div>
                 {e.type !== "GENERAL" && (
-                  <span
-                    style={{
-                      fontSize: 10.5,
-                      fontWeight: 650,
-                      color: tokens.fg,
-                      backgroundColor: tokens.bg,
-                      padding: "2px 8px",
-                      borderRadius: 999,
-                      letterSpacing: "0.03em",
-                      flexShrink: 0,
-                    }}
+                  <StatusTag
+                    tone="neutral"
+                    uppercase
+                    style={{ color: tokens.fg, backgroundColor: tokens.bg }}
                   >
                     {tokens.label}
-                  </span>
+                  </StatusTag>
                 )}
               </div>
             </button>

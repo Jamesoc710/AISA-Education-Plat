@@ -87,6 +87,9 @@ import {
   SlidersHorizontal,
   FileText,
   Funnel,
+  CircleDashed,
+  CircleHalf,
+  CirclesThreePlus,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon, IconWeight } from "@phosphor-icons/react";
 
@@ -112,7 +115,9 @@ export type IconName =
   | "medal" | "scales" | "infinity" | "flag" | "lock" | "gavel" | "warning"
   | "copyright" | "eye-slash" | "list-checks" | "caret-circle-down" | "image"
   | "planet" | "car" | "dna" | "chat-circle-dots" | "sliders-horizontal"
-  | "file-text" | "funnel" | "magnifying-glass";
+  | "file-text" | "funnel" | "magnifying-glass"
+  // Tier indicators
+  | "circle-dashed" | "circle-half" | "circles-three-plus";
 
 const REGISTRY: Record<IconName, PhosphorIcon> = {
   // Section tiles
@@ -206,6 +211,10 @@ const REGISTRY: Record<IconName, PhosphorIcon> = {
   "file-text": FileText,
   "funnel": Funnel,
   "magnifying-glass": MagnifyingGlass,
+  // Tier indicators
+  "circle-dashed": CircleDashed,
+  "circle-half": CircleHalf,
+  "circles-three-plus": CirclesThreePlus,
 };
 
 export function Icon({

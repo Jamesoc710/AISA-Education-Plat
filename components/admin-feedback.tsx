@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
+import { FilterTabs, type FilterTabItem } from "@/components/ui/filter-tabs";
 
 type Status = "new" | "read" | "resolved";
 
@@ -18,12 +20,14 @@ type FeedbackItem = {
   imageUrl: string | null;
 };
 
-const FILTERS: { key: "all" | Status; label: string }[] = [
+type FilterKey = "all" | Status;
+
+const FILTERS: readonly { key: FilterKey; label: string }[] = [
   { key: "all", label: "All" },
   { key: "new", label: "New" },
   { key: "read", label: "Read" },
   { key: "resolved", label: "Resolved" },
-];
+] as const;
 
 function relativeTime(iso: string): string {
   const then = new Date(iso).getTime();
@@ -42,12 +46,10 @@ function relativeTime(iso: string): string {
   });
 }
 
-function statusTone(status: Status): { bg: string; fg: string } {
-  if (status === "new")
-    return { bg: "var(--color-accent-dim)", fg: "var(--color-accent)" };
-  if (status === "resolved")
-    return { bg: "var(--color-correct-dim)", fg: "var(--color-correct)" };
-  return { bg: "var(--color-surface-2)", fg: "var(--color-text-2)" };
+function statusTagTone(status: Status): StatusTagTone {
+  if (status === "new") return "accent";
+  if (status === "resolved") return "green";
+  return "neutral";
 }
 
 export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
@@ -112,55 +114,16 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
   return (
     <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
       <div style={{ flex: "1 1 0", minWidth: 0 }}>
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            marginBottom: 16,
-            flexWrap: "wrap",
-          }}
-        >
-          {FILTERS.map((f) => {
-            const isActive = filter === f.key;
-            return (
-              <button
-                key={f.key}
-                type="button"
-                onClick={() => setFilter(f.key)}
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: 999,
-                  border: `1px solid ${isActive ? "var(--color-accent)" : "var(--color-border)"}`,
-                  backgroundColor: isActive
-                    ? "var(--color-accent-dim)"
-                    : "var(--color-surface)",
-                  color: isActive
-                    ? "var(--color-accent)"
-                    : "var(--color-text-2)",
-                  fontSize: 12.5,
-                  fontWeight: 500,
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-              >
-                {f.label}
-                <span
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    color: isActive
-                      ? "var(--color-accent)"
-                      : "var(--color-text-3)",
-                  }}
-                >
-                  {counts[f.key]}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <FilterTabs<FilterKey>
+          tabs={FILTERS.map<FilterTabItem<FilterKey>>((f) => ({
+            key: f.key,
+            label: f.label,
+            count: counts[f.key],
+          }))}
+          active={filter}
+          onChange={setFilter}
+          style={{ marginBottom: 16 }}
+        />
 
         {filtered.length === 0 ? (
           <div
@@ -187,7 +150,7 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
             }}
           >
             {filtered.map((r) => {
-              const tone = statusTone(r.status);
+              const chipTone = statusTagTone(r.status);
               const isSelected = selected?.id === r.id;
               const preview = r.content.length > 140
                 ? r.content.slice(0, 140).trim() + "…"
@@ -259,22 +222,9 @@ export function AdminFeedback({ items }: { items: FeedbackItem[] }) {
                         {relativeTime(r.createdAt)}
                       </span>
                     </div>
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        padding: "2px 8px",
-                        borderRadius: 999,
-                        fontSize: 11,
-                        fontWeight: 600,
-                        letterSpacing: "0.03em",
-                        textTransform: "uppercase",
-                        backgroundColor: tone.bg,
-                        color: tone.fg,
-                      }}
-                    >
+                    <StatusTag tone={chipTone} uppercase>
                       {r.status}
-                    </span>
+                    </StatusTag>
                   </div>
                   <div
                     style={{

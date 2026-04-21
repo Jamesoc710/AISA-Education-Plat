@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
+import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 
 type Recruit = {
   id: string;
@@ -55,26 +56,18 @@ function relativeTime(iso: string | null): string {
   return `${years}y ago`;
 }
 
-function scoreTone(score: number | null): { fg: string; bg: string } | null {
+function scoreTone(score: number | null): StatusTagTone | null {
   if (score === null) return null;
-  if (score >= 80)
-    return { fg: "var(--color-correct)", bg: "var(--color-correct-dim)" };
-  if (score >= 50)
-    return { fg: "var(--color-gold)", bg: "var(--color-gold-soft)" };
-  return { fg: "var(--color-incorrect)", bg: "var(--color-incorrect-dim)" };
+  if (score >= 80) return "green";
+  if (score >= 50) return "gold";
+  return "red";
 }
 
-function roleBadge(role: string): { bg: string; color: string } {
-  if (role === "ADMIN")
-    return {
-      bg: "var(--color-accent-soft)",
-      color: "var(--color-accent-on-soft)",
-    };
-  if (role === "MENTOR")
-    return { bg: "var(--color-blue-soft)", color: "var(--color-blue)" };
-  if (role === "CURRICULUM_LEAD" || role === "PROJECT_LEAD")
-    return { bg: "var(--color-gold-soft)", color: "var(--color-gold)" };
-  return { bg: "var(--color-surface-2)", color: "var(--color-text-2)" };
+function roleBadgeTone(role: string): StatusTagTone {
+  if (role === "ADMIN") return "accent";
+  if (role === "MENTOR") return "blue";
+  if (role === "CURRICULUM_LEAD" || role === "PROJECT_LEAD") return "gold";
+  return "neutral";
 }
 
 export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
@@ -199,20 +192,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
         >
           Recruits
         </h2>
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            padding: "2px 9px",
-            fontSize: 11.5,
-            fontWeight: 600,
-            color: "var(--color-text-2)",
-            backgroundColor: "var(--color-surface-2)",
-            borderRadius: 999,
-          }}
-        >
-          {recruits.length}
-        </span>
+        <StatusTag tone="neutral">{recruits.length}</StatusTag>
         <div style={{ flex: 1 }} />
         <div
           style={{
@@ -320,7 +300,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
           <tbody>
             {sorted.map((r, idx) => {
               const currentRole = roles[r.id] || r.role;
-              const badge = roleBadge(currentRole);
+              const badgeTone = roleBadgeTone(currentRole);
               const tone = scoreTone(r.quizScore);
               return (
                 <tr
@@ -383,21 +363,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                         gap: 8,
                       }}
                     >
-                      <span
-                        style={{
-                          display: "inline-flex",
-                          padding: "3px 9px",
-                          fontSize: 11,
-                          fontWeight: 650,
-                          borderRadius: 999,
-                          backgroundColor: badge.bg,
-                          color: badge.color,
-                          whiteSpace: "nowrap",
-                          letterSpacing: "0.02em",
-                        }}
-                      >
-                        {currentRole}
-                      </span>
+                      <StatusTag tone={badgeTone}>{currentRole}</StatusTag>
                       <select
                         value={currentRole}
                         disabled={updating === r.id}
@@ -434,19 +400,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                     }}
                   >
                     {tone ? (
-                      <span
-                        style={{
-                          display: "inline-flex",
-                          padding: "3px 9px",
-                          fontSize: 12,
-                          fontWeight: 650,
-                          color: tone.fg,
-                          backgroundColor: tone.bg,
-                          borderRadius: 999,
-                        }}
-                      >
-                        {r.quizScore}%
-                      </span>
+                      <StatusTag tone={tone}>{r.quizScore}%</StatusTag>
                     ) : (
                       <span
                         style={{

@@ -2,6 +2,7 @@
 
 import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
+import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 import { AdminCalendarSync } from "@/components/admin-calendar-sync";
 
 interface Stats {
@@ -45,31 +46,16 @@ function relativeTime(timestamp: string): string {
   return `${diffDay}d ago`;
 }
 
-function statusTone(status: ActivityItem["status"]): {
-  bg: string;
-  fg: string;
-} {
+function statusTone(status: ActivityItem["status"]): StatusTagTone {
   switch (status) {
     case "correct":
-      return {
-        bg: "var(--color-correct-dim)",
-        fg: "var(--color-correct)",
-      };
+      return "green";
     case "incorrect":
-      return {
-        bg: "var(--color-incorrect-dim)",
-        fg: "var(--color-incorrect)",
-      };
+      return "red";
     case "submitted":
-      return {
-        bg: "var(--color-blue-soft)",
-        fg: "var(--color-blue)",
-      };
+      return "blue";
     case "graded":
-      return {
-        bg: "var(--color-accent-soft)",
-        fg: "var(--color-accent-on-soft)",
-      };
+      return "accent";
   }
 }
 
@@ -192,22 +178,9 @@ export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewPr
                     idx === 0 ? "none" : "1px solid var(--color-border-subtle)",
                 }}
               >
-                <span
-                  style={{
-                    display: "inline-flex",
-                    padding: "3px 10px",
-                    fontSize: 11,
-                    fontWeight: 650,
-                    color: tone.fg,
-                    backgroundColor: tone.bg,
-                    borderRadius: 999,
-                    textTransform: "capitalize",
-                    letterSpacing: "0.02em",
-                    flexShrink: 0,
-                  }}
-                >
+                <StatusTag tone={tone} style={{ textTransform: "capitalize" }}>
                   {item.status}
-                </span>
+                </StatusTag>
                 <span
                   style={{
                     flex: 1,

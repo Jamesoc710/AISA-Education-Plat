@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
+import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -53,6 +54,9 @@ export function QuizResults({
       : percentage >= 50
         ? "var(--color-gold)"
         : "var(--color-incorrect)";
+
+  const scoreTagTone: StatusTagTone =
+    percentage >= 80 ? "green" : percentage >= 50 ? "gold" : "red";
 
   const scoreLabel =
     percentage >= 80 ? "Strong" : percentage >= 50 ? "Getting there" : "Keep going";
@@ -145,20 +149,9 @@ export function QuizResults({
                 marginBottom: 4,
               }}
             >
-              <span
-                style={{
-                  padding: "2px 9px",
-                  fontSize: 11,
-                  fontWeight: 650,
-                  letterSpacing: "0.04em",
-                  textTransform: "uppercase",
-                  color: "#fff",
-                  backgroundColor: scoreColor,
-                  borderRadius: 999,
-                }}
-              >
+              <StatusTag tone={scoreTagTone} uppercase>
                 {scoreLabel}
-              </span>
+              </StatusTag>
               <span>
                 {correctMC} of {totalMC} multiple choice correct
               </span>
@@ -693,28 +686,17 @@ function ScoreChip({
   allCorrect: boolean;
   small?: boolean;
 }) {
-  const bg = allCorrect ? "var(--color-correct-dim)" : "var(--color-surface-2)";
-  const fg = allCorrect ? "var(--color-correct)" : "var(--color-text-2)";
   return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 4,
-        padding: small ? "2px 8px" : "3px 9px",
-        backgroundColor: bg,
-        color: fg,
-        fontSize: small ? 11 : 12,
-        fontWeight: 600,
-        borderRadius: 999,
-        fontVariantNumeric: "tabular-nums",
-      }}
+    <StatusTag
+      tone={allCorrect ? "green" : "neutral"}
+      size={small ? "xs" : "sm"}
+      style={{ gap: 4, fontVariantNumeric: "tabular-nums" }}
     >
       {correct}/{total}
       {allCorrect && (
         <span style={{ fontSize: small ? 10 : 11, lineHeight: 1 }}>✓</span>
       )}
-    </span>
+    </StatusTag>
   );
 }
 
@@ -800,21 +782,9 @@ function QuestionRow({
         </span>
 
         {/* Type label */}
-        <span
-          style={{
-            fontSize: 10,
-            fontWeight: 650,
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-            color: "var(--color-text-3)",
-            backgroundColor: "var(--color-surface-2)",
-            padding: "2px 7px",
-            borderRadius: 999,
-            flexShrink: 0,
-          }}
-        >
+        <StatusTag tone="neutral" size="xs" uppercase>
           {isMC ? "MC" : "SA"}
-        </span>
+        </StatusTag>
 
         {/* Expand chevron */}
         <span

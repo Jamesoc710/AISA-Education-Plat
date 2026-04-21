@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 import { Button } from "@/components/ui/button";
+import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 
 type AssessmentItem = {
   id: string;
@@ -187,43 +188,11 @@ function AssessmentRow({ item: a }: { item: AssessmentItem }) {
 
 function ScorePill({ score }: { score: number | null }) {
   if (score === null) {
-    return (
-      <span
-        style={{
-          padding: "3px 10px",
-          fontSize: 11.5,
-          fontWeight: 600,
-          color: "var(--color-text-3)",
-          backgroundColor: "var(--color-surface-2)",
-          borderRadius: 999,
-        }}
-      >
-        Completed
-      </span>
-    );
+    return <StatusTag tone="neutral">Completed</StatusTag>;
   }
 
-  const tone =
-    score >= 80
-      ? { fg: "var(--color-correct)", bg: "var(--color-correct-dim)" }
-      : score >= 50
-        ? { fg: "var(--color-gold)", bg: "var(--color-gold-soft)" }
-        : { fg: "var(--color-incorrect)", bg: "var(--color-incorrect-dim)" };
+  const tagTone: StatusTagTone =
+    score >= 80 ? "green" : score >= 50 ? "gold" : "red";
 
-  return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        padding: "3px 10px",
-        fontSize: 12,
-        fontWeight: 650,
-        color: tone.fg,
-        backgroundColor: tone.bg,
-        borderRadius: 999,
-      }}
-    >
-      {score}%
-    </span>
-  );
+  return <StatusTag tone={tagTone}>{score}%</StatusTag>;
 }

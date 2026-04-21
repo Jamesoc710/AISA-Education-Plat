@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 
 type HomeworkSubmitProps = {
   assignmentId: string;
@@ -139,19 +140,9 @@ export function HomeworkSubmitClient({
           {conceptName && conceptSlug && (
             <Link
               href={`/concepts/${conceptSlug}`}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                padding: "3px 10px",
-                fontSize: 12,
-                fontWeight: 500,
-                color: "var(--color-accent-on-soft)",
-                backgroundColor: "var(--color-accent-soft)",
-                borderRadius: 999,
-                textDecoration: "none",
-              }}
+              style={{ textDecoration: "none" }}
             >
-              {conceptName}
+              <StatusTag tone="accent">{conceptName}</StatusTag>
             </Link>
           )}
           {formattedDue && (
@@ -393,22 +384,10 @@ function SubmissionView({
           marginBottom: 18,
         }}
       >
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            padding: "3px 10px",
-            fontSize: 11.5,
-            fontWeight: 600,
-            color: "var(--color-correct)",
-            backgroundColor: "var(--color-correct-dim)",
-            borderRadius: 999,
-          }}
-        >
+        <StatusTag tone="green" style={{ gap: 6 }}>
           <Icon name="clipboard-check" size={11} strokeWidth={2.25} />
           Submitted
-        </span>
+        </StatusTag>
         {formattedSubmittedAt && (
           <span style={{ fontSize: 12, color: "var(--color-text-3)" }}>
             {formattedSubmittedAt}

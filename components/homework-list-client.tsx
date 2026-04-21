@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 
 type HomeworkItem = {
   id: string;
@@ -168,18 +169,7 @@ function HomeworkRow({ item: h }: { item: HomeworkItem }) {
           }}
         >
           {h.conceptName && (
-            <span
-              style={{
-                padding: "2px 8px",
-                backgroundColor: "var(--color-surface-2)",
-                color: "var(--color-text-2)",
-                borderRadius: 999,
-                fontSize: 11.5,
-                fontWeight: 500,
-              }}
-            >
-              {h.conceptName}
-            </span>
+            <StatusTag tone="neutral">{h.conceptName}</StatusTag>
           )}
           {dueLabel && <span>Due {dueLabel}</span>}
         </div>
@@ -213,41 +203,11 @@ function StatusPill({
   grade: string | null;
 }) {
   if (status === "graded" && grade) {
-    return (
-      <span
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          padding: "3px 10px",
-          fontSize: 12,
-          fontWeight: 650,
-          color: "#fff",
-          backgroundColor: "var(--color-correct)",
-          borderRadius: 999,
-        }}
-      >
-        {grade}
-      </span>
-    );
+    return <StatusTag tone="green">{grade}</StatusTag>;
   }
 
   if (status === "submitted") {
-    return (
-      <span
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          padding: "3px 10px",
-          fontSize: 11.5,
-          fontWeight: 600,
-          color: "var(--color-blue)",
-          backgroundColor: "var(--color-blue-soft)",
-          borderRadius: 999,
-        }}
-      >
-        Submitted
-      </span>
-    );
+    return <StatusTag tone="blue">Submitted</StatusTag>;
   }
 
   return (

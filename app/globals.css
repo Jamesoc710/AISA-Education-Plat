@@ -241,24 +241,18 @@ input:focus {
 
 /* ── Browse page — responsive ──────────────────────────────────── */
 
-.browse-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+/* Section-level layout: vertical stack. */
+.browse-sections {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 
-@media (max-width: 768px) {
-  .browse-grid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  .browse-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
+/* Concept list inside an expanded section — stacked vertically. */
+.browse-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 @media (max-width: 640px) {

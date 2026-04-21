@@ -32,13 +32,10 @@ export function ConceptCard({
       onMouseLeave={() => setHovered(false)}
       style={{
         position: "relative",
-        backgroundColor: "var(--color-surface)",
+        backgroundColor: hovered ? "var(--color-surface-2)" : "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 12,
-        boxShadow: hovered ? "var(--shadow-card-hover)" : "var(--shadow-card)",
-        transform: hovered ? "translateY(-1px)" : "translateY(0)",
-        transition:
-          "box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease",
+        borderRadius: 4,
+        transition: "background-color 140ms ease",
       }}
     >
       {/* Bookmark button — absolute, outside the Link */}

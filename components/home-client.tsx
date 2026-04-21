@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
+import { StatusTag } from "@/components/ui/status-tag";
 import { getConceptVisual } from "@/lib/section-icons";
 import { daysUntil } from "@/lib/week-utils";
 import type {
@@ -184,21 +185,7 @@ function ProgramSubLine({ label, week, total }: { label: string; week: number; t
         color: "var(--color-text-2)",
       }}
     >
-      <span
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          padding: "3px 10px",
-          fontSize: 11.5,
-          fontWeight: 650,
-          letterSpacing: "0.02em",
-          borderRadius: 999,
-          backgroundColor: active ? "var(--color-accent-soft)" : "var(--color-surface-2)",
-          color: active ? "var(--color-accent-on-soft)" : "var(--color-text-2)",
-        }}
-      >
-        {label}
-      </span>
+      <StatusTag tone={active ? "accent" : "neutral"}>{label}</StatusTag>
       <span>Explore, practice, and ship.</span>
     </div>
   );

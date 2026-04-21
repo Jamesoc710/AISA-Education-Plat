@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ConceptCard } from "@/components/concept-card";
 import { IconTile } from "@/components/ui/icon-tile";
-import { TierBadge } from "@/components/ui/tier-badge";
 import { Icon } from "@/components/ui/icon";
 import { getSectionVisual } from "@/lib/section-icons";
 import type { SectionGroup } from "@/lib/types";
@@ -191,23 +190,17 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 5,
-                marginTop: 14,
-                padding: "5px 10px",
+                marginTop: 12,
                 fontSize: 12.5,
                 fontWeight: 500,
                 color: "var(--color-text-2)",
-                backgroundColor: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
-                borderRadius: 999,
                 textDecoration: "none",
-                transition: "background-color 120ms ease, color 120ms ease",
+                transition: "color 120ms ease",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--color-surface-2)";
                 e.currentTarget.style.color = "var(--color-text)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--color-surface)";
                 e.currentTarget.style.color = "var(--color-text-2)";
               }}
             >
@@ -263,7 +256,7 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
         {filteredSections.length === 0 ? (
           <EmptyState query={query} filter={filter} />
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div className="browse-sections">
             {filteredSections.map((section) => (
               <SectionRow
                 key={section.id}
@@ -312,20 +305,17 @@ function SectionRow({
         style={{
           display: "flex",
           alignItems: "flex-start",
-          gap: 16,
+          gap: 14,
           width: "100%",
-          backgroundColor: "var(--color-surface)",
+          backgroundColor: hovered ? "var(--color-surface-2)" : "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: 14,
-          padding: "20px 22px",
+          borderRadius: 4,
+          padding: "16px 18px",
           cursor: "pointer",
           fontFamily: "inherit",
           textAlign: "left",
           color: "inherit",
-          boxShadow: hovered ? "var(--shadow-card-hover)" : "var(--shadow-card)",
-          transform: hovered ? "translateY(-1px)" : "translateY(0)",
-          transition:
-            "box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease",
+          transition: "background-color 140ms ease",
         }}
       >
         <IconTile icon={visual.icon} color={visual.color} size="md" />
@@ -344,7 +334,6 @@ function SectionRow({
             >
               {section.name}
             </h2>
-            <TierBadge slug={section.tier.slug} />
             <span
               style={{
                 fontSize: 12.5,
@@ -450,7 +439,7 @@ function EmptyState({ query, filter }: { query: string; filter: "all" | "bookmar
         color: "var(--color-text-2)",
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: 14,
+        borderRadius: 4,
         textAlign: "center",
       }}
     >

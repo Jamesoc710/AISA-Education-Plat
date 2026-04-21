@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
+import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 
 type AssignmentData = {
   id: string;
@@ -43,11 +44,9 @@ type View = "list" | "create" | "detail";
 
 const PASS_GRADES = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "Pass"];
 
-function gradeTone(grade: string | null): { fg: string; bg: string } | null {
+function gradeTone(grade: string | null): StatusTagTone | null {
   if (!grade) return null;
-  if (PASS_GRADES.includes(grade.trim()))
-    return { fg: "var(--color-correct)", bg: "var(--color-correct-dim)" };
-  return { fg: "var(--color-incorrect)", bg: "var(--color-incorrect-dim)" };
+  return PASS_GRADES.includes(grade.trim()) ? "green" : "red";
 }
 
 const labelStyle: React.CSSProperties = {
@@ -400,20 +399,11 @@ export function AdminHomework({
           {selectedAssignment.title}
         </h2>
         {selectedAssignment.conceptName && (
-          <span
-            style={{
-              display: "inline-block",
-              padding: "2px 10px",
-              fontSize: 11.5,
-              fontWeight: 600,
-              color: "var(--color-accent-on-soft)",
-              backgroundColor: "var(--color-accent-soft)",
-              borderRadius: 999,
-              marginBottom: 14,
-            }}
-          >
-            {selectedAssignment.conceptName}
-          </span>
+          <div style={{ marginBottom: 14 }}>
+            <StatusTag tone="accent">
+              {selectedAssignment.conceptName}
+            </StatusTag>
+          </div>
         )}
         <p
           style={{
@@ -536,19 +526,7 @@ export function AdminHomework({
 
                     <span>
                       {tone ? (
-                        <span
-                          style={{
-                            display: "inline-flex",
-                            padding: "3px 10px",
-                            fontSize: 12,
-                            fontWeight: 650,
-                            color: tone.fg,
-                            backgroundColor: tone.bg,
-                            borderRadius: 999,
-                          }}
-                        >
-                          {sub.grade}
-                        </span>
+                        <StatusTag tone={tone}>{sub.grade}</StatusTag>
                       ) : (
                         <span
                           style={{
@@ -744,18 +722,7 @@ export function AdminHomework({
                     }}
                   >
                     {a.conceptName && (
-                      <span
-                        style={{
-                          padding: "2px 8px",
-                          backgroundColor: "var(--color-surface-2)",
-                          color: "var(--color-text-2)",
-                          borderRadius: 999,
-                          fontSize: 11.5,
-                          fontWeight: 500,
-                        }}
-                      >
-                        {a.conceptName}
-                      </span>
+                      <StatusTag tone="neutral">{a.conceptName}</StatusTag>
                     )}
                     <span>
                       {a.submissionCount} submission

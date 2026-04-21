@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 import { Button } from "@/components/ui/button";
+import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 
 type AssessmentQuestion = {
   id: string;
@@ -255,12 +256,12 @@ export function AssessmentClient({
     const percentage =
       mcTotal > 0 ? Math.round((mcCorrect / mcTotal) * 100) : 0;
 
-    const tone =
+    const tone: { fg: string; tag: StatusTagTone; label: string } =
       percentage >= 80
-        ? { fg: "var(--color-correct)", label: "Strong" }
+        ? { fg: "var(--color-correct)", tag: "green", label: "Strong" }
         : percentage >= 50
-          ? { fg: "var(--color-gold)", label: "Getting there" }
-          : { fg: "var(--color-incorrect)", label: "Keep going" };
+          ? { fg: "var(--color-gold)", tag: "gold", label: "Getting there" }
+          : { fg: "var(--color-incorrect)", tag: "red", label: "Keep going" };
 
     return (
       <div
@@ -321,20 +322,9 @@ export function AssessmentClient({
                   gap: 10,
                 }}
               >
-                <span
-                  style={{
-                    padding: "3px 10px",
-                    fontSize: 11,
-                    fontWeight: 650,
-                    letterSpacing: "0.05em",
-                    textTransform: "uppercase",
-                    color: "#fff",
-                    backgroundColor: tone.fg,
-                    borderRadius: 999,
-                  }}
-                >
+                <StatusTag tone={tone.tag} uppercase>
                   {tone.label}
-                </span>
+                </StatusTag>
                 <span
                   style={{
                     fontSize: 13.5,
@@ -454,7 +444,7 @@ export function AssessmentClient({
                   secondsLeft < 300
                     ? "var(--color-incorrect-dim)"
                     : "var(--color-surface-2)",
-                borderRadius: 999,
+                borderRadius: 4,
                 flexShrink: 0,
               }}
             >

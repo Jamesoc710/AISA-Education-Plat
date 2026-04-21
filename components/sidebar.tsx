@@ -29,21 +29,6 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
     return pathname === href || pathname.startsWith(href + "/");
   };
 
-  // Tier "dot" indicator (replaces an icon for tier shortcuts)
-  const TierDot = ({ color }: { color: string }) => (
-    <span
-      aria-hidden
-      style={{
-        width: 9,
-        height: 9,
-        borderRadius: 999,
-        backgroundColor: color,
-        flexShrink: 0,
-        marginLeft: 4,
-        marginRight: 4,
-      }}
-    />
-  );
 
   return (
     <aside
@@ -110,19 +95,22 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
           <SidebarNavItem
             href="/browse?tier=fundamentals"
             label="Fundamentals"
-            iconNode={<TierDot color="var(--color-gold)" />}
+            iconName="circle-dashed"
+            defaultIconColor="var(--color-gold)"
             active={onBrowse && tier === "fundamentals"}
           />
           <SidebarNavItem
             href="/browse?tier=intermediate"
             label="Intermediate"
-            iconNode={<TierDot color="var(--color-blue)" />}
+            iconName="circle-half"
+            defaultIconColor="var(--color-blue)"
             active={onBrowse && tier === "intermediate"}
           />
           <SidebarNavItem
             href="/browse?tier=advanced"
             label="Advanced"
-            iconNode={<TierDot color="var(--color-slate)" />}
+            iconName="circles-three-plus"
+            defaultIconColor="var(--color-slate)"
             active={onBrowse && tier === "advanced"}
           />
           <SidebarNavItem

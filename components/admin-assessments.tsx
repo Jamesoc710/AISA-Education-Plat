@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
+import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 
 type AssessmentData = {
   id: string;
@@ -65,24 +66,10 @@ type TierGroup = {
   }[];
 };
 
-function statusTone(status: string): { fg: string; bg: string; label: string } {
-  if (status === "active")
-    return {
-      fg: "var(--color-correct)",
-      bg: "var(--color-correct-dim)",
-      label: "Active",
-    };
-  if (status === "closed")
-    return {
-      fg: "var(--color-incorrect)",
-      bg: "var(--color-incorrect-dim)",
-      label: "Closed",
-    };
-  return {
-    fg: "var(--color-text-2)",
-    bg: "var(--color-surface-2)",
-    label: "Draft",
-  };
+function statusTone(status: string): { tone: StatusTagTone; label: string } {
+  if (status === "active") return { tone: "green", label: "Active" };
+  if (status === "closed") return { tone: "red", label: "Closed" };
+  return { tone: "neutral", label: "Draft" };
 }
 
 function formatDate(iso: string | null): string {
@@ -746,19 +733,7 @@ function AssessmentCard({
               >
                 {a.title}
               </span>
-              <span
-                style={{
-                  display: "inline-flex",
-                  padding: "2px 9px",
-                  fontSize: 11,
-                  fontWeight: 650,
-                  color: tone.fg,
-                  backgroundColor: tone.bg,
-                  borderRadius: 999,
-                }}
-              >
-                {tone.label}
-              </span>
+              <StatusTag tone={tone.tone}>{tone.label}</StatusTag>
             </div>
             <div
               style={{
@@ -950,9 +925,7 @@ function AttemptRow({
   onOverrideGrade: (answerId: string, isCorrect: boolean) => void;
 }) {
   const passing = att.score >= 70;
-  const tone = passing
-    ? { fg: "var(--color-correct)", bg: "var(--color-correct-dim)" }
-    : { fg: "var(--color-incorrect)", bg: "var(--color-incorrect-dim)" };
+  const scoreTagTone: StatusTagTone = passing ? "green" : "red";
   const hasAi = att.answers.some(
     (a) => a.type === "SHORT_ANSWER" && a.llmScore,
   );
@@ -991,33 +964,8 @@ function AttemptRow({
             gap: 12,
           }}
         >
-          {hasAi && (
-            <span
-              style={{
-                fontSize: 10.5,
-                padding: "2px 8px",
-                borderRadius: 999,
-                backgroundColor: "var(--color-blue-soft)",
-                color: "var(--color-blue)",
-                fontWeight: 650,
-              }}
-            >
-              AI graded
-            </span>
-          )}
-          <span
-            style={{
-              display: "inline-flex",
-              padding: "3px 9px",
-              fontSize: 11.5,
-              fontWeight: 650,
-              color: tone.fg,
-              backgroundColor: tone.bg,
-              borderRadius: 999,
-            }}
-          >
-            {Math.round(att.score)}%
-          </span>
+          {hasAi && <StatusTag tone="blue">AI graded</StatusTag>}
+          <StatusTag tone={scoreTagTone}>{Math.round(att.score)}%</StatusTag>
           <span
             style={{
               fontSize: 11.5,
@@ -1187,7 +1135,7 @@ function AnswerCard({
                 fontSize: 10.5,
                 fontWeight: 650,
                 padding: "3px 9px",
-                borderRadius: 999,
+                borderRadius: 4,
                 border:
                   ans.isCorrect === true
                     ? "1px solid var(--color-correct)"
@@ -1213,7 +1161,7 @@ function AnswerCard({
                 fontSize: 10.5,
                 fontWeight: 650,
                 padding: "3px 9px",
-                borderRadius: 999,
+                borderRadius: 4,
                 border:
                   ans.isCorrect === false
                     ? "1px solid var(--color-incorrect)"
