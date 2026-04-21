@@ -25,7 +25,7 @@ export const TIERS = [
 export const SECTIONS = [
   // FUNDAMENTALS
   { tierSlug: "fundamentals", name: "Core Architecture", slug: "core-architecture", description: "The foundational mechanics of modern AI models", sortOrder: 1 },
-  { tierSlug: "fundamentals", name: "Training Process", slug: "training-process", description: "How LLMs are built — from raw data to capable, safe assistants", sortOrder: 2 },
+  { tierSlug: "fundamentals", name: "Training Process", slug: "training-process", description: "How LLMs are built, from raw data to capable, safe assistants", sortOrder: 2 },
   { tierSlug: "fundamentals", name: "Model Types", slug: "model-types", description: "The three families of LLMs and what distinguishes them", sortOrder: 3 },
   { tierSlug: "fundamentals", name: "Key Concepts", slug: "key-concepts", description: "The vocabulary every AI practitioner needs to operate confidently", sortOrder: 4 },
   { tierSlug: "fundamentals", name: "Capabilities", slug: "capabilities", description: "What modern LLMs can actually do beyond generating text", sortOrder: 5 },
@@ -50,29 +50,29 @@ export const CONCEPTS = [
     sectionSlug: "core-architecture",
     name: "Transformers",
     slug: "transformers",
-    subtitle: "The dominant architecture behind modern AI — parallelizable, scalable, attention-powered",
+    subtitle: "The dominant architecture behind modern AI, parallelizable, scalable, attention-powered",
     difficulty: "FUNDAMENTALS",
     sortOrder: 1,
     whatItIs: `Transformers are the neural network architecture that powers virtually every modern large language model. Introduced by Google in 2017 in the paper "Attention Is All You Need," transformers replaced older sequential architectures like RNNs by processing all input tokens simultaneously rather than one at a time.
 
-The key innovation is the **self-attention mechanism**, which allows the model to weigh how relevant each token is to every other token in the input. This gives transformers rich contextual understanding — the word "not" before "good" fundamentally changes the meaning, and the attention mechanism learns to capture this.
+The key innovation is the **self-attention mechanism**, which allows the model to weigh how relevant each token is to every other token in the input. This gives transformers rich contextual understanding, the word "not" before "good" fundamentally changes the meaning, and the attention mechanism learns to capture this.
 
 Because transformers process input in parallel, they scale extremely well across thousands of GPUs. This parallelizability is what made it possible to train models on internet-scale data and reach the capabilities we see today.`,
-    whyItMatters: `Every major AI model you'll encounter — GPT-4, Claude, Gemini, Llama — is a transformer. When clients ask why AI improved so dramatically after 2017, the answer is transformers. When you're evaluating a new model architecture or reading a research paper, understanding transformers is your baseline. You can't have an intelligent conversation about modern AI without it.`,
-    goDeeper: `The original transformer has an encoder-decoder structure designed for translation tasks. Modern LLMs use decoder-only transformers, which predict the next token autoregressively. The attention formula is: Attention(Q,K,V) = softmax(QKᵀ/√dₖ)V — queries, keys, and values are learned linear projections of the input embeddings. Multi-head attention runs this process in parallel across multiple "heads," each learning different types of relationships.`,
+    whyItMatters: `Every major AI model you'll encounter (GPT-4, Claude, Gemini, Llama) is a transformer. When clients ask why AI improved so dramatically after 2017, the answer is transformers. When you're evaluating a new model architecture or reading a research paper, understanding transformers is your baseline. You can't have an intelligent conversation about modern AI without it.`,
+    goDeeper: `The original transformer has an encoder-decoder structure designed for translation tasks. Modern LLMs use decoder-only transformers, which predict the next token autoregressively. The attention formula is: Attention(Q,K,V) = softmax(QKᵀ/√dₖ)V, queries, keys, and values are learned linear projections of the input embeddings. Multi-head attention runs this process in parallel across multiple "heads," each learning different types of relationships.`,
   },
   {
     sectionSlug: "core-architecture",
     name: "Attention Mechanisms",
     slug: "attention-mechanisms",
-    subtitle: "How models decide what to focus on — the core of what makes transformers powerful",
+    subtitle: "How models decide what to focus on, the core of what makes transformers powerful",
     difficulty: "FUNDAMENTALS",
     sortOrder: 2,
-    whatItIs: `The attention mechanism is an algorithm that determines how much weight to give each token in the input when processing any other token. During training, the model learns which relationships between tokens matter — for example, a pronoun attending strongly to the noun it refers to, or "not" attending to the word that follows it.
+    whatItIs: `The attention mechanism is an algorithm that determines how much weight to give each token in the input when processing any other token. During training, the model learns which relationships between tokens matter, for example, a pronoun attending strongly to the noun it refers to, or "not" attending to the word that follows it.
 
 Every token is compared to every other token, producing an attention score. These scores are normalized and used to create a weighted sum of token representations. The result is that each token's representation is "enriched" with context from the rest of the sequence.
 
-This all-to-all comparison is what makes attention powerful — and also what makes it computationally expensive. Longer inputs require quadratically more computation, which is a core reason why context windows are hard to extend.`,
+This all-to-all comparison is what makes attention powerful, and also what makes it computationally expensive. Longer inputs require quadratically more computation, which is a core reason why context windows are hard to extend.`,
     whyItMatters: `Attention is the reason LLMs understand context rather than just pattern-matching. It explains why context window size is such a hard engineering problem (quadratic compute cost), why models sometimes "lose track" of things in very long documents, and why the concept of "relevant context" matters when you're prompting a model. If you understand attention, you understand the biggest architectural constraint in modern AI.`,
     goDeeper: `Self-attention vs cross-attention: self-attention compares a sequence to itself; cross-attention (used in encoder-decoder models) compares one sequence to another. Sparse attention variants (like sliding window attention in Mistral) reduce the quadratic cost by only attending to nearby tokens. Flash Attention is a hardware-optimized implementation that makes long-context models practical by reducing memory bandwidth rather than compute.`,
   },
@@ -83,27 +83,27 @@ This all-to-all comparison is what makes attention powerful — and also what ma
     subtitle: "The atomic units of language that AI models actually process",
     difficulty: "FUNDAMENTALS",
     sortOrder: 3,
-    whatItIs: `Tokens are the vocabulary of a transformer model — the discrete units that the model reads and generates. Before training, a tokenizer is built that maps text to token IDs (integers) the model can process.
+    whatItIs: `Tokens are the vocabulary of a transformer model, the discrete units that the model reads and generates. Before training, a tokenizer is built that maps text to token IDs (integers) the model can process.
 
-Most LLMs use **subword tokenization** (typically BPE — Byte Pair Encoding), which finds the most frequent character sequences in the training data and uses those as tokens. Common words like "dog" become single tokens; rarer words like "artificial" might split into "art" and "ificial." This balances vocabulary size against coverage.
+Most LLMs use **subword tokenization** (typically BPE, or Byte Pair Encoding), which finds the most frequent character sequences in the training data and uses those as tokens. Common words like "dog" become single tokens; rarer words like "artificial" might split into "art" and "ificial." This balances vocabulary size against coverage.
 
 Tokens are not always whole words, and they don't map 1-to-1 with characters. "ChatGPT is great" might be 5 tokens. This has real implications: token counts determine cost, speed, and context window usage.`,
-    whyItMatters: `Token counting directly affects your API costs, latency, and what fits in a context window. When a client asks why their long document can't fit in one prompt, or why the API bill is higher than expected, tokens are the answer. The famous example of LLMs failing to count the r's in "strawberry" also comes down to tokenization — the model sees subword units, not individual characters.`,
+    whyItMatters: `Token counting directly affects your API costs, latency, and what fits in a context window. When a client asks why their long document can't fit in one prompt, or why the API bill is higher than expected, tokens are the answer. The famous example of LLMs failing to count the r's in "strawberry" also comes down to tokenization, the model sees subword units, not individual characters.`,
     goDeeper: `The tokenizer is fixed before training and can't be changed without retraining the model. GPT-4 uses cl100k_base, a ~100,000-token vocabulary. Multilingual models often have larger vocabularies to handle non-Latin scripts efficiently. Vocabulary size is a hyperparameter tradeoff: larger vocab = fewer tokens per sequence but larger embedding tables and slower softmax computation.`,
   },
   {
     sectionSlug: "core-architecture",
     name: "Embeddings",
     slug: "embeddings",
-    subtitle: "How models represent meaning internally — dense vectors that capture semantic relationships",
+    subtitle: "How models represent meaning internally, dense vectors that capture semantic relationships",
     difficulty: "FUNDAMENTALS",
     sortOrder: 4,
-    whatItIs: `Embeddings are how transformers represent tokens internally as numbers. Each token ID is mapped to a dense vector of floating-point numbers (the embedding dimension — typically 768 to 12,288 values for modern models). These vectors are learned during training.
+    whatItIs: `Embeddings are how transformers represent tokens internally as numbers. Each token ID is mapped to a dense vector of floating-point numbers (the embedding dimension, typically 768 to 12,288 values for modern models). These vectors are learned during training.
 
-Initially, embeddings just encode identity — token 42 maps to a fixed vector. But after being processed through the transformer's layers and attention mechanism, these vectors become "enriched" with contextual meaning. The embedding for "bank" in "river bank" becomes different from "bank" in "investment bank" because attention has incorporated surrounding context.
+Initially, embeddings just encode identity, token 42 maps to a fixed vector. But after being processed through the transformer's layers and attention mechanism, these vectors become "enriched" with contextual meaning. The embedding for "bank" in "river bank" becomes different from "bank" in "investment bank" because attention has incorporated surrounding context.
 
 Embeddings are also the foundation of semantic search and RAG systems, where text is converted to vectors and stored in vector databases for similarity lookup.`,
-    whyItMatters: `Embeddings are why LLMs understand meaning rather than just syntax. They're also the technical foundation for one of the most practically useful AI techniques — RAG (Retrieval-Augmented Generation) — where you embed your documents and retrieve relevant chunks based on vector similarity. If your team is building any AI product that needs to work with custom data, embeddings are almost certainly involved.`,
+    whyItMatters: `Embeddings are why LLMs understand meaning rather than just syntax. They're also the technical foundation for one of the most practically useful AI techniques, RAG (Retrieval-Augmented Generation), where you embed your documents and retrieve relevant chunks based on vector similarity. If your team is building any AI product that needs to work with custom data, embeddings are almost certainly involved.`,
     goDeeper: `The embedding layer is a lookup table of shape [vocab_size × embedding_dim]. Positional embeddings are added to token embeddings to give the model sequence order information (since attention itself is order-agnostic). Modern models use rotary positional embeddings (RoPE) instead of learned or sinusoidal positions. Dedicated embedding models (like text-embedding-3-large) are transformers trained specifically to produce useful dense representations rather than to generate text.`,
   },
 
@@ -115,13 +115,13 @@ Embeddings are also the foundation of semantic search and RAG systems, where tex
     subtitle: "The massive first stage that teaches a model to predict language",
     difficulty: "FUNDAMENTALS",
     sortOrder: 1,
-    whatItIs: `Pre-training is the foundational and most expensive stage of LLM development. The model is trained on internet-scale data — essentially as much text as can be collected and cleaned — with a simple objective: predict the next token given all previous tokens.
+    whatItIs: `Pre-training is the foundational and most expensive stage of LLM development. The model is trained on internet-scale data (essentially as much text as can be collected and cleaned) with a simple objective: predict the next token given all previous tokens.
 
-This stage uses entire data centers running for months and costs tens to hundreds of millions of dollars for frontier models. The result is a **base model** — a powerful autocomplete engine that has internalized patterns, facts, reasoning structures, and language from its training data, but has no instruction-following capability.
+This stage uses entire data centers running for months and costs tens to hundreds of millions of dollars for frontier models. The result is a **base model**, a powerful autocomplete engine that has internalized patterns, facts, reasoning structures, and language from its training data, but has no instruction-following capability.
 
-Data quality and quantity both matter. High-quality sources (textbooks, Wikipedia, peer-reviewed papers, curated code) are weighted heavily. But scale is critical — models need exposure to the full diversity of human language and knowledge.`,
-    whyItMatters: `Pre-training is why AI models know so much — it's where all the world knowledge comes from. It's also why they have a knowledge cutoff date, why they can write code in any language, and why they sometimes reproduce training data verbatim. The enormous cost of pre-training is why there are only a handful of organizations capable of building frontier models, which shapes the entire competitive landscape you'll be analyzing in industry conversations.`,
-    goDeeper: `The training objective is called "next-token prediction" or "causal language modeling." The model sees tokens 1..n and predicts token n+1, computing cross-entropy loss against the true next token. This is done for every position in every sequence simultaneously. The compute requirement is roughly: 6 × N × D FLOPs per training step, where N is parameter count and D is tokens in the batch — which explains why scaling both parameters and data proportionally is the Chinchilla-optimal approach.`,
+Data quality and quantity both matter. High-quality sources (textbooks, Wikipedia, peer-reviewed papers, curated code) are weighted heavily. But scale is critical, models need exposure to the full diversity of human language and knowledge.`,
+    whyItMatters: `Pre-training is why AI models know so much, it's where all the world knowledge comes from. It's also why they have a knowledge cutoff date, why they can write code in any language, and why they sometimes reproduce training data verbatim. The enormous cost of pre-training is why there are only a handful of organizations capable of building frontier models, which shapes the entire competitive landscape you'll be analyzing in industry conversations.`,
+    goDeeper: `The training objective is called "next-token prediction" or "causal language modeling." The model sees tokens 1..n and predicts token n+1, computing cross-entropy loss against the true next token. This is done for every position in every sequence simultaneously. The compute requirement is roughly: 6 × N × D FLOPs per training step, where N is parameter count and D is tokens in the batch, which explains why scaling both parameters and data proportionally is the Chinchilla-optimal approach.`,
   },
   {
     sectionSlug: "training-process",
@@ -134,9 +134,9 @@ Data quality and quantity both matter. High-quality sources (textbooks, Wikipedi
 
 The process: the base model generates multiple responses to the same prompt, human raters rank the responses by quality, a **reward model** is trained on these preferences, and then the LLM is fine-tuned using RL to maximize the reward model's score. After relatively few examples compared to pre-training, the model learns to consistently follow instructions and format responses helpfully.
 
-This is the same mechanism used for safety alignment — teaching the model to refuse harmful requests despite having been trained on data that includes how to make those things.`,
-    whyItMatters: `RLHF is the difference between GPT-3 (2020, research curiosity) and ChatGPT (2022, product used by hundreds of millions). It's what makes models practically useful. It also explains why different models have different "personalities" and why safety behaviors can be inconsistent — the reward model and fine-tuning process involve significant design choices and tradeoffs.`,
-    goDeeper: `The RL algorithm used is typically PPO (Proximal Policy Optimization). A key challenge is reward hacking — the LLM learns to game the reward model rather than actually improve. Constitutional AI (Anthropic's approach) adds a self-critique step where the model evaluates its own outputs against principles, reducing dependence on human raters. DPO (Direct Preference Optimization) is a newer alternative that skips the explicit reward model, directly optimizing the LLM on preference pairs.`,
+This is the same mechanism used for safety alignment, teaching the model to refuse harmful requests despite having been trained on data that includes how to make those things.`,
+    whyItMatters: `RLHF is the difference between GPT-3 (2020, research curiosity) and ChatGPT (2022, product used by hundreds of millions). It's what makes models practically useful. It also explains why different models have different "personalities" and why safety behaviors can be inconsistent, the reward model and fine-tuning process involve significant design choices and tradeoffs.`,
+    goDeeper: `The RL algorithm used is typically PPO (Proximal Policy Optimization). A key challenge is reward hacking, the LLM learns to game the reward model rather than actually improve. Constitutional AI (Anthropic's approach) adds a self-critique step where the model evaluates its own outputs against principles, reducing dependence on human raters. DPO (Direct Preference Optimization) is a newer alternative that skips the explicit reward model, directly optimizing the LLM on preference pairs.`,
   },
   {
     sectionSlug: "training-process",
@@ -145,13 +145,13 @@ This is the same mechanism used for safety alignment — teaching the model to r
     subtitle: "How modern models learn to think step-by-step using verifiable rewards",
     difficulty: "FUNDAMENTALS",
     sortOrder: 3,
-    whatItIs: `Reinforcement Learning from Verifiable Rewards (RLVR) is the training technique behind modern reasoning models like OpenAI's o1/o3 and Claude's extended thinking mode. Unlike RLHF, which relies on human preference judgments, RLVR uses datasets where answers can be automatically verified as correct or incorrect — math problems, coding challenges, logic puzzles.
+    whatItIs: `Reinforcement Learning from Verifiable Rewards (RLVR) is the training technique behind modern reasoning models like OpenAI's o1/o3 and Claude's extended thinking mode. Unlike RLHF, which relies on human preference judgments, RLVR uses datasets where answers can be automatically verified as correct or incorrect, math problems, coding challenges, logic puzzles.
 
-The model generates solutions, gets rewarded for correct answers, and iteratively learns strategies that work. Crucially, no one programmed chain-of-thought reasoning or backtracking — these **emerged** from training pressure alone. The model discovered that thinking through problems step-by-step leads to more correct answers.
+The model generates solutions, gets rewarded for correct answers, and iteratively learns strategies that work. Crucially, no one programmed chain-of-thought reasoning or backtracking, these **emerged** from training pressure alone. The model discovered that thinking through problems step-by-step leads to more correct answers.
 
-The result is "test-time compute" — the model can spend more reasoning tokens on harder problems, scaling its capability with task difficulty.`,
-    whyItMatters: `Reasoning models changed what AI can actually accomplish. Problems that stumped instruction-tuned models — complex math, multi-step coding, careful logical deduction — became tractable. When you see "thinking" tokens in Claude or o3, RLVR is why they exist. It's also why the question "which is bigger, 9.11 or 9.9?" now gets answered correctly.`,
-    goDeeper: `DeepSeek-R1 showed that RLVR training could be applied to open-weight models with dramatic capability gains, published in early 2025. The key algorithmic innovation is GRPO (Group Relative Policy Optimization), which avoids needing a separate critic model by comparing multiple rollouts within a group. The "thinking" tokens are not fixed-format chain-of-thought — the model develops its own internal reasoning language during training.`,
+The result is "test-time compute": the model can spend more reasoning tokens on harder problems, scaling its capability with task difficulty.`,
+    whyItMatters: `Reasoning models changed what AI can actually accomplish. Problems that stumped instruction-tuned models (complex math, multi-step coding, careful logical deduction) became tractable. When you see "thinking" tokens in Claude or o3, RLVR is why they exist. It's also why the question "which is bigger, 9.11 or 9.9?" now gets answered correctly.`,
+    goDeeper: `DeepSeek-R1 showed that RLVR training could be applied to open-weight models with dramatic capability gains, published in early 2025. The key algorithmic innovation is GRPO (Group Relative Policy Optimization), which avoids needing a separate critic model by comparing multiple rollouts within a group. The "thinking" tokens are not fixed-format chain-of-thought, the model develops its own internal reasoning language during training.`,
   },
 
   // ── FUNDAMENTALS / Model Types ─────────────────────────────────────────────
@@ -159,40 +159,40 @@ The result is "test-time compute" — the model can spend more reasoning tokens 
     sectionSlug: "model-types",
     name: "Base Models",
     slug: "base-models",
-    subtitle: "Pure autocomplete — powerful but raw and hard to direct",
+    subtitle: "Pure autocomplete, powerful but raw and hard to direct",
     difficulty: "FUNDAMENTALS",
     sortOrder: 1,
-    whatItIs: `A base model is the direct output of pre-training — a model trained only to predict the next token with no instruction fine-tuning or safety training applied. Base models have internalized an enormous amount of knowledge and capability from their training data, but they express it inconsistently.
+    whatItIs: `A base model is the direct output of pre-training, a model trained only to predict the next token with no instruction fine-tuning or safety training applied. Base models have internalized an enormous amount of knowledge and capability from their training data, but they express it inconsistently.
 
-If you prompt a base model to translate text to Spanish, it might do the translation — or it might continue the text as if it were a forum thread, or generate a different translation task. It has the capability but can't reliably surface it on demand.
+If you prompt a base model to translate text to Spanish, it might do the translation, or it might continue the text as if it were a forum thread, or generate a different translation task. It has the capability but can't reliably surface it on demand.
 
 Base models are valuable for researchers who want to fine-tune models for specific tasks from a clean starting point, or who want to study what capabilities emerge purely from scale and data.`,
-    whyItMatters: `Understanding base models clarifies why post-training matters so much, and why "the model knows X" doesn't mean "the model will tell you X." It also gives context for evaluating open-weight model releases — when Meta releases a Llama base model vs. an instruct model, they serve very different purposes. A base model needs additional fine-tuning before being deployable in a product.`,
+    whyItMatters: `Understanding base models clarifies why post-training matters so much, and why "the model knows X" doesn't mean "the model will tell you X." It also gives context for evaluating open-weight model releases, when Meta releases a Llama base model vs. an instruct model, they serve very different purposes. A base model needs additional fine-tuning before being deployable in a product.`,
     goDeeper: null,
   },
   {
     sectionSlug: "model-types",
     name: "Instruction-tuned Models",
     slug: "instruction-tuned-models",
-    subtitle: "The chatbots you know — RLHF-trained to follow instructions reliably",
+    subtitle: "The chatbots you know, RLHF-trained to follow instructions reliably",
     difficulty: "FUNDAMENTALS",
     sortOrder: 2,
     whatItIs: `Instruction-tuned models are base models that have been fine-tuned through RLHF (or related techniques) to reliably follow user instructions and behave like assistants. These are the models behind ChatGPT, Claude, and Gemini as most people experience them.
 
-Post-training teaches the model to: interpret prompts as instructions rather than text to continue, format responses appropriately, apply safety training, and maintain a consistent assistant persona. The training data is relatively small compared to pre-training — often millions of examples rather than trillions of tokens — but it dramatically changes the model's behavior.
+Post-training teaches the model to: interpret prompts as instructions rather than text to continue, format responses appropriately, apply safety training, and maintain a consistent assistant persona. The training data is relatively small compared to pre-training (often millions of examples rather than trillions of tokens) but it dramatically changes the model's behavior.
 
 The "instruct" or "chat" suffix in model names (e.g., Llama-3-8B-Instruct) signals this post-training.`,
-    whyItMatters: `When choosing a model for a client project, you're almost always choosing between instruction-tuned models. Understanding what post-training does — and what it doesn't do — helps you set realistic expectations, understand failure modes, and make better prompting decisions.`,
+    whyItMatters: `When choosing a model for a client project, you're almost always choosing between instruction-tuned models. Understanding what post-training does (and what it doesn't do) helps you set realistic expectations, understand failure modes, and make better prompting decisions.`,
     goDeeper: null,
   },
   {
     sectionSlug: "model-types",
     name: "Reasoning Models",
     slug: "reasoning-models",
-    subtitle: "The current frontier — models that think before they answer",
+    subtitle: "The current frontier, models that think before they answer",
     difficulty: "FUNDAMENTALS",
     sortOrder: 3,
-    whatItIs: `Reasoning models are instruction-tuned models further trained with RLVR to develop extended chain-of-thought reasoning capabilities. They generate "thinking" tokens before their final answer — working through the problem step by step, trying approaches, catching errors, and backtracking when something doesn't work.
+    whatItIs: `Reasoning models are instruction-tuned models further trained with RLVR to develop extended chain-of-thought reasoning capabilities. They generate "thinking" tokens before their final answer, working through the problem step by step, trying approaches, catching errors, and backtracking when something doesn't work.
 
 Examples include OpenAI's o1, o3; Anthropic's Claude with extended thinking; and Google's Gemini Flash Thinking. These models dramatically outperform standard instruction-tuned models on math, coding, and complex multi-step reasoning tasks.
 
@@ -209,26 +209,26 @@ The tradeoff: reasoning tokens cost more (latency and API cost scale with thinki
     subtitle: "The instructions that shape how a model behaves before a user says anything",
     difficulty: "FUNDAMENTALS",
     sortOrder: 1,
-    whatItIs: `A system prompt is a special input provided to an LLM that sets context, instructions, and constraints for how it should behave throughout a conversation. It appears before the user's messages and typically has higher priority — models are trained to follow system prompt instructions even when user messages conflict.
+    whatItIs: `A system prompt is a special input provided to an LLM that sets context, instructions, and constraints for how it should behave throughout a conversation. It appears before the user's messages and typically has higher priority, models are trained to follow system prompt instructions even when user messages conflict.
 
 System prompts can instruct the model to: respond only in a certain language, adopt a specific persona, limit discussion to certain topics, use a particular format, or be aware of available tools. They're the primary mechanism by which companies customize model behavior for their products.
 
-System prompts are not foolproof — they can be undermined through jailbreaking, and they don't override safety training baked in during RLHF.`,
-    whyItMatters: `Every AI product you'll work on will have a system prompt. Writing effective system prompts is a core skill — it's the difference between a model that stays on-task and one that goes off the rails. It's also relevant to security: protecting secret instructions in system prompts (like API keys or business logic) is a real concern, since users can often extract them through careful prompting.`,
+System prompts are not foolproof, they can be undermined through jailbreaking, and they don't override safety training baked in during RLHF.`,
+    whyItMatters: `Every AI product you'll work on will have a system prompt. Writing effective system prompts is a core skill, it's the difference between a model that stays on-task and one that goes off the rails. It's also relevant to security: protecting secret instructions in system prompts (like API keys or business logic) is a real concern, since users can often extract them through careful prompting.`,
     goDeeper: null,
   },
   {
     sectionSlug: "key-concepts",
     name: "Context Windows",
     slug: "context-windows",
-    subtitle: "The maximum text a model can see at once — and why it's so hard to extend",
+    subtitle: "The maximum text a model can see at once, and why it's so hard to extend",
     difficulty: "FUNDAMENTALS",
     sortOrder: 2,
-    whatItIs: `The context window is the maximum number of tokens an LLM can process in a single forward pass — everything the model can "see" when generating a response. This includes the system prompt, conversation history, any retrieved documents, and the current user message.
+    whatItIs: `The context window is the maximum number of tokens an LLM can process in a single forward pass, everything the model can "see" when generating a response. This includes the system prompt, conversation history, any retrieved documents, and the current user message.
 
 Extending context windows is technically hard for two reasons: the attention mechanism's compute scales quadratically with sequence length (doubling tokens → 4x compute), and training data rarely contains sequences millions of tokens long, so models don't learn to use very long contexts well.
 
-In practice, longer context windows enable document analysis, long conversations, and agentic tasks — which is why they matter commercially.`,
+In practice, longer context windows enable document analysis, long conversations, and agentic tasks, which is why they matter commercially.`,
     whyItMatters: `Context window size is one of the most important practical constraints when building AI products. It determines whether you need RAG (if your data doesn't fit), how long conversations can be before history needs to be summarized, and how much code an agent can hold in its working memory. "What fits in the context window?" is a question you'll answer constantly.`,
     goDeeper: `Positional encodings determine how well a model uses positions far from the start. RoPE (Rotary Position Embedding) generalizes better to longer sequences than learned absolute positions. Techniques like ALiBi (Attention with Linear Biases) allow models to extrapolate beyond their training context length. "Lost in the middle" is a documented phenomenon where models perform worse on information placed in the middle of long contexts vs. the beginning or end.`,
   },
@@ -236,7 +236,7 @@ In practice, longer context windows enable document analysis, long conversations
     sectionSlug: "key-concepts",
     name: "Parameters",
     slug: "parameters",
-    subtitle: "The learned weights that define a model — and why size matters",
+    subtitle: "The learned weights that define a model, and why size matters",
     difficulty: "FUNDAMENTALS",
     sortOrder: 3,
     whatItIs: `Parameters (also called weights) are the numerical values inside a neural network that are learned during training. For a transformer, these include the attention weight matrices, feed-forward layer weights, and the embedding table. The total count of these values is what people mean by "model size."
@@ -244,37 +244,37 @@ In practice, longer context windows enable document analysis, long conversations
 A model with 7 billion parameters has 7 billion floating-point numbers that collectively encode everything it learned. Larger parameter counts generally mean more capacity to store knowledge and learn complex patterns, but also more compute required for both training and inference.
 
 Model sizes range from tiny (1B parameters, runs on a phone) to massive (estimated ~1.8 trillion for GPT-4's mixture-of-experts architecture).`,
-    whyItMatters: `Parameter count is shorthand for model capability and cost. A 7B parameter model you can run on a laptop has very different cost and capability characteristics than a 70B model requiring a server. When making deployment decisions — self-hosted vs. API, which model tier to use — understanding what parameter count implies about hardware requirements and capability is essential.`,
+    whyItMatters: `Parameter count is shorthand for model capability and cost. A 7B parameter model you can run on a laptop has very different cost and capability characteristics than a 70B model requiring a server. When making deployment decisions (self-hosted vs. API, which model tier to use) understanding what parameter count implies about hardware requirements and capability is essential.`,
     goDeeper: null,
   },
   {
     sectionSlug: "key-concepts",
     name: "Training vs. Inference",
     slug: "training-vs-inference",
-    subtitle: "Building a model vs. running one — fundamentally different compute profiles",
+    subtitle: "Building a model vs. running one, fundamentally different compute profiles",
     difficulty: "FUNDAMENTALS",
     sortOrder: 4,
-    whatItIs: `Training is the process of updating a model's parameters by running data through it and computing gradients — the mathematical recipe for how each parameter should change to reduce prediction error. It requires storing all intermediate activations for backpropagation, making it extremely memory-intensive.
+    whatItIs: `Training is the process of updating a model's parameters by running data through it and computing gradients, the mathematical recipe for how each parameter should change to reduce prediction error. It requires storing all intermediate activations for backpropagation, making it extremely memory-intensive.
 
-Inference is using a trained model to generate outputs — a forward pass only, no gradients stored. It's much cheaper: the same GPU used for training can serve many more inference requests. You can also batch multiple inference requests together, further improving efficiency.
+Inference is using a trained model to generate outputs, a forward pass only, no gradients stored. It's much cheaper: the same GPU used for training can serve many more inference requests. You can also batch multiple inference requests together, further improving efficiency.
 
 For frontier models, training costs hundreds of millions of dollars and happens rarely. Inference happens billions of times per day at a tiny fraction of the per-query cost.`,
-    whyItMatters: `This distinction directly informs cost conversations with clients and stakeholders. "Why is OpenAI so expensive?" relates to inference costs at scale. "Why can't I just train my own model?" relates to training costs. "Why is fine-tuning cheaper than pre-training?" — the compute profile is completely different. Understanding this split also explains why specialized inference hardware is a distinct market.`,
+    whyItMatters: `This distinction directly informs cost conversations with clients and stakeholders. "Why is OpenAI so expensive?" relates to inference costs at scale. "Why can't I just train my own model?" relates to training costs. "Why is fine-tuning cheaper than pre-training?" The compute profile is completely different. Understanding this split also explains why specialized inference hardware is a distinct market.`,
     goDeeper: null,
   },
   {
     sectionSlug: "key-concepts",
     name: "Hallucinations",
     slug: "hallucinations",
-    subtitle: "When LLMs confidently state things that aren't true — and why it's a fundamental problem",
+    subtitle: "When LLMs confidently state things that aren't true, and why it's a fundamental problem",
     difficulty: "FUNDAMENTALS",
     sortOrder: 5,
-    whatItIs: `Hallucination refers to an LLM generating factually incorrect information with apparent confidence. The model doesn't flag its uncertainty — it produces false citations, wrong dates, invented names, and incorrect facts with the same fluency as correct ones.
+    whatItIs: `Hallucination refers to an LLM generating factually incorrect information with apparent confidence. The model doesn't flag its uncertainty, it produces false citations, wrong dates, invented names, and incorrect facts with the same fluency as correct ones.
 
 The root cause is in the training objectives: during pre-training, models are rewarded for predicting the correct next token but not specifically penalized for confident wrong guesses. The model learns to generate plausible-sounding text, and "plausible" doesn't mean "verified."
 
 Hallucination rates vary by domain (better on common knowledge, worse on niche facts), model size, and whether the model has access to tools like web search.`,
-    whyItMatters: `Hallucinations are the #1 practical failure mode you'll encounter in AI products. Any client application needing factual accuracy — legal research, medical information, financial data — must be designed around this. Standard mitigations include RAG (grounding the model in retrieved documents), tool use (letting the model verify via search), and prompt engineering that instructs the model to acknowledge uncertainty.`,
+    whyItMatters: `Hallucinations are the #1 practical failure mode you'll encounter in AI products. Any client application needing factual accuracy (legal research, medical information, financial data) must be designed around this. Standard mitigations include RAG (grounding the model in retrieved documents), tool use (letting the model verify via search), and prompt engineering that instructs the model to acknowledge uncertainty.`,
     goDeeper: null,
   },
   {
@@ -286,8 +286,8 @@ Hallucination rates vary by domain (better on common knowledge, worse on niche f
     sortOrder: 6,
     whatItIs: `Jailbreaking is the practice of constructing prompts that circumvent an LLM's safety fine-tuning or system prompt instructions, getting the model to produce outputs it was trained to refuse. Common techniques include roleplay framing, hypothetical framing, prompt injection, and multi-step manipulation.
 
-Safety training from RLHF is not robust — it's a statistical tendency, not a hard rule. With enough creativity, a determined user can often find framings that bypass the training. Secret system prompt content (like API keys or confidential instructions) is also frequently extractable through careful prompting.`,
-    whyItMatters: `If you're building AI products, jailbreaking is a threat model you must design for. Relying solely on the model's safety training to prevent abuse is insufficient. This motivates input/output filtering, content moderation layers, rate limiting, and careful system prompt design. Understanding jailbreaking also helps you evaluate AI safety claims critically — "we've aligned the model" and "the model is safe against adversarial users" are very different claims.`,
+Safety training from RLHF is not robust, it's a statistical tendency, not a hard rule. With enough creativity, a determined user can often find framings that bypass the training. Secret system prompt content (like API keys or confidential instructions) is also frequently extractable through careful prompting.`,
+    whyItMatters: `If you're building AI products, jailbreaking is a threat model you must design for. Relying solely on the model's safety training to prevent abuse is insufficient. This motivates input/output filtering, content moderation layers, rate limiting, and careful system prompt design. Understanding jailbreaking also helps you evaluate AI safety claims critically, "we've aligned the model" and "the model is safe against adversarial users" are very different claims.`,
     goDeeper: null,
   },
 
@@ -301,10 +301,10 @@ Safety training from RLHF is not robust — it's a statistical tendency, not a h
     sortOrder: 1,
     whatItIs: `Tool use (also called function calling) is the ability of an LLM to invoke external code or APIs during a conversation. The model is given descriptions of available tools in its system prompt. When it determines a tool should be used, it outputs a structured call, execution is handed off to the calling code, and the result is returned to the model as context before it continues generating.
 
-Common tools include: web search, code execution, database queries, file operations, calendar access, and custom APIs. The model doesn't run code itself — it decides what to call and interprets results.
+Common tools include: web search, code execution, database queries, file operations, calendar access, and custom APIs. The model doesn't run code itself, it decides what to call and interprets results.
 
 This architecture is how Claude Code, ChatGPT's code interpreter, and virtually every AI product with external integrations work.`,
-    whyItMatters: `Tool use is what transforms LLMs from impressive text generators into systems that can actually do things in the world. Almost every AI product worth building involves tool use. Understanding how it works — the model generates structured calls, code executes them, results feed back — helps you architect AI systems correctly, understand failure modes (what if the tool fails?), and explain agent behavior to clients.`,
+    whyItMatters: `Tool use is what transforms LLMs from impressive text generators into systems that can actually do things in the world. Almost every AI product worth building involves tool use. Understanding how it works (the model generates structured calls, code executes them, results feed back) helps you architect AI systems correctly, understand failure modes (what if the tool fails?), and explain agent behavior to clients.`,
     goDeeper: null,
   },
   {
@@ -329,7 +329,7 @@ Key challenges in agentic systems: error recovery (what happens when a tool fail
     subtitle: "AI that can see, hear, and reason across text, images, audio, and more",
     difficulty: "FUNDAMENTALS",
     sortOrder: 3,
-    whatItIs: `Multimodal models process more than just text — they handle images, audio, video, and other data types within the same model architecture. Different modalities are tokenized using modality-specific encoders (e.g., image patches become visual tokens) and fed into the transformer alongside text tokens.
+    whatItIs: `Multimodal models process more than just text, they handle images, audio, video, and other data types within the same model architecture. Different modalities are tokenized using modality-specific encoders (e.g., image patches become visual tokens) and fed into the transformer alongside text tokens.
 
 This allows a model to: analyze images and describe them, answer questions about photos, generate images from text descriptions, transcribe and reason about audio, and understand documents with mixed text and visuals.
 
@@ -348,14 +348,14 @@ GPT-4o, Claude 3.5+, and Gemini are all multimodal. Image generation models like
     sortOrder: 1,
     whatItIs: `Three organizations dominate frontier AI development as of early 2026:
 
-**OpenAI** has first-mover advantage with ChatGPT — the largest user base, massive Microsoft investment, and a history of setting industry benchmarks. Their GPT-4 and o-series models remain highly competitive.
+**OpenAI** has first-mover advantage with ChatGPT, the largest user base, massive Microsoft investment, and a history of setting industry benchmarks. Their GPT-4 and o-series models remain highly competitive.
 
-**Google DeepMind** produces Gemini, currently competitive at the frontier, and crucially trains models on their own TPU infrastructure rather than NVIDIA GPUs — the only major player not dependent on NVIDIA's supply chain.
+**Google DeepMind** produces Gemini, currently competitive at the frontier, and crucially trains models on their own TPU infrastructure rather than NVIDIA GPUs, the only major player not dependent on NVIDIA's supply chain.
 
 **Anthropic** has a strong enterprise/API presence, models widely used as backends in other companies' AI products, and leads in agentic model capabilities. Founded by former OpenAI leaders with a focus on safety research.
 
 Meta (Llama open weights), Mistral, xAI (Grok), and Chinese labs (DeepSeek, Baidu) are significant secondary players.`,
-    whyItMatters: `You'll be asked about the AI landscape constantly — by clients, recruiters, and industry contacts. Being able to accurately describe who's winning, why, and what the competitive dynamics look like is a baseline for credibility. It also shapes which models and APIs are appropriate for a given project.`,
+    whyItMatters: `You'll be asked about the AI landscape constantly, by clients, recruiters, and industry contacts. Being able to accurately describe who's winning, why, and what the competitive dynamics look like is a baseline for credibility. It also shapes which models and APIs are appropriate for a given project.`,
     goDeeper: null,
   },
   {
@@ -365,11 +365,11 @@ Meta (Llama open weights), Mistral, xAI (Grok), and Chinese labs (DeepSeek, Baid
     subtitle: "The important distinction between truly open AI and 'open enough'",
     difficulty: "FUNDAMENTALS",
     sortOrder: 2,
-    whatItIs: `**Open source** software traditionally means the full source code, training data, training procedures, and weights are all freely available, modifiable, and redistributable. Applied strictly, almost no AI model meets this definition — sharing training data involves enormous legal complexity around copyright and data licensing.
+    whatItIs: `**Open source** software traditionally means the full source code, training data, training procedures, and weights are all freely available, modifiable, and redistributable. Applied strictly, almost no AI model meets this definition, sharing training data involves enormous legal complexity around copyright and data licensing.
 
-**Open weights** means the trained model parameters are publicly downloadable, but the training data and full training procedures may not be disclosed. Meta's Llama series, Mistral, and Qwen are open weights. You can download, run, modify, and fine-tune them — but you can't recreate the exact training run.
+**Open weights** means the trained model parameters are publicly downloadable, but the training data and full training procedures may not be disclosed. Meta's Llama series, Mistral, and Qwen are open weights. You can download, run, modify, and fine-tune them, but you can't recreate the exact training run.
 
-The distinction matters for legal, business, and reproducibility reasons. An "open weights" model is still commercially valuable — you can self-host it without API costs — but it's not fully open in the traditional sense.`,
+The distinction matters for legal, business, and reproducibility reasons. An "open weights" model is still commercially valuable (you can self-host it without API costs) but it's not fully open in the traditional sense.`,
     whyItMatters: `Clients will ask whether they should use open models or API-based closed models. The answer depends on cost at scale, data privacy requirements, customization needs, and infrastructure capability. Knowing the difference between open weights and truly open source also helps you engage critically with AI companies' marketing claims about "openness."`,
     goDeeper: null,
   },
@@ -377,15 +377,15 @@ The distinction matters for legal, business, and reproducibility reasons. An "op
     sectionSlug: "industry-basics",
     name: "What a Wrapper Is",
     slug: "wrapper",
-    subtitle: "The thin AI product problem — and why it matters for business strategy",
+    subtitle: "The thin AI product problem, and why it matters for business strategy",
     difficulty: "FUNDAMENTALS",
     sortOrder: 3,
-    whatItIs: `A "wrapper" is a product or service built primarily by calling another company's AI API, with minimal proprietary technology added. The core value proposition — the intelligence — is entirely rented from the underlying model provider.
+    whatItIs: `A "wrapper" is a product or service built primarily by calling another company's AI API, with minimal proprietary technology added. The core value proposition (the intelligence) is entirely rented from the underlying model provider.
 
-Wrappers are extremely common because building on top of GPT-4 or Claude is fast and cheap. But they're strategically fragile: the model provider could ship the same feature natively, undercutting the product. They're also hard to differentiate — if your entire product is "GPT-4 with a nice UI," a competitor can replicate it in a weekend.
+Wrappers are extremely common because building on top of GPT-4 or Claude is fast and cheap. But they're strategically fragile: the model provider could ship the same feature natively, undercutting the product. They're also hard to differentiate, if your entire product is "GPT-4 with a nice UI," a competitor can replicate it in a weekend.
 
 Successful AI products built on top of model APIs add genuine proprietary value: unique data flywheels, deep domain expertise, integrations into existing workflows, or specialized fine-tuning that creates a real moat.`,
-    whyItMatters: `This concept comes up constantly in conversations about AI business strategy. When evaluating a startup or product idea, being able to identify whether it's a wrapper — and whether that's a problem — is a key analytical skill. It also informs how AISA members should think about the AI products they build: what's the real moat beyond "we used Claude"?`,
+    whyItMatters: `This concept comes up constantly in conversations about AI business strategy. When evaluating a startup or product idea, being able to identify whether it's a wrapper (and whether that's a problem) is a key analytical skill. It also informs how AISA members should think about the AI products they build: what's the real moat beyond "we used Claude"?`,
     goDeeper: null,
   },
 
@@ -401,15 +401,15 @@ Successful AI products built on top of model APIs add genuine proprietary value:
 
 Key techniques: **zero-shot prompting** (just ask), **few-shot prompting** (provide examples of input-output pairs), **chain-of-thought** (instruct the model to reason step-by-step before answering), **role prompting** (assign a persona or expertise), and **output structuring** (specify JSON, markdown, or other formats).
 
-Prompt engineering is less of a science and more of a craft — different models respond differently to the same prompts, and prompts that work for GPT-4 may not work for Claude.`,
-    whyItMatters: `This is the most immediately applicable skill for any work with AI models. Whether you're building a product, running an experiment, or helping a client, your ability to write effective prompts determines whether the AI actually does what you want. It's one of the fastest skills to improve with deliberate practice — ship something and iterate on the prompts.`,
+Prompt engineering is less of a science and more of a craft, different models respond differently to the same prompts, and prompts that work for GPT-4 may not work for Claude.`,
+    whyItMatters: `This is the most immediately applicable skill for any work with AI models. Whether you're building a product, running an experiment, or helping a client, your ability to write effective prompts determines whether the AI actually does what you want. It's one of the fastest skills to improve with deliberate practice, ship something and iterate on the prompts.`,
     goDeeper: null,
   },
   {
     sectionSlug: "practical-skills",
     name: "API Basics",
     slug: "api-basics",
-    subtitle: "How to actually call an LLM from code — the mechanics every builder needs",
+    subtitle: "How to actually call an LLM from code, the mechanics every builder needs",
     difficulty: "FUNDAMENTALS",
     sortOrder: 2,
     whatItIs: `LLM APIs expose model capabilities over HTTP. The standard pattern: send a POST request with your messages array (system + user turns), model selection, and parameters (temperature, max_tokens), receive a response containing the generated text and token usage.
@@ -424,7 +424,7 @@ Cost is billed per token (input + output, often at different rates). At scale, t
     sectionSlug: "practical-skills",
     name: "RAG (Retrieval-Augmented Generation)",
     slug: "rag",
-    subtitle: "Grounding AI responses in your data — the go-to pattern for custom knowledge bases",
+    subtitle: "Grounding AI responses in your data, the go-to pattern for custom knowledge bases",
     difficulty: "FUNDAMENTALS",
     sortOrder: 3,
     whatItIs: `RAG is a pattern that combines information retrieval with LLM generation to give models access to data beyond their training. The basic flow: convert your documents into embeddings and store them in a vector database, embed the user's question at query time, retrieve the most similar document chunks by vector similarity, inject those chunks into the LLM's context, and let the model generate an answer grounded in the retrieved content.
@@ -432,7 +432,7 @@ Cost is billed per token (input + output, often at different rates). At scale, t
 RAG solves two key problems: the knowledge cutoff (your model doesn't know about events after training), and the inability to inject proprietary data (the model doesn't know about your company's documents or database).
 
 More sophisticated RAG adds query rewriting, reranking, hybrid search (vector + keyword), and recursive retrieval.`,
-    whyItMatters: `RAG is the most widely deployed AI architecture pattern for enterprise applications. Any AI product that needs to reason over custom documents, internal data, or recent information will likely use RAG. Understanding it end-to-end — from embedding models to vector stores to chunking strategies — is essential for building real AI products, not just demos.`,
+    whyItMatters: `RAG is the most widely deployed AI architecture pattern for enterprise applications. Any AI product that needs to reason over custom documents, internal data, or recent information will likely use RAG. Understanding it end-to-end (from embedding models to vector stores to chunking strategies) is essential for building real AI products, not just demos.`,
     goDeeper: null,
   },
 
@@ -449,14 +449,14 @@ More sophisticated RAG adds query rewriting, reranking, hybrid search (vector + 
 NVIDIA dominates the data center GPU market with their A100 and H100 chips, which cost $20,000–$80,000 each. NVIDIA's sustained dominance is partly due to CUDA, their programming framework, which has been optimized for AI workloads for over a decade and has massive developer adoption.
 
 A modern AI training cluster uses tens of thousands of these GPUs interconnected with specialized high-bandwidth networking (NVLink, InfiniBand).`,
-    whyItMatters: `GPU availability is literally the bottleneck for AI development. The reason there are only a few organizations capable of training frontier models is that you need access to thousands of H100s, costing billions of dollars. This hardware constraint shapes every aspect of the industry — investment patterns, regulatory policy (chip export controls), and competitive strategy.`,
+    whyItMatters: `GPU availability is literally the bottleneck for AI development. The reason there are only a few organizations capable of training frontier models is that you need access to thousands of H100s, costing billions of dollars. This hardware constraint shapes every aspect of the industry, investment patterns, regulatory policy (chip export controls), and competitive strategy.`,
     goDeeper: null,
   },
   {
     sectionSlug: "hardware-compute",
     name: "TPUs",
     slug: "tpus",
-    subtitle: "Google's custom AI chips — and why they give Google a unique strategic advantage",
+    subtitle: "Google's custom AI chips, and why they give Google a unique strategic advantage",
     difficulty: "INTERMEDIATE",
     sortOrder: 2,
     whatItIs: `TPUs (Tensor Processing Units) are custom ASICs designed by Google specifically for the matrix mathematics required by neural networks. Unlike GPUs, which are general-purpose parallel processors adapted for AI, TPUs are purpose-built for lower-precision tensor operations.
@@ -469,7 +469,7 @@ Google's Gemini series is trained and served entirely on TPUs, making Google the
     sectionSlug: "hardware-compute",
     name: "Why Accelerators Matter",
     slug: "accelerators",
-    subtitle: "Why specialized hardware is essential — not optional — for AI at scale",
+    subtitle: "Why specialized hardware is essential (not optional) for AI at scale",
     difficulty: "INTERMEDIATE",
     sortOrder: 3,
     whatItIs: `Accelerators (GPUs, TPUs, and emerging custom chips) enable AI at scale through massive parallelism. Transformers can be structured so that most computation happens in large matrix multiplications, which decompose perfectly into thousands of independent operations that accelerators can run simultaneously.
@@ -477,21 +477,21 @@ Google's Gemini series is trained and served entirely on TPUs, making Google the
 A CPU might have 32 cores executing complex instructions. An H100 has 16,896 CUDA cores running simple operations simultaneously. For the specific math AI training requires, this is thousands of times faster than a CPU.
 
 The key insight: scaling laws show models get reliably better with more compute, and the only way to reach required compute levels with current technology is massive parallelism on accelerators.`,
-    whyItMatters: `Accelerators aren't just faster computers — they're a fundamentally different computational paradigm that made modern AI possible. This context helps you understand why "just train it on a normal computer" isn't feasible, why chip stocks have become so valuable, and why countries are treating semiconductor access as a national security issue.`,
+    whyItMatters: `Accelerators aren't just faster computers, they're a fundamentally different computational paradigm that made modern AI possible. This context helps you understand why "just train it on a normal computer" isn't feasible, why chip stocks have become so valuable, and why countries are treating semiconductor access as a national security issue.`,
     goDeeper: null,
   },
   {
     sectionSlug: "hardware-compute",
     name: "Training Costs",
     slug: "training-costs",
-    subtitle: "Why building frontier models costs hundreds of millions — and what that means",
+    subtitle: "Why building frontier models costs hundreds of millions, and what that means",
     difficulty: "INTERMEDIATE",
     sortOrder: 4,
     whatItIs: `Pre-training a frontier model costs hundreds of millions of dollars and involves running data centers consuming megawatts of power for months. The costs come from: hardware (thousands of H100 GPUs at high rental or purchase cost), energy (power and cooling), engineering time for training infrastructure, and the R&D compute spent on experiments before the final run.
 
 For major labs, the majority of spending goes to R&D compute (experiments, ablations, failed runs), not the final model run. A training failure partway through wastes enormous resources.
 
-This is why only well-capitalized organizations — backed by Microsoft, Google, or significant venture capital — can train at the frontier.`,
+This is why only well-capitalized organizations (backed by Microsoft, Google, or significant venture capital) can train at the frontier.`,
     whyItMatters: `Training cost context is essential for industry analysis. It explains why AI labs need massive investment, why the hyperscaler advantage is so significant, why open-weight models are a big deal (they let smaller organizations access frontier-class capability), and why many "AI startups" are actually wrapper businesses rather than model developers.`,
     goDeeper: null,
   },
@@ -502,12 +502,12 @@ This is why only well-capitalized organizations — backed by Microsoft, Google,
     subtitle: "The very different hardware demands of building vs. running a model",
     difficulty: "INTERMEDIATE",
     sortOrder: 5,
-    whatItIs: `Training requires storing not just the model weights but all intermediate activations needed for backpropagation — roughly 3-4x the memory of weights alone. Training also requires precise floating-point arithmetic, whereas inference can use quantized (lower precision) weights.
+    whatItIs: `Training requires storing not just the model weights but all intermediate activations needed for backpropagation, roughly 3-4x the memory of weights alone. Training also requires precise floating-point arithmetic, whereas inference can use quantized (lower precision) weights.
 
-Inference is dramatically lighter: only a forward pass, no gradient storage. A quantized 70B model can run on 2-4 consumer GPUs. Inference can also be batched — serving 50 simultaneous requests takes similar compute to serving 1 on the same hardware, which is why API providers can offer low per-token costs at scale.
+Inference is dramatically lighter: only a forward pass, no gradient storage. A quantized 70B model can run on 2-4 consumer GPUs. Inference can also be batched, serving 50 simultaneous requests takes similar compute to serving 1 on the same hardware, which is why API providers can offer low per-token costs at scale.
 
 This creates two distinct market segments: training clusters (massive, specialized, centralized) and inference infrastructure (more distributed, easier to deploy).`,
-    whyItMatters: `These differences inform every deployment decision. "Can we self-host this model?" depends on inference requirements, not training requirements. "Why is the API cheaper than renting the compute to run it myself?" relates to batching efficiency at scale. "Why is fine-tuning cheaper than pre-training?" — the compute profile is completely different.`,
+    whyItMatters: `These differences inform every deployment decision. "Can we self-host this model?" depends on inference requirements, not training requirements. "Why is the API cheaper than renting the compute to run it myself?" relates to batching efficiency at scale. "Why is fine-tuning cheaper than pre-training?" The compute profile is completely different.`,
     goDeeper: null,
   },
 
@@ -524,22 +524,22 @@ This creates two distinct market segments: training clusters (massive, specializ
 The Chinchilla optimal ratio suggests training a model on approximately 20 tokens per parameter (e.g., a 7B model should train on ~140B tokens for compute-optimal training). Earlier models like GPT-3 were significantly undertrained by this metric.
 
 Scaling laws are why AI labs can make confident predictions about what a training run will achieve before spending the compute.`,
-    whyItMatters: `Scaling laws are the intellectual foundation for the massive investment in AI compute. "We know spending more will make the model better, and we can predict by how much" is an unusually strong basis for capital allocation. They also explain why model development strategy changed significantly after the Chinchilla paper — labs shifted from training bigger models to training more data-efficient ones.`,
+    whyItMatters: `Scaling laws are the intellectual foundation for the massive investment in AI compute. "We know spending more will make the model better, and we can predict by how much" is an unusually strong basis for capital allocation. They also explain why model development strategy changed significantly after the Chinchilla paper, labs shifted from training bigger models to training more data-efficient ones.`,
     goDeeper: null,
   },
   {
     sectionSlug: "scaling-data",
     name: "Synthetic Data",
     slug: "synthetic-data",
-    subtitle: "Using AI to generate training data for AI — and why it's becoming essential",
+    subtitle: "Using AI to generate training data for AI, and why it's becoming essential",
     difficulty: "INTERMEDIATE",
     sortOrder: 2,
     whatItIs: `Synthetic data is training data generated by an AI model rather than collected from humans. As the volume of high-quality human-generated text on the internet approaches saturation, labs are turning to LLMs to generate additional training examples.
 
 Applications include: generating diverse paraphrases of existing content, creating question-answer pairs from documents, generating code with known-correct solutions for RLVR training, and creating domain-specific training examples that don't exist in public data.
 
-The key concern is model collapse — if you train on AI-generated data, then use that model to generate more data, recursive degradation can occur if not carefully managed.`,
-    whyItMatters: `Synthetic data is what makes RLVR training scalable — you can generate essentially unlimited math and coding problems with verifiable answers. It's also a key tool for teams that need domain-specific fine-tuning data that doesn't exist publicly. Understanding the tradeoffs (cost, quality, collapse risk) is important for any team doing model training or fine-tuning.`,
+The key concern is model collapse, if you train on AI-generated data, then use that model to generate more data, recursive degradation can occur if not carefully managed.`,
+    whyItMatters: `Synthetic data is what makes RLVR training scalable, you can generate essentially unlimited math and coding problems with verifiable answers. It's also a key tool for teams that need domain-specific fine-tuning data that doesn't exist publicly. Understanding the tradeoffs (cost, quality, collapse risk) is important for any team doing model training or fine-tuning.`,
     goDeeper: null,
   },
   {
@@ -553,7 +553,7 @@ The key concern is model collapse — if you train on AI-generated data, then us
 
 Common applications: adjusting model style and persona, adding domain-specific knowledge, improving performance on a narrow task, and safety fine-tuning. Parameter-efficient fine-tuning methods like LoRA update only a small fraction of weights, making fine-tuning feasible on consumer hardware.
 
-The risk: catastrophic forgetting — fine-tuning on new data can overwrite previously learned capabilities if not done carefully.`,
+The risk: catastrophic forgetting, fine-tuning on new data can overwrite previously learned capabilities if not done carefully.`,
     whyItMatters: `Fine-tuning is the practical alternative to prompting when prompt engineering hits its limits. If a client needs a model that consistently responds in a specific format, maintains a brand voice, or performs reliably on a narrow task, fine-tuning may be the right tool. Understanding when to fine-tune vs. prompt engineer vs. use RAG is a key architectural decision in AI product development.`,
     goDeeper: null,
   },
@@ -563,12 +563,12 @@ The risk: catastrophic forgetting — fine-tuning on new data can overwrite prev
     sectionSlug: "evaluation-alignment",
     name: "Benchmarking LLMs",
     slug: "benchmarking-llms",
-    subtitle: "How we measure AI capability — and why benchmarks are tricky",
+    subtitle: "How we measure AI capability, and why benchmarks are tricky",
     difficulty: "INTERMEDIATE",
     sortOrder: 1,
     whatItIs: `Benchmarks are standardized test suites used to evaluate and compare LLM capabilities. Common benchmarks include MMLU (multiple-choice knowledge across 57 subjects), HumanEval (code generation), MATH (mathematical reasoning), and LMSYS Chatbot Arena (human preference-based Elo ratings).
 
-Different benchmarks measure different things, and a model can score highly on one while underperforming on another. There's also significant concern about **benchmark contamination** — models trained on data that includes benchmark questions score artificially high.
+Different benchmarks measure different things, and a model can score highly on one while underperforming on another. There's also significant concern about **benchmark contamination**, models trained on data that includes benchmark questions score artificially high.
 
 The field is increasingly moving toward human evaluation as a more reliable signal, since human raters are harder to game than fixed question sets.`,
     whyItMatters: `Benchmark scores are the primary currency of AI capability claims, and they're frequently misleading. Being able to ask "which benchmarks, evaluated how, with what contamination controls?" is critical for evaluating model vendor claims. It also helps you understand why "Model X beat Model Y on benchmark Z" doesn't always mean Model X is better for your use case.`,
@@ -578,20 +578,20 @@ The field is increasingly moving toward human evaluation as a more reliable sign
     sectionSlug: "evaluation-alignment",
     name: "AI Alignment",
     slug: "ai-alignment",
-    subtitle: "Ensuring AI systems do what we actually want — now and as capabilities grow",
+    subtitle: "Ensuring AI systems do what we actually want, now and as capabilities grow",
     difficulty: "INTERMEDIATE",
     sortOrder: 2,
-    whatItIs: `Alignment refers to the challenge of ensuring AI systems behave in accordance with human values and intentions. For current models, this primarily means preventing harmful outputs while maintaining usefulness — a tension that RLHF tries to navigate.
+    whatItIs: `Alignment refers to the challenge of ensuring AI systems behave in accordance with human values and intentions. For current models, this primarily means preventing harmful outputs while maintaining usefulness, a tension that RLHF tries to navigate.
 
 For future, more capable models, alignment concerns expand: Will a highly capable AI system pursue goals that seem aligned but have unintended consequences? Will it remain corrigible (willing to be corrected) as it becomes more capable? The classic thought experiment: an AI tasked to maximize paperclip production, if sufficiently capable and misaligned, would pursue this goal even at the cost of human wellbeing.
 
-Anthropic's entire founding rationale centers on alignment research — the belief that solving alignment is existentially important as AI capabilities advance.`,
+Anthropic's entire founding rationale centers on alignment research, the belief that solving alignment is existentially important as AI capabilities advance.`,
     whyItMatters: `Alignment shapes every major AI lab's strategy, safety policies, and product decisions. Understanding the distinction between current alignment work (RLHF, content policies) and longer-term alignment concerns (goal misspecification, deceptive alignment) helps you engage credibly with AI safety discussions and understand why companies like Anthropic make the decisions they do.`,
     goDeeper: null,
   },
   {
     sectionSlug: "evaluation-alignment",
-    name: "AGI — Definitions and Strategy",
+    name: "AGI (Definitions and) Strategy",
     slug: "agi",
     subtitle: "What AGI actually means, why it matters, and how it shapes the AI industry",
     difficulty: "INTERMEDIATE",
@@ -600,8 +600,8 @@ Anthropic's entire founding rationale centers on alignment research — the beli
 
 No current system meets any reasonable AGI definition. Current LLMs are highly capable in specific domains but fail on tasks requiring robust physical reasoning, reliable common sense, or self-directed long-term planning.
 
-Despite this, the belief that AGI is achievable in the near future drives massive investment — the first organization to achieve AGI at a controllable level would have an extraordinary competitive and geopolitical advantage.`,
-    whyItMatters: `AGI as a goal shapes everything in the AI industry — investment patterns, talent competition, regulatory debates, and geopolitical strategy. Being able to discuss AGI with appropriate nuance — acknowledging genuine uncertainty about timelines and definitions while understanding why labs take it seriously — is essential for credible industry analysis.`,
+Despite this, the belief that AGI is achievable in the near future drives massive investment, the first organization to achieve AGI at a controllable level would have an extraordinary competitive and geopolitical advantage.`,
+    whyItMatters: `AGI as a goal shapes everything in the AI industry (investment patterns, talent competition, regulatory debates, and geopolitical strategy. Being able to discuss AGI with appropriate nuance) acknowledging genuine uncertainty about timelines and definitions while understanding why labs take it seriously, is essential for credible industry analysis.`,
     goDeeper: null,
   },
 
@@ -615,7 +615,7 @@ Despite this, the belief that AGI is achievable in the near future drives massiv
     sortOrder: 1,
     whatItIs: `The US and China are engaged in a strategic competition over AI dominance, driven by the belief that AI leadership will translate to economic and military advantage. Both nations have made AI a national strategic priority.
 
-US strategy has focused on export controls — restricting the sale of advanced NVIDIA chips to China — to limit China's ability to train frontier models. China has responded by investing in domestic chip development (Huawei's Ascend series) and model efficiency research (DeepSeek's notable efficiency achievements).
+US strategy has focused on export controls (restricting the sale of advanced NVIDIA chips to China) to limit China's ability to train frontier models. China has responded by investing in domestic chip development (Huawei's Ascend series) and model efficiency research (DeepSeek's notable efficiency achievements).
 
 This competition creates a "race to the top" dynamic where both nations prioritize speed over caution, with significant implications for AI regulation globally.`,
     whyItMatters: `The US-China AI race is the underlying context for most AI policy discussions. Export controls, TSMC's role in Taiwan, chip supply chains, and US investment in domestic semiconductor manufacturing (CHIPS Act) all connect to this competition. Understanding this context helps you interpret AI policy news, regulatory proposals, and investment decisions.`,
@@ -655,15 +655,15 @@ The regulatory environment creates incentives and disincentives: heavy regulatio
     sectionSlug: "ethics-responsibility",
     name: "Bias in Training Data",
     slug: "bias-training-data",
-    subtitle: "How historical inequities get baked into AI models — and what we can do about it",
+    subtitle: "How historical inequities get baked into AI models, and what we can do about it",
     difficulty: "INTERMEDIATE",
     sortOrder: 1,
-    whatItIs: `LLMs learn from internet-scale data that reflects historical human biases — racial, gender, cultural, and socioeconomic. Models trained on this data inherit these biases: generating more positive associations for certain demographic groups, underrepresenting minority perspectives, and performing worse on tasks involving underrepresented languages or cultures.
+    whatItIs: `LLMs learn from internet-scale data that reflects historical human biases, racial, gender, cultural, and socioeconomic. Models trained on this data inherit these biases: generating more positive associations for certain demographic groups, underrepresenting minority perspectives, and performing worse on tasks involving underrepresented languages or cultures.
 
 Post-training (RLHF) can partially correct for biases, but rater pools for preference data are themselves non-representative, often skewed toward English-speaking, Western, educated populations.
 
-Mitigations include diverse training data curation, bias auditing benchmarks, adversarial testing, and intentional RLHF focus on bias reduction — none of which fully solve the problem.`,
-    whyItMatters: `Any AI product that interacts with real users will encounter bias issues. Ignoring them creates legal, reputational, and ethical risks. Understanding where bias comes from — training data, RLHF rater demographics, prompt design — helps you build systems that minimize harm and set appropriate expectations with clients about limitations.`,
+Mitigations include diverse training data curation, bias auditing benchmarks, adversarial testing, and intentional RLHF focus on bias reduction, none of which fully solve the problem.`,
+    whyItMatters: `Any AI product that interacts with real users will encounter bias issues. Ignoring them creates legal, reputational, and ethical risks. Understanding where bias comes from (training data, RLHF rater demographics, prompt design) helps you build systems that minimize harm and set appropriate expectations with clients about limitations.`,
     goDeeper: null,
   },
   {
@@ -673,7 +673,7 @@ Mitigations include diverse training data curation, bias auditing benchmarks, ad
     subtitle: "The unresolved legal questions about training data and AI-generated content",
     difficulty: "INTERMEDIATE",
     sortOrder: 2,
-    whatItIs: `LLMs are trained on vast amounts of copyrighted content without explicit licensing from creators — books, articles, code, art. The legal question of whether this constitutes fair use or copyright infringement is actively litigated (e.g., The New York Times v. OpenAI, Getty Images v. Stability AI).
+    whatItIs: `LLMs are trained on vast amounts of copyrighted content without explicit licensing from creators, books, articles, code, art. The legal question of whether this constitutes fair use or copyright infringement is actively litigated (e.g., The New York Times v. OpenAI, Getty Images v. Stability AI).
 
 On the output side: the US Copyright Office has stated that purely AI-generated works lack the human authorship required for copyright protection, though works with significant human creative input may qualify.
 
@@ -685,13 +685,13 @@ Models can also reproduce training data verbatim (memorization), generated code 
     sectionSlug: "ethics-responsibility",
     name: "Privacy Implications",
     slug: "privacy-implications",
-    subtitle: "Data privacy risks in AI systems — from training to deployment",
+    subtitle: "Data privacy risks in AI systems, from training to deployment",
     difficulty: "INTERMEDIATE",
     sortOrder: 3,
-    whatItIs: `AI models present several privacy risk categories: **Training data memorization** — models can reproduce personal information present in training data when prompted correctly. **Inference privacy** — user queries sent to AI APIs are processed by third-party servers, raising data residency and confidentiality concerns. **Model inversion** — in some cases, training data can be partially reconstructed from model weights.
+    whatItIs: `AI models present several privacy risk categories: **Training data memorization** (models can reproduce personal information present in training data when prompted correctly. **Inference privacy**) user queries sent to AI APIs are processed by third-party servers, raising data residency and confidentiality concerns. **Model inversion**, in some cases, training data can be partially reconstructed from model weights.
 
 For enterprise deployments, GDPR and CCPA impose requirements on how AI systems handle personal data. Many enterprise AI contracts now include data processing agreements, model training opt-outs, and audit rights.`,
-    whyItMatters: `Privacy concerns are a major reason enterprises hesitate to adopt AI products. "Can we use our customer data with this API?" is a question you'll constantly field. Understanding the actual risks — memorization, inference exposure, regulatory requirements — helps you design systems that address legitimate concerns without over-restricting AI use.`,
+    whyItMatters: `Privacy concerns are a major reason enterprises hesitate to adopt AI products. "Can we use our customer data with this API?" is a question you'll constantly field. Understanding the actual risks (memorization, inference exposure, regulatory requirements) helps you design systems that address legitimate concerns without over-restricting AI use.`,
     goDeeper: null,
   },
 
@@ -703,7 +703,7 @@ For enterprise deployments, GDPR and CCPA impose requirements on how AI systems 
     subtitle: "How to assess whether an AI solution actually solves the client's problem",
     difficulty: "INTERMEDIATE",
     sortOrder: 1,
-    whatItIs: `Evaluating an LLM-based solution requires thinking across several dimensions: **Task fit** — does the task actually benefit from an LLM, or is a simpler rule-based system more appropriate? **Reliability requirements** — can you tolerate occasional wrong answers? **Cost model** — what's the per-query cost at your expected volume? **Latency requirements** — can users wait 30 seconds for a reasoning model?
+    whatItIs: `Evaluating an LLM-based solution requires thinking across several dimensions: **Task fit** (does the task actually benefit from an LLM, or is a simpler rule-based system more appropriate? **Reliability requirements**) can you tolerate occasional wrong answers? **Cost model** (what's the per-query cost at your expected volume? **Latency requirements**) can users wait 30 seconds for a reasoning model?
 
 A structured evaluation process: define success metrics before testing, build an eval set of representative inputs, test multiple models on the eval set, and measure against your metrics rather than vibes.
 
@@ -746,7 +746,7 @@ Common failure modes: choosing a model based on benchmark rankings rather than y
 **Self-host if privacy or cost at scale is the constraint:** Open-weight models for data-sensitive applications or very high-volume deployments.
 
 **Model family selection:** Claude excels at instruction following and agentic tasks; GPT-4 is strong across the board with a large ecosystem; Gemini has the longest context and Google integration.`,
-    whyItMatters: `This decision tree is something you'll apply on every project. Getting it right — not over-engineering or under-engineering — is what makes AI projects succeed. Being able to walk a client through this framework demonstrates genuine expertise beyond "we'll just use ChatGPT."`,
+    whyItMatters: `This decision tree is something you'll apply on every project. Getting it right (not over-engineering or under-engineering) is what makes AI projects succeed. Being able to walk a client through this framework demonstrates genuine expertise beyond "we'll just use ChatGPT."`,
     goDeeper: null,
   },
 
@@ -758,9 +758,9 @@ Common failure modes: choosing a model based on benchmark rankings rather than y
     subtitle: "How diffusion models and generative AI create visual content",
     difficulty: "ADVANCED",
     sortOrder: 1,
-    whatItIs: `Modern image generation primarily uses **diffusion models** — systems trained to gradually denoise random noise into coherent images conditioned on a text prompt. During training, images are progressively corrupted with noise; the model learns to reverse this process. At inference, the model starts from random noise and iteratively denoises it guided by the text prompt.
+    whatItIs: `Modern image generation primarily uses **diffusion models**, systems trained to gradually denoise random noise into coherent images conditioned on a text prompt. During training, images are progressively corrupted with noise; the model learns to reverse this process. At inference, the model starts from random noise and iteratively denoises it guided by the text prompt.
 
-Models like DALL-E 3 and Stable Diffusion combine a text encoder (often CLIP or LLM-based) with a UNet or transformer diffusion model. Video generation extends this to temporal consistency, requiring coherent motion across frames — a significantly harder problem.
+Models like DALL-E 3 and Stable Diffusion combine a text encoder (often CLIP or LLM-based) with a UNet or transformer diffusion model. Video generation extends this to temporal consistency, requiring coherent motion across frames, a significantly harder problem.
 
 The integration trend is toward multimodal LLMs that natively generate and understand images rather than requiring separate model pipelines.`,
     whyItMatters: `Image and video generation are among the most commercially visible AI capabilities and a source of significant disruption in creative industries. Understanding the technical approach (diffusion vs. GAN vs. transformer) helps you evaluate capabilities, limitations, and appropriate use cases. It's also relevant context for conversations about AI and creative labor.`,
@@ -770,15 +770,15 @@ The integration trend is toward multimodal LLMs that natively generate and under
     sectionSlug: "modern-non-llm-ai",
     name: "World Models",
     slug: "world-models",
-    subtitle: "AI systems that learn how the physical world works — the foundation for robotics and simulation",
+    subtitle: "AI systems that learn how the physical world works, the foundation for robotics and simulation",
     difficulty: "ADVANCED",
     sortOrder: 2,
-    whatItIs: `A world model is a system that learns to predict the consequences of actions in an environment — essentially a simulatable representation of how the world works. Humans have rich world models: drop a phone, it falls; push a glass to the edge of a table, it will fall.
+    whatItIs: `A world model is a system that learns to predict the consequences of actions in an environment, essentially a simulatable representation of how the world works. Humans have rich world models: drop a phone, it falls; push a glass to the edge of a table, it will fall.
 
 AI world models like Google's Genie 2 and Meta's V-JEPA learn these dynamics from video data, building internal representations that can predict future states given an action. This enables: planning by simulating possible futures, generating training data for robotics by running simulated rollouts, and video generation that respects physical plausibility.
 
 World models are considered a key missing piece for achieving robust robotic manipulation and autonomous driving.`,
-    whyItMatters: `World models represent a distinct paradigm from language modeling — moving from predicting tokens to predicting states of the world. They're why the robotics and autonomous driving industries are watching AI developments closely, and why synthetic data generation for physical tasks is becoming feasible.`,
+    whyItMatters: `World models represent a distinct paradigm from language modeling, moving from predicting tokens to predicting states of the world. They're why the robotics and autonomous driving industries are watching AI developments closely, and why synthetic data generation for physical tasks is becoming feasible.`,
     goDeeper: null,
   },
   {
@@ -793,7 +793,7 @@ World models are considered a key missing piece for achieving robust robotic man
 Waymo's robotaxis in San Francisco and Phoenix demonstrate that technical solutions exist for well-defined geographic areas. The remaining technical challenges include rare edge cases, adverse weather, and robust 3D perception.
 
 The primary blockers are regulatory (different rules city by city, high incident scrutiny) and liability (who is responsible when an autonomous vehicle causes harm?), not purely technical.`,
-    whyItMatters: `Autonomous driving illustrates the gap between "technically works in controlled conditions" and "deployable at scale" — a lesson that applies broadly to AI products. The regulatory and liability frameworks developed here will likely inform AI regulation in other high-stakes domains.`,
+    whyItMatters: `Autonomous driving illustrates the gap between "technically works in controlled conditions" and "deployable at scale": a lesson that applies broadly to AI products. The regulatory and liability frameworks developed here will likely inform AI regulation in other high-stakes domains.`,
     goDeeper: null,
   },
   {
@@ -803,7 +803,7 @@ The primary blockers are regulatory (different rules city by city, high incident
     subtitle: "How AI is transforming biology and drug discovery",
     difficulty: "ADVANCED",
     sortOrder: 4,
-    whatItIs: `AlphaFold2, developed by Google DeepMind, solved the protein structure prediction problem — predicting a protein's 3D shape from its amino acid sequence — earning its creators the 2024 Nobel Prize in Chemistry. The system uses transformer attention applied to multiple sequence alignments and evolutionary co-variation patterns.
+    whatItIs: `AlphaFold2, developed by Google DeepMind, solved the protein structure prediction problem (predicting a protein's 3D shape from its amino acid sequence) earning its creators the 2024 Nobel Prize in Chemistry. The system uses transformer attention applied to multiple sequence alignments and evolutionary co-variation patterns.
 
 The impact was immediate: the entire known protein universe was predicted and published openly, accelerating research across biology and drug discovery. AlphaFold3 extended this to predicting interactions between proteins, DNA, RNA, and small molecules.
 
@@ -823,7 +823,7 @@ Beyond protein folding, biomedical AI includes: drug-target interaction predicti
 LLM integration has improved generalization dramatically. Models like RT-2 and Google's PaLM-E use pre-trained vision-language models as the "brain" of the robot, enabling generalization to novel objects and instructions without task-specific training.
 
 Humanoid robots (Figure, 1X, Unitree) are receiving significant investment because human-form robots can operate in human-designed environments and use human-collected demonstration data more directly.`,
-    whyItMatters: `Robotics represents one of the highest-impact potential applications of AI — physically capable, general-purpose robots would transform labor markets, manufacturing, and elder care. The technical challenges and the integration with LLMs are directly relevant to understanding the current AI landscape and where investment is flowing.`,
+    whyItMatters: `Robotics represents one of the highest-impact potential applications of AI, physically capable, general-purpose robots would transform labor markets, manufacturing, and elder care. The technical challenges and the integration with LLMs are directly relevant to understanding the current AI landscape and where investment is flowing.`,
     goDeeper: null,
   },
 
@@ -832,14 +832,14 @@ Humanoid robots (Figure, 1X, Unitree) are receiving significant investment becau
     sectionSlug: "advanced-training-mechanics",
     name: "Emergent Abilities",
     slug: "emergent-abilities",
-    subtitle: "Capabilities that appear suddenly at scale — and why they surprise researchers",
+    subtitle: "Capabilities that appear suddenly at scale, and why they surprise researchers",
     difficulty: "ADVANCED",
     sortOrder: 1,
     whatItIs: `Emergent abilities are capabilities that appear abruptly in models above certain scale thresholds rather than improving gradually. In-context learning, chain-of-thought reasoning, and arithmetic ability have all shown roughly step-function improvements at critical parameter counts or training compute levels.
 
 The mechanism is debated: some researchers argue emergence is a measurement artifact (metrics that show sudden jumps actually reflect smooth underlying improvements), while others argue genuinely qualitative transitions occur.
 
-Emergence is one reason AI progress is hard to predict — capabilities that seem absent can appear rapidly as training scale increases, without anyone having explicitly trained for them.`,
+Emergence is one reason AI progress is hard to predict, capabilities that seem absent can appear rapidly as training scale increases, without anyone having explicitly trained for them.`,
     whyItMatters: `Emergence is why AI capabilities have repeatedly surprised even experts. It's central to arguments about AI risk (capabilities might emerge unexpectedly at scale), arguments for continued scaling investment, and honest discussions about what current models can and cannot do.`,
     goDeeper: null,
   },
@@ -850,9 +850,9 @@ Emergence is one reason AI progress is hard to predict — capabilities that see
     subtitle: "How models learn from examples in their prompt without weight updates",
     difficulty: "ADVANCED",
     sortOrder: 2,
-    whatItIs: `In-context learning (ICL) is the ability of an LLM to adapt its behavior based on examples provided in the prompt, without any gradient updates to its weights. Provide 5 examples of a new classification task, and the model generalizes to new instances — even for tasks it's never seen during training.
+    whatItIs: `In-context learning (ICL) is the ability of an LLM to adapt its behavior based on examples provided in the prompt, without any gradient updates to its weights. Provide 5 examples of a new classification task, and the model generalizes to new instances, even for tasks it's never seen during training.
 
-This is fundamentally different from traditional machine learning, where adaptation requires re-training. ICL appears to be an emergent capability of sufficiently large models — smaller models don't show robust in-context learning.
+This is fundamentally different from traditional machine learning, where adaptation requires re-training. ICL appears to be an emergent capability of sufficiently large models, smaller models don't show robust in-context learning.
 
 The mechanism is still actively studied. Leading theories suggest models perform a form of implicit gradient descent in the forward pass, or learn general pattern-matching algorithms during training that apply at inference time.`,
     whyItMatters: `ICL is why few-shot prompting works and why you can teach a model new tasks through careful prompt construction. Understanding ICL helps you use few-shot prompting more effectively and understand why structured prompt design sometimes produces dramatically better results than natural language instructions alone.`,
@@ -880,12 +880,12 @@ Active research approaches include: elastic weight consolidation, memory replay 
     subtitle: "The technical details of how fine-tuning actually works",
     difficulty: "ADVANCED",
     sortOrder: 4,
-    whatItIs: `Fine-tuning updates all or a subset of a pre-trained model's weights on a new dataset. Full fine-tuning updates everything — computationally expensive and risks forgetting. **LoRA (Low-Rank Adaptation)** is the dominant efficient fine-tuning technique: it freezes the base model weights and adds small trainable rank-decomposed matrices to attention layers, reducing trainable parameters by 90%+ while preserving most performance.
+    whatItIs: `Fine-tuning updates all or a subset of a pre-trained model's weights on a new dataset. Full fine-tuning updates everything, computationally expensive and risks forgetting. **LoRA (Low-Rank Adaptation)** is the dominant efficient fine-tuning technique: it freezes the base model weights and adds small trainable rank-decomposed matrices to attention layers, reducing trainable parameters by 90%+ while preserving most performance.
 
 QLoRA extends this by quantizing the frozen base model to 4-bit precision, enabling fine-tuning of 65B models on a single consumer GPU.
 
-Training data quality and format matter as much as architecture choice — garbage in, garbage out applies doubly to fine-tuning.`,
-    whyItMatters: `LoRA and QLoRA make fine-tuning accessible beyond organizations with massive compute budgets. Understanding the tradeoffs between full fine-tuning, LoRA, and QLoRA — and the practical requirements (data size, GPU memory, training time) — helps you plan feasibly and evaluate fine-tuning services offered by model providers.`,
+Training data quality and format matter as much as architecture choice, garbage in, garbage out applies doubly to fine-tuning.`,
+    whyItMatters: `LoRA and QLoRA make fine-tuning accessible beyond organizations with massive compute budgets. Understanding the tradeoffs between full fine-tuning, LoRA, and QLoRA, and the practical requirements (data size, GPU memory, training time), helps you plan feasibly and evaluate fine-tuning services offered by model providers.`,
     goDeeper: null,
   },
 
@@ -901,8 +901,8 @@ Training data quality and format matter as much as architecture choice — garba
 
 Key strategies: read the abstract to decide if it's worth your time, look at figures first (most results are in graphs), identify the central claim and check if the experiments actually support it, look for ablation studies (which show which components contribute to the result), and check the related work to understand what prior work the paper builds on.
 
-Preprint repositories (arXiv) mean papers are available before peer review — always note whether a paper has been peer-reviewed and treat unreplicated results with appropriate skepticism.`,
-    whyItMatters: `The cutting edge of AI moves faster than any course or textbook can track. Papers are how new techniques propagate. Being able to skim a new paper and extract whether it's relevant and credible — even without deep mathematical background — is how you stay current. It also helps you critically evaluate media coverage of AI research, which is often sensationalized.`,
+Preprint repositories (arXiv) mean papers are available before peer review, always note whether a paper has been peer-reviewed and treat unreplicated results with appropriate skepticism.`,
+    whyItMatters: `The cutting edge of AI moves faster than any course or textbook can track. Papers are how new techniques propagate. Being able to skim a new paper and extract whether it's relevant and credible (even without deep mathematical background) is how you stay current. It also helps you critically evaluate media coverage of AI research, which is often sensationalized.`,
     goDeeper: null,
   },
   {
@@ -914,7 +914,7 @@ Preprint repositories (arXiv) mean papers are available before peer review — a
     sortOrder: 2,
     whatItIs: `AI hype follows predictable patterns: cherry-picked demos that don't reflect typical performance, benchmark scores without methodology context, "could" and "might" hedged claims reported as fact, and impressive-sounding capabilities without real-world validation.
 
-Key filters: **What's the eval methodology?** (Controlled vs. cherry-picked?), **Does this replicate?** (Can others reproduce the claimed results?), **What does failure look like?** (Every demo shows success — what breaks it?), **Who's the source?** (Company PR vs. independent researchers vs. peer-reviewed), **What's the baseline?** (How much better than the previous approach?).`,
+Key filters: **What's the eval methodology?** (Controlled vs. cherry-picked?), **Does this replicate?** (Can others reproduce the claimed results?), **What does failure look like?** (Every demo shows success, what breaks it?), **Who's the source?** (Company PR vs. independent researchers vs. peer-reviewed), **What's the baseline?** (How much better than the previous approach?).`,
     whyItMatters: `As AI practitioners, you'll be asked to evaluate new AI tools and research constantly. The ability to parse a news headline about a "revolutionary AI breakthrough" and assess whether it actually changes anything is a differentiating skill. It also protects you from building on top of overhyped, unreliable capabilities.`,
     goDeeper: null,
   },
@@ -925,12 +925,12 @@ Key filters: **What's the eval methodology?** (Controlled vs. cherry-picked?), *
     subtitle: "The research frontier of understanding what's happening inside AI models",
     difficulty: "ADVANCED",
     sortOrder: 3,
-    whatItIs: `Interpretability (also called mechanistic interpretability or explainability) is the research field focused on understanding what computations neural networks actually perform internally. Current LLMs are largely black boxes — we know inputs and outputs but have limited insight into the internal representations and algorithms that produce outputs.
+    whatItIs: `Interpretability (also called mechanistic interpretability or explainability) is the research field focused on understanding what computations neural networks actually perform internally. Current LLMs are largely black boxes, we know inputs and outputs but have limited insight into the internal representations and algorithms that produce outputs.
 
-Anthropic's interpretability research has identified "features" in model activations that correspond to human-interpretable concepts — individual neurons or circuits that activate for specific concepts. Circuit analysis traces how specific behaviors are implemented through attention heads and MLP layers.
+Anthropic's interpretability research has identified "features" in model activations that correspond to human-interpretable concepts, individual neurons or circuits that activate for specific concepts. Circuit analysis traces how specific behaviors are implemented through attention heads and MLP layers.
 
 Interpretability matters for: debugging model failures, providing audit trails for high-stakes decisions, detecting deceptive alignment in future powerful models, and understanding emergent capabilities.`,
-    whyItMatters: `Interpretability is one of the core research bets at Anthropic and increasingly at other labs. As AI systems are deployed in consequential domains (healthcare, law, finance), "the model said so" is insufficient justification — auditors and regulators will require explanations. Understanding the current state and limitations of interpretability research helps you engage with the AI safety community credibly.`,
+    whyItMatters: `Interpretability is one of the core research bets at Anthropic and increasingly at other labs. As AI systems are deployed in consequential domains (healthcare, law, finance), "the model said so" is insufficient justification, auditors and regulators will require explanations. Understanding the current state and limitations of interpretability research helps you engage with the AI safety community credibly.`,
     goDeeper: null,
   },
 ];

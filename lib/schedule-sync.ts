@@ -157,7 +157,7 @@ function parseCell(cell: ExcelJS.Cell): ParsedEvent[] {
         endTime: time.endTime,
       };
     } else {
-      // Continuation line — append to description, prefer non-GENERAL type
+      // Continuation line, append to description, prefer non-GENERAL type
       if (pending.type === "GENERAL" && type !== "GENERAL") pending.type = type;
       pending.description = pending.description
         ? pending.description + "\n" + stripped
@@ -200,12 +200,12 @@ Decide whether the lines represent ONE session with multiple sub-topics, or MULT
 Rules:
 - Lines of different types (colors) are always separate events.
 - Lines that share a type and are clearly sub-topics of one workshop/lecture (no conflicting times/locations) should be merged into a single event with topics[].
-- Preserve exact wording for titles and topics — do not paraphrase or invent text.
+- Preserve exact wording for titles and topics, do not paraphrase or invent text.
 - When merging: the first line becomes the title; subsequent same-type lines become topics. Keep time hints from the title line if present.
 - If a merged event's title contains a trailing time range like "7 - 9" or "5:30 - 6:30", strip it from the title and populate startTime/endTime instead.
 - Never merge across types. Never merge if the lines look like independent items.
 
-Output strict JSON only — no markdown fences, no prose:
+Output strict JSON only, no markdown fences, no prose:
 { "events": [ { "title": string, "description": string | null, "topics": string[] | null, "type": string, "startTime": string | null, "endTime": string | null } ] }`;
 
 async function normalizeWithLLM(parsed: ParsedEvent[]): Promise<NormalizedEvent[]> {

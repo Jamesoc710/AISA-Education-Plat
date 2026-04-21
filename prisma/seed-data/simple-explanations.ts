@@ -13,46 +13,46 @@
 export const SIMPLE_EXPLANATIONS: Record<string, string> = {
   // ── FUNDAMENTALS / Core Architecture ──────────────────────────────────
   transformers:
-    "Transformers are the technology behind ChatGPT, Claude, and every other modern AI chatbot. What makes them special is they can read an entire sentence all at once (instead of one word at a time), which lets them understand context much better — like how the word \"bank\" means something different in \"river bank\" vs. \"bank account.\" This design also makes them fast enough to train on enormous amounts of text, which is why AI got so much better after 2017.",
+    "Transformers are the technology behind ChatGPT, Claude, and every other modern AI chatbot. What makes them special is they can read an entire sentence all at once (instead of one word at a time), which lets them understand context much better, like how the word \"bank\" means something different in \"river bank\" vs. \"bank account.\" This design also makes them fast enough to train on enormous amounts of text, which is why AI got so much better after 2017.",
 
   "attention-mechanisms":
-    "Attention is how an AI decides which words in a sentence are most important for understanding each other word. Think of it like reading a mystery novel — when you see the word \"she\" later in a chapter, your brain automatically connects it back to the character introduced earlier. AI does the same thing by calculating how strongly each word relates to every other word.",
+    "Attention is how an AI decides which words in a sentence are most important for understanding each other word. Think of it like reading a mystery novel, when you see the word \"she\" later in a chapter, your brain automatically connects it back to the character introduced earlier. AI does the same thing by calculating how strongly each word relates to every other word.",
 
   tokens:
-    "Tokens are the small pieces that AI models break text into before processing it — usually whole words, but sometimes parts of words. Think of it like breaking a sentence into Scrabble tiles, where common words stay whole and unusual words get split into pieces. The number of tokens determines how much text you can send to AI and how much it costs to use.",
+    "Tokens are the small pieces that AI models break text into before processing it, usually whole words, but sometimes parts of words. Think of it like breaking a sentence into Scrabble tiles, where common words stay whole and unusual words get split into pieces. The number of tokens determines how much text you can send to AI and how much it costs to use.",
 
   embeddings:
-    "Embeddings are how AI represents words as lists of numbers so it can do math on language. Imagine mapping every word onto a giant 3D space where words with similar meanings are physically close together — \"happy\" would be near \"joyful\" but far from \"sad.\" This lets AI understand relationships between words even though it's just doing math on numbers.",
+    "Embeddings are how AI represents words as lists of numbers so it can do math on language. Imagine mapping every word onto a giant 3D space where words with similar meanings are physically close together, \"happy\" would be near \"joyful\" but far from \"sad.\" This lets AI understand relationships between words even though it's just doing math on numbers.",
 
   // ── FUNDAMENTALS / Training Process ───────────────────────────────────
   "pre-training":
-    "Pre-training is the first step in building an AI, where it reads billions of web pages, books, and articles to learn how language works. It's like a baby learning to speak by listening to conversations for years — the AI picks up grammar, facts, and patterns just from seeing massive amounts of text. This stage is extremely expensive, often costing tens of millions of dollars in electricity and computing power.",
+    "Pre-training is the first step in building an AI, where it reads billions of web pages, books, and articles to learn how language works. It's like a baby learning to speak by listening to conversations for years, the AI picks up grammar, facts, and patterns just from seeing massive amounts of text. This stage is extremely expensive, often costing tens of millions of dollars in electricity and computing power.",
 
   rlhf:
-    "RLHF (Reinforcement Learning from Human Feedback) is how AI companies make their models helpful and safe after the initial training. Human reviewers rate the AI's responses — ranking which answer is better, more accurate, or less harmful — and the AI adjusts its behavior based on those ratings. It's like training a dog: you reward good behavior and discourage bad behavior until the AI consistently gives useful, safe responses.",
+    "RLHF (Reinforcement Learning from Human Feedback) is how AI companies make their models helpful and safe after the initial training. Human reviewers rate the AI's responses (ranking which answer is better, more accurate, or less harmful) and the AI adjusts its behavior based on those ratings. It's like training a dog: you reward good behavior and discourage bad behavior until the AI consistently gives useful, safe responses.",
 
   rlvr:
-    "Reasoning training teaches AI models to \"think step by step\" before giving an answer, especially for math and logic problems. Instead of just blurting out a response, the model learns to work through problems methodically — like showing your work on a math test. This approach produces models that are much more reliable on complex tasks where getting the logic right matters.",
+    "Reasoning training teaches AI models to \"think step by step\" before giving an answer, especially for math and logic problems. Instead of just blurting out a response, the model learns to work through problems methodically, like showing your work on a math test. This approach produces models that are much more reliable on complex tasks where getting the logic right matters.",
 
   // ── FUNDAMENTALS / Model Types ────────────────────────────────────────
   "base-models":
-    "A base model is an AI that has only done the first stage of training — reading lots of text to learn language patterns. It's like a very well-read person who knows a lot but hasn't learned how to have a normal conversation yet. Base models can complete text and generate language, but they don't naturally follow instructions or answer questions the way a chatbot would.",
+    "A base model is an AI that has only done the first stage of training, reading lots of text to learn language patterns. It's like a very well-read person who knows a lot but hasn't learned how to have a normal conversation yet. Base models can complete text and generate language, but they don't naturally follow instructions or answer questions the way a chatbot would.",
 
   "instruction-tuned-models":
-    "Instruction-tuned models are AI systems that have been specifically trained to follow directions and answer questions helpfully. Think of the difference between someone who has read every book in the library vs. someone who has also worked as a teacher — both are knowledgeable, but the teacher knows how to actually explain things when asked. This is the type of model you interact with when you use ChatGPT or Claude.",
+    "Instruction-tuned models are AI systems that have been specifically trained to follow directions and answer questions helpfully. Think of the difference between someone who has read every book in the library vs. someone who has also worked as a teacher, both are knowledgeable, but the teacher knows how to actually explain things when asked. This is the type of model you interact with when you use ChatGPT or Claude.",
 
   "reasoning-models":
-    "Reasoning models are the newest type of AI that can think through complex problems step by step before answering. Regular AI chatbots give quick answers, but reasoning models take extra time to work through the logic — like the difference between answering a quiz question from memory vs. actually working through the problem on scratch paper. They're especially good at math, coding, and tricky logic puzzles.",
+    "Reasoning models are the newest type of AI that can think through complex problems step by step before answering. Regular AI chatbots give quick answers, but reasoning models take extra time to work through the logic, like the difference between answering a quiz question from memory vs. actually working through the problem on scratch paper. They're especially good at math, coding, and tricky logic puzzles.",
 
   // ── FUNDAMENTALS / Key Concepts ───────────────────────────────────────
   "system-prompts":
-    "A system prompt is a hidden set of instructions given to an AI at the start of every conversation that shapes its personality and behavior. It's like giving an employee a job description before they start their shift — \"You are a customer service agent. Be polite. Don't discuss competitors.\" The user never sees the system prompt, but it influences every response the AI gives.",
+    "A system prompt is a hidden set of instructions given to an AI at the start of every conversation that shapes its personality and behavior. It's like giving an employee a job description before they start their shift, \"You are a customer service agent. Be polite. Don't discuss competitors.\" The user never sees the system prompt, but it influences every response the AI gives.",
 
   "context-windows":
-    "A context window is the maximum amount of text an AI can \"see\" at once — both what you send it and what it writes back. Think of it like the AI's short-term memory: a bigger context window means it can read longer documents and remember more of the conversation. When it runs out of context window space, it essentially forgets the earliest parts of the conversation.",
+    "A context window is the maximum amount of text an AI can \"see\" at once, both what you send it and what it writes back. Think of it like the AI's short-term memory: a bigger context window means it can read longer documents and remember more of the conversation. When it runs out of context window space, it essentially forgets the earliest parts of the conversation.",
 
   parameters:
-    "Parameters are the internal settings — millions or billions of numbers — that an AI model learned during training. Think of them as the model's \"brain cells\": a model with 70 billion parameters has 70 billion adjustable numbers that together determine what it knows and how it responds. More parameters generally means the model can store more knowledge and handle more complex tasks.",
+    "Parameters are the internal settings (millions or billions of numbers) that an AI model learned during training. Think of them as the model's \"brain cells\": a model with 70 billion parameters has 70 billion adjustable numbers that together determine what it knows and how it responds. More parameters generally means the model can store more knowledge and handle more complex tasks.",
 
   "training-vs-inference":
     "Training is when an AI learns from data (like going to school for years), and inference is when it uses what it learned to answer your questions (like taking a test). Training happens once and costs millions of dollars; inference happens every time you send a message to ChatGPT. It's why training a new model is a huge investment, but using one is relatively cheap per query.",
@@ -61,47 +61,47 @@ export const SIMPLE_EXPLANATIONS: Record<string, string> = {
     "Hallucinations are when AI confidently makes up information that sounds real but isn't true. It's like asking someone a question they don't know the answer to, and instead of saying \"I don't know,\" they make up a plausible-sounding response. This happens because AI is designed to produce text that \"sounds right\" based on patterns, not to verify whether something is actually factual.",
 
   jailbreaking:
-    "Jailbreaking is when someone tricks an AI into ignoring its safety rules and doing things it's supposed to refuse. It's like convincing a security guard to let you into a restricted area by telling a creative story. AI companies try to prevent this, but clever prompts can sometimes get around the guardrails — it's an ongoing cat-and-mouse game between AI builders and people trying to bypass the rules.",
+    "Jailbreaking is when someone tricks an AI into ignoring its safety rules and doing things it's supposed to refuse. It's like convincing a security guard to let you into a restricted area by telling a creative story. AI companies try to prevent this, but clever prompts can sometimes get around the guardrails, it's an ongoing cat-and-mouse game between AI builders and people trying to bypass the rules.",
 
   // ── FUNDAMENTALS / Capabilities ───────────────────────────────────────
   "tool-use":
-    "Tool use is when an AI can reach out and use external tools — like searching the web, running code, or checking a database — instead of just relying on what it memorized during training. Think of the difference between answering questions purely from memory vs. being allowed to use Google and a calculator. This makes AI much more useful for real-world tasks that need current information or precise calculations.",
+    "Tool use is when an AI can reach out and use external tools (like searching the web, running code, or checking a database) instead of just relying on what it memorized during training. Think of the difference between answering questions purely from memory vs. being allowed to use Google and a calculator. This makes AI much more useful for real-world tasks that need current information or precise calculations.",
 
   "agentic-capabilities":
-    "Agentic AI is when an AI system can take multiple steps on its own to complete a task, making decisions along the way without asking a human at each step. Instead of just answering one question at a time, it can plan a multi-step project — like researching a topic, writing a draft, and revising it — similar to handing a task to an intern who figures out the steps themselves.",
+    "Agentic AI is when an AI system can take multiple steps on its own to complete a task, making decisions along the way without asking a human at each step. Instead of just answering one question at a time, it can plan a multi-step project (like researching a topic, writing a draft, and revising it) similar to handing a task to an intern who figures out the steps themselves.",
 
   multimodality:
-    "Multimodality means an AI can work with more than just text — it can also understand images, audio, and sometimes video. Think of it like the difference between texting someone vs. having a video call: a multimodal AI can look at a photo you upload and describe what's in it, or listen to an audio clip and transcribe it. Modern AI models like GPT-4 and Claude can handle multiple types of input and output.",
+    "Multimodality means an AI can work with more than just text, it can also understand images, audio, and sometimes video. Think of it like the difference between texting someone vs. having a video call: a multimodal AI can look at a photo you upload and describe what's in it, or listen to an audio clip and transcribe it. Modern AI models like GPT-4 and Claude can handle multiple types of input and output.",
 
   // ── FUNDAMENTALS / Industry Basics ────────────────────────────────────
   "major-ai-players":
-    "The AI industry is dominated by a handful of companies: OpenAI (ChatGPT), Anthropic (Claude), Google DeepMind (Gemini), and Meta (Llama), with many others in the mix. Think of it like the early smartphone era — a few big players competing intensely while the technology evolves rapidly. Understanding who builds what helps you evaluate which tools to use and whose announcements to follow.",
+    "The AI industry is dominated by a handful of companies: OpenAI (ChatGPT), Anthropic (Claude), Google DeepMind (Gemini), and Meta (Llama), with many others in the mix. Think of it like the early smartphone era, a few big players competing intensely while the technology evolves rapidly. Understanding who builds what helps you evaluate which tools to use and whose announcements to follow.",
 
   "open-source-vs-open-weights":
-    "\"Open source\" in AI usually doesn't mean what it means in regular software. Most \"open\" AI models share the finished product (the model weights) but not the training data or full process — that's called \"open weights.\" It's like a restaurant sharing their finished recipe but not telling you where they source their ingredients or exactly how they cook everything.",
+    "\"Open source\" in AI usually doesn't mean what it means in regular software. Most \"open\" AI models share the finished product (the model weights) but not the training data or full process, that's called \"open weights.\" It's like a restaurant sharing their finished recipe but not telling you where they source their ingredients or exactly how they cook everything.",
 
   wrapper:
-    "A wrapper is a product or app that's built on top of someone else's AI model rather than having its own. It's like a food truck that buys pre-made ingredients from a supplier and assembles them into dishes — the food truck adds value through presentation and convenience, but the core ingredients come from elsewhere. Many AI startups are wrappers built on top of OpenAI's or Anthropic's models.",
+    "A wrapper is a product or app that's built on top of someone else's AI model rather than having its own. It's like a food truck that buys pre-made ingredients from a supplier and assembles them into dishes, the food truck adds value through presentation and convenience, but the core ingredients come from elsewhere. Many AI startups are wrappers built on top of OpenAI's or Anthropic's models.",
 
   // ── FUNDAMENTALS / Practical Skills ───────────────────────────────────
   "prompt-engineering":
-    "Prompt engineering is the skill of writing instructions to AI in a way that gets the best possible results. It's like learning how to ask good questions — being specific, giving examples, and providing context leads to much better answers than vague requests. Simple tricks like saying \"think step by step\" or providing an example of what you want can dramatically improve AI output.",
+    "Prompt engineering is the skill of writing instructions to AI in a way that gets the best possible results. It's like learning how to ask good questions, being specific, giving examples, and providing context leads to much better answers than vague requests. Simple tricks like saying \"think step by step\" or providing an example of what you want can dramatically improve AI output.",
 
   "api-basics":
-    "An API (Application Programming Interface) is how software talks to AI models behind the scenes, without a chat interface. When a company adds AI features to their app — like auto-generating email subjects or summarizing documents — they're using an API to send text to the model and get responses back. It's like using a drive-through instead of dining in: same food, different way of ordering.",
+    "An API (Application Programming Interface) is how software talks to AI models behind the scenes, without a chat interface. When a company adds AI features to their app (like auto-generating email subjects or summarizing documents) they're using an API to send text to the model and get responses back. It's like using a drive-through instead of dining in: same food, different way of ordering.",
 
   rag:
     "RAG (Retrieval-Augmented Generation) is a technique where AI looks up relevant information from a specific database before answering your question, rather than relying solely on its memorized training data. Think of it like an open-book test vs. a closed-book test: the AI searches through your company's documents to find the most relevant passages, then uses those to generate an accurate response.",
 
   // ── INTERMEDIATE / Hardware & Compute ─────────────────────────────────
   gpus:
-    "GPUs (Graphics Processing Units) are the specialized computer chips that make AI possible. They were originally designed for video games, but it turned out that the same type of math used to render game graphics is exactly what AI needs to learn. Today, NVIDIA's GPUs are the most important hardware in the AI industry — companies spend billions of dollars buying them to train their models.",
+    "GPUs (Graphics Processing Units) are the specialized computer chips that make AI possible. They were originally designed for video games, but it turned out that the same type of math used to render game graphics is exactly what AI needs to learn. Today, NVIDIA's GPUs are the most important hardware in the AI industry, companies spend billions of dollars buying them to train their models.",
 
   tpus:
     "TPUs (Tensor Processing Units) are Google's custom-built computer chips designed specifically for AI, as an alternative to NVIDIA's GPUs. Think of GPUs as Swiss Army knives that happen to be great at AI, while TPUs are purpose-built tools made exclusively for AI workloads. Google uses TPUs to train their own models and rents them out to others through Google Cloud.",
 
   accelerators:
-    "AI accelerators are specialized computer chips built to handle the massive math that AI training requires. Regular computer processors (CPUs) are too slow for AI — it would take years instead of weeks. GPUs and TPUs are both types of accelerators, and the global shortage of these chips is one of the biggest bottlenecks in AI development right now.",
+    "AI accelerators are specialized computer chips built to handle the massive math that AI training requires. Regular computer processors (CPUs) are too slow for AI, it would take years instead of weeks. GPUs and TPUs are both types of accelerators, and the global shortage of these chips is one of the biggest bottlenecks in AI development right now.",
 
   "training-costs":
     "Training a large AI model can cost tens or even hundreds of millions of dollars, mostly in electricity and computing hardware rental. GPT-4 reportedly cost over $100 million to train. It's like building a factory: the upfront investment is enormous, but once it's built (trained), producing outputs (inference) is relatively cheap per unit.",
@@ -111,90 +111,90 @@ export const SIMPLE_EXPLANATIONS: Record<string, string> = {
 
   // ── INTERMEDIATE / Scaling & Data ─────────────────────────────────────
   "scaling-laws":
-    "Scaling laws are the discovery that AI models predictably get smarter when you make them bigger, train them longer, and give them more data. It's like a recipe where doubling the ingredients reliably doubles the output — researchers found that spending 10x more on training produces a proportionally smarter model. This predictability is why AI companies are racing to build bigger and bigger models.",
+    "Scaling laws are the discovery that AI models predictably get smarter when you make them bigger, train them longer, and give them more data. It's like a recipe where doubling the ingredients reliably doubles the output, researchers found that spending 10x more on training produces a proportionally smarter model. This predictability is why AI companies are racing to build bigger and bigger models.",
 
   "synthetic-data":
-    "Synthetic data is training material that was generated by AI itself rather than collected from humans. Since AI companies are running out of high-quality human-written text to train on, they're increasingly using one AI to generate training data for another. It's like a teacher writing practice problems — the problems are made up, but students still learn from working through them.",
+    "Synthetic data is training material that was generated by AI itself rather than collected from humans. Since AI companies are running out of high-quality human-written text to train on, they're increasingly using one AI to generate training data for another. It's like a teacher writing practice problems, the problems are made up, but students still learn from working through them.",
 
   "fine-tuning":
-    "Fine-tuning is taking a pre-built AI model and giving it additional specialized training on a specific type of task or knowledge area. It's like hiring a generalist doctor and then sending them to a specialization program — the base knowledge stays, but they develop deep expertise in one area. Companies fine-tune models to make them better at their particular use case.",
+    "Fine-tuning is taking a pre-built AI model and giving it additional specialized training on a specific type of task or knowledge area. It's like hiring a generalist doctor and then sending them to a specialization program, the base knowledge stays, but they develop deep expertise in one area. Companies fine-tune models to make them better at their particular use case.",
 
   // ── INTERMEDIATE / Evaluation & Alignment ─────────────────────────────
   "benchmarking-llms":
-    "Benchmarking is how the AI industry measures and compares how smart different models are, using standardized tests. Just like students take SATs to compare academic ability, AI models are tested on sets of questions covering math, coding, reasoning, and knowledge. But benchmark scores can be misleading — a model might score well on the test without being useful in real-world situations.",
+    "Benchmarking is how the AI industry measures and compares how smart different models are, using standardized tests. Just like students take SATs to compare academic ability, AI models are tested on sets of questions covering math, coding, reasoning, and knowledge. But benchmark scores can be misleading, a model might score well on the test without being useful in real-world situations.",
 
   "ai-alignment":
-    "AI alignment is the challenge of making sure AI systems do what humans actually want, not just what they're literally told. It's like the genie-in-a-lamp problem: if you wish for \"world peace,\" you don't want the genie to achieve it by removing all humans. As AI gets more powerful, making sure it understands and follows human intentions — not just the letter of instructions — becomes increasingly important.",
+    "AI alignment is the challenge of making sure AI systems do what humans actually want, not just what they're literally told. It's like the genie-in-a-lamp problem: if you wish for \"world peace,\" you don't want the genie to achieve it by removing all humans. As AI gets more powerful, making sure it understands and follows human intentions (not just the letter of instructions) becomes increasingly important.",
 
   agi:
-    "AGI (Artificial General Intelligence) is the idea of AI that can do anything a human can do intellectually — not just specific tasks like writing or coding, but genuinely reasoning, learning new things, and solving problems it's never seen before. We don't have AGI yet; current AI is very good at specific tasks but still has major limitations. Whether AGI is 5 years away or 50 years away is one of the biggest debates in the field.",
+    "AGI (Artificial General Intelligence) is the idea of AI that can do anything a human can do intellectually, not just specific tasks like writing or coding, but genuinely reasoning, learning new things, and solving problems it's never seen before. We don't have AGI yet; current AI is very good at specific tasks but still has major limitations. Whether AGI is 5 years away or 50 years away is one of the biggest debates in the field.",
 
   // ── INTERMEDIATE / Geopolitics & Regulation ───────────────────────────
   "us-china-ai-race":
     "The US and China are competing intensely to lead the world in AI development, and this competition shapes everything from government funding to international trade policy. It's like the Space Race of the 1960s but for artificial intelligence. This rivalry affects which companies can sell to which countries, where talent goes to work, and how much governments invest in AI research.",
 
   "export-controls":
-    "Export controls are government rules about which AI technology and computer chips can be sold to other countries. The US has banned the sale of its most advanced AI chips (like NVIDIA's top GPUs) to China, to prevent China from training cutting-edge AI models. It's like arms control but for computing hardware — the idea is that controlling who has the most powerful chips controls who can build the most powerful AI.",
+    "Export controls are government rules about which AI technology and computer chips can be sold to other countries. The US has banned the sale of its most advanced AI chips (like NVIDIA's top GPUs) to China, to prevent China from training cutting-edge AI models. It's like arms control but for computing hardware, the idea is that controlling who has the most powerful chips controls who can build the most powerful AI.",
 
   "ai-regulation":
-    "AI regulation refers to governments creating rules about how AI can be built and used. The EU has passed the AI Act (the most comprehensive AI law yet), the US is debating regulations, and China has its own rules. It's like how governments regulate cars — requiring safety tests, setting speed limits, and deciding who's liable in an accident — but for AI systems.",
+    "AI regulation refers to governments creating rules about how AI can be built and used. The EU has passed the AI Act (the most comprehensive AI law yet), the US is debating regulations, and China has its own rules. It's like how governments regulate cars (requiring safety tests, setting speed limits, and deciding who's liable in an accident) but for AI systems.",
 
   // ── INTERMEDIATE / Ethics & Responsibility ────────────────────────────
   "bias-training-data":
-    "Bias in AI happens because models learn from human-created data, which contains all of humanity's existing prejudices and stereotypes. If the training data has more examples of men as CEOs and women as nurses, the AI will reflect those patterns in its outputs. It's like raising a child — they absorb and repeat whatever attitudes they're exposed to, including the unfair ones.",
+    "Bias in AI happens because models learn from human-created data, which contains all of humanity's existing prejudices and stereotypes. If the training data has more examples of men as CEOs and women as nurses, the AI will reflect those patterns in its outputs. It's like raising a child, they absorb and repeat whatever attitudes they're exposed to, including the unfair ones.",
 
   "copyright-ip":
-    "AI copyright issues arise because models are trained on billions of web pages, books, and articles — often without the creators' permission. Artists, writers, and publishers are suing AI companies, arguing this is theft of their work. It's an unresolved legal question: is training an AI on someone's book similar to reading it and learning from it, or is it more like copying it?",
+    "AI copyright issues arise because models are trained on billions of web pages, books, and articles, often without the creators' permission. Artists, writers, and publishers are suing AI companies, arguing this is theft of their work. It's an unresolved legal question: is training an AI on someone's book similar to reading it and learning from it, or is it more like copying it?",
 
   "privacy-implications":
     "AI privacy concerns center on the fact that anything you type into an AI chatbot could potentially be used to train future models, and that AI models may have memorized personal information from their training data. It's like having a conversation with someone who has a perfect memory and might repeat what you said later. Companies are working on solutions, but the risks are real for sensitive information.",
 
   // ── INTERMEDIATE / Practical Decision-Making ──────────────────────────
   "evaluating-llm-solutions":
-    "Evaluating AI solutions means figuring out whether a specific AI tool or approach actually solves your problem better than the alternatives. Not every problem needs AI, and not every AI solution works well in practice. It's like evaluating whether you need a power tool or a hand tool — sometimes the simpler option is better, cheaper, and more reliable.",
+    "Evaluating AI solutions means figuring out whether a specific AI tool or approach actually solves your problem better than the alternatives. Not every problem needs AI, and not every AI solution works well in practice. It's like evaluating whether you need a power tool or a hand tool, sometimes the simpler option is better, cheaper, and more reliable.",
 
   "cost-deployment-tradeoffs":
-    "Cost tradeoffs in AI are about balancing quality, speed, and price when choosing how to use AI in your product or business. A more powerful model gives better results but costs more per query; a smaller model is cheaper but less capable. It's like choosing between a luxury car and an economy car — both get you there, but the costs and experience are very different.",
+    "Cost tradeoffs in AI are about balancing quality, speed, and price when choosing how to use AI in your product or business. A more powerful model gives better results but costs more per query; a smaller model is cheaper but less capable. It's like choosing between a luxury car and an economy car, both get you there, but the costs and experience are very different.",
 
   "model-selection":
-    "Model selection is the process of choosing the right AI model for a specific task, considering factors like capability, cost, speed, and privacy. Different models are better at different things — some excel at coding, others at creative writing, others at following precise instructions. It's like hiring for a job: you want the best fit for the specific role, not just the \"smartest\" candidate overall.",
+    "Model selection is the process of choosing the right AI model for a specific task, considering factors like capability, cost, speed, and privacy. Different models are better at different things, some excel at coding, others at creative writing, others at following precise instructions. It's like hiring for a job: you want the best fit for the specific role, not just the \"smartest\" candidate overall.",
 
   // ── ADVANCED / Modern Non-LLM AI ──────────────────────────────────────
   "image-video-generation":
-    "Image and video generation AI creates pictures and videos from text descriptions. Tools like DALL-E, Midjourney, and Sora can generate realistic images or videos from a simple prompt like \"a cat wearing a top hat in a library.\" The underlying technology is different from text AI — it uses diffusion models that start with random noise and gradually refine it into a clear image.",
+    "Image and video generation AI creates pictures and videos from text descriptions. Tools like DALL-E, Midjourney, and Sora can generate realistic images or videos from a simple prompt like \"a cat wearing a top hat in a library.\" The underlying technology is different from text AI, it uses diffusion models that start with random noise and gradually refine it into a clear image.",
 
   "world-models":
-    "World models are AI systems that try to build an internal understanding of how the physical world works — things like gravity, object permanence, and cause-and-effect. Current AI chatbots can describe physics but don't truly understand it; world models aim to change that. Think of it as the difference between reading about how to ride a bike vs. actually understanding balance and momentum.",
+    "World models are AI systems that try to build an internal understanding of how the physical world works, things like gravity, object permanence, and cause-and-effect. Current AI chatbots can describe physics but don't truly understand it; world models aim to change that. Think of it as the difference between reading about how to ride a bike vs. actually understanding balance and momentum.",
 
   "autonomous-driving":
-    "Autonomous driving AI tries to replace human drivers by using cameras and sensors to understand the road and make driving decisions in real time. Companies like Tesla and Waymo take different approaches — Tesla relies mainly on cameras (like human eyes), while Waymo uses additional laser sensors. Self-driving cars are one of the hardest AI problems because a single mistake can be life-threatening.",
+    "Autonomous driving AI tries to replace human drivers by using cameras and sensors to understand the road and make driving decisions in real time. Companies like Tesla and Waymo take different approaches, Tesla relies mainly on cameras (like human eyes), while Waymo uses additional laser sensors. Self-driving cars are one of the hardest AI problems because a single mistake can be life-threatening.",
 
   "alphafold-biomedical-ai":
     "AlphaFold is an AI from Google DeepMind that solved a 50-year-old biology problem: predicting how proteins fold into their 3D shapes. This matters because a protein's shape determines what it does in the body, and knowing the shape helps scientists design new medicines. It's one of the clearest examples of AI making a breakthrough that humans couldn't achieve on their own.",
 
   "robotics-embodied-ai":
-    "Robotics and embodied AI is about putting AI into physical robots that can interact with the real world — picking up objects, navigating spaces, and performing physical tasks. This is much harder than chatbot AI because the real world is unpredictable and messy. Progress is accelerating as language models help robots understand instructions, but we're still far from robots that can do household chores reliably.",
+    "Robotics and embodied AI is about putting AI into physical robots that can interact with the real world, picking up objects, navigating spaces, and performing physical tasks. This is much harder than chatbot AI because the real world is unpredictable and messy. Progress is accelerating as language models help robots understand instructions, but we're still far from robots that can do household chores reliably.",
 
   // ── ADVANCED / Advanced Training Mechanics ────────────────────────────
   "emergent-abilities":
-    "Emergent abilities are surprising capabilities that appear in AI models as they get larger, without being explicitly taught. A small model might fail at a task completely, but a model 10x bigger suddenly succeeds at it — like a student who can't do algebra suddenly being able to solve calculus after studying more. This unpredictability is both exciting (new capabilities) and concerning (unexpected behaviors).",
+    "Emergent abilities are surprising capabilities that appear in AI models as they get larger, without being explicitly taught. A small model might fail at a task completely, but a model 10x bigger suddenly succeeds at it, like a student who can't do algebra suddenly being able to solve calculus after studying more. This unpredictability is both exciting (new capabilities) and concerning (unexpected behaviors).",
 
   "in-context-learning":
-    "In-context learning is when AI figures out how to do a new task just from the examples you provide in your prompt, without any retraining. If you show it three examples of translating English to French, it \"learns\" to translate — right there in the conversation. It's like showing someone a few solved problems and them understanding the pattern well enough to solve new ones on their own.",
+    "In-context learning is when AI figures out how to do a new task just from the examples you provide in your prompt, without any retraining. If you show it three examples of translating English to French, it \"learns\" to translate, right there in the conversation. It's like showing someone a few solved problems and them understanding the pattern well enough to solve new ones on their own.",
 
   "continual-learning":
-    "Continual learning is the challenge of teaching AI new things without it forgetting what it already knows. Current models are frozen after training — they can't learn from conversations or update their knowledge. Imagine if you had to go back to kindergarten every time you wanted to learn a new subject — that's the problem AI researchers are trying to solve.",
+    "Continual learning is the challenge of teaching AI new things without it forgetting what it already knows. Current models are frozen after training (they can't learn from conversations or update their knowledge. Imagine if you had to go back to kindergarten every time you wanted to learn a new subject) that's the problem AI researchers are trying to solve.",
 
   "fine-tuning-specifics":
-    "Fine-tuning specifics covers the practical details of customizing an AI model for a specialized task — things like how much data you need, how long it takes, and what can go wrong. It's like the difference between knowing that exercise is good for you (the concept) and knowing exactly which exercises to do, how many reps, and how to avoid injury (the specifics).",
+    "Fine-tuning specifics covers the practical details of customizing an AI model for a specialized task, things like how much data you need, how long it takes, and what can go wrong. It's like the difference between knowing that exercise is good for you (the concept) and knowing exactly which exercises to do, how many reps, and how to avoid injury (the specifics).",
 
   // ── ADVANCED / Research & Meta-Skills ──────────────────────────────────
   "reading-research-papers":
-    "Reading AI research papers is a skill that helps you understand new developments directly from the source, rather than relying on news articles or social media summaries. Research papers follow a specific structure and use technical language, but with practice, you can extract the key findings without understanding every equation. It's like learning to read financial statements — intimidating at first, but essential for making informed decisions.",
+    "Reading AI research papers is a skill that helps you understand new developments directly from the source, rather than relying on news articles or social media summaries. Research papers follow a specific structure and use technical language, but with practice, you can extract the key findings without understanding every equation. It's like learning to read financial statements, intimidating at first, but essential for making informed decisions.",
 
   "filtering-ai-hype":
-    "Filtering AI hype means learning to distinguish between genuine breakthroughs and exaggerated marketing claims in the AI industry. Companies have strong incentives to oversell their technology, and media coverage often amplifies this. Developing a critical eye — asking \"what does this actually mean in practice?\" — is one of the most valuable skills in a field where everyone claims their product will change the world.",
+    "Filtering AI hype means learning to distinguish between genuine breakthroughs and exaggerated marketing claims in the AI industry. Companies have strong incentives to oversell their technology, and media coverage often amplifies this. Developing a critical eye (asking \"what does this actually mean in practice?\") is one of the most valuable skills in a field where everyone claims their product will change the world.",
 
   interpretability:
-    "Interpretability is about understanding why an AI model gives the answers it gives — looking inside the \"black box\" to see how it thinks. Currently, we can observe what goes into a model and what comes out, but the reasoning process in between is largely a mystery. It's like having a brilliant advisor who gives great advice but can never explain their reasoning — you'd want to understand why before trusting them with important decisions.",
+    "Interpretability is about understanding why an AI model gives the answers it gives, looking inside the \"black box\" to see how it thinks. Currently, we can observe what goes into a model and what comes out, but the reasoning process in between is largely a mystery. It's like having a brilliant advisor who gives great advice but can never explain their reasoning, you'd want to understand why before trusting them with important decisions.",
 };

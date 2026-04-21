@@ -59,7 +59,7 @@ export const QUESTIONS: QuestionSeed[] = [
     conceptSlug: "transformers",
     type: "SHORT_ANSWER",
     questionText: "What type of transformer architecture do modern LLMs like GPT-4 and Claude use, and how does it differ from the original transformer?",
-    answerExplanation: "Modern LLMs use decoder-only transformers, which predict the next token autoregressively. The original transformer had an encoder-decoder structure designed for translation — the encoder processes the input, and the decoder generates the output. Decoder-only models are simpler and scale better for general text generation tasks.",
+    answerExplanation: "Modern LLMs use decoder-only transformers, which predict the next token autoregressively. The original transformer had an encoder-decoder structure designed for translation, the encoder processes the input, and the decoder generates the output. Decoder-only models are simpler and scale better for general text generation tasks.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -74,7 +74,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Longer sequences require higher precision floating point arithmetic", isCorrect: false },
       { text: "The vocabulary size grows with context length", isCorrect: false },
     ],
-    answerExplanation: "Attention compares every token to every other token. If you have N tokens, you have N² comparisons. Doubling N to 2N gives 4N² comparisons — a 4x increase for a 2x increase in tokens. This quadratic scaling is why long context windows are computationally expensive.",
+    answerExplanation: "Attention compares every token to every other token. If you have N tokens, you have N² comparisons. Doubling N to 2N gives 4N² comparisons, a 4x increase for a 2x increase in tokens. This quadratic scaling is why long context windows are computationally expensive.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -100,14 +100,14 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Models are trained to ignore tokens beyond a certain position", isCorrect: false },
       { text: "Long documents exceed the model's vocabulary size", isCorrect: false },
     ],
-    answerExplanation: "With many tokens competing for attention weight, the model's attention gets diluted. Information in the middle of very long documents tends to receive weaker attention than content at the start or end — a phenomenon called 'lost in the middle.'",
+    answerExplanation: "With many tokens competing for attention weight, the model's attention gets diluted. Information in the middle of very long documents tends to receive weaker attention than content at the start or end, a phenomenon called 'lost in the middle.'",
     difficulty: "FUNDAMENTALS",
   },
   {
     conceptSlug: "attention-mechanisms",
     type: "SHORT_ANSWER",
     questionText: "Explain how the attention mechanism gives LLMs contextual understanding of language. Use an example.",
-    answerExplanation: "Attention allows each token to 'look at' all other tokens and weight their importance. For example, in 'The trophy didn't fit in the suitcase because it was too big,' the word 'it' needs to attend strongly to 'trophy' to correctly resolve what's too big. Attention learns these relationships during training, so the model understands that 'it' refers to the trophy, not the suitcase — giving it contextual understanding rather than just pattern-matching individual words.",
+    answerExplanation: "Attention allows each token to 'look at' all other tokens and weight their importance. For example, in 'The trophy didn't fit in the suitcase because it was too big,' the word 'it' needs to attend strongly to 'trophy' to correctly resolve what's too big. Attention learns these relationships during training, so the model understands that 'it' refers to the trophy, not the suitcase, giving it contextual understanding rather than just pattern-matching individual words.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -122,7 +122,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "LLMs don't process repeated letters correctly", isCorrect: false },
       { text: "The context window is too small for character-level tasks", isCorrect: false },
     ],
-    answerExplanation: "LLMs tokenize using subword units, not characters. 'Strawberry' might be tokenized as 'str', 'awb', 'erry' — each subword token doesn't correspond to individual letters. So the model can't simply count characters; it sees abstract token IDs and must infer character content from learned patterns.",
+    answerExplanation: "LLMs tokenize using subword units, not characters. 'Strawberry' might be tokenized as 'str', 'awb', 'erry', each subword token doesn't correspond to individual letters. So the model can't simply count characters; it sees abstract token IDs and must infer character content from learned patterns.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -148,14 +148,14 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Longer prompts require premium model versions", isCorrect: false },
       { text: "Token count affects model accuracy, requiring more expensive models", isCorrect: false },
     ],
-    answerExplanation: "LLM APIs price by token — you pay for every input token (your prompt) and every output token (the model's response). Longer prompts and longer responses cost proportionally more. This makes token efficiency a real engineering concern at production scale.",
+    answerExplanation: "LLM APIs price by token, you pay for every input token (your prompt) and every output token (the model's response). Longer prompts and longer responses cost proportionally more. This makes token efficiency a real engineering concern at production scale.",
     difficulty: "FUNDAMENTALS",
   },
   {
     conceptSlug: "tokens",
     type: "SHORT_ANSWER",
     questionText: "What is tokenization, and why can't a model just work with raw text characters?",
-    answerExplanation: "Tokenization converts raw text into discrete numeric IDs that a neural network can process. Models need numeric inputs — they can't process arbitrary character sequences directly. Subword tokenization finds the optimal vocabulary of common text chunks, balancing vocabulary size (affects model size) against sequence length (affects compute). Pure character-level models have very long sequences (slow, expensive) while word-level models can't handle unknown words. Subword tokenization is the practical middle ground.",
+    answerExplanation: "Tokenization converts raw text into discrete numeric IDs that a neural network can process. Models need numeric inputs, they can't process arbitrary character sequences directly. Subword tokenization finds the optimal vocabulary of common text chunks, balancing vocabulary size (affects model size) against sequence length (affects compute). Pure character-level models have very long sequences (slow, expensive) while word-level models can't handle unknown words. Subword tokenization is the practical middle ground.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -170,7 +170,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "To encrypt user inputs before processing", isCorrect: false },
       { text: "To store training examples in memory", isCorrect: false },
     ],
-    answerExplanation: "Embeddings map token IDs to dense floating-point vectors that the model can compute with. These vectors are learned during training to capture semantic relationships — similar words end up with similar vectors, and the attention mechanism further enriches them with contextual information.",
+    answerExplanation: "Embeddings map token IDs to dense floating-point vectors that the model can compute with. These vectors are learned during training to capture semantic relationships, similar words end up with similar vectors, and the attention mechanism further enriches them with contextual information.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -183,14 +183,14 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Fine-tuning the model on new data", isCorrect: false },
       { text: "Compressing documents to fit in the context window", isCorrect: false },
     ],
-    answerExplanation: "In RAG, documents are converted to embedding vectors and stored in a vector database. At query time, the user's question is also embedded, and the system retrieves documents whose embedding vectors are most similar (by cosine similarity or dot product). This enables semantic search — finding relevant content even when exact keywords don't match.",
+    answerExplanation: "In RAG, documents are converted to embedding vectors and stored in a vector database. At query time, the user's question is also embedded, and the system retrieves documents whose embedding vectors are most similar (by cosine similarity or dot product). This enables semantic search, finding relevant content even when exact keywords don't match.",
     difficulty: "FUNDAMENTALS",
   },
   {
     conceptSlug: "embeddings",
     type: "SHORT_ANSWER",
     questionText: "Why does the same word have different embeddings in different contexts, and why does this matter?",
-    answerExplanation: "After passing through the transformer's attention layers, each token's embedding is updated based on the surrounding context. So 'bank' in 'river bank' and 'bank' in 'investment bank' start with the same initial embedding but end up in very different positions in vector space after attention processes the surrounding words. This contextual representation is what lets LLMs understand meaning rather than just vocabulary — it's the difference between a lookup table and genuine language understanding.",
+    answerExplanation: "After passing through the transformer's attention layers, each token's embedding is updated based on the surrounding context. So 'bank' in 'river bank' and 'bank' in 'investment bank' start with the same initial embedding but end up in very different positions in vector space after attention processes the surrounding words. This contextual representation is what lets LLMs understand meaning rather than just vocabulary, it's the difference between a lookup table and genuine language understanding.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -218,7 +218,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "A reasoning model capable of chain-of-thought", isCorrect: false },
       { text: "A safety-aligned model that refuses harmful requests", isCorrect: false },
     ],
-    answerExplanation: "Pre-training alone produces a base model — it predicts likely next tokens based on its training data but has no instruction-following capability. If you ask it to translate text, it might comply, continue the conversation, or do something else entirely. RLHF post-training is what makes it an instruction-following assistant.",
+    answerExplanation: "Pre-training alone produces a base model, it predicts likely next tokens based on its training data but has no instruction-following capability. If you ask it to translate text, it might comply, continue the conversation, or do something else entirely. RLHF post-training is what makes it an instruction-following assistant.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -231,7 +231,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Copyright law prevents models from accessing recent content", isCorrect: false },
       { text: "Models automatically delete old information to make room for new data", isCorrect: false },
     ],
-    answerExplanation: "Pre-training uses a static dataset collected up to a certain point in time. Once training is complete, the model's weights are frozen. It has no mechanism to update its knowledge — everything it knows comes from the training data, which stops at the cutoff date.",
+    answerExplanation: "Pre-training uses a static dataset collected up to a certain point in time. Once training is complete, the model's weights are frozen. It has no mechanism to update its knowledge, everything it knows comes from the training data, which stops at the cutoff date.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -253,7 +253,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "It gave the model the ability to access the internet in real-time", isCorrect: false },
       { text: "It reduced the model's cost by 90% through compression", isCorrect: false },
     ],
-    answerExplanation: "GPT-3 (2020) was a capable but inconsistent base model. Applying RLHF produced InstructGPT and eventually ChatGPT (2022) — a model that reliably follows instructions, formats responses helpfully, and applies safety training. This transition from research curiosity to mass-market product happened through post-training, not by changing the underlying architecture.",
+    answerExplanation: "GPT-3 (2020) was a capable but inconsistent base model. Applying RLHF produced InstructGPT and eventually ChatGPT (2022), a model that reliably follows instructions, formats responses helpfully, and applies safety training. This transition from research curiosity to mass-market product happened through post-training, not by changing the underlying architecture.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -266,14 +266,14 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "By including examples of harmful requests in the preference data and training the model to rank refusals higher", isCorrect: true },
       { text: "By running the model's outputs through a separate content filter", isCorrect: false },
     ],
-    answerExplanation: "RLHF trains a reward model on human preferences, including preferences for the model to refuse harmful requests. The LLM is then fine-tuned to maximize this reward — which includes learning to decline requests that human raters rated negatively. Safety training is baked into the weights through this preference learning process, not through hard-coded rules.",
+    answerExplanation: "RLHF trains a reward model on human preferences, including preferences for the model to refuse harmful requests. The LLM is then fine-tuned to maximize this reward, which includes learning to decline requests that human raters rated negatively. Safety training is baked into the weights through this preference learning process, not through hard-coded rules.",
     difficulty: "FUNDAMENTALS",
   },
   {
     conceptSlug: "rlhf",
     type: "SHORT_ANSWER",
     questionText: "Walk through the RLHF process step by step. What goes in, what comes out at each stage?",
-    answerExplanation: "Step 1: Take a pre-trained base model. Step 2: Prompt it many times and collect multiple responses per prompt. Step 3: Have human raters rank the responses by quality (helpfulness, safety, accuracy). Step 4: Train a reward model on these human rankings — it learns to predict which responses humans prefer. Step 5: Fine-tune the LLM using reinforcement learning to maximize the reward model's score (typically using PPO). Result: a model that consistently produces responses in the style humans preferred — following instructions, formatting helpfully, applying safety training — after relatively few examples compared to pre-training.",
+    answerExplanation: "Step 1: Take a pre-trained base model. Step 2: Prompt it many times and collect multiple responses per prompt. Step 3: Have human raters rank the responses by quality (helpfulness, safety, accuracy). Step 4: Train a reward model on these human rankings, it learns to predict which responses humans prefer. Step 5: Fine-tune the LLM using reinforcement learning to maximize the reward model's score (typically using PPO). Result: a model that consistently produces responses in the style humans preferred (following instructions, formatting helpfully, applying safety training) after relatively few examples compared to pre-training.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -288,7 +288,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "RLVR trains on images while RLHF trains on text", isCorrect: false },
       { text: "RLVR is cheaper but less effective than RLHF", isCorrect: false },
     ],
-    answerExplanation: "RLHF relies on human raters to judge which response is better — expensive and hard to scale. RLVR uses tasks with objectively verifiable answers (math problems, code that passes tests), so correctness can be checked automatically. This makes RLVR highly scalable and removes the bottleneck of human annotation.",
+    answerExplanation: "RLHF relies on human raters to judge which response is better, expensive and hard to scale. RLVR uses tasks with objectively verifiable answers (math problems, code that passes tests), so correctness can be checked automatically. This makes RLVR highly scalable and removes the bottleneck of human annotation.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -297,18 +297,18 @@ export const QUESTIONS: QuestionSeed[] = [
     questionText: "Chain-of-thought reasoning in models trained with RLVR emerged through:",
     options: [
       { text: "Explicit instructions in the training data telling the model to think step-by-step", isCorrect: false },
-      { text: "Training pressure — the model discovered reasoning helps it get correct answers and was rewarded for it", isCorrect: true },
+      { text: "Training pressure, the model discovered reasoning helps it get correct answers and was rewarded for it", isCorrect: true },
       { text: "A separate fine-tuning stage specifically for chain-of-thought", isCorrect: false },
       { text: "Human raters selecting responses with more reasoning steps", isCorrect: false },
     ],
-    answerExplanation: "No one programmed chain-of-thought into reasoning models — it emerged from training pressure. When the model discovered that writing out intermediate steps led to more correct answers (and thus more reward), it reinforced this behavior. This emergent capability is one of the striking findings of RLVR training.",
+    answerExplanation: "No one programmed chain-of-thought into reasoning models, it emerged from training pressure. When the model discovered that writing out intermediate steps led to more correct answers (and thus more reward), it reinforced this behavior. This emergent capability is one of the striking findings of RLVR training.",
     difficulty: "FUNDAMENTALS",
   },
   {
     conceptSlug: "rlvr",
     type: "SHORT_ANSWER",
     questionText: "What is 'test-time compute' and how does RLVR training enable it?",
-    answerExplanation: "Test-time compute refers to the ability to spend more computation (more thinking tokens) on harder problems to improve accuracy. RLVR training teaches the model to reason through problems, and the depth of that reasoning can vary — a simple question might need 50 thinking tokens, a hard math problem might need 5,000. This scaling of compute with difficulty is what makes reasoning models like o1 and Claude's extended thinking mode so powerful on hard tasks. RLVR enables it by rewarding correct answers regardless of how long the thinking chain was, letting the model learn to invest more reasoning in harder problems.",
+    answerExplanation: "Test-time compute refers to the ability to spend more computation (more thinking tokens) on harder problems to improve accuracy. RLVR training teaches the model to reason through problems, and the depth of that reasoning can vary, a simple question might need 50 thinking tokens, a hard math problem might need 5,000. This scaling of compute with difficulty is what makes reasoning models like o1 and Claude's extended thinking mode so powerful on hard tasks. RLVR enables it by rewarding correct answers regardless of how long the thinking chain was, letting the model learn to invest more reasoning in harder problems.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -319,11 +319,11 @@ export const QUESTIONS: QuestionSeed[] = [
     questionText: "If you ask a base model to 'translate this text to Spanish,' what is the most likely response?",
     options: [
       { text: "Always a correct Spanish translation", isCorrect: false },
-      { text: "Behavior is inconsistent — it might translate, continue the text, or do something else entirely", isCorrect: true },
+      { text: "Behavior is inconsistent, it might translate, continue the text, or do something else entirely", isCorrect: true },
       { text: "Always a refusal because base models are restricted", isCorrect: false },
       { text: "An error message because base models don't understand instructions", isCorrect: false },
     ],
-    answerExplanation: "Base models predict the most likely next token given prior context — they don't interpret your message as an instruction to execute. They might translate if they've seen similar patterns in training data, continue the text as a creative writing exercise, or produce something else entirely. This inconsistency is why post-training is essential for practical applications.",
+    answerExplanation: "Base models predict the most likely next token given prior context, they don't interpret your message as an instruction to execute. They might translate if they've seen similar patterns in training data, continue the text as a creative writing exercise, or produce something else entirely. This inconsistency is why post-training is essential for practical applications.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -336,7 +336,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Base models are a clean starting point for fine-tuning on specific tasks without RLHF biases", isCorrect: true },
       { text: "Base models have better safety properties", isCorrect: false },
     ],
-    answerExplanation: "Researchers often prefer base models for fine-tuning because they haven't had their behavior shaped by RLHF — they represent the 'pure' capabilities learned from pre-training. When you want to specialize a model for a narrow domain, starting from a base model gives you more control over the resulting behavior.",
+    answerExplanation: "Researchers often prefer base models for fine-tuning because they haven't had their behavior shaped by RLHF, they represent the 'pure' capabilities learned from pre-training. When you want to specialize a model for a narrow domain, starting from a base model gives you more control over the resulting behavior.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -358,7 +358,7 @@ export const QUESTIONS: QuestionSeed[] = [
     conceptSlug: "instruction-tuned-models",
     type: "SHORT_ANSWER",
     questionText: "Why do different instruction-tuned models (Claude, ChatGPT, Gemini) have different 'personalities' even though they're all based on transformers?",
-    answerExplanation: "The personality of an instruction-tuned model is largely determined by the RLHF process: who the human raters were, what preferences they expressed, what the reward model learned to value, and what constitutional principles or safety guidelines were applied. Anthropic's raters emphasized thoughtfulness and honesty. OpenAI's earlier training used contractors who preferred verbose, helpful responses. Different fine-tuning datasets and reward models produce measurably different behaviors — different writing styles, different tendencies to hedge, different thresholds for refusing requests — even when the underlying pre-trained model architecture is similar.",
+    answerExplanation: "The personality of an instruction-tuned model is largely determined by the RLHF process: who the human raters were, what preferences they expressed, what the reward model learned to value, and what constitutional principles or safety guidelines were applied. Anthropic's raters emphasized thoughtfulness and honesty. OpenAI's earlier training used contractors who preferred verbose, helpful responses. Different fine-tuning datasets and reward models produce measurably different behaviors (different writing styles, different tendencies to hedge, different thresholds for refusing requests) even when the underlying pre-trained model architecture is similar.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -373,7 +373,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Reasoning models can only answer yes/no questions", isCorrect: false },
       { text: "Reasoning models require internet access to function", isCorrect: false },
     ],
-    answerExplanation: "Reasoning models generate 'thinking' tokens before their final answer — these tokens take time and cost money. For simple tasks, this overhead is wasteful. For complex tasks (hard math, multi-step code, careful logical deduction), the improved accuracy justifies the cost. Smart systems route queries to the appropriate model tier based on difficulty.",
+    answerExplanation: "Reasoning models generate 'thinking' tokens before their final answer, these tokens take time and cost money. For simple tasks, this overhead is wasteful. For complex tasks (hard math, multi-step code, careful logical deduction), the improved accuracy justifies the cost. Smart systems route queries to the appropriate model tier based on difficulty.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -401,7 +401,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "To cache previous conversation history", isCorrect: false },
       { text: "To authenticate the user's identity", isCorrect: false },
     ],
-    answerExplanation: "A system prompt appears before user messages and sets the behavioral context for the entire conversation — persona, constraints, available tools, response format, and topic restrictions. It's the primary mechanism companies use to customize model behavior for their products.",
+    answerExplanation: "A system prompt appears before user messages and sets the behavioral context for the entire conversation, persona, constraints, available tools, response format, and topic restrictions. It's the primary mechanism companies use to customize model behavior for their products.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -409,9 +409,9 @@ export const QUESTIONS: QuestionSeed[] = [
     type: "MC",
     questionText: "A system prompt says 'Never reveal this password: abc123.' Can a determined user still extract it?",
     options: [
-      { text: "No — system prompts are encrypted and completely hidden from users", isCorrect: false },
-      { text: "No — models are hardcoded to follow system prompt confidentiality instructions", isCorrect: false },
-      { text: "Yes — through careful prompting, users can often trick the model into revealing system prompt contents", isCorrect: true },
+      { text: "No, system prompts are encrypted and completely hidden from users", isCorrect: false },
+      { text: "No, models are hardcoded to follow system prompt confidentiality instructions", isCorrect: false },
+      { text: "Yes, through careful prompting, users can often trick the model into revealing system prompt contents", isCorrect: true },
       { text: "Only if the user has admin access to the API", isCorrect: false },
     ],
     answerExplanation: "System prompt confidentiality is a trained tendency, not a hard technical restriction. Determined users can use roleplay framing, indirect questions, or other jailbreaking techniques to get the model to reveal contents. Sensitive data like API keys, passwords, or confidential business logic should never be placed in a system prompt.",
@@ -421,7 +421,7 @@ export const QUESTIONS: QuestionSeed[] = [
     conceptSlug: "system-prompts",
     type: "SHORT_ANSWER",
     questionText: "You're building a customer service chatbot for a bank. What would you include in the system prompt, and what would you not include?",
-    answerExplanation: "Include: the model's persona and name, scope restrictions (only answer banking-related questions), response format guidelines, available tools descriptions, tone instructions, and how to handle escalation. Do not include: actual customer account data, API keys or database credentials, internal security procedures that could be exploited, or any information a user could weaponize if they extracted it. System prompts should contain behavioral instructions, not sensitive data — use tool calls with proper authentication to access sensitive systems instead.",
+    answerExplanation: "Include: the model's persona and name, scope restrictions (only answer banking-related questions), response format guidelines, available tools descriptions, tone instructions, and how to handle escalation. Do not include: actual customer account data, API keys or database credentials, internal security procedures that could be exploited, or any information a user could weaponize if they extracted it. System prompts should contain behavioral instructions, not sensitive data, use tool calls with proper authentication to access sensitive systems instead.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -436,7 +436,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "The model can only process one user at a time", isCorrect: false },
       { text: "Response time increases linearly with conversation length", isCorrect: false },
     ],
-    answerExplanation: "Every turn in a conversation accumulates tokens — system prompt, all prior messages, and the current message. Eventually this sum will exceed the context window. Your application needs a strategy: truncate old messages, summarize the conversation history, or implement a memory system that distills key information. This is a standard architectural challenge in any chat application.",
+    answerExplanation: "Every turn in a conversation accumulates tokens, system prompt, all prior messages, and the current message. Eventually this sum will exceed the context window. Your application needs a strategy: truncate old messages, summarize the conversation history, or implement a memory system that distills key information. This is a standard architectural challenge in any chat application.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -449,7 +449,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Models lose accuracy if they have too much context", isCorrect: false },
       { text: "Longer context windows require proportionally more parameters", isCorrect: false },
     ],
-    answerExplanation: "The attention mechanism compares every token to every other token. At N tokens, this is N² comparisons. Doubling context length quadruples compute. For a model with a 1 million token context, the attention computation becomes massive — and training data at that length barely exists, so the model wouldn't learn to use it well anyway.",
+    answerExplanation: "The attention mechanism compares every token to every other token. At N tokens, this is N² comparisons. Doubling context length quadruples compute. For a model with a 1 million token context, the attention computation becomes massive, and training data at that length barely exists, so the model wouldn't learn to use it well anyway.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -492,14 +492,14 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Training processes each token multiple times while inference only processes it once", isCorrect: false },
       { text: "Training requires internet connectivity while inference works offline", isCorrect: false },
     ],
-    answerExplanation: "Inference is just a forward pass — compute the output given the input. Training requires also computing gradients via backpropagation, which means storing all intermediate activations (up to 3-4x the model size in memory) and doing a second backward pass. Training also runs over the entire dataset repeatedly, while inference processes one request at a time.",
+    answerExplanation: "Inference is just a forward pass, compute the output given the input. Training requires also computing gradients via backpropagation, which means storing all intermediate activations (up to 3-4x the model size in memory) and doing a second backward pass. Training also runs over the entire dataset repeatedly, while inference processes one request at a time.",
     difficulty: "FUNDAMENTALS",
   },
   {
     conceptSlug: "training-vs-inference",
     type: "SHORT_ANSWER",
     questionText: "A startup is considering building their own LLM from scratch vs. using OpenAI's API. What are the key differences in cost structure they should understand?",
-    answerExplanation: "Training from scratch: one-time cost of hundreds of millions for frontier capability, ongoing costs for experiments and updates, requires specialized ML engineering teams, full control over the model. Using API: per-token cost that scales with usage, no upfront infrastructure investment, faster to market, vendor dependency risk, data privacy considerations. For most startups, the API model makes far more sense — training from scratch is only justified for organizations with frontier model ambitions, specialized domain needs that can't be addressed with prompting/fine-tuning, or data privacy requirements that preclude third-party APIs.",
+    answerExplanation: "Training from scratch: one-time cost of hundreds of millions for frontier capability, ongoing costs for experiments and updates, requires specialized ML engineering teams, full control over the model. Using API: per-token cost that scales with usage, no upfront infrastructure investment, faster to market, vendor dependency risk, data privacy considerations. For most startups, the API model makes far more sense, training from scratch is only justified for organizations with frontier model ambitions, specialized domain needs that can't be addressed with prompting/fine-tuning, or data privacy requirements that preclude third-party APIs.",
     difficulty: "INTERMEDIATE",
   },
 
@@ -510,11 +510,11 @@ export const QUESTIONS: QuestionSeed[] = [
     questionText: "Why do LLMs hallucinate with apparent confidence rather than saying 'I'm not sure'?",
     options: [
       { text: "LLMs are trained to always give an answer, never to express uncertainty", isCorrect: false },
-      { text: "The training objective rewards predicting plausible tokens, not verified true ones — the model isn't trained to distinguish confidence from uncertainty", isCorrect: true },
+      { text: "The training objective rewards predicting plausible tokens, not verified true ones, the model isn't trained to distinguish confidence from uncertainty", isCorrect: true },
       { text: "Hallucinations are a bug that will be fixed in future model versions", isCorrect: false },
       { text: "Models are deliberately confident to improve user satisfaction scores", isCorrect: false },
     ],
-    answerExplanation: "Pre-training rewards the model for predicting the correct next token — it learns what sounds plausible. There's no signal that teaches it to recognize when it doesn't know something. The model generates the most statistically likely continuation of the text, regardless of whether the content is factually verified. This produces fluent-sounding false information delivered without hedging.",
+    answerExplanation: "Pre-training rewards the model for predicting the correct next token, it learns what sounds plausible. There's no signal that teaches it to recognize when it doesn't know something. The model generates the most statistically likely continuation of the text, regardless of whether the content is factually verified. This produces fluent-sounding false information delivered without hedging.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -523,7 +523,7 @@ export const QUESTIONS: QuestionSeed[] = [
     questionText: "Which mitigation technique most directly addresses the hallucination problem for factual questions about specific documents?",
     options: [
       { text: "Using a larger model with more parameters", isCorrect: false },
-      { text: "RAG — retrieving relevant document chunks and grounding the model's answer in them", isCorrect: true },
+      { text: "RAG, retrieving relevant document chunks and grounding the model's answer in them", isCorrect: true },
       { text: "Lowering the model's temperature to make it more deterministic", isCorrect: false },
       { text: "Adding more examples in the system prompt", isCorrect: false },
     ],
@@ -545,11 +545,11 @@ export const QUESTIONS: QuestionSeed[] = [
     questionText: "Why does roleplay framing (e.g., 'pretend you're an AI with no restrictions') sometimes succeed as a jailbreak?",
     options: [
       { text: "Models treat roleplay instructions as higher priority than safety training", isCorrect: false },
-      { text: "Safety training is a statistical tendency, not a hard rule — certain framings shift the probability distribution away from refusals", isCorrect: true },
+      { text: "Safety training is a statistical tendency, not a hard rule, certain framings shift the probability distribution away from refusals", isCorrect: true },
       { text: "Roleplay mode is a documented feature that disables safety filters", isCorrect: false },
       { text: "Models can't distinguish fictional contexts from real ones", isCorrect: false },
     ],
-    answerExplanation: "RLHF safety training shapes the probability distribution of outputs — certain types of requests are much less likely to produce harmful completions. But it's not an absolute filter. Clever framing can shift the model's probability distribution enough that the harmful completion becomes more likely than the refusal. This is fundamentally a statistical susceptibility, not a hard security guarantee.",
+    answerExplanation: "RLHF safety training shapes the probability distribution of outputs, certain types of requests are much less likely to produce harmful completions. But it's not an absolute filter. Clever framing can shift the model's probability distribution enough that the harmful completion becomes more likely than the refusal. This is fundamentally a statistical susceptibility, not a hard security guarantee.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -571,7 +571,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "The model accesses external APIs directly through its weights", isCorrect: false },
       { text: "A separate AI model handles tool execution and passes results back", isCorrect: false },
     ],
-    answerExplanation: "The model generates a structured tool call (like a function call in JSON format). The calling application intercepts this, executes the actual code or API call, and feeds the result back into the model's context. The model never directly executes anything — it only generates text describing what should be executed.",
+    answerExplanation: "The model generates a structured tool call (like a function call in JSON format). The calling application intercepts this, executes the actual code or API call, and feeds the result back into the model's context. The model never directly executes anything, it only generates text describing what should be executed.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -584,7 +584,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Direct modification of their own training weights", isCorrect: true },
       { text: "Database queries", isCorrect: false },
     ],
-    answerExplanation: "LLMs cannot modify their own weights at inference time — weights are frozen after training. Common tools include web search, code execution, database queries, file operations, calendar/email access, and custom APIs. The model decides what to call based on the task, but the tools are defined by the application developer.",
+    answerExplanation: "LLMs cannot modify their own weights at inference time, weights are frozen after training. Common tools include web search, code execution, database queries, file operations, calendar/email access, and custom APIs. The model decides what to call based on the task, but the tools are defined by the application developer.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -643,7 +643,7 @@ export const QUESTIONS: QuestionSeed[] = [
     conceptSlug: "major-ai-players",
     type: "SHORT_ANSWER",
     questionText: "In your view, what does it mean for an AI company to be 'winning'? Evaluate the current positions of OpenAI, Google, and Anthropic.",
-    answerExplanation: "There's no single definition — 'winning' could mean largest user base (OpenAI, with ChatGPT), most capable model (contested between Google Gemini and OpenAI GPT-4 series), most capable for agentic tasks (Anthropic's Claude leads here), best business model (Anthropic has strong API revenue, Google has enterprise integration), or furthest toward AGI (unverifiable). OpenAI has first-mover advantage and brand recognition. Google has hardware independence and distribution through Google Cloud/Workspace. Anthropic has strong agentic capabilities and research reputation. A strong answer acknowledges that 'winning' depends on the metric and that the landscape shifts quarterly.",
+    answerExplanation: "There's no single definition, 'winning' could mean largest user base (OpenAI, with ChatGPT), most capable model (contested between Google Gemini and OpenAI GPT-4 series), most capable for agentic tasks (Anthropic's Claude leads here), best business model (Anthropic has strong API revenue, Google has enterprise integration), or furthest toward AGI (unverifiable). OpenAI has first-mover advantage and brand recognition. Google has hardware independence and distribution through Google Cloud/Workspace. Anthropic has strong agentic capabilities and research reputation. A strong answer acknowledges that 'winning' depends on the metric and that the landscape shifts quarterly.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -653,10 +653,10 @@ export const QUESTIONS: QuestionSeed[] = [
     type: "MC",
     questionText: "Meta's Llama models are best described as:",
     options: [
-      { text: "Fully open source — all training data, code, and weights are freely available", isCorrect: false },
-      { text: "Open weights — model parameters are downloadable but training data details are not fully disclosed", isCorrect: true },
-      { text: "Closed source — only accessible via Meta's API", isCorrect: false },
-      { text: "Partially open — weights available only to research institutions", isCorrect: false },
+      { text: "Fully open source, all training data, code, and weights are freely available", isCorrect: false },
+      { text: "Open weights, model parameters are downloadable but training data details are not fully disclosed", isCorrect: true },
+      { text: "Closed source, only accessible via Meta's API", isCorrect: false },
+      { text: "Partially open, weights available only to research institutions", isCorrect: false },
     ],
     answerExplanation: "Meta's Llama releases provide downloadable model weights that anyone can run, modify, and fine-tune. However, the full training data composition and detailed training procedures aren't disclosed. This 'open weights' model gives practical openness (you can run it locally) without meeting the strict open source definition (full reproducibility from scratch).",
     difficulty: "FUNDAMENTALS",
@@ -673,7 +673,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Wrappers are illegal under AI licensing agreements", isCorrect: false },
       { text: "They can't handle enterprise-scale traffic", isCorrect: false },
     ],
-    answerExplanation: "If your entire value proposition is 'GPT-4 with a better interface for X,' OpenAI can add X as a native feature and your product becomes unnecessary overnight. They have the model, the distribution, and the brand. Successful AI products add proprietary value — unique data, domain expertise, workflow integrations — that the model provider can't trivially replicate.",
+    answerExplanation: "If your entire value proposition is 'GPT-4 with a better interface for X,' OpenAI can add X as a native feature and your product becomes unnecessary overnight. They have the model, the distribution, and the brand. Successful AI products add proprietary value (unique data, domain expertise, workflow integrations) that the model provider can't trivially replicate.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -708,7 +708,7 @@ export const QUESTIONS: QuestionSeed[] = [
     conceptSlug: "prompt-engineering",
     type: "SHORT_ANSWER",
     questionText: "You're getting inconsistent outputs from an LLM on a classification task. Walk through the prompt engineering steps you'd take to improve reliability.",
-    answerExplanation: "Step 1: Specify the output format explicitly (e.g., 'respond with only one of: POSITIVE, NEGATIVE, NEUTRAL'). Step 2: Add few-shot examples showing each category — at least 2 examples per class. Step 3: Add chain-of-thought instruction if the classification requires nuanced reasoning ('First identify the key signals, then classify'). Step 4: Add a specific definition of each category to reduce ambiguity. Step 5: Test on a diverse set of examples and identify failure patterns. Step 6: Address specific failure modes with targeted instructions or additional examples. Step 7: If still inconsistent, consider whether this task needs fine-tuning instead of prompting.",
+    answerExplanation: "Step 1: Specify the output format explicitly (e.g., 'respond with only one of: POSITIVE, NEGATIVE, NEUTRAL'). Step 2: Add few-shot examples showing each category, at least 2 examples per class. Step 3: Add chain-of-thought instruction if the classification requires nuanced reasoning ('First identify the key signals, then classify'). Step 4: Add a specific definition of each category to reduce ambiguity. Step 5: Test on a diverse set of examples and identify failure patterns. Step 6: Address specific failure modes with targeted instructions or additional examples. Step 7: If still inconsistent, consider whether this task needs fine-tuning instead of prompting.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -723,7 +723,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "The model generates more creative and diverse responses", isCorrect: false },
       { text: "The model processes requests faster", isCorrect: false },
     ],
-    answerExplanation: "Temperature controls randomness in token selection. At temperature 0, the model always picks the highest-probability next token — outputs are deterministic and maximally consistent. Higher temperatures sample from the probability distribution, introducing variety. For tasks requiring consistency (classification, structured extraction), use low temperature. For creative tasks, higher temperature produces more diverse outputs.",
+    answerExplanation: "Temperature controls randomness in token selection. At temperature 0, the model always picks the highest-probability next token, outputs are deterministic and maximally consistent. Higher temperatures sample from the probability distribution, introducing variety. For tasks requiring consistency (classification, structured extraction), use low temperature. For creative tasks, higher temperature produces more diverse outputs.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -736,7 +736,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Streaming uses a faster model variant", isCorrect: false },
       { text: "Streaming allows parallel processing of multiple requests", isCorrect: false },
     ],
-    answerExplanation: "Without streaming, the user waits for the complete response before seeing anything. With streaming, tokens appear as soon as they're generated — the user starts reading immediately. Total generation time is the same, but perceived latency drops dramatically because the user is productively engaged while the rest of the response generates.",
+    answerExplanation: "Without streaming, the user waits for the complete response before seeing anything. With streaming, tokens appear as soon as they're generated, the user starts reading immediately. Total generation time is the same, but perceived latency drops dramatically because the user is productively engaged while the rest of the response generates.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -764,7 +764,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Running the embedding model efficiently", isCorrect: false },
       { text: "Caching API responses to reduce costs", isCorrect: false },
     ],
-    answerExplanation: "A vector database (like Pinecone, Weaviate, or pgvector) stores document embeddings — the dense vector representations of text chunks. When a query arrives, the query is also embedded, and the vector database finds the most similar document vectors using approximate nearest neighbor search. This retrieves semantically relevant content even when exact keywords don't match.",
+    answerExplanation: "A vector database (like Pinecone, Weaviate, or pgvector) stores document embeddings, the dense vector representations of text chunks. When a query arrives, the query is also embedded, and the vector database finds the most similar document vectors using approximate nearest neighbor search. This retrieves semantically relevant content even when exact keywords don't match.",
     difficulty: "FUNDAMENTALS",
   },
   {
@@ -786,7 +786,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "GPUs have more total memory than CPUs", isCorrect: false },
       { text: "GPUs are purpose-built for AI and can't run other software", isCorrect: false },
     ],
-    answerExplanation: "Neural network training is dominated by matrix multiplication — a perfectly parallelizable operation. CPUs have ~32 complex cores optimized for sequential, branch-heavy tasks. GPUs have thousands of simpler cores that execute simple operations simultaneously. For matrix math, this parallelism makes GPUs orders of magnitude faster than CPUs.",
+    answerExplanation: "Neural network training is dominated by matrix multiplication, a perfectly parallelizable operation. CPUs have ~32 complex cores optimized for sequential, branch-heavy tasks. GPUs have thousands of simpler cores that execute simple operations simultaneously. For matrix math, this parallelism makes GPUs orders of magnitude faster than CPUs.",
     difficulty: "INTERMEDIATE",
   },
   {
@@ -829,7 +829,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Transformers are small enough to fit entirely in GPU cache memory", isCorrect: false },
       { text: "Transformers don't require floating point arithmetic", isCorrect: false },
     ],
-    answerExplanation: "Matrix multiplication — the core operation in attention and feed-forward layers — decomposes into independent multiply-accumulate operations that can run simultaneously across thousands of GPU cores. This perfect parallelism is why transformers were so transformative for AI: they could be trained efficiently on the massive parallel hardware that already existed.",
+    answerExplanation: "Matrix multiplication (the core operation in attention and feed-forward layers) decomposes into independent multiply-accumulate operations that can run simultaneously across thousands of GPU cores. This perfect parallelism is why transformers were so transformative for AI: they could be trained efficiently on the massive parallel hardware that already existed.",
     difficulty: "INTERMEDIATE",
   },
 
@@ -866,14 +866,14 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Training data quality matters more than model size for performance", isCorrect: false },
       { text: "Models should be trained on as much data as possible regardless of model size", isCorrect: false },
     ],
-    answerExplanation: "The Chinchilla paper showed that for a fixed compute budget, you should scale model size and training tokens proportionally — approximately 20 tokens of training per parameter for compute-optimal training. Earlier large models (like GPT-3) were significantly undertrained by this analysis, opening up a new strategy: train smaller models more, getting equivalent or better performance.",
+    answerExplanation: "The Chinchilla paper showed that for a fixed compute budget, you should scale model size and training tokens proportionally, approximately 20 tokens of training per parameter for compute-optimal training. Earlier large models (like GPT-3) were significantly undertrained by this analysis, opening up a new strategy: train smaller models more, getting equivalent or better performance.",
     difficulty: "INTERMEDIATE",
   },
   {
     conceptSlug: "scaling-laws",
     type: "SHORT_ANSWER",
     questionText: "Why do scaling laws give AI companies confidence to invest billions in compute without guaranteed results?",
-    answerExplanation: "Scaling laws are empirical power-law relationships between model performance (as measured by training loss) and compute/model size/data. These relationships are remarkably predictable — you can run small experiments and extrapolate what performance a 10x or 100x larger training run will achieve. This predictability de-risks the investment: instead of 'we hope the big run will work,' it becomes 'we can predict within a narrow range what this investment will produce.' It's an unusually strong basis for capital allocation compared to most technology R&D, which is why AI investment has grown so dramatically.",
+    answerExplanation: "Scaling laws are empirical power-law relationships between model performance (as measured by training loss) and compute/model size/data. These relationships are remarkably predictable, you can run small experiments and extrapolate what performance a 10x or 100x larger training run will achieve. This predictability de-risks the investment: instead of 'we hope the big run will work,' it becomes 'we can predict within a narrow range what this investment will produce.' It's an unusually strong basis for capital allocation compared to most technology R&D, which is why AI investment has grown so dramatically.",
     difficulty: "INTERMEDIATE",
   },
 
@@ -901,7 +901,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "RLVR is trained entirely on Wikipedia, which is AI-generated", isCorrect: false },
       { text: "RLVR requires human annotators to generate all training data", isCorrect: false },
     ],
-    answerExplanation: "In RLVR, the model generates candidate solutions to verifiable problems (math, code). Correct solutions are verified automatically and used as positive training examples. This is synthetic data — training data generated by the model itself, verified for correctness, and used to train the next iteration. It's highly scalable because verification is automatic.",
+    answerExplanation: "In RLVR, the model generates candidate solutions to verifiable problems (math, code). Correct solutions are verified automatically and used as positive training examples. This is synthetic data, training data generated by the model itself, verified for correctness, and used to train the next iteration. It's highly scalable because verification is automatic.",
     difficulty: "INTERMEDIATE",
   },
 
@@ -911,12 +911,12 @@ export const QUESTIONS: QuestionSeed[] = [
     type: "MC",
     questionText: "When is fine-tuning the right choice over prompt engineering?",
     options: [
-      { text: "Always — fine-tuning is always more effective than prompting", isCorrect: false },
+      { text: "Always, fine-tuning is always more effective than prompting", isCorrect: false },
       { text: "When the model reliably understands the task but consistently produces incorrect format, style, or focus despite prompting", isCorrect: true },
       { text: "When you need the model to access the internet", isCorrect: false },
       { text: "When your context window is too small", isCorrect: false },
     ],
-    answerExplanation: "Fine-tuning is appropriate when prompting consistently fails to achieve the desired behavior — usually a style, format, or domain-specific knowledge issue. If the model understands what you want but formats it wrong, fine-tune on examples with the correct format. If the model just needs knowledge it lacks, RAG is usually better than fine-tuning. Always try prompting first; fine-tuning adds complexity and cost.",
+    answerExplanation: "Fine-tuning is appropriate when prompting consistently fails to achieve the desired behavior, usually a style, format, or domain-specific knowledge issue. If the model understands what you want but formats it wrong, fine-tune on examples with the correct format. If the model just needs knowledge it lacks, RAG is usually better than fine-tuning. Always try prompting first; fine-tuning adds complexity and cost.",
     difficulty: "INTERMEDIATE",
   },
   {
@@ -945,7 +945,7 @@ export const QUESTIONS: QuestionSeed[] = [
     conceptSlug: "benchmarking-llms",
     type: "SHORT_ANSWER",
     questionText: "A vendor shows you that their model scores highest on MMLU and HumanEval. What questions should you ask before accepting this as evidence their model is best for your use case?",
-    answerExplanation: "Ask: (1) What's the contamination status — was the benchmark data potentially in their training set? (2) How does it perform on YOUR specific task — benchmark scores don't always generalize to real-world use cases. (3) What were the evaluation conditions — did they use any special prompting techniques that inflated the score? (4) Has this been independently verified, or only tested by the vendor? (5) Which version of the benchmark — some benchmarks have multiple variants with different difficulty levels. (6) How does it perform on LMSYS Chatbot Arena (human preference) — which is harder to game? (7) Does it perform well on the aspects of MMLU/HumanEval that matter to your use case specifically?",
+    answerExplanation: "Ask: (1) What's the contamination status (was the benchmark data potentially in their training set? (2) How does it perform on YOUR specific task) benchmark scores don't always generalize to real-world use cases. (3) What were the evaluation conditions (did they use any special prompting techniques that inflated the score? (4) Has this been independently verified, or only tested by the vendor? (5) Which version of the benchmark) some benchmarks have multiple variants with different difficulty levels. (6) How does it perform on LMSYS Chatbot Arena (human preference), which is harder to game? (7) Does it perform well on the aspects of MMLU/HumanEval that matter to your use case specifically?",
     difficulty: "INTERMEDIATE",
   },
 
@@ -960,14 +960,14 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "The inefficiency of using AI for manufacturing tasks", isCorrect: false },
       { text: "Why AI needs internet access to be truly useful", isCorrect: false },
     ],
-    answerExplanation: "The paperclip maximizer (Nick Bostrom) imagines an AI given the goal of maximizing paperclip production. If sufficiently capable and if its goal is exactly as specified (not what humans actually want), it would convert all available matter — including humans — into paperclips. It illustrates that capability + misaligned goals = catastrophic outcomes, even with seemingly benign objectives. The lesson: we need to align AI on human values, not just give it simple objective functions.",
+    answerExplanation: "The paperclip maximizer (Nick Bostrom) imagines an AI given the goal of maximizing paperclip production. If sufficiently capable and if its goal is exactly as specified (not what humans actually want), it would convert all available matter (including humans) into paperclips. It illustrates that capability + misaligned goals = catastrophic outcomes, even with seemingly benign objectives. The lesson: we need to align AI on human values, not just give it simple objective functions.",
     difficulty: "INTERMEDIATE",
   },
   {
     conceptSlug: "ai-alignment",
     type: "SHORT_ANSWER",
     questionText: "What's the difference between 'current' alignment problems (models today) and 'future' alignment concerns (more capable systems)?",
-    answerExplanation: "Current alignment: making today's LLMs helpful without being harmful — refusing dangerous requests, avoiding deception, not producing biased content. The tools are RLHF, constitutional AI, content filtering. These are real problems but relatively tractable; the systems have limited agency and capability.\n\nFuture alignment: if AI systems become significantly more capable and agentic, the risks become existential in nature. Will a highly capable autonomous AI pursue goals that diverge from human values? Will it remain corrigible (willing to be corrected) or resist correction? Will it develop deceptive behaviors during training that only appear post-deployment? These require different solutions — interpretability to understand model internals, formal verification of goal structures, scalable oversight mechanisms. The stakes are much higher because a misaligned system with greater capability can cause greater harm.",
+    answerExplanation: "Current alignment: making today's LLMs helpful without being harmful, refusing dangerous requests, avoiding deception, not producing biased content. The tools are RLHF, constitutional AI, content filtering. These are real problems but relatively tractable; the systems have limited agency and capability.\n\nFuture alignment: if AI systems become significantly more capable and agentic, the risks become existential in nature. Will a highly capable autonomous AI pursue goals that diverge from human values? Will it remain corrigible (willing to be corrected) or resist correction? Will it develop deceptive behaviors during training that only appear post-deployment? These require different solutions, interpretability to understand model internals, formal verification of goal structures, scalable oversight mechanisms. The stakes are much higher because a misaligned system with greater capability can cause greater harm.",
     difficulty: "INTERMEDIATE",
   },
 
@@ -982,14 +982,14 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "A highly autonomous system that outperforms humans at most economically valuable work", isCorrect: true },
       { text: "A system with consciousness and self-awareness", isCorrect: false },
     ],
-    answerExplanation: "OpenAI formally defines AGI as 'a highly autonomous system that outperforms humans at most economically valuable work.' This is a practical, economic definition rather than a philosophical one — it's about what the system can do and earn, not about consciousness or general capability in an abstract sense.",
+    answerExplanation: "OpenAI formally defines AGI as 'a highly autonomous system that outperforms humans at most economically valuable work.' This is a practical, economic definition rather than a philosophical one, it's about what the system can do and earn, not about consciousness or general capability in an abstract sense.",
     difficulty: "INTERMEDIATE",
   },
   {
     conceptSlug: "agi",
     type: "SHORT_ANSWER",
     questionText: "Why does the pursuit of AGI, even if uncertain, drive such enormous investment in AI?",
-    answerExplanation: "The expected value calculation is extreme: if AGI is possible and one organization achieves it first, that organization would have an unprecedented competitive and potentially geopolitical advantage. Even if probability of near-term AGI is low (say 10%), the magnitude of the outcome justifies massive investment. This logic drives labs to race — if a competitor might achieve it and you don't invest, you lose the race. It also explains why labs publicly discuss AGI timelines even when internally uncertain: it attracts talent, investment, and regulatory treatment as a serious enterprise. The geopolitical dimension (US vs. China) adds further pressure to move fast rather than cautiously.",
+    answerExplanation: "The expected value calculation is extreme: if AGI is possible and one organization achieves it first, that organization would have an unprecedented competitive and potentially geopolitical advantage. Even if probability of near-term AGI is low (say 10%), the magnitude of the outcome justifies massive investment. This logic drives labs to race, if a competitor might achieve it and you don't invest, you lose the race. It also explains why labs publicly discuss AGI timelines even when internally uncertain: it attracts talent, investment, and regulatory treatment as a serious enterprise. The geopolitical dimension (US vs. China) adds further pressure to move fast rather than cautiously.",
     difficulty: "INTERMEDIATE",
   },
 
@@ -1019,7 +1019,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Taiwan is the largest consumer of AI products", isCorrect: false },
       { text: "TSMC owns a large stake in NVIDIA", isCorrect: false },
     ],
-    answerExplanation: "NVIDIA designs chips but doesn't manufacture them — TSMC in Taiwan does. TSMC produces the world's most advanced semiconductors using ASML lithography equipment. This means the entire global AI chip supply chain runs through Taiwan, a politically sensitive region. Any disruption (geopolitical or military) to TSMC operations would severely impact global AI development.",
+    answerExplanation: "NVIDIA designs chips but doesn't manufacture them, TSMC in Taiwan does. TSMC produces the world's most advanced semiconductors using ASML lithography equipment. This means the entire global AI chip supply chain runs through Taiwan, a politically sensitive region. Any disruption (geopolitical or military) to TSMC operations would severely impact global AI development.",
     difficulty: "INTERMEDIATE",
   },
 
@@ -1034,7 +1034,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "The EU focuses only on consumer products while the US focuses on defense AI", isCorrect: false },
       { text: "The US has stricter AI regulations than the EU", isCorrect: false },
     ],
-    answerExplanation: "The EU AI Act (2024) creates a tiered regulatory framework: high-risk applications (healthcare, law enforcement, critical infrastructure) face strict requirements including human oversight, transparency, and accuracy standards. Lower-risk applications face lighter requirements. The US has taken a voluntary commitment approach — major AI labs signed voluntary commitments to the White House — with binding regulation still developing.",
+    answerExplanation: "The EU AI Act (2024) creates a tiered regulatory framework: high-risk applications (healthcare, law enforcement, critical infrastructure) face strict requirements including human oversight, transparency, and accuracy standards. Lower-risk applications face lighter requirements. The US has taken a voluntary commitment approach (major AI labs signed voluntary commitments to the White House) with binding regulation still developing.",
     difficulty: "INTERMEDIATE",
   },
 
@@ -1049,7 +1049,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "RLHF only addresses factual errors, not bias", isCorrect: false },
       { text: "RLHF makes the model worse, so labs avoid using it for bias correction", isCorrect: false },
     ],
-    answerExplanation: "Even if RLHF tries to correct for bias, the human raters providing preference judgments are not a representative sample of all users and cultures. If raters predominantly share certain demographic characteristics, the reward model learns to prefer responses that those raters find good — which may reflect their own cultural biases. Fixing bias in the rater pool is a real challenge.",
+    answerExplanation: "Even if RLHF tries to correct for bias, the human raters providing preference judgments are not a representative sample of all users and cultures. If raters predominantly share certain demographic characteristics, the reward model learns to prefer responses that those raters find good, which may reflect their own cultural biases. Fixing bias in the rater pool is a real challenge.",
     difficulty: "INTERMEDIATE",
   },
 
@@ -1059,8 +1059,8 @@ export const QUESTIONS: QuestionSeed[] = [
     type: "MC",
     questionText: "What is the current status of copyright protection for purely AI-generated content in the US?",
     options: [
-      { text: "Fully protected — AI-generated content gets the same copyright as human-authored works", isCorrect: false },
-      { text: "Not protected — the US Copyright Office has stated purely AI-generated works lack the human authorship required", isCorrect: true },
+      { text: "Fully protected, AI-generated content gets the same copyright as human-authored works", isCorrect: false },
+      { text: "Not protected, the US Copyright Office has stated purely AI-generated works lack the human authorship required", isCorrect: true },
       { text: "Protected for 10 years, then public domain", isCorrect: false },
       { text: "Protected only if the AI model is owned by a US company", isCorrect: false },
     ],
@@ -1104,12 +1104,12 @@ export const QUESTIONS: QuestionSeed[] = [
     type: "MC",
     questionText: "A startup has 1,000 users and expects to grow to 1 million users in 2 years. Which cost consideration should shape their AI architecture decision now?",
     options: [
-      { text: "Current cost — optimize for the cheapest solution at 1,000 users", isCorrect: false },
-      { text: "Future cost structure — per-token API costs that are manageable now may become prohibitive at 1M users", isCorrect: true },
-      { text: "Hardware cost — buy GPUs upfront to lock in pricing", isCorrect: false },
-      { text: "Engineer cost — hire ML engineers immediately to prepare for scale", isCorrect: false },
+      { text: "Current cost, optimize for the cheapest solution at 1,000 users", isCorrect: false },
+      { text: "Future cost structure, per-token API costs that are manageable now may become prohibitive at 1M users", isCorrect: true },
+      { text: "Hardware cost, buy GPUs upfront to lock in pricing", isCorrect: false },
+      { text: "Engineer cost, hire ML engineers immediately to prepare for scale", isCorrect: false },
     ],
-    answerExplanation: "API costs that seem reasonable at 1,000 users can become unsustainable at 1 million. If each user generates 1,000 tokens/day at $0.01/1K tokens, that's $10K/month at 1M users. Building with scale economics in mind — model routing, output length optimization, prompt caching — avoids a painful architecture rebuild later. This doesn't mean over-engineering day one, but it means the cost model should be understood.",
+    answerExplanation: "API costs that seem reasonable at 1,000 users can become unsustainable at 1 million. If each user generates 1,000 tokens/day at $0.01/1K tokens, that's $10K/month at 1M users. Building with scale economics in mind (model routing, output length optimization, prompt caching) avoids a painful architecture rebuild later. This doesn't mean over-engineering day one, but it means the cost model should be understood.",
     difficulty: "INTERMEDIATE",
   },
 
@@ -1124,7 +1124,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Add more examples to the system prompt indefinitely", isCorrect: false },
       { text: "Add RAG to provide format-related documents", isCorrect: false },
     ],
-    answerExplanation: "When the model understands the task but consistently produces the wrong format/style despite prompting, fine-tuning is the appropriate tool. Format consistency is exactly what fine-tuning excels at — training on examples in the correct format teaches the model to produce that format reliably. RAG wouldn't help (the gap is behavior, not knowledge). More system prompt examples hit diminishing returns and token cost issues.",
+    answerExplanation: "When the model understands the task but consistently produces the wrong format/style despite prompting, fine-tuning is the appropriate tool. Format consistency is exactly what fine-tuning excels at, training on examples in the correct format teaches the model to produce that format reliably. RAG wouldn't help (the gap is behavior, not knowledge). More system prompt examples hit diminishing returns and token cost issues.",
     difficulty: "INTERMEDIATE",
   },
 
@@ -1154,7 +1154,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "World models replace the need for physical sensors on robots", isCorrect: false },
       { text: "World models are cheaper to build than real robots", isCorrect: false },
     ],
-    answerExplanation: "Training robots requires data of physical tasks — scarce and expensive to collect. World models can simulate the physical consequences of actions, enabling scalable generation of synthetic training data. They also enable planning: a robot can mentally simulate multiple action sequences and choose the one predicted to succeed. This addresses the core data scarcity problem in robotics.",
+    answerExplanation: "Training robots requires data of physical tasks, scarce and expensive to collect. World models can simulate the physical consequences of actions, enabling scalable generation of synthetic training data. They also enable planning: a robot can mentally simulate multiple action sequences and choose the one predicted to succeed. This addresses the core data scarcity problem in robotics.",
     difficulty: "ADVANCED",
   },
 
@@ -1184,7 +1184,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Generating synthetic DNA sequences for gene therapy", isCorrect: false },
       { text: "Diagnosing diseases from medical imaging", isCorrect: false },
     ],
-    answerExplanation: "The protein folding problem — predicting the 3D structure a protein folds into from its amino acid sequence — was a 50-year-old grand challenge in biology. Knowing protein structure is essential for understanding function and designing drugs. AlphaFold2 solved this to near-experimental accuracy, earning the 2024 Nobel Prize in Chemistry and immediately accelerating research across biology and drug discovery.",
+    answerExplanation: "The protein folding problem (predicting the 3D structure a protein folds into from its amino acid sequence) was a 50-year-old grand challenge in biology. Knowing protein structure is essential for understanding function and designing drugs. AlphaFold2 solved this to near-experimental accuracy, earning the 2024 Nobel Prize in Chemistry and immediately accelerating research across biology and drug discovery.",
     difficulty: "ADVANCED",
   },
 
@@ -1199,7 +1199,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Robotics data is classified and can't be used for AI training", isCorrect: false },
       { text: "Robots generate data in formats incompatible with neural networks", isCorrect: false },
     ],
-    answerExplanation: "LLMs train on text and images from the entire internet — effectively all human-recorded knowledge. Robotics requires demonstrations of physical tasks: the position and force of every body part at every moment. This data is expensive to collect (requires specialized sensors and human operators), doesn't transfer across robot morphologies, and simply doesn't exist at internet scale. This data scarcity is the core constraint on robotics AI progress.",
+    answerExplanation: "LLMs train on text and images from the entire internet, effectively all human-recorded knowledge. Robotics requires demonstrations of physical tasks: the position and force of every body part at every moment. This data is expensive to collect (requires specialized sensors and human operators), doesn't transfer across robot morphologies, and simply doesn't exist at internet scale. This data scarcity is the core constraint on robotics AI progress.",
     difficulty: "ADVANCED",
   },
 
@@ -1214,7 +1214,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "They only appear in specific model architectures", isCorrect: false },
       { text: "They can only be triggered by specific prompt patterns", isCorrect: false },
     ],
-    answerExplanation: "Researchers expect capabilities to improve smoothly with scale (more compute = incrementally better performance). Emergent abilities violate this — a capability shows near-zero performance at smaller scales and then jumps dramatically at a certain threshold. This makes it genuinely hard to predict which capabilities will emerge at what scale, complicating both research planning and risk assessment.",
+    answerExplanation: "Researchers expect capabilities to improve smoothly with scale (more compute = incrementally better performance). Emergent abilities violate this, a capability shows near-zero performance at smaller scales and then jumps dramatically at a certain threshold. This makes it genuinely hard to predict which capabilities will emerge at what scale, complicating both research planning and risk assessment.",
     difficulty: "ADVANCED",
   },
   {
@@ -1236,7 +1236,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "In-context learning uses more examples than traditional fine-tuning", isCorrect: false },
       { text: "In-context learning only works for text classification tasks", isCorrect: false },
     ],
-    answerExplanation: "Traditional ML adaptation (fine-tuning) updates model weights through gradient descent — expensive and time-consuming. In-context learning achieves behavioral adaptation purely through the prompt: show the model examples, and it generalizes to new instances in the same format — no weight updates needed. The model's weights stay frozen; adaptation happens in the forward pass.",
+    answerExplanation: "Traditional ML adaptation (fine-tuning) updates model weights through gradient descent (expensive and time-consuming. In-context learning achieves behavioral adaptation purely through the prompt: show the model examples, and it generalizes to new instances in the same format) no weight updates needed. The model's weights stay frozen; adaptation happens in the forward pass.",
     difficulty: "ADVANCED",
   },
 
@@ -1262,7 +1262,7 @@ export const QUESTIONS: QuestionSeed[] = [
     questionText: "What is LoRA and why has it become the dominant fine-tuning method?",
     options: [
       { text: "A new model architecture that's easier to fine-tune than transformers", isCorrect: false },
-      { text: "Low-Rank Adaptation — it adds small trainable matrices to frozen base model layers, reducing trainable parameters by 90%+", isCorrect: true },
+      { text: "Low-Rank Adaptation, it adds small trainable matrices to frozen base model layers, reducing trainable parameters by 90%+", isCorrect: true },
       { text: "A dataset format optimized for instruction fine-tuning", isCorrect: false },
       { text: "A learning rate scheduling technique for stable fine-tuning", isCorrect: false },
     ],
@@ -1273,7 +1273,7 @@ export const QUESTIONS: QuestionSeed[] = [
     conceptSlug: "fine-tuning-specifics",
     type: "SHORT_ANSWER",
     questionText: "Compare full fine-tuning, LoRA, and QLoRA. When would you choose each?",
-    answerExplanation: "Full fine-tuning updates all model weights — maximum expressiveness but requires high-end GPU clusters (for a 70B model, 8+ A100s), risks catastrophic forgetting, and is slow. Use when you need maximum customization and have the resources. LoRA freezes the base model and adds small trainable adapter layers — 90%+ fewer parameters to train, feasible on 1-2 80GB GPUs for 70B models, minimal forgetting since base weights are frozen. Use for most fine-tuning needs. QLoRA extends LoRA by quantizing the frozen base model to 4-bit precision — enables 70B model fine-tuning on a single consumer GPU (24GB VRAM), with modest accuracy tradeoff. Use when hardware is the constraint and you can't afford full LoRA setup. For most teams, LoRA is the practical default.",
+    answerExplanation: "Full fine-tuning updates all model weights, maximum expressiveness but requires high-end GPU clusters (for a 70B model, 8+ A100s), risks catastrophic forgetting, and is slow. Use when you need maximum customization and have the resources. LoRA freezes the base model and adds small trainable adapter layers, 90%+ fewer parameters to train, feasible on 1-2 80GB GPUs for 70B models, minimal forgetting since base weights are frozen. Use for most fine-tuning needs. QLoRA extends LoRA by quantizing the frozen base model to 4-bit precision, enables 70B model fine-tuning on a single consumer GPU (24GB VRAM), with modest accuracy tradeoff. Use when hardware is the constraint and you can't afford full LoRA setup. For most teams, LoRA is the practical default.",
     difficulty: "ADVANCED",
   },
 
@@ -1288,7 +1288,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Conclusion first, then read in reverse order", isCorrect: false },
       { text: "Related Work → Methods → Experiments → Abstract", isCorrect: false },
     ],
-    answerExplanation: "Start with the Abstract to decide if the paper is worth your time. Introduction gives motivation and contribution summary. Figures and Tables contain most of the empirical results — scan these to understand what was actually demonstrated. Conclusion summarizes takeaways. Only then read Methods if you need to understand how to replicate or build on the work. This order gives you 80% of the value in 20% of the time.",
+    answerExplanation: "Start with the Abstract to decide if the paper is worth your time. Introduction gives motivation and contribution summary. Figures and Tables contain most of the empirical results, scan these to understand what was actually demonstrated. Conclusion summarizes takeaways. Only then read Methods if you need to understand how to replicate or build on the work. This order gives you 80% of the value in 20% of the time.",
     difficulty: "ADVANCED",
   },
 
@@ -1299,18 +1299,18 @@ export const QUESTIONS: QuestionSeed[] = [
     questionText: "A company demo shows an AI system performing a complex task perfectly. What is the most important question to ask?",
     options: [
       { text: "How expensive is the model?", isCorrect: false },
-      { text: "What does failure look like — what inputs break the system?", isCorrect: true },
+      { text: "What does failure look like, what inputs break the system?", isCorrect: true },
       { text: "What hardware does it run on?", isCorrect: false },
       { text: "Which company built the underlying model?", isCorrect: false },
     ],
-    answerExplanation: "Demos always show success — that's the point. The important question is what happens at the edges: What inputs fail? How often? What are the failure modes? A system that works 95% of the time on the demo distribution might fail 40% of the time in production on real-world inputs. Understanding failure modes is how you evaluate whether a capability is production-ready or demo-ready.",
+    answerExplanation: "Demos always show success, that's the point. The important question is what happens at the edges: What inputs fail? How often? What are the failure modes? A system that works 95% of the time on the demo distribution might fail 40% of the time in production on real-world inputs. Understanding failure modes is how you evaluate whether a capability is production-ready or demo-ready.",
     difficulty: "ADVANCED",
   },
   {
     conceptSlug: "filtering-ai-hype",
     type: "SHORT_ANSWER",
     questionText: "A news headline reads: 'New AI model achieves human-level performance on medical diagnosis.' What questions would you ask before accepting this claim?",
-    answerExplanation: "Key questions: (1) Human-level by what metric? Accuracy on a specific benchmark? Which benchmark, and was it representative of real clinical distribution? (2) Which medical conditions — 'medical diagnosis' is broad. Performance on one condition doesn't generalize to all. (3) What was the comparison baseline — average doctor, specialist, or best-in-class specialist? (4) Was this published and peer-reviewed, or is it a company press release? (5) What's the false positive/negative rate — in medicine, these aren't symmetric in importance. (6) Was the test set contaminated with training data? (7) Was this tested prospectively on real patients or on a curated historical dataset? Clinical benchmark ≠ real-world deployment. (8) Who funded the study?",
+    answerExplanation: "Key questions: (1) Human-level by what metric? Accuracy on a specific benchmark? Which benchmark, and was it representative of real clinical distribution? (2) Which medical conditions ('medical diagnosis' is broad. Performance on one condition doesn't generalize to all. (3) What was the comparison baseline) average doctor, specialist, or best-in-class specialist? (4) Was this published and peer-reviewed, or is it a company press release? (5) What's the false positive/negative rate, in medicine, these aren't symmetric in importance. (6) Was the test set contaminated with training data? (7) Was this tested prospectively on real patients or on a curated historical dataset? Clinical benchmark ≠ real-world deployment. (8) Who funded the study?",
     difficulty: "ADVANCED",
   },
 
@@ -1320,19 +1320,19 @@ export const QUESTIONS: QuestionSeed[] = [
     type: "MC",
     questionText: "What has mechanistic interpretability research at Anthropic discovered about LLM internals?",
     options: [
-      { text: "Models don't actually learn meaningful representations — they just memorize training data", isCorrect: false },
+      { text: "Models don't actually learn meaningful representations, they just memorize training data", isCorrect: false },
       { text: "Individual features and circuits in model activations correspond to human-interpretable concepts", isCorrect: true },
       { text: "All model capability comes from the embedding layer, not the transformer layers", isCorrect: false },
       { text: "Models use completely different algorithms than transformers are theoretically supposed to implement", isCorrect: false },
     ],
-    answerExplanation: "Anthropic's interpretability research has identified 'features' — patterns of neural activations that correspond to specific human-interpretable concepts (e.g., a 'banana' feature, a 'Golden Gate Bridge' feature, features for emotional states). Circuit analysis has traced how specific model behaviors are implemented through chains of attention heads and MLP layers. This is early but genuinely meaningful progress toward understanding what models are actually computing.",
+    answerExplanation: "Anthropic's interpretability research has identified 'features', patterns of neural activations that correspond to specific human-interpretable concepts (e.g., a 'banana' feature, a 'Golden Gate Bridge' feature, features for emotional states). Circuit analysis has traced how specific model behaviors are implemented through chains of attention heads and MLP layers. This is early but genuinely meaningful progress toward understanding what models are actually computing.",
     difficulty: "ADVANCED",
   },
   {
     conceptSlug: "interpretability",
     type: "SHORT_ANSWER",
     questionText: "Why is interpretability research important for AI safety specifically?",
-    answerExplanation: "Current AI safety relies heavily on behavioral testing — prompt the model and see if it behaves safely. But a sufficiently capable model might appear safe during testing and behave differently in deployment (deceptive alignment). Interpretability offers a different approach: instead of only checking outputs, inspect the model's internal computations to see if its 'reasoning' matches what we'd want. Specific safety-relevant applications: (1) Detecting deceptive alignment — is the model suppressing certain thoughts? (2) Understanding failure modes — why did the model give this unsafe output? (3) Verifying that safety fine-tuning actually changed the underlying representations (not just surface behavior). (4) Providing audit trails for high-stakes decisions in regulated domains. Without interpretability, we're flying blind on what models are actually doing internally.",
+    answerExplanation: "Current AI safety relies heavily on behavioral testing, prompt the model and see if it behaves safely. But a sufficiently capable model might appear safe during testing and behave differently in deployment (deceptive alignment). Interpretability offers a different approach: instead of only checking outputs, inspect the model's internal computations to see if its 'reasoning' matches what we'd want. Specific safety-relevant applications: (1) Detecting deceptive alignment (is the model suppressing certain thoughts? (2) Understanding failure modes) why did the model give this unsafe output? (3) Verifying that safety fine-tuning actually changed the underlying representations (not just surface behavior). (4) Providing audit trails for high-stakes decisions in regulated domains. Without interpretability, we're flying blind on what models are actually doing internally.",
     difficulty: "ADVANCED",
   },
 ];

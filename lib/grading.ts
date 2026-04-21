@@ -45,9 +45,9 @@ MODEL ANSWER: ${modelAnswer}
 STUDENT ANSWER: ${studentAnswer}
 
 GRADING RUBRIC:
-- "correct" — The student demonstrates clear understanding of the core concept. Minor wording differences, extra detail, or slightly different phrasing are fine. They don't need to match the model answer word-for-word.
-- "partial" — The student shows some understanding but is missing key aspects, is vague, or has minor misconceptions. They're on the right track but incomplete.
-- "incorrect" — The student's answer is fundamentally wrong, shows no understanding of the concept, or is completely off-topic.
+- "correct", The student demonstrates clear understanding of the core concept. Minor wording differences, extra detail, or slightly different phrasing are fine. They don't need to match the model answer word-for-word.
+- "partial", The student shows some understanding but is missing key aspects, is vague, or has minor misconceptions. They're on the right track but incomplete.
+- "incorrect", The student's answer is fundamentally wrong, shows no understanding of the concept, or is completely off-topic.
 
 Respond in EXACTLY this JSON format (no other text):
 {"score": "correct" | "partial" | "incorrect", "reasoning": "Brief 1-3 sentence explanation of why you gave this grade. Be specific about what they got right or wrong. Be encouraging but honest."}`;
