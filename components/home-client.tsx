@@ -187,7 +187,6 @@ function ProgramSubLine({ label, week, total }: { label: string; week: number; t
       }}
     >
       <StatusTag tone={active ? "accent" : "neutral"}>{label}</StatusTag>
-      <span>Explore, practice, and ship.</span>
     </div>
   );
 }

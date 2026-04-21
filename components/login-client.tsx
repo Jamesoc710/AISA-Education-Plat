@@ -135,7 +135,7 @@ export function LoginClient() {
             >
               {mode === "login"
                 ? "Sign in to track your progress and continue learning."
-                : "Start your AI learning journey with AISA Atlas."}
+                : "Create an account to save progress across concepts, quizzes, and homework."}
             </p>
           </div>
         </div>
