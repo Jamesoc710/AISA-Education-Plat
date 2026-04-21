@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 import { StatusTag } from "@/components/ui/status-tag";
+import { PageFrame } from "@/components/ui/page-frame";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -111,7 +112,7 @@ export function DashboardClient({
     !(nbaIsDeadline && openDeadlineCount <= 1);
 
   return (
-    <div style={{ maxWidth: 1040, margin: "0 auto", padding: "56px 40px 80px" }}>
+    <PageFrame>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section style={{ marginBottom: "var(--space-6)", display: "flex", alignItems: "center", gap: "var(--space-5)" }}>
         <IconTile icon="chart-line-up" color="indigo" size="lg" />
@@ -193,7 +194,7 @@ export function DashboardClient({
 
       {/* ── Suggested review ────────────────────────────────────────── */}
       <SuggestedReview tiers={tiers} conceptScores={conceptScores} />
-    </div>
+    </PageFrame>
   );
 }
 

@@ -11,6 +11,7 @@ import { TierBadge } from "@/components/ui/tier-badge";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
+import { PageFrame } from "@/components/ui/page-frame";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -229,13 +230,10 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
         : 720;
 
   return (
-    <div
+    <PageFrame
+      maxWidth={maxWidth}
+      padding={phase === "select-mode" ? undefined : "var(--space-7) var(--pad-page-x) var(--space-8)"}
       className="quiz-content-padding"
-      style={{
-        maxWidth,
-        margin: "0 auto",
-        padding: phase === "select-mode" ? "56px 40px 80px" : "40px 40px 80px",
-      }}
     >
       {phase === "select-mode" && (
         <ModeSelect onSelect={handleModeSelect} error={error} />
@@ -276,7 +274,7 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
           onNewQuiz={resetQuiz}
         />
       )}
-    </div>
+    </PageFrame>
   );
 }
 

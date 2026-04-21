@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 import { Button } from "@/components/ui/button";
 import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
+import { PageFrame } from "@/components/ui/page-frame";
 
 type AssessmentQuestion = {
   id: string;
@@ -148,10 +149,7 @@ export function AssessmentClient({
   // ── Intro phase ──────────────────────────────────────────────
   if (phase === "intro") {
     return (
-      <div
-        className="animate-fade-in"
-        style={{ maxWidth: 680, margin: "0 auto", padding: "56px 40px 80px" }}
-      >
+      <PageFrame maxWidth={680} className="animate-fade-in">
         <Link
           href="/assessments"
           style={{
@@ -244,7 +242,7 @@ export function AssessmentClient({
         >
           Begin assessment
         </Button>
-      </div>
+      </PageFrame>
     );
   }
 
@@ -264,10 +262,7 @@ export function AssessmentClient({
           : { fg: "var(--color-incorrect)", tag: "red", label: "Keep going" };
 
     return (
-      <div
-        className="animate-fade-in"
-        style={{ maxWidth: 680, margin: "0 auto", padding: "56px 40px 80px" }}
-      >
+      <PageFrame maxWidth={680} className="animate-fade-in">
         <h1
           style={{
             margin: "0 0 6px",
@@ -365,7 +360,7 @@ export function AssessmentClient({
             </Button>
           </Link>
         </div>
-      </div>
+      </PageFrame>
     );
   }
 

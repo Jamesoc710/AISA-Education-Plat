@@ -5,6 +5,7 @@ import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 import { Button } from "@/components/ui/button";
 import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
+import { PageFrame } from "@/components/ui/page-frame";
 
 type AssessmentItem = {
   id: string;
@@ -19,13 +20,7 @@ type AssessmentItem = {
 
 export function AssessmentsListClient({ items }: { items: AssessmentItem[] }) {
   return (
-    <div
-      style={{
-        maxWidth: 820,
-        margin: "0 auto",
-        padding: "56px 40px 80px",
-      }}
-    >
+    <PageFrame maxWidth={820}>
       <h1
         style={{
           margin: "0 0 6px",
@@ -57,7 +52,7 @@ export function AssessmentsListClient({ items }: { items: AssessmentItem[] }) {
           ))}
         </div>
       )}
-    </div>
+    </PageFrame>
   );
 }
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 import { StatusTag } from "@/components/ui/status-tag";
+import { PageFrame } from "@/components/ui/page-frame";
 import { getConceptVisual } from "@/lib/section-icons";
 import { daysUntil } from "@/lib/week-utils";
 import type {
@@ -68,7 +69,7 @@ export function HomeClient(props: HomeClientProps) {
   const todayDayIdx = (today.getDay() + 6) % 7; // Mon=0..Sun=6
 
   return (
-    <div style={{ maxWidth: 1040, margin: "0 auto", padding: "56px 40px 80px" }}>
+    <PageFrame>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section style={{ marginBottom: 36 }}>
         <h1
@@ -166,7 +167,7 @@ export function HomeClient(props: HomeClientProps) {
         </div>
         <BookmarksRow bookmarks={bookmarks} />
       </section>
-    </div>
+    </PageFrame>
   );
 }
 
