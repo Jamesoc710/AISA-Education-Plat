@@ -5,7 +5,7 @@ import { getFeedbackImageUrl } from "@/lib/feedback-storage";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Feedback — Admin — AISA Atlas",
+  title: "Feedback | Admin | AISA Atlas",
 };
 
 export default async function AdminFeedbackPage() {

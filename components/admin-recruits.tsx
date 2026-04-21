@@ -38,7 +38,7 @@ const VALID_ROLES = [
 ];
 
 function relativeTime(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const now = Date.now();
   const then = new Date(iso).getTime();
   const diffMs = now - then;
@@ -408,7 +408,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                           color: "var(--color-text-3)",
                         }}
                       >
-                        —
+                        -
                       </span>
                     )}
                   </td>

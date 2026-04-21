@@ -4,7 +4,7 @@ import { AdminAssessments } from "@/components/admin-assessments";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Assessments — Admin — AISA Atlas",
+  title: "Assessments | Admin | AISA Atlas",
 };
 
 export default async function AssessmentsPage() {

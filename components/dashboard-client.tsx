@@ -252,7 +252,7 @@ function UpcomingStrip({
           ? "due tomorrow"
           : `due in ${daysLeft} days`
       : "no deadline";
-    inlineText = `${nearest.kind === "assessment" ? "Next up:" : "Homework:"} ${nearest.title} — ${dueLabel}`;
+    inlineText = `${nearest.kind === "assessment" ? "Next up:" : "Homework:"} ${nearest.title} · ${dueLabel}`;
   } else {
     inlineText =
       totalCount > 0
@@ -539,7 +539,7 @@ function OverviewStrip({
     },
     {
       label: "Average Score",
-      value: overview.totalQuestions > 0 ? `${overview.avgScore}%` : "—",
+      value: overview.totalQuestions > 0 ? `${overview.avgScore}%` : "-",
       sub: null,
       icon: "sparkle",
       tile: "gold",
@@ -1014,8 +1014,8 @@ function ActivityPulse({ activity }: { activity: ActivityBucket[] }) {
           });
           const tooltip =
             a.total === 0
-              ? `${dateLabel} — no activity`
-              : `${dateLabel} — ${a.total} ${a.total === 1 ? "question" : "questions"} answered`;
+              ? `${dateLabel} · no activity`
+              : `${dateLabel} · ${a.total} ${a.total === 1 ? "question" : "questions"} answered`;
           return (
             <div
               key={a.date}
@@ -1249,7 +1249,7 @@ function KnowledgeMap({
                                 setTooltip({
                                   text: concept.name,
                                   sub: score
-                                    ? `${score.pct}% — ${score.correct}/${score.total} correct`
+                                    ? `${score.pct}% · ${score.correct}/${score.total} correct`
                                     : "Not attempted",
                                   color: score ? getMasteryColor(score.pct) : "var(--color-text-3)",
                                   x: rect.left + rect.width / 2,
@@ -1506,7 +1506,7 @@ function SuggestedReview({
                       : "var(--color-text-3)",
                   }}
                 >
-                  {item.score ? `${item.score.pct}%` : "—"}
+                  {item.score ? `${item.score.pct}%` : "-"}
                 </span>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -1740,7 +1740,7 @@ function NextBestActionCard({ action }: { action: NextAction }) {
     tile = "rose";
     eyebrow = "Brush up on";
     title = action.concept.name;
-    subtitle = `${action.sectionName} · ${action.score.pct}% — ${action.score.correct}/${action.score.total} correct`;
+    subtitle = `${action.sectionName} · ${action.score.pct}% · ${action.score.correct}/${action.score.total} correct`;
     href = `/quiz?mode=concept&id=${action.concept.id}`;
     cta = "Quiz now";
   } else if (action.kind === "start") {

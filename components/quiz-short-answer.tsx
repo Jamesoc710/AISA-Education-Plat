@@ -89,7 +89,7 @@ export function ShortAnswerQuestion({
     onRevealed();
     onGraded?.(question.id, {
       score: "incorrect",
-      reasoning: "No answer submitted — revealed model answer directly.",
+      reasoning: "No answer submitted, revealed model answer directly.",
     });
   };
 

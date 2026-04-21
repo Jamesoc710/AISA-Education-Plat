@@ -249,7 +249,7 @@ export function FeedbackDialog({ open, onClose }: Props) {
                 color: "var(--color-text)",
               }}
             >
-              Thanks — feedback sent.
+              Thanks, feedback sent.
             </div>
           </div>
         ) : (

@@ -49,7 +49,7 @@ export function TopChrome({ user }: { user: ShellUser | null }) {
 
   const mentorHref = (() => {
     if (MENTOR_EMAILS.length === 0) return "#";
-    const subject = encodeURIComponent("Atlas — Mentor question");
+    const subject = encodeURIComponent("Atlas: Mentor question");
     return `mailto:${MENTOR_EMAILS.join(",")}?subject=${subject}`;
   })();
 

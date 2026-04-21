@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     select: { title: true },
   });
   return {
-    title: assignment ? `${assignment.title} — AISA Atlas` : "Homework — AISA Atlas",
+    title: assignment ? `${assignment.title} | AISA Atlas` : "Homework | AISA Atlas",
   };
 }
 

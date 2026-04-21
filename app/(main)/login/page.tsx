@@ -3,7 +3,7 @@ import { LoginClient } from "@/components/login-client";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign In — AISA Atlas",
+  title: "Sign In | AISA Atlas",
   description: "Sign in to track your progress across AI concepts.",
 };
 

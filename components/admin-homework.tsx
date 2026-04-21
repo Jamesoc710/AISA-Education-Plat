@@ -309,7 +309,7 @@ export function AdminHomework({
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.sectionName} — {c.name}
+                    {c.sectionName} · {c.name}
                   </option>
                 ))}
             </select>

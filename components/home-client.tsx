@@ -622,7 +622,7 @@ function BookmarksRow({ bookmarks }: { bookmarks: BookmarkPreview[] }) {
             Bookmark concepts you want to revisit
           </div>
           <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)", marginTop: "var(--space-1)" }}>
-            Click the bookmark icon on any concept card — they'll show up here.
+            Click the bookmark icon on any concept card, and they'll show up here.
           </div>
         </div>
         <Link

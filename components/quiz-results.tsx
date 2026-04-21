@@ -108,7 +108,7 @@ export function QuizResults({
           lineHeight: 1.55,
         }}
       >
-        Here&apos;s how you did — review the questions below to cement what you
+        Here&apos;s how you did. Review the questions below to cement what you
         learned.
       </p>
 

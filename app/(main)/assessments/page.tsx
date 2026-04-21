@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Assessments — AISA Atlas",
+  title: "Assessments | AISA Atlas",
   description: "Your formal assessments.",
 };
 

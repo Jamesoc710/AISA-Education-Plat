@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Quiz — AISA Atlas",
+  title: "Quiz | AISA Atlas",
   description: "Test your AI knowledge across concepts and sections.",
 };
 

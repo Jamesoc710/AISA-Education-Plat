@@ -14,7 +14,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Home — AISA Atlas",
+  title: "Home | AISA Atlas",
 };
 
 export default async function HomePage() {

@@ -73,7 +73,7 @@ function statusTone(status: string): { tone: StatusTagTone; label: string } {
 }
 
 function formatDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "-";
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -893,7 +893,7 @@ function ResultsPanel({
         >
           {results.attempts.length > 0
             ? `${Math.round(results.average)}%`
-            : "—"}
+            : "-"}
         </span>
       </div>
 
@@ -1106,7 +1106,7 @@ function AnswerCard({
           <span style={{ fontWeight: 650, color: llmTone.fg }}>
             AI: {ans.llmScore.charAt(0).toUpperCase() + ans.llmScore.slice(1)}
           </span>
-          {" — "}
+          {": "}
           {ans.llmReasoning}
         </div>
       )}

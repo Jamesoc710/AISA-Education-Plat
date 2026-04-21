@@ -4,7 +4,7 @@ import { AdminHomework } from "@/components/admin-homework";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Homework — Admin — AISA Atlas",
+  title: "Homework | Admin | AISA Atlas",
 };
 
 export default async function AdminHomeworkPage() {

@@ -228,7 +228,7 @@ export function AssessmentClient({
           )}
           <InfoRow
             label="Attempts"
-            value="1 — you cannot retake this assessment"
+            value="1 · cannot retake"
           />
         </div>
 
@@ -342,7 +342,7 @@ export function AssessmentClient({
                   mcTotal > 0 ? "1px solid var(--color-border)" : "none",
               }}
             >
-              {saCount} short answer question{saCount !== 1 ? "s" : ""} —
+              {saCount} short answer question{saCount !== 1 ? "s" : ""},
               awaiting review
             </div>
           )}
