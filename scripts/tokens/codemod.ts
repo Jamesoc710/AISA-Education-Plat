@@ -23,6 +23,7 @@
  * Flags:
  *   --dry    Print what would change but do not write.
  *   --quiet  Only print totals, not per-replacement log.
+ *   --check  Dry-run that exits 1 if any file would change. For CI guards.
  */
 
 import { readFileSync, writeFileSync, statSync } from "node:fs";
@@ -197,11 +198,12 @@ function main() {
   const args = process.argv.slice(2);
   const dry = args.includes("--dry");
   const quiet = args.includes("--quiet");
+  const check = args.includes("--check"); // --check = dry + exit 1 if would modify
   const patterns = args.filter((a) => !a.startsWith("--"));
 
   if (patterns.length === 0) {
     console.error(
-      "Usage: npx tsx scripts/tokens/codemod.ts <glob> [--dry] [--quiet]",
+      "Usage: npx tsx scripts/tokens/codemod.ts <glob> [--dry] [--quiet] [--check]",
     );
     process.exit(1);
   }
@@ -228,13 +230,14 @@ function main() {
     const result = rewriteFile(f, stats);
     if (result !== null) {
       stats.filesTouched.push(f);
-      if (!dry) writeFileSync(f, result);
+      if (!dry && !check) writeFileSync(f, result);
     }
   }
 
   const totalRewrites = Object.values(stats.byToken).reduce((a, b) => a + b, 0);
 
-  console.log(`\n=== Token codemod ${dry ? "(DRY RUN)" : "(applied)"} ===`);
+  const modeLabel = check ? "(CHECK)" : dry ? "(DRY RUN)" : "(applied)";
+  console.log(`\n=== Token codemod ${modeLabel} ===`);
   console.log(`Files scanned:  ${files.length}`);
   console.log(`Files modified: ${stats.filesTouched.length}`);
   console.log(`Total rewrites: ${totalRewrites}`);
@@ -261,6 +264,14 @@ function main() {
 
   if (dry) {
     console.log("\n(dry run — no files written)");
+  }
+
+  if (check && stats.filesTouched.length > 0) {
+    console.error(
+      `\n✗ check failed: ${stats.filesTouched.length} file(s) contain raw magic numbers in CSS properties.`,
+    );
+    console.error("  Run without --check to rewrite them, or add values to docs/design-tokens.md.");
+    process.exit(1);
   }
 }
 

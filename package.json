@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "seed": "tsx prisma/seed.ts",
-    "import-resources": "tsx scripts/import-resources.ts"
+    "import-resources": "tsx scripts/import-resources.ts",
+    "lint:tokens": "tsx scripts/tokens/codemod.ts \"components/**/*.tsx\" \"app/**/*.tsx\" --check --quiet"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
