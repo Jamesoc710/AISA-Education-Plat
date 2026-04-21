@@ -159,8 +159,9 @@ export function LoginClient() {
             >
               {mode === "signup" && (
                 <div>
-                  <label style={labelStyle}>Name</label>
+                  <label htmlFor="auth-name" style={labelStyle}>Name</label>
                   <input
+                    id="auth-name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -174,8 +175,9 @@ export function LoginClient() {
               )}
 
               <div>
-                <label style={labelStyle}>Email</label>
+                <label htmlFor="auth-email" style={labelStyle}>Email</label>
                 <input
+                  id="auth-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -188,8 +190,9 @@ export function LoginClient() {
               </div>
 
               <div>
-                <label style={labelStyle}>Password</label>
+                <label htmlFor="auth-password" style={labelStyle}>Password</label>
                 <input
+                  id="auth-password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

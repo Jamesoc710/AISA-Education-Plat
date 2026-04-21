@@ -96,8 +96,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -411,6 +413,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -517,8 +533,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -832,6 +850,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -938,8 +970,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -1253,6 +1287,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -1359,8 +1407,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -1674,6 +1724,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -1787,7 +1851,30 @@
     "roundedFullCount": 0,
     "cardPatternCount": 0,
     "cardNestingCount": 0,
-    "axeViolations": [],
+    "axeViolations": [
+      {
+        "id": "aria-hidden-focus",
+        "impact": "serious",
+        "help": "ARIA hidden element must not be focusable or contain focusable elements",
+        "nodes": 16,
+        "selectors": [
+          "div:nth-child(1) > div > div > .browse-grid[aria-hidden=\"true\"]",
+          "div:nth-child(2) > div > div > .browse-grid[aria-hidden=\"true\"]",
+          "div:nth-child(3) > div > div > .browse-grid[aria-hidden=\"true\"]"
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodes": 14,
+        "selectors": [
+          "nav > div:nth-child(2)",
+          "nav > div:nth-child(4)",
+          "div:nth-child(1) > button > div > div > span"
+        ]
+      }
+    ],
     "focusStates": [
       {
         "tag": "a",
@@ -1962,7 +2049,16 @@
       },
       {
         "tag": "button",
-        "text": "Training Process3 conceptsHow LLMs are built — fro",
+        "text": "",
+        "hasVisibleRing": true,
+        "outlineColor": "rgb(94, 106, 210)",
+        "outlineWidth": "2px",
+        "outlineStyle": "solid",
+        "boxShadow": "none"
+      },
+      {
+        "tag": "a",
+        "text": "TransformersThe dominant architecture behind moder",
         "hasVisibleRing": true,
         "outlineColor": "rgb(94, 106, 210)",
         "outlineWidth": "2px",
@@ -1971,7 +2067,16 @@
       },
       {
         "tag": "button",
-        "text": "Model Types3 conceptsThe three families of LLMs an",
+        "text": "",
+        "hasVisibleRing": true,
+        "outlineColor": "rgb(94, 106, 210)",
+        "outlineWidth": "2px",
+        "outlineStyle": "solid",
+        "boxShadow": "none"
+      },
+      {
+        "tag": "a",
+        "text": "Attention MechanismsHow models decide what to focu",
         "hasVisibleRing": true,
         "outlineColor": "rgb(94, 106, 210)",
         "outlineWidth": "2px",
@@ -1980,7 +2085,7 @@
       },
       {
         "tag": "button",
-        "text": "Key Concepts6 conceptsThe vocabulary every AI prac",
+        "text": "",
         "hasVisibleRing": true,
         "outlineColor": "rgb(94, 106, 210)",
         "outlineWidth": "2px",
@@ -1988,26 +2093,8 @@
         "boxShadow": "none"
       },
       {
-        "tag": "button",
-        "text": "Capabilities3 conceptsWhat modern LLMs can actuall",
-        "hasVisibleRing": true,
-        "outlineColor": "rgb(94, 106, 210)",
-        "outlineWidth": "2px",
-        "outlineStyle": "solid",
-        "boxShadow": "none"
-      },
-      {
-        "tag": "button",
-        "text": "Industry Basics3 conceptsThe competitive landscape",
-        "hasVisibleRing": true,
-        "outlineColor": "rgb(94, 106, 210)",
-        "outlineWidth": "2px",
-        "outlineStyle": "solid",
-        "boxShadow": "none"
-      },
-      {
-        "tag": "button",
-        "text": "Practical Skills3 conceptsHands-on techniques for ",
+        "tag": "a",
+        "text": "TokensThe atomic units of language that AI models ",
         "hasVisibleRing": true,
         "outlineColor": "rgb(94, 106, 210)",
         "outlineWidth": "2px",
@@ -2105,7 +2192,148 @@
       ],
       "uniqueHoverSignatures": 2
     },
-    "contrastIssues": []
+    "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "4 concepts",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Transformers · Attention Mechanisms · Tokens · Embeddings",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "3 concepts",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Pre-training · RLHF / Post-training · Reasoning Training / R",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Base Models · Instruction-tuned Models · Reasoning Models",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "6 concepts",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "System Prompts · Context Windows · Parameters · Training vs.",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Tool Use · Agentic Capabilities · Multimodality",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Major AI Players · Open Source vs. Open Weights · What a Wra",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prompt Engineering · API Basics · RAG (Retrieval-Augmented G",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "5 concepts",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "GPUs · TPUs · Why Accelerators Matter · Training Costs · Tra",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Scaling Laws · Synthetic Data · Fine-tuning",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Benchmarking LLMs · AI Alignment · AGI — Definitions and Str",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "US-China AI Race · Export Controls and Hardware Policy · AI ",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Bias in Training Data · Copyright and IP Concerns · Privacy ",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Evaluating LLM Solutions · Cost and Deployment Tradeoffs · M",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Image and Video Generation · World Models · Autonomous Drivi",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      }
+    ]
   },
   {
     "route": "browse",
@@ -2211,7 +2439,29 @@
     "roundedFullCount": 0,
     "cardPatternCount": 0,
     "cardNestingCount": 0,
-    "axeViolations": [],
+    "axeViolations": [
+      {
+        "id": "aria-hidden-focus",
+        "impact": "serious",
+        "help": "ARIA hidden element must not be focusable or contain focusable elements",
+        "nodes": 16,
+        "selectors": [
+          "div:nth-child(1) > div > div > .browse-grid[aria-hidden=\"true\"]",
+          "div:nth-child(2) > div > div > .browse-grid[aria-hidden=\"true\"]",
+          "div:nth-child(3) > div > div > .browse-grid[aria-hidden=\"true\"]"
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodes": 2,
+        "selectors": [
+          "nav > div:nth-child(2)",
+          "nav > div:nth-child(4)"
+        ]
+      }
+    ],
     "focusStates": [
       {
         "tag": "a",
@@ -2386,7 +2636,16 @@
       },
       {
         "tag": "button",
-        "text": "Training Process3 conceptsHow LLMs are built — fro",
+        "text": "",
+        "hasVisibleRing": true,
+        "outlineColor": "rgb(94, 106, 210)",
+        "outlineWidth": "2px",
+        "outlineStyle": "solid",
+        "boxShadow": "none"
+      },
+      {
+        "tag": "a",
+        "text": "TransformersThe dominant architecture behind moder",
         "hasVisibleRing": true,
         "outlineColor": "rgb(94, 106, 210)",
         "outlineWidth": "2px",
@@ -2395,7 +2654,16 @@
       },
       {
         "tag": "button",
-        "text": "Model Types3 conceptsThe three families of LLMs an",
+        "text": "",
+        "hasVisibleRing": true,
+        "outlineColor": "rgb(94, 106, 210)",
+        "outlineWidth": "2px",
+        "outlineStyle": "solid",
+        "boxShadow": "none"
+      },
+      {
+        "tag": "a",
+        "text": "Attention MechanismsHow models decide what to focu",
         "hasVisibleRing": true,
         "outlineColor": "rgb(94, 106, 210)",
         "outlineWidth": "2px",
@@ -2404,7 +2672,7 @@
       },
       {
         "tag": "button",
-        "text": "Key Concepts6 conceptsThe vocabulary every AI prac",
+        "text": "",
         "hasVisibleRing": true,
         "outlineColor": "rgb(94, 106, 210)",
         "outlineWidth": "2px",
@@ -2412,26 +2680,8 @@
         "boxShadow": "none"
       },
       {
-        "tag": "button",
-        "text": "Capabilities3 conceptsWhat modern LLMs can actuall",
-        "hasVisibleRing": true,
-        "outlineColor": "rgb(94, 106, 210)",
-        "outlineWidth": "2px",
-        "outlineStyle": "solid",
-        "boxShadow": "none"
-      },
-      {
-        "tag": "button",
-        "text": "Industry Basics3 conceptsThe competitive landscape",
-        "hasVisibleRing": true,
-        "outlineColor": "rgb(94, 106, 210)",
-        "outlineWidth": "2px",
-        "outlineStyle": "solid",
-        "boxShadow": "none"
-      },
-      {
-        "tag": "button",
-        "text": "Practical Skills3 conceptsHands-on techniques for ",
+        "tag": "a",
+        "text": "TokensThe atomic units of language that AI models ",
         "hasVisibleRing": true,
         "outlineColor": "rgb(94, 106, 210)",
         "outlineWidth": "2px",
@@ -2529,7 +2779,148 @@
       ],
       "uniqueHoverSignatures": 2
     },
-    "contrastIssues": []
+    "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "4 concepts",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Transformers · Attention Mechanisms · Tokens · Embeddings",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "3 concepts",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Pre-training · RLHF / Post-training · Reasoning Training / R",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Base Models · Instruction-tuned Models · Reasoning Models",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "6 concepts",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "System Prompts · Context Windows · Parameters · Training vs.",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Tool Use · Agentic Capabilities · Multimodality",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Major AI Players · Open Source vs. Open Weights · What a Wra",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prompt Engineering · API Basics · RAG (Retrieval-Augmented G",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "5 concepts",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "GPUs · TPUs · Why Accelerators Matter · Training Costs · Tra",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Scaling Laws · Synthetic Data · Fine-tuning",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Benchmarking LLMs · AI Alignment · AGI — Definitions and Str",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "US-China AI Race · Export Controls and Hardware Policy · AI ",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Bias in Training Data · Copyright and IP Concerns · Privacy ",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Evaluating LLM Solutions · Cost and Deployment Tradeoffs · M",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Image and Video Generation · World Models · Autonomous Drivi",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      }
+    ]
   },
   {
     "route": "concept-detail",
@@ -2680,9 +3071,11 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 20,
         "selectors": [
-          "span[aria-hidden=\"true\"]:nth-child(2)"
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
+          "section:nth-child(5) > h2"
         ]
       },
       {
@@ -3014,11 +3407,144 @@
     },
     "contrastIssues": [
       {
-        "text": "01",
-        "fg": "rgb(94, 106, 210)",
-        "bg": "rgb(238, 239, 251)",
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
         "fontSize": "11px",
-        "ratio": 4.11
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Browse",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Fundamentals",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "What it is",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Why it matters",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Show technical detail",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Related concepts",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Resources",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "youtube.com· The gold standard visual introduction to transf",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "· The gold standard visual introduction to transformer archi",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "27 min",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "youtube.com· Deep dive into self-attention, multi-head atten",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "· Deep dive into self-attention, multi-head attention, and c",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "26 min",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "youtube.com· Step-by-step walkthrough of how decoder-only tr",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "· Step-by-step walkthrough of how decoder-only transformers ",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "37 min",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "jalammar.github.io· The gold standard written explainer for ",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "20 min",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
       }
     ]
   },
@@ -3166,7 +3692,19 @@
     "roundedFullCount": 0,
     "cardPatternCount": 10,
     "cardNestingCount": 7,
-    "axeViolations": [],
+    "axeViolations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodes": 5,
+        "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
+          "button > span:nth-child(3)"
+        ]
+      }
+    ],
     "focusStates": [
       {
         "tag": "a",
@@ -3486,11 +4024,144 @@
     },
     "contrastIssues": [
       {
-        "text": "01",
-        "fg": "rgb(94, 106, 210)",
-        "bg": "rgb(238, 239, 251)",
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
         "fontSize": "11px",
-        "ratio": 4.11
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Browse",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Fundamentals",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "What it is",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Why it matters",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Show technical detail",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "12.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Related concepts",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Resources",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "youtube.com· The gold standard visual introduction to transf",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "· The gold standard visual introduction to transformer archi",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "27 min",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "youtube.com· Deep dive into self-attention, multi-head atten",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "· Deep dive into self-attention, multi-head attention, and c",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "26 min",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "youtube.com· Step-by-step walkthrough of how decoder-only tr",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "· Step-by-step walkthrough of how decoder-only transformers ",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "37 min",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "jalammar.github.io· The gold standard written explainer for ",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "20 min",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11.5px",
+        "ratio": 2.73
       }
     ]
   },
@@ -3586,7 +4257,18 @@
     "roundedFullCount": 0,
     "cardPatternCount": 4,
     "cardNestingCount": 0,
-    "axeViolations": [],
+    "axeViolations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodes": 2,
+        "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)"
+        ]
+      }
+    ],
     "focusStates": [
       {
         "tag": "a",
@@ -3895,7 +4577,22 @@
       ],
       "uniqueHoverSignatures": 2
     },
-    "contrastIssues": []
+    "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      }
+    ]
   },
   {
     "route": "quiz",
@@ -3989,7 +4686,18 @@
     "roundedFullCount": 0,
     "cardPatternCount": 4,
     "cardNestingCount": 0,
-    "axeViolations": [],
+    "axeViolations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodes": 2,
+        "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)"
+        ]
+      }
+    ],
     "focusStates": [
       {
         "tag": "a",
@@ -4298,7 +5006,22 @@
       ],
       "uniqueHoverSignatures": 2
     },
-    "contrastIssues": []
+    "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      }
+    ]
   },
   {
     "route": "calendar",
@@ -4429,11 +5152,11 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 3,
+        "nodes": 21,
         "selectors": [
-          "div:nth-child(1) > div:nth-child(2) > button[type=\"button\"] > div:nth-child(3) > span",
-          "div:nth-child(2) > div:nth-child(2) > button[type=\"button\"]:nth-child(1) > div:nth-child(3) > span",
-          "div:nth-child(4) > div:nth-child(2) > button[type=\"button\"] > div:nth-child(3) > span"
+          "nav > div:nth-child(2)",
+          "nav > div:nth-child(4)",
+          "main > div > header > div:nth-child(2)"
         ]
       }
     ],
@@ -4756,6 +5479,41 @@
     },
     "contrastIssues": [
       {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Last synced 20h ago",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(250, 249, 245)",
+        "fontSize": "12px",
+        "ratio": 2.59
+      },
+      {
+        "text": "5–6",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "· Dream Lab",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "10.5px",
+        "ratio": 2.73
+      },
+      {
         "text": "Tech Team",
         "fg": "rgb(61, 111, 167)",
         "bg": "rgb(225, 236, 248)",
@@ -4763,11 +5521,81 @@
         "ratio": 4.36
       },
       {
+        "text": "Tue",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(244, 242, 236)",
+        "fontSize": "11px",
+        "ratio": 2.44
+      },
+      {
+        "text": "· Willow Room",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "10.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "12:00–13:00",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
         "text": "Exec",
         "fg": "rgb(192, 57, 43)",
         "bg": "rgb(192, 57, 43)",
         "fontSize": "10.5px",
         "ratio": 1
+      },
+      {
+        "text": "Wed",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(244, 242, 236)",
+        "fontSize": "11px",
+        "ratio": 2.44
+      },
+      {
+        "text": "· Lillis 132",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "10.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Thu",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(244, 242, 236)",
+        "fontSize": "11px",
+        "ratio": 2.44
+      },
+      {
+        "text": "5:30–6:30",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Fri",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(244, 242, 236)",
+        "fontSize": "11px",
+        "ratio": 2.44
+      },
+      {
+        "text": "· Lilis ENTR (Exec)",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "10.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "3 items",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(244, 242, 236)",
+        "fontSize": "12px",
+        "ratio": 2.44
       }
     ]
   },
@@ -4900,8 +5728,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 5,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "nav > div:nth-child(4)",
           "div:nth-child(2) > div:nth-child(2) > button[type=\"button\"]:nth-child(1) > div:nth-child(3) > span"
         ]
       }
@@ -5225,6 +6055,41 @@
     },
     "contrastIssues": [
       {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Last synced 20h ago",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(250, 249, 245)",
+        "fontSize": "12px",
+        "ratio": 2.59
+      },
+      {
+        "text": "5–6",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "· Dream Lab",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "10.5px",
+        "ratio": 2.73
+      },
+      {
         "text": "Tech Team",
         "fg": "rgb(61, 111, 167)",
         "bg": "rgb(225, 236, 248)",
@@ -5232,11 +6097,81 @@
         "ratio": 4.36
       },
       {
+        "text": "Tue",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(244, 242, 236)",
+        "fontSize": "11px",
+        "ratio": 2.44
+      },
+      {
+        "text": "· Willow Room",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "10.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "12:00–13:00",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
         "text": "Exec",
         "fg": "rgb(192, 57, 43)",
         "bg": "rgb(192, 57, 43)",
         "fontSize": "10.5px",
         "ratio": 1
+      },
+      {
+        "text": "Wed",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(244, 242, 236)",
+        "fontSize": "11px",
+        "ratio": 2.44
+      },
+      {
+        "text": "· Lillis 132",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "10.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Thu",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(244, 242, 236)",
+        "fontSize": "11px",
+        "ratio": 2.44
+      },
+      {
+        "text": "5:30–6:30",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Fri",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(244, 242, 236)",
+        "fontSize": "11px",
+        "ratio": 2.44
+      },
+      {
+        "text": "· Lilis ENTR (Exec)",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "10.5px",
+        "ratio": 2.73
+      },
+      {
+        "text": "3 items",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(244, 242, 236)",
+        "fontSize": "12px",
+        "ratio": 2.44
       }
     ]
   },
@@ -5337,8 +6272,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -5652,6 +6589,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -5758,8 +6709,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -6073,6 +7026,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -6179,8 +7146,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -6494,6 +7463,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -6600,8 +7583,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -6915,6 +7900,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -7021,8 +8020,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -7336,6 +8337,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -7442,8 +8457,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -7757,6 +8774,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -7863,8 +8894,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -8178,6 +9211,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -8284,8 +9331,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -8599,6 +9648,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -8705,8 +9768,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -9020,6 +10085,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",
@@ -9126,8 +10205,10 @@
         "id": "color-contrast",
         "impact": "serious",
         "help": "Elements must meet minimum color contrast ratio thresholds",
-        "nodes": 1,
+        "nodes": 3,
         "selectors": [
+          "nav > div:nth-child(2)",
+          "div:nth-child(4)",
           "p > button[type=\"button\"]"
         ]
       }
@@ -9441,6 +10522,20 @@
       "uniqueHoverSignatures": 1
     },
     "contrastIssues": [
+      {
+        "text": "Learn",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
+      {
+        "text": "Prepare",
+        "fg": "rgb(156, 156, 163)",
+        "bg": "rgb(255, 255, 255)",
+        "fontSize": "11px",
+        "ratio": 2.73
+      },
       {
         "text": "Sign up",
         "fg": "rgb(94, 106, 210)",

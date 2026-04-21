@@ -407,7 +407,7 @@ function SectionRow({
               transition: "opacity 220ms ease-out, transform 220ms ease-out",
               transitionDelay: expanded ? "60ms" : "0ms",
             }}
-            aria-hidden={!expanded}
+            inert={!expanded}
           >
             {section.concepts.map((concept) => (
               <ConceptCard

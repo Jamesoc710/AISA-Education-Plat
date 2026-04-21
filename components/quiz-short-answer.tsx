@@ -112,6 +112,7 @@ export function ShortAnswerQuestion({
       {/* Text area */}
       <div style={{ marginBottom: 14 }}>
         <label
+          htmlFor="quiz-short-answer"
           style={{
             display: "block",
             fontSize: 11,
@@ -125,6 +126,7 @@ export function ShortAnswerQuestion({
           Your answer
         </label>
         <textarea
+          id="quiz-short-answer"
           value={userAnswer}
           onChange={(e) => setUserAnswer(e.target.value)}
           onFocus={() => setFocused(true)}

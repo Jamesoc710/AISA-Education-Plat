@@ -52,10 +52,14 @@
   --color-border:        #E8E5DC;
   --color-border-subtle: #EFEDE6;
 
-  /* Text — near-black w/ hint of warmth, not pure #000 */
+  /* Text — near-black w/ hint of warmth, not pure #000.
+     text-3 equals text-2 intentionally: the prior #9C9CA3 failed WCAG AA
+     (~2.5:1) on the warm-white bg. If a visibly-more-muted tier is ever
+     needed, introduce it with an opacity modifier or a semantic token,
+     not a lighter gray. */
   --color-text:          #1F1F22;
   --color-text-2:        #6B6B73;
-  --color-text-3:        #9C9CA3;
+  --color-text-3:        #6B6B73;
 
   /* Accent — indigo (kept; works on both themes) */
   --color-accent:        #5E6AD2;
@@ -172,9 +176,11 @@ select option {
   color: #e2e2e6;
 }
 
-textarea:focus,
-select:focus,
-input:focus {
+/* Strip the native outline only for mouse/pointer focus — keyboard
+   users (:focus-visible) keep the global outline defined above. */
+textarea:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+input:focus:not(:focus-visible) {
   outline: none;
 }
 

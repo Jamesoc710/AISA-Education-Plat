@@ -260,8 +260,9 @@ export function AdminHomework({
 
         <form onSubmit={handleCreate}>
           <div style={{ marginBottom: 18 }}>
-            <label style={labelStyle}>Title</label>
+            <label htmlFor="hw-title" style={labelStyle}>Title</label>
             <input
+              id="hw-title"
               type="text"
               required
               value={formTitle}
@@ -274,8 +275,9 @@ export function AdminHomework({
           </div>
 
           <div style={{ marginBottom: 18 }}>
-            <label style={labelStyle}>Description (Markdown)</label>
+            <label htmlFor="hw-description" style={labelStyle}>Description (Markdown)</label>
             <textarea
+              id="hw-description"
               required
               value={formDescription}
               onChange={(e) => setFormDescription(e.target.value)}
@@ -292,8 +294,9 @@ export function AdminHomework({
           </div>
 
           <div style={{ marginBottom: 18 }}>
-            <label style={labelStyle}>Concept (optional)</label>
+            <label htmlFor="hw-concept" style={labelStyle}>Concept (optional)</label>
             <select
+              id="hw-concept"
               value={formConceptId}
               onChange={(e) => setFormConceptId(e.target.value)}
               onFocus={() => setFocusedField("concept")}
@@ -313,8 +316,9 @@ export function AdminHomework({
           </div>
 
           <div style={{ marginBottom: 24 }}>
-            <label style={labelStyle}>Due date (optional)</label>
+            <label htmlFor="hw-due-date" style={labelStyle}>Due date (optional)</label>
             <input
+              id="hw-due-date"
               type="datetime-local"
               value={formDueDate}
               onChange={(e) => setFormDueDate(e.target.value)}
@@ -586,8 +590,9 @@ export function AdminHomework({
                         }}
                       >
                         <div style={{ width: 160 }}>
-                          <label style={labelStyle}>Grade</label>
+                          <label htmlFor={`hw-grade-${sub.id}`} style={labelStyle}>Grade</label>
                           <input
+                            id={`hw-grade-${sub.id}`}
                             type="text"
                             value={gradeValue}
                             onChange={(e) => setGradeValue(e.target.value)}
@@ -599,8 +604,9 @@ export function AdminHomework({
                         </div>
 
                         <div style={{ flex: 1, minWidth: 240 }}>
-                          <label style={labelStyle}>Feedback</label>
+                          <label htmlFor={`hw-feedback-${sub.id}`} style={labelStyle}>Feedback</label>
                           <textarea
+                            id={`hw-feedback-${sub.id}`}
                             value={feedbackValue}
                             onChange={(e) => setFeedbackValue(e.target.value)}
                             onFocus={() => setFocusedField(`fb-${sub.id}`)}

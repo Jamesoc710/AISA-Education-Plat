@@ -352,8 +352,9 @@ export function AdminAssessments({
           }}
         >
           <div>
-            <label style={labelStyle}>Title</label>
+            <label htmlFor="asmt-title" style={labelStyle}>Title</label>
             <input
+              id="asmt-title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -365,8 +366,9 @@ export function AdminAssessments({
           </div>
 
           <div>
-            <label style={labelStyle}>Description (optional)</label>
+            <label htmlFor="asmt-description" style={labelStyle}>Description (optional)</label>
             <textarea
+              id="asmt-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               onFocus={() => setFocusedField("desc")}
@@ -389,8 +391,9 @@ export function AdminAssessments({
             }}
           >
             <div>
-              <label style={labelStyle}>Time limit (minutes)</label>
+              <label htmlFor="asmt-time-limit" style={labelStyle}>Time limit (minutes)</label>
               <input
+                id="asmt-time-limit"
                 type="number"
                 min="1"
                 value={timeLimit}
@@ -402,8 +405,9 @@ export function AdminAssessments({
               />
             </div>
             <div>
-              <label style={labelStyle}>Available at</label>
+              <label htmlFor="asmt-available-at" style={labelStyle}>Available at</label>
               <input
+                id="asmt-available-at"
                 type="datetime-local"
                 value={availableAt}
                 onChange={(e) => setAvailableAt(e.target.value)}
@@ -413,8 +417,9 @@ export function AdminAssessments({
               />
             </div>
             <div>
-              <label style={labelStyle}>Due date</label>
+              <label htmlFor="asmt-due-date" style={labelStyle}>Due date</label>
               <input
+                id="asmt-due-date"
                 type="datetime-local"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
@@ -426,9 +431,9 @@ export function AdminAssessments({
           </div>
 
           <div>
-            <label style={labelStyle}>
+            <div id="asmt-questions-heading" style={labelStyle}>
               Questions ({selectedIds.size} selected)
-            </label>
+            </div>
             <div
               style={{
                 backgroundColor: "var(--color-surface-2)",
