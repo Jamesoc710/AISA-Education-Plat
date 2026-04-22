@@ -770,7 +770,7 @@ function ConceptPicker({
                   style={{
                     display: "inline-flex",
                     transform: isTierOpen ? "rotate(90deg)" : "rotate(0deg)",
-                    transition: "transform 150ms ease",
+                    transition: "transform 220ms cubic-bezier(0.2, 0, 0, 1)",
                     color: "var(--color-text-3)",
                   }}
                 >
@@ -778,93 +778,127 @@ function ConceptPicker({
                 </span>
               </button>
 
-              {/* Sections */}
-              {isTierOpen && (
-                <div
-                  style={{ borderTop: "1px solid var(--color-border-subtle)" }}
-                >
-                  {tier.sections.map((section, sIdx) => {
-                    const isSectionOpen =
-                      query.length > 0 || expandedSections.has(section.id);
+              {/* Sections — animated collapse via CSS grid */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateRows: isTierOpen ? "1fr" : "0fr",
+                  transition:
+                    "grid-template-rows 260ms cubic-bezier(0.2, 0, 0, 1)",
+                }}
+              >
+                <div style={{ overflow: "hidden", minHeight: 0 }}>
+                  <div
+                    style={{
+                      borderTop: "1px solid var(--color-border-subtle)",
+                      opacity: isTierOpen ? 1 : 0,
+                      transition: "opacity 220ms ease-out",
+                      transitionDelay: isTierOpen ? "60ms" : "0ms",
+                    }}
+                    inert={!isTierOpen}
+                  >
+                    {tier.sections.map((section, sIdx) => {
+                      const isSectionOpen =
+                        query.length > 0 || expandedSections.has(section.id);
 
-                    return (
-                      <div key={section.id}>
-                        {sIdx > 0 && (
+                      return (
+                        <div key={section.id}>
+                          {sIdx > 0 && (
+                            <div
+                              style={{
+                                height: 1,
+                                backgroundColor: "var(--color-border-subtle)",
+                                marginLeft: "var(--space-4)",
+                              }}
+                            />
+                          )}
+                          <button
+                            onClick={() => toggleSection(section.id)}
+                            style={{
+                              width: "100%",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "var(--space-2)",
+                              padding: "10px 16px 10px 22px",
+                              backgroundColor: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                              fontFamily: "inherit",
+                              textAlign: "left",
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: "inline-flex",
+                                transform: isSectionOpen
+                                  ? "rotate(90deg)"
+                                  : "rotate(0deg)",
+                                transition:
+                                  "transform 220ms cubic-bezier(0.2, 0, 0, 1)",
+                                color: "var(--color-text-3)",
+                              }}
+                            >
+                              <Icon
+                                name="chevron-right"
+                                size={11}
+                                strokeWidth={2}
+                              />
+                            </span>
+                            <span
+                              style={{
+                                flex: 1,
+                                fontSize: "var(--text-sm)",
+                                fontWeight: 550,
+                                color: "var(--color-text-2)",
+                              }}
+                            >
+                              {section.name}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: "var(--text-xs)",
+                                color: "var(--color-text-3)",
+                              }}
+                            >
+                              {section.concepts.length}
+                            </span>
+                          </button>
+
+                          {/* Concepts — animated collapse via CSS grid */}
                           <div
                             style={{
-                              height: 1,
-                              backgroundColor: "var(--color-border-subtle)",
-                              marginLeft: "var(--space-4)",
-                            }}
-                          />
-                        )}
-                        <button
-                          onClick={() => toggleSection(section.id)}
-                          style={{
-                            width: "100%",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "var(--space-2)",
-                            padding: "10px 16px 10px 22px",
-                            backgroundColor: "transparent",
-                            border: "none",
-                            cursor: "pointer",
-                            fontFamily: "inherit",
-                            textAlign: "left",
-                          }}
-                        >
-                          <span
-                            style={{
-                              display: "inline-flex",
-                              transform: isSectionOpen
-                                ? "rotate(90deg)"
-                                : "rotate(0deg)",
-                              transition: "transform 150ms ease",
-                              color: "var(--color-text-3)",
+                              display: "grid",
+                              gridTemplateRows: isSectionOpen ? "1fr" : "0fr",
+                              transition:
+                                "grid-template-rows 240ms cubic-bezier(0.2, 0, 0, 1)",
                             }}
                           >
-                            <Icon
-                              name="chevron-right"
-                              size={11}
-                              strokeWidth={2}
-                            />
-                          </span>
-                          <span
-                            style={{
-                              flex: 1,
-                              fontSize: "var(--text-sm)",
-                              fontWeight: 550,
-                              color: "var(--color-text-2)",
-                            }}
-                          >
-                            {section.name}
-                          </span>
-                          <span
-                            style={{
-                              fontSize: "var(--text-xs)",
-                              color: "var(--color-text-3)",
-                            }}
-                          >
-                            {section.concepts.length}
-                          </span>
-                        </button>
-
-                        {isSectionOpen && (
-                          <div style={{ paddingBottom: "var(--space-2)" }}>
-                            {section.concepts.map((concept) => (
-                              <ConceptRow
-                                key={concept.id}
-                                concept={concept}
-                                onSelect={() => onSelect(concept.id)}
-                              />
-                            ))}
+                            <div style={{ overflow: "hidden", minHeight: 0 }}>
+                              <div
+                                style={{
+                                  paddingBottom: "var(--space-2)",
+                                  opacity: isSectionOpen ? 1 : 0,
+                                  transition: "opacity 200ms ease-out",
+                                  transitionDelay: isSectionOpen ? "50ms" : "0ms",
+                                }}
+                                inert={!isSectionOpen}
+                              >
+                                {section.concepts.map((concept) => (
+                                  <ConceptRow
+                                    key={concept.id}
+                                    concept={concept}
+                                    onSelect={() => onSelect(concept.id)}
+                                  />
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           );
         })}
@@ -918,7 +952,7 @@ function ConceptRow({
           flexShrink: 0,
         }}
       >
-        {concept.questionCount} {concept.questionCount === 1 ? "q" : "qs"}
+        {concept.questionCount} {concept.questionCount === 1 ? "question" : "questions"}
       </span>
       <span
         style={{
