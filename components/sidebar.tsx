@@ -134,7 +134,7 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
         <div>
           <SidebarNavItem
             href="/assessments"
-            label="Week 5 test"
+            label="Assessments"
             iconName="clipboard-check"
             active={isActive("/assessments") || isActive("/assessment")}
           />
