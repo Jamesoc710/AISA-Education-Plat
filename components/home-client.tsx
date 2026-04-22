@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { daysUntil } from "@/lib/week-utils";
+import { TypeTag } from "@/components/ui/type-tag";
 import type {
   HomeWeekEvent,
   ContinuePick,
@@ -20,16 +21,6 @@ interface HomeClientProps {
   weakConcept: WeakConcept | null;
   upcomingWorkshops: UpcomingWorkshop[];
 }
-
-const TYPE_TAG: Record<string, { label: string; color: string }> = {
-  TECH_TEAM: { label: "TECH", color: "var(--color-blue)" },
-  CAPITAL_TEAM: { label: "CAPITAL", color: "var(--color-correct)" },
-  EVENTS: { label: "EVENT", color: "#E08A3C" },
-  MEDIA_TEAM: { label: "MEDIA", color: "#8064A2" },
-  EXEC: { label: "EXEC", color: "var(--color-incorrect)" },
-  NON_MANDATORY: { label: "OPTIONAL", color: "var(--color-slate)" },
-  GENERAL: { label: "", color: "var(--color-text-3)" },
-};
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const DAY_LABELS_LONG = [
@@ -454,18 +445,7 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
             >
               {isToday ? "Today" : DAY_LABELS[e.dayOfWeek]}
             </span>
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                color: (TYPE_TAG[e.type] ?? TYPE_TAG.GENERAL).color,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {(TYPE_TAG[e.type] ?? TYPE_TAG.GENERAL).label}
-            </span>
+            <TypeTag type={e.type} />
             <span
               style={{
                 fontSize: 12,

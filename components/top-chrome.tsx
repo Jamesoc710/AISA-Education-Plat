@@ -80,7 +80,7 @@ export function TopChrome({ user }: { user: ShellUser | null }) {
 
       {/* Notifications (visual only for Phase 1) */}
       <IconButton ariaLabel="Notifications">
-        <Icon name="bell" size={17} strokeWidth={1.85} />
+        <Icon name="bell" size={16} strokeWidth={1.85} />
       </IconButton>
 
       {/* Avatar / sign-in */}
@@ -254,7 +254,7 @@ function UserMenu({ user }: { user: ShellUser }) {
 
   const initials = (() => {
     const source = (user.name ?? user.email ?? "").trim();
-    if (!source) return "?";
+    if (!source) return "—";
     const parts = source.split(/\s+/);
     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     return source.slice(0, 2).toUpperCase();

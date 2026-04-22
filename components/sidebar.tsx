@@ -136,7 +136,7 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
             href="/assessments"
             label="Assessments"
             iconName="clipboard-check"
-            active={isActive("/assessments") || isActive("/assessment")}
+            active={isActive("/assessments")}
           />
           <SidebarNavItem
             href="/calendar"

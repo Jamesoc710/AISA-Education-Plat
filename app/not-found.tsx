@@ -3,6 +3,7 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <div
+      data-theme="light"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -16,8 +17,8 @@ export default function NotFound() {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/assets/aisa-logo.png"
-        alt="AISA Atlas"
+        src="/assets/tco-logo.png"
+        alt="TCO"
         style={{ width: "48px", height: "48px", marginBottom: "24px", opacity: 0.5 }}
       />
 

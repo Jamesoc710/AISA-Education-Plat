@@ -241,7 +241,7 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
                 transition: "color 120ms ease",
               }}
               onMouseEnter={(e) => {
-                if (!isSearching) e.currentTarget.style.color = "var(--color-text)";
+                if (!isSearching) e.currentTarget.style.color = "var(--color-accent)";
               }}
               onMouseLeave={(e) => {
                 if (!isSearching) e.currentTarget.style.color = "var(--color-text-2)";

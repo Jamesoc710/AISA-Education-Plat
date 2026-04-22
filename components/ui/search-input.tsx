@@ -13,7 +13,7 @@ import { Icon } from "@/components/ui/icon";
 export function SearchInput({
   value,
   onChange,
-  placeholder = "Search concepts…",
+  placeholder = "Search…",
   width = 320,
   focusedWidth,
 }: {
