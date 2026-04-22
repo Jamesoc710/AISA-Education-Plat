@@ -60,8 +60,7 @@ export function TopChrome({ user }: { user: ShellUser | null }) {
         gap: "var(--space-3)",
         height: 60,
         padding: "0 24px",
-        backgroundColor: "var(--color-surface)",
-        borderBottom: "1px solid var(--color-border)",
+        backgroundColor: "var(--color-bg)",
         backdropFilter: "saturate(180%) blur(8px)",
       }}
     >

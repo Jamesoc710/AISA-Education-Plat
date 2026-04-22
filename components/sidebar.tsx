@@ -37,8 +37,7 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
         display: "flex",
         flexDirection: "column",
         height: "100vh",
-        borderRight: "1px solid var(--color-border)",
-        backgroundColor: "var(--color-surface)",
+        backgroundColor: "var(--color-bg)",
         padding: "16px 12px 12px",
       }}
     >
@@ -167,7 +166,7 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
       </nav>
 
       {/* ── Feedback button (pinned bottom) ──────────────────── */}
-      <div style={{ paddingTop: "var(--space-3)", borderTop: "1px solid var(--color-border)", marginTop: "var(--space-2)" }}>
+      <div style={{ paddingTop: "var(--space-3)", marginTop: "var(--space-2)" }}>
         <button
           type="button"
           onClick={() => setFeedbackOpen(true)}

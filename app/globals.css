@@ -33,7 +33,7 @@
   --color-incorrect-border:rgba(229, 113, 111, 0.3);
 
   /* ── Typography ─────────────────────────────────────────────── */
-  --font-sans: var(--font-inter), var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-hanken), var(--font-inter), var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
 }
 
@@ -179,6 +179,23 @@
 /* Light-theme background applies at the scope root */
 [data-theme="light"] {
   background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* ── Editorial surface — Quizlet-inspired, home page only ──────
+   Layered on top of data-theme="light". Swaps the accent to
+   Quizlet's electric blue and switches the typographic default to
+   Hanken Grotesk. Scoped: only descendants of the element
+   carrying this attribute receive it. */
+[data-surface="editorial"] {
+  --color-accent:        #4255FF;
+  --color-accent-hover:  #3545E0;
+  --color-accent-dim:    rgba(66, 85, 255, 0.10);
+  --color-accent-soft:   #EAEDFF;
+  --color-accent-on-soft:#2E3DCC;
+
+  --font-sans: var(--font-hanken), var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   color: var(--color-text);
 }
 

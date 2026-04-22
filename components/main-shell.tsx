@@ -36,7 +36,7 @@ export function MainShell({
         overflow: "hidden",
         backgroundColor: "var(--color-bg)",
         color: "var(--color-text)",
-        fontFamily: "var(--font-inter), system-ui, sans-serif",
+        fontFamily: "var(--font-sans)",
       }}
     >
       <Sidebar user={user} />

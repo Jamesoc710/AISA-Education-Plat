@@ -2,12 +2,11 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { HomeClient } from "@/components/home-client";
-import { getWeekWindow, programWeekInfo, greetingForHour } from "@/lib/week-utils";
+import { getWeekWindow, greetingForHour } from "@/lib/week-utils";
 import {
   getWeekEvents,
   getContinueLearning,
   getDueItems,
-  getRecentBookmarks,
   getWeakestConcept,
   getUpcomingWorkshops,
 } from "@/lib/home-data";
@@ -34,17 +33,15 @@ export default async function HomePage() {
   const now = new Date();
   const week = getWeekWindow(now);
 
-  const [weekEvents, continuePick, dueItems, bookmarks, weakConcept, upcomingWorkshops] =
+  const [weekEvents, continuePick, dueItems, weakConcept, upcomingWorkshops] =
     await Promise.all([
       getWeekEvents(week),
       getContinueLearning(dbUser.id),
       getDueItems(dbUser.id),
-      getRecentBookmarks(dbUser.id, 3),
       getWeakestConcept(dbUser.id),
       getUpcomingWorkshops(now),
     ]);
 
-  const programInfo = programWeekInfo(now);
   const greeting = greetingForHour(now.getHours());
   const firstName = (dbUser.name ?? "").split(" ")[0] || null;
 
@@ -52,14 +49,10 @@ export default async function HomePage() {
     <HomeClient
       greeting={greeting}
       firstName={firstName}
-      programLabel={programInfo.label}
-      programWeek={programInfo.currentWeek}
-      programTotal={programInfo.totalWeeks}
       todayISO={now.toISOString()}
       weekEvents={weekEvents}
       continuePick={continuePick}
       dueItems={dueItems}
-      bookmarks={bookmarks}
       weakConcept={weakConcept}
       upcomingWorkshops={upcomingWorkshops}
     />

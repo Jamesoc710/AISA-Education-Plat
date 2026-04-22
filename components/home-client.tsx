@@ -1,17 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Icon } from "@/components/ui/icon";
-import { IconTile } from "@/components/ui/icon-tile";
-import { StatusTag } from "@/components/ui/status-tag";
-import { PageFrame } from "@/components/ui/page-frame";
-import { getConceptVisual } from "@/lib/section-icons";
 import { daysUntil } from "@/lib/week-utils";
 import type {
   HomeWeekEvent,
   ContinuePick,
   DueItem,
-  BookmarkPreview,
   WeakConcept,
   UpcomingWorkshop,
 } from "@/lib/home-data";
@@ -19,21 +13,14 @@ import type {
 interface HomeClientProps {
   greeting: string;
   firstName: string | null;
-  programLabel: string;
-  programWeek: number;
-  programTotal: number;
   todayISO: string;
   weekEvents: HomeWeekEvent[];
   continuePick: ContinuePick | null;
   dueItems: DueItem[];
-  bookmarks: BookmarkPreview[];
   weakConcept: WeakConcept | null;
   upcomingWorkshops: UpcomingWorkshop[];
 }
 
-// Event-type dot color — mirrors the subset of TYPE_TOKENS used in
-// calendar-client. Kept inline to avoid pulling a client file into a
-// shared module; if we extend this further, extract to lib/event-tokens.
 const TYPE_DOT: Record<string, string> = {
   TECH_TEAM: "var(--color-blue)",
   CAPITAL_TEAM: "var(--color-correct)",
@@ -45,7 +32,29 @@ const TYPE_DOT: Record<string, string> = {
 };
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const DAY_LABELS_LONG = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const DAY_LABELS_LONG = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 function simplifyTime(t: string): string {
   const m = t.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i);
@@ -68,317 +77,329 @@ export function HomeClient(props: HomeClientProps) {
   const {
     greeting,
     firstName,
-    programLabel,
-    programWeek,
-    programTotal,
     todayISO,
     weekEvents,
     continuePick,
     dueItems,
-    bookmarks,
     weakConcept,
     upcomingWorkshops,
   } = props;
 
   const today = new Date(todayISO);
-  const todayDayIdx = (today.getDay() + 6) % 7; // Mon=0..Sun=6
+  const todayDayIdx = (today.getDay() + 6) % 7;
+  const dateLine = `${DAY_LABELS_LONG[todayDayIdx]}, ${MONTH_NAMES[today.getMonth()]} ${today.getDate()}`;
 
   return (
-    <PageFrame>
-      {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section style={{ marginBottom: 36 }}>
+    <div
+      data-surface="editorial"
+      style={{
+        backgroundColor: "var(--color-bg)",
+        minHeight: "100%",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1080,
+          margin: "0 auto",
+          padding: "56px 48px 96px",
+        }}
+      >
+        {/* ── Meta line ───────────────────────────────────────────── */}
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 500,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: "var(--color-text-3)",
+            marginBottom: 18,
+          }}
+        >
+          {dateLine}
+        </div>
+
+        {/* ── Hero ────────────────────────────────────────────────── */}
         <h1
           style={{
             margin: 0,
-            fontSize: "var(--text-3xl)",
+            fontSize: "clamp(44px, 6.4vw, 68px)",
             fontWeight: 600,
-            letterSpacing: "-0.02em",
+            letterSpacing: "-0.03em",
+            lineHeight: 1.02,
             color: "var(--color-text)",
           }}
         >
           {greeting}
-          {firstName ? `, ${firstName}` : ""}
+          {firstName ? `, ${firstName}.` : "."}
         </h1>
-        <ProgramSubLine label={programLabel} week={programWeek} total={programTotal} />
-      </section>
 
-      {/* ── Tier 2: Do next (Continue + This week) ───────────────────── */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "3fr 2fr",
-          gap: "var(--space-4)",
-          marginBottom: "var(--space-4)",
-          alignItems: "start",
-        }}
-      >
-        <Panel eyebrow="Continue learning" title="Pick up where you left off">
-          <ContinueCard pick={continuePick} />
-        </Panel>
+        <HairRule top={44} bottom={40} />
 
-        <Panel
-          eyebrow="This week"
-          title={programWeek > 0 && programWeek <= programTotal ? `Week ${programWeek}` : "Schedule"}
-          footerHref="/calendar"
-          footerLabel="See full calendar →"
-        >
-          <WeekList events={weekEvents} todayDayIdx={todayDayIdx} />
-        </Panel>
-      </div>
+        {/* ── Continue learning ───────────────────────────────────── */}
+        <ContinueSection pick={continuePick} />
 
-      {/* ── Prep for upcoming workshop ─────────────────────────────── */}
-      {upcomingWorkshops.length > 0 && (
-        <WorkshopPrepSection workshops={upcomingWorkshops} todayDayIdx={todayDayIdx} today={today} />
-      )}
+        <HairRule top={40} bottom={40} />
 
-      {/* ── Tier 3: Stay on track (Due soon + Keep sharp) ────────────── */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "3fr 2fr",
-          gap: "var(--space-4)",
-          marginBottom: 36,
-          alignItems: "start",
-        }}
-      >
-        <Panel eyebrow="Due soon" title="What's on your plate">
-          <DueList items={dueItems} todayISO={todayISO} />
-        </Panel>
-
-        <Panel eyebrow="Keep sharp" title="Practice">
-          <PracticeBlock weak={weakConcept} />
-        </Panel>
-      </div>
-
-      {/* ── Tier 4: Bookmarks ────────────────────────────────────────── */}
-      <section>
+        {/* ── Two-column: This week | On plate + Practice ─────────── */}
         <div
           style={{
-            display: "flex",
-            alignItems: "baseline",
-            justifyContent: "space-between",
-            marginBottom: "var(--space-3)",
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1.35fr) 1px minmax(0, 1fr)",
+            columnGap: 48,
+            alignItems: "stretch",
           }}
         >
-          <h2
-            style={{
-              fontSize: "var(--text-md)",
-              fontWeight: 600,
-              letterSpacing: "-0.01em",
-              color: "var(--color-text)",
-              margin: 0,
-            }}
-          >
-            Recent bookmarks
-          </h2>
-          {bookmarks.length > 0 && (
+          <div>
+            <SectionEyebrow>This week</SectionEyebrow>
+            <WeekList events={weekEvents} todayDayIdx={todayDayIdx} />
             <Link
-              href="/browse?filter=bookmarked"
+              href="/calendar"
               style={{
-                fontSize: "var(--text-sm)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                marginTop: 16,
+                fontSize: 13,
                 fontWeight: 500,
                 color: "var(--color-accent)",
                 textDecoration: "none",
               }}
+              className="editorial-link"
             >
-              View all →
+              See full calendar
+              <ArrowRight />
             </Link>
-          )}
+          </div>
+
+          <div
+            aria-hidden
+            style={{
+              width: 1,
+              backgroundColor: "var(--color-border)",
+              justifySelf: "center",
+            }}
+          />
+
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ marginBottom: 28 }}>
+              <SectionEyebrow>On your plate</SectionEyebrow>
+              <DueList items={dueItems} todayISO={todayISO} />
+            </div>
+            <div
+              aria-hidden
+              style={{
+                height: 1,
+                backgroundColor: "var(--color-border)",
+                margin: "4px 0 28px",
+              }}
+            />
+            <div>
+              <SectionEyebrow>Practice</SectionEyebrow>
+              <PracticeBlock weak={weakConcept} />
+            </div>
+          </div>
         </div>
-        <BookmarksRow bookmarks={bookmarks} />
-      </section>
-    </PageFrame>
-  );
-}
 
-// ─── Hero sub-line ─────────────────────────────────────────────────────────
+        {/* ── Workshop prep (shared-edge cards) ───────────────────── */}
+        {upcomingWorkshops.length > 0 && (
+          <>
+            <HairRule top={56} bottom={28} />
+            <SectionEyebrow>
+              {upcomingWorkshops.length > 1 ? "Prep for upcoming workshops" : "Prep for upcoming workshop"}
+            </SectionEyebrow>
+            <WorkshopPrepRow workshops={upcomingWorkshops} todayDayIdx={todayDayIdx} today={today} />
+          </>
+        )}
+      </div>
 
-function ProgramSubLine({ label, week, total }: { label: string; week: number; total: number }) {
-  const active = week > 0 && week <= total;
-  return (
-    <div
-      style={{
-        marginTop: "var(--space-3)",
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-3)",
-        fontSize: "var(--text-sm)",
-        color: "var(--color-text-2)",
-      }}
-    >
-      <StatusTag tone={active ? "accent" : "neutral"}>{label}</StatusTag>
+      {/* ── Hover underline for all editorial links ───────────────── */}
+      <style>{`
+        [data-surface="editorial"] .editorial-link {
+          position: relative;
+        }
+        [data-surface="editorial"] .editorial-link svg {
+          transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        [data-surface="editorial"] .editorial-link:hover svg {
+          transform: translateX(3px);
+        }
+        [data-surface="editorial"] .editorial-link::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 18px;
+          bottom: -2px;
+          height: 1px;
+          background-color: currentColor;
+          transform: scaleX(0);
+          transform-origin: left;
+          transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        [data-surface="editorial"] .editorial-link:hover::after {
+          transform: scaleX(1);
+        }
+      `}</style>
     </div>
   );
 }
 
-// ─── Panel shell ───────────────────────────────────────────────────────────
+// ─── Shared primitives ──────────────────────────────────────────────────────
 
-function Panel({
-  eyebrow,
-  title,
-  children,
-  footerHref,
-  footerLabel,
-}: {
-  eyebrow: string;
-  title: string;
-  children: React.ReactNode;
-  footerHref?: string;
-  footerLabel?: string;
-}) {
+function HairRule({ top = 32, bottom = 32 }: { top?: number; bottom?: number }) {
   return (
-    <section
+    <div
+      aria-hidden
       style={{
-        backgroundColor: "var(--color-surface)",
-        border: "1px solid var(--color-border)",
-        borderRadius: "var(--radius-3)",
-        boxShadow: "var(--shadow-card)",
-        padding: "18px 20px 16px",
-        display: "flex",
-        flexDirection: "column",
+        height: 1,
+        backgroundColor: "var(--color-border)",
+        margin: `${top}px 0 ${bottom}px`,
       }}
-    >
-      <div
-        style={{
-          fontSize: "var(--text-xs)",
-          fontWeight: 650,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "var(--color-text-3)",
-          marginBottom: "var(--space-1)",
-        }}
-      >
-        {eyebrow}
-      </div>
-      <h2
-        style={{
-          margin: 0,
-          fontSize: "var(--text-md)",
-          fontWeight: 600,
-          letterSpacing: "-0.01em",
-          color: "var(--color-text)",
-          marginBottom: "var(--space-4)",
-        }}
-      >
-        {title}
-      </h2>
-      <div>{children}</div>
-      {footerHref && footerLabel && (
-        <div style={{ marginTop: "auto", paddingTop: "var(--space-3)" }}>
-          <Link
-            href={footerHref}
-            style={{
-              fontSize: "var(--text-sm)",
-              fontWeight: 500,
-              color: "var(--color-accent)",
-              textDecoration: "none",
-            }}
-          >
-            {footerLabel}
-          </Link>
-        </div>
-      )}
-    </section>
+    />
   );
 }
 
-// ─── Continue card ─────────────────────────────────────────────────────────
+function SectionEyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        fontSize: 11,
+        fontWeight: 600,
+        letterSpacing: "0.18em",
+        textTransform: "uppercase",
+        color: "var(--color-text-3)",
+        marginBottom: 16,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
-function ContinueCard({ pick }: { pick: ContinuePick | null }) {
+function ArrowRight() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M5 12h14" />
+      <path d="M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+// ─── Continue section ──────────────────────────────────────────────────────
+
+function ContinueSection({ pick }: { pick: ContinuePick | null }) {
   if (!pick) {
     return (
-      <EmptyBlock
-        icon="compass"
-        title="Nothing to resume yet"
-        body="Head to Browse to pick your first concept."
-        cta={{ label: "Open Browse →", href: "/browse" }}
-      />
+      <div>
+        <SectionEyebrow>Continue learning</SectionEyebrow>
+        <p
+          style={{
+            margin: 0,
+            fontSize: 17,
+            color: "var(--color-text-2)",
+            lineHeight: 1.5,
+          }}
+        >
+          Nothing to resume yet.{" "}
+          <Link
+            href="/browse"
+            className="editorial-link"
+            style={{
+              color: "var(--color-accent)",
+              textDecoration: "none",
+              fontWeight: 500,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            Pick your first concept
+            <ArrowRight />
+          </Link>
+        </p>
+      </div>
     );
   }
 
-  const visual = getConceptVisual(pick.conceptSlug, pick.sectionSlug);
-  const ctaLabel = pick.kind === "resume" ? "Resume" : "Start";
+  const label = pick.kind === "resume" ? "Resume" : "Start";
 
   return (
-    <Link
-      href={`/concepts/${pick.conceptSlug}`}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-4)",
-        padding: "14px 16px",
-        borderRadius: "var(--radius-2)",
-        backgroundColor: "var(--color-surface-2)",
-        border: "1px solid var(--color-border)",
-        textDecoration: "none",
-        color: "inherit",
-        transition: "border-color 120ms ease, background-color 120ms ease",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "var(--color-accent)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = "var(--color-border)";
-      }}
-    >
-      <IconTile icon={visual.icon} color={visual.color} size="md" />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div
-          style={{
-            fontSize: "var(--text-xs)",
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            color: "var(--color-text-3)",
-            marginBottom: 3,
-          }}
-        >
-          {pick.sectionName}
-        </div>
-        <div
-          style={{
-            fontSize: "var(--text-md)",
-            fontWeight: 600,
-            color: "var(--color-text)",
-            letterSpacing: "-0.01em",
-            lineHeight: 1.25,
-            marginBottom: "var(--space-1)",
-          }}
-        >
-          {pick.conceptName}
-        </div>
-        <div
-          style={{
-            fontSize: "var(--text-sm)",
-            color: "var(--color-text-2)",
-            lineHeight: 1.45,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical" as const,
-            overflow: "hidden",
-          }}
-        >
-          {pick.conceptSubtitle}
-        </div>
-      </div>
-      <span
+    <div>
+      <SectionEyebrow>Continue learning</SectionEyebrow>
+      <div
         style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "var(--space-2)",
-          padding: "8px 14px",
-          borderRadius: "var(--radius-2)",
-          fontSize: "var(--text-sm)",
-          fontWeight: 600,
-          color: "var(--color-accent-on-soft)",
-          backgroundColor: "var(--color-accent-soft)",
-          whiteSpace: "nowrap",
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          gap: 32,
+          flexWrap: "wrap",
         }}
       >
-        {ctaLabel}
-        <Icon name="chevron-right" size={14} />
-      </span>
-    </Link>
+        <div style={{ flex: "1 1 440px", minWidth: 0 }}>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 500,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--color-text-3)",
+              marginBottom: 8,
+            }}
+          >
+            {pick.sectionName}
+          </div>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "clamp(30px, 3.8vw, 42px)",
+              fontWeight: 600,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.1,
+              color: "var(--color-text)",
+            }}
+          >
+            {pick.conceptName}
+          </h2>
+          <p
+            style={{
+              margin: "12px 0 0 0",
+              fontSize: 17,
+              color: "var(--color-text-2)",
+              lineHeight: 1.5,
+              maxWidth: 620,
+            }}
+          >
+            {pick.conceptSubtitle}
+          </p>
+        </div>
+        <Link
+          href={`/concepts/${pick.conceptSlug}`}
+          className="editorial-link"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            fontSize: 15,
+            fontWeight: 600,
+            color: "var(--color-accent)",
+            textDecoration: "none",
+            paddingBottom: 6,
+          }}
+        >
+          {label}
+          <ArrowRight />
+        </Link>
+      </div>
+    </div>
   );
 }
 
@@ -387,74 +408,90 @@ function ContinueCard({ pick }: { pick: ContinuePick | null }) {
 function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayIdx: number }) {
   if (events.length === 0) {
     return (
-      <EmptyBlock
-        icon="calendar"
-        title="Nothing scheduled"
-        body="No events on the calendar this week."
-      />
+      <p
+        style={{
+          margin: 0,
+          fontSize: 15,
+          color: "var(--color-text-2)",
+          lineHeight: 1.5,
+        }}
+      >
+        No events on the calendar this week.
+      </p>
     );
   }
 
-  const upcoming = events.filter((e) => e.dayOfWeek >= todayDayIdx).slice(0, 4);
-  const shown = upcoming.length > 0 ? upcoming : events.slice(0, 4);
+  const upcoming = events.filter((e) => e.dayOfWeek >= todayDayIdx);
+  const shown = upcoming.length > 0 ? upcoming.slice(0, 5) : events.slice(-5);
 
   return (
-    <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-      {shown.map((e) => {
+    <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+      {shown.map((e, idx) => {
         const isToday = e.dayOfWeek === todayDayIdx;
         const time = formatTime(e.startTime, e.endTime);
         return (
           <li
             key={e.id}
             style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "var(--space-3)",
-              padding: "6px 2px",
+              display: "grid",
+              gridTemplateColumns: "52px 78px 1fr",
+              columnGap: 16,
+              alignItems: "baseline",
+              padding: "14px 0",
+              borderTop: idx === 0 ? "1px solid var(--color-border)" : "none",
+              borderBottom: "1px solid var(--color-border)",
             }}
           >
             <span
-              aria-hidden
               style={{
-                width: 8,
-                height: 8,
-                borderRadius: 999,
-                marginTop: "var(--space-2)",
-                backgroundColor: TYPE_DOT[e.type] ?? TYPE_DOT.GENERAL,
-                flexShrink: 0,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+                color: isToday ? "var(--color-accent)" : "var(--color-text-2)",
+                fontVariantNumeric: "tabular-nums",
               }}
-            />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div
+            >
+              <span
+                aria-hidden
                 style={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  gap: "var(--space-2)",
-                  fontSize: "var(--text-xs)",
-                  color: "var(--color-text-3)",
-                  marginBottom: "var(--space-1)",
+                  width: 6,
+                  height: 6,
+                  borderRadius: 999,
+                  backgroundColor: TYPE_DOT[e.type] ?? TYPE_DOT.GENERAL,
+                  flexShrink: 0,
                 }}
-              >
-                <span style={{ fontWeight: 600, color: isToday ? "var(--color-accent)" : "var(--color-text-3)" }}>
-                  {isToday ? "Today" : DAY_LABELS[e.dayOfWeek]}
-                </span>
-                {time && <span>{time}</span>}
-              </div>
-              <div
-                style={{
-                  fontSize: "var(--text-sm)",
-                  fontWeight: 500,
-                  color: "var(--color-text)",
-                  lineHeight: 1.35,
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical" as const,
-                  overflow: "hidden",
-                }}
-              >
-                {e.title}
-              </div>
-            </div>
+              />
+              {isToday ? "Today" : DAY_LABELS[e.dayOfWeek]}
+            </span>
+            <span
+              style={{
+                fontSize: 12,
+                color: "var(--color-text-3)",
+                fontVariantNumeric: "tabular-nums",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {time ?? ""}
+            </span>
+            <span
+              style={{
+                fontSize: 15,
+                fontWeight: 500,
+                color: "var(--color-text)",
+                letterSpacing: "-0.005em",
+                lineHeight: 1.35,
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical" as const,
+                overflow: "hidden",
+              }}
+            >
+              {e.title}
+            </span>
           </li>
         );
       })}
@@ -467,82 +504,72 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
 function DueList({ items, todayISO }: { items: DueItem[]; todayISO: string }) {
   if (items.length === 0) {
     return (
-      <EmptyBlock
-        icon="check-circle"
-        title="You're caught up"
-        body="Nothing pending. Keep momentum with a quick practice quiz."
-        cta={{ label: "Practice quiz →", href: "/quiz" }}
-      />
+      <p
+        style={{
+          margin: 0,
+          fontSize: 15,
+          color: "var(--color-text-2)",
+          lineHeight: 1.5,
+        }}
+      >
+        You&rsquo;re caught up. Nothing pending.
+      </p>
     );
   }
 
   const now = new Date(todayISO);
   return (
-    <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-      {items.map((it) => {
+    <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+      {items.map((it, idx) => {
         const dd = daysUntil(it.dueDate, now);
-        let dueLabel = "No due date";
-        let dueTone: "neutral" | "warn" | "urgent" = "neutral";
+        let dueLabel = "No date";
+        let urgent = false;
         if (dd !== null) {
           if (dd < 0) {
             dueLabel = `${Math.abs(dd)}d overdue`;
-            dueTone = "urgent";
+            urgent = true;
           } else if (dd === 0) {
             dueLabel = "Due today";
-            dueTone = "urgent";
+            urgent = true;
           } else if (dd === 1) {
-            dueLabel = "Due tomorrow";
-            dueTone = "warn";
+            dueLabel = "Tomorrow";
           } else if (dd <= 7) {
-            dueLabel = `Due in ${dd} days`;
-            dueTone = "warn";
+            dueLabel = `In ${dd} days`;
           } else {
-            dueLabel = `Due in ${dd} days`;
+            dueLabel = `In ${dd} days`;
           }
         }
 
-        const toneFg =
-          dueTone === "urgent"
-            ? "var(--color-incorrect)"
-            : dueTone === "warn"
-            ? "var(--color-accent-on-soft)"
-            : "var(--color-text-3)";
-
         return (
-          <li key={it.id}>
+          <li
+            key={it.id}
+            style={{
+              borderTop: idx === 0 ? "1px solid var(--color-border)" : "none",
+              borderBottom: "1px solid var(--color-border)",
+            }}
+          >
             <Link
               href={it.href}
+              className="editorial-link-row"
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "var(--space-3)",
-                padding: "10px 12px",
-                borderRadius: "var(--radius-2)",
-                border: "1px solid var(--color-border)",
-                backgroundColor: "var(--color-surface-2)",
+                justifyContent: "space-between",
+                gap: 12,
+                padding: "14px 2px",
                 textDecoration: "none",
                 color: "inherit",
-                transition: "border-color 120ms ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "var(--color-accent)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "var(--color-border)";
+                transition: "color 140ms ease",
               }}
             >
-              <IconTile
-                icon={it.kind === "homework" ? "book-open" : "clipboard-check"}
-                color={it.kind === "homework" ? "indigo" : "honey"}
-                size="sm"
-              />
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
                 <div
                   style={{
-                    fontSize: "var(--text-sm)",
-                    fontWeight: 600,
+                    fontSize: 15,
+                    fontWeight: 500,
                     color: "var(--color-text)",
-                    lineHeight: 1.3,
+                    letterSpacing: "-0.005em",
+                    lineHeight: 1.35,
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -550,9 +577,44 @@ function DueList({ items, todayISO }: { items: DueItem[]; todayISO: string }) {
                 >
                   {it.title}
                 </div>
-                <div style={{ fontSize: "var(--text-xs)", color: toneFg, fontWeight: 500 }}>{dueLabel}</div>
+                <div
+                  style={{
+                    marginTop: 4,
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: "var(--color-text-3)",
+                    letterSpacing: "0.02em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {it.kind === "homework" ? "Homework" : "Assessment"}
+                </div>
               </div>
-              <Icon name="chevron-right" size={14} />
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.04em",
+                  color: urgent ? "var(--color-incorrect)" : "var(--color-text-2)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {urgent && (
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: 999,
+                      backgroundColor: "var(--color-incorrect)",
+                    }}
+                  />
+                )}
+                {dueLabel}
+              </span>
             </Link>
           </li>
         );
@@ -565,171 +627,61 @@ function DueList({ items, todayISO }: { items: DueItem[]; todayISO: string }) {
 
 function PracticeBlock({ weak }: { weak: WeakConcept | null }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-      {weak && (
-        <Link
-          href="/quiz"
+    <div>
+      {weak ? (
+        <p
           style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "var(--space-1)",
-            padding: "10px 12px",
-            borderRadius: "var(--radius-2)",
-            border: "1px solid var(--color-border)",
-            backgroundColor: "var(--color-incorrect-dim)",
-            textDecoration: "none",
-            color: "inherit",
+            margin: 0,
+            fontSize: 15,
+            color: "var(--color-text)",
+            lineHeight: 1.5,
+            letterSpacing: "-0.005em",
           }}
         >
-          <div style={{ fontSize: "var(--text-xs)", fontWeight: 650, color: "var(--color-incorrect)", letterSpacing: "0.04em", textTransform: "uppercase" }}>
-            Shaky area
-          </div>
-          <div style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)", lineHeight: 1.3 }}>
-            {weak.conceptName}
-          </div>
-          <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-2)" }}>
-            {weak.accuracyPct}% across {weak.attempts} attempts
-          </div>
-        </Link>
+          Your shakiest area is{" "}
+          <span style={{ fontWeight: 600 }}>{weak.conceptName}</span>
+          {" "}at{" "}
+          <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 500 }}>
+            {weak.accuracyPct}%
+          </span>
+          {" "}across {weak.attempts} attempts.
+        </p>
+      ) : (
+        <p
+          style={{
+            margin: 0,
+            fontSize: 15,
+            color: "var(--color-text-2)",
+            lineHeight: 1.5,
+          }}
+        >
+          Five random questions to keep you sharp.
+        </p>
       )}
       <Link
         href="/quiz"
+        className="editorial-link"
         style={{
-          display: "flex",
+          display: "inline-flex",
           alignItems: "center",
-          justifyContent: "center",
-          gap: "var(--space-2)",
-          padding: "12px 14px",
-          borderRadius: "var(--radius-2)",
-          backgroundColor: "var(--color-accent)",
-          color: "white",
-          fontSize: "var(--text-sm)",
+          gap: 6,
+          marginTop: 14,
+          fontSize: 14,
           fontWeight: 600,
+          color: "var(--color-accent)",
           textDecoration: "none",
         }}
       >
-        <Icon name="help-circle" size={15} />
         Take a practice quiz
+        <ArrowRight />
       </Link>
-      {!weak && (
-        <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", textAlign: "center", marginTop: "var(--space-1)" }}>
-          5 random questions from your curriculum.
-        </div>
-      )}
     </div>
   );
 }
 
-// ─── Bookmarks row ─────────────────────────────────────────────────────────
+// ─── Workshop prep (shared-edge cards) ─────────────────────────────────────
 
-function BookmarksRow({ bookmarks }: { bookmarks: BookmarkPreview[] }) {
-  if (bookmarks.length === 0) {
-    return (
-      <div
-        style={{
-          backgroundColor: "var(--color-surface)",
-          border: "1px dashed var(--color-border)",
-          borderRadius: "var(--radius-3)",
-          padding: "24px 20px",
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-4)",
-        }}
-      >
-        <IconTile icon="bookmark" color="honey" size="sm" />
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)" }}>
-            Bookmark concepts you want to revisit
-          </div>
-          <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)", marginTop: "var(--space-1)" }}>
-            Click the bookmark icon on any concept card, and they'll show up here.
-          </div>
-        </div>
-        <Link
-          href="/browse"
-          style={{
-            fontSize: "var(--text-sm)",
-            fontWeight: 500,
-            color: "var(--color-accent)",
-            textDecoration: "none",
-            whiteSpace: "nowrap",
-          }}
-        >
-          Explore concepts →
-        </Link>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--space-3)" }}>
-      {bookmarks.map((b) => {
-        const visual = getConceptVisual(b.conceptSlug, b.sectionSlug);
-        return (
-          <Link
-            key={b.conceptId}
-            href={`/concepts/${b.conceptSlug}`}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "var(--space-3)",
-              padding: "14px 16px",
-              borderRadius: "var(--radius-3)",
-              backgroundColor: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              boxShadow: "var(--shadow-card)",
-              textDecoration: "none",
-              color: "inherit",
-              transition: "box-shadow 120ms ease, transform 120ms ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = "var(--shadow-card-hover)";
-              e.currentTarget.style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = "var(--shadow-card)";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            <IconTile icon={visual.icon} color={visual.color} size="sm" />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <h3
-                style={{
-                  margin: 0,
-                  fontSize: "var(--text-base)",
-                  fontWeight: 600,
-                  color: "var(--color-text)",
-                  lineHeight: 1.3,
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                {b.conceptName}
-              </h3>
-              <p
-                style={{
-                  margin: "4px 0 0 0",
-                  fontSize: "var(--text-xs)",
-                  color: "var(--color-text-2)",
-                  lineHeight: 1.45,
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical" as const,
-                  overflow: "hidden",
-                }}
-              >
-                {b.conceptSubtitle}
-              </p>
-            </div>
-          </Link>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Workshop prep section ────────────────────────────────────────────────
-
-function WorkshopPrepSection({
+function WorkshopPrepRow({
   workshops,
   todayDayIdx,
   today,
@@ -738,40 +690,26 @@ function WorkshopPrepSection({
   todayDayIdx: number;
   today: Date;
 }) {
+  const twoUp = workshops.length > 1;
   return (
-    <section style={{ marginBottom: "var(--space-4)" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "baseline",
-          justifyContent: "space-between",
-          marginBottom: "var(--space-3)",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "var(--text-md)",
-            fontWeight: 600,
-            letterSpacing: "-0.01em",
-            color: "var(--color-text)",
-            margin: 0,
-          }}
-        >
-          {workshops.length > 1 ? "Prep for upcoming workshops" : "Prep for upcoming workshop"}
-        </h2>
-      </div>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: workshops.length > 1 ? "repeat(2, 1fr)" : "1fr",
-          gap: "var(--space-3)",
-        }}
-      >
-        {workshops.map((w) => (
-          <WorkshopPrepCard key={w.eventId} workshop={w} todayDayIdx={todayDayIdx} today={today} />
-        ))}
-      </div>
-    </section>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: twoUp ? "1fr 1fr" : "1fr",
+        border: "1px solid var(--color-border)",
+        backgroundColor: "var(--color-surface)",
+      }}
+    >
+      {workshops.map((w, idx) => (
+        <WorkshopPrepCard
+          key={w.eventId}
+          workshop={w}
+          todayDayIdx={todayDayIdx}
+          today={today}
+          showLeftBorder={twoUp && idx > 0}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -779,10 +717,12 @@ function WorkshopPrepCard({
   workshop,
   todayDayIdx,
   today,
+  showLeftBorder,
 }: {
   workshop: UpcomingWorkshop;
   todayDayIdx: number;
   today: Date;
+  showLeftBorder: boolean;
 }) {
   const eventDate = new Date(workshop.date);
   const dayDelta = daysUntil(eventDate, today);
@@ -795,9 +735,10 @@ function WorkshopPrepCard({
   } else if (dayDelta === 1) {
     whenLabel = "Tomorrow";
   } else if (dayDelta !== null && dayDelta > 1 && dayDelta <= 6) {
-    whenLabel = DAY_LABELS_LONG[workshop.dayOfWeek] ?? DAY_LABELS[workshop.dayOfWeek] ?? "";
+    whenLabel = DAY_LABELS_LONG[workshop.dayOfWeek] ?? "";
   } else {
-    whenLabel = DAY_LABELS[workshop.dayOfWeek] ?? "";
+    const d = new Date(workshop.date);
+    whenLabel = `${MONTH_NAMES[d.getMonth()].slice(0, 3)} ${d.getDate()}`;
   }
 
   return (
@@ -805,143 +746,98 @@ function WorkshopPrepCard({
       style={{
         display: "flex",
         flexDirection: "column",
-        padding: "18px 20px 16px",
-        borderRadius: "var(--radius-3)",
-        border: "1px solid var(--color-border)",
-        backgroundColor: "var(--color-surface)",
-        boxShadow: "var(--shadow-card)",
+        padding: "26px 28px 24px",
+        borderLeft: showLeftBorder ? "1px solid var(--color-border)" : "none",
       }}
     >
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "var(--space-2)",
-          fontSize: "var(--text-xs)",
-          fontWeight: 650,
-          letterSpacing: "0.06em",
+          gap: 10,
+          fontSize: 11,
+          fontWeight: 600,
+          letterSpacing: "0.14em",
           textTransform: "uppercase",
           color: isToday ? "var(--color-accent)" : "var(--color-text-3)",
-          marginBottom: "var(--space-2)",
+          marginBottom: 14,
         }}
       >
-        <Icon name="calendar" size={13} />
-        <span>
-          {whenLabel}
-          {time && <span style={{ marginLeft: 6, color: "var(--color-text-3)" }}>· {time}</span>}
-        </span>
+        <span>{whenLabel}</span>
+        {time && (
+          <>
+            <span style={{ opacity: 0.5 }}>/</span>
+            <span style={{ fontVariantNumeric: "tabular-nums" }}>{time}</span>
+          </>
+        )}
       </div>
       <h3
         style={{
           margin: 0,
-          fontSize: "var(--text-base)",
+          fontSize: 22,
           fontWeight: 600,
           color: "var(--color-text)",
-          letterSpacing: "-0.01em",
-          lineHeight: 1.3,
-          marginBottom: "var(--space-3)",
+          letterSpacing: "-0.015em",
+          lineHeight: 1.2,
+          marginBottom: 14,
         }}
       >
         {workshop.title}
       </h3>
-      <div
+      <ul
         style={{
+          listStyle: "none",
+          margin: 0,
+          padding: 0,
           display: "flex",
           flexWrap: "wrap",
-          gap: 6,
-          marginBottom: "var(--space-4)",
+          gap: "6px 14px",
+          marginBottom: 20,
         }}
       >
         {workshop.concepts.map((c) => (
-          <span
+          <li
             key={c.slug}
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              padding: "4px 10px",
-              fontSize: "var(--text-xs)",
+              fontSize: 13,
               fontWeight: 500,
               color: "var(--color-text-2)",
-              backgroundColor: "var(--color-surface-2)",
-              border: "1px solid var(--color-border)",
-              borderRadius: 999,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
             }}
           >
+            <span
+              aria-hidden
+              style={{
+                width: 3,
+                height: 3,
+                borderRadius: 999,
+                backgroundColor: "var(--color-text-3)",
+              }}
+            />
             {c.name}
-          </span>
+          </li>
         ))}
-      </div>
-      <div style={{ marginTop: "auto", display: "flex", justifyContent: "flex-end" }}>
+      </ul>
+      <div style={{ marginTop: "auto" }}>
         <Link
           href={`/flashcards/workshop/${workshop.eventId}`}
+          className="editorial-link"
           style={{
             display: "inline-flex",
             alignItems: "center",
-            gap: "var(--space-2)",
-            padding: "8px 14px",
-            borderRadius: "var(--radius-2)",
-            fontSize: "var(--text-sm)",
+            gap: 6,
+            fontSize: 14,
             fontWeight: 600,
-            color: "var(--color-accent-on-soft)",
-            backgroundColor: "var(--color-accent-soft)",
+            color: "var(--color-accent)",
             textDecoration: "none",
-            whiteSpace: "nowrap",
           }}
         >
           Review flashcards
-          <Icon name="chevron-right" size={14} />
+          <ArrowRight />
         </Link>
       </div>
     </article>
   );
 }
-
-// ─── Empty-state block ─────────────────────────────────────────────────────
-
-function EmptyBlock({
-  icon,
-  title,
-  body,
-  cta,
-}: {
-  icon: Parameters<typeof IconTile>[0]["icon"];
-  title: string;
-  body: string;
-  cta?: { label: string; href: string };
-}) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        gap: "var(--space-2)",
-        padding: "14px 16px",
-        borderRadius: "var(--radius-2)",
-        backgroundColor: "var(--color-surface-2)",
-        border: "1px dashed var(--color-border)",
-      }}
-    >
-      <IconTile icon={icon} color="stone" size="sm" />
-      <div>
-        <div style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)" }}>{title}</div>
-        <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)", marginTop: "var(--space-1)" }}>{body}</div>
-      </div>
-      {cta && (
-        <Link
-          href={cta.href}
-          style={{
-            fontSize: "var(--text-sm)",
-            fontWeight: 500,
-            color: "var(--color-accent)",
-            textDecoration: "none",
-            marginTop: "var(--space-1)",
-          }}
-        >
-          {cta.label}
-        </Link>
-      )}
-    </div>
-  );
-}
-
