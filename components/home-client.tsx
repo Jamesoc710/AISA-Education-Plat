@@ -21,14 +21,14 @@ interface HomeClientProps {
   upcomingWorkshops: UpcomingWorkshop[];
 }
 
-const TYPE_DOT: Record<string, string> = {
-  TECH_TEAM: "var(--color-blue)",
-  CAPITAL_TEAM: "var(--color-correct)",
-  EVENTS: "#E08A3C",
-  MEDIA_TEAM: "#8064A2",
-  EXEC: "var(--color-incorrect)",
-  NON_MANDATORY: "var(--color-slate)",
-  GENERAL: "var(--color-text-3)",
+const TYPE_TAG: Record<string, { label: string; color: string }> = {
+  TECH_TEAM: { label: "TECH", color: "var(--color-blue)" },
+  CAPITAL_TEAM: { label: "CAPITAL", color: "var(--color-correct)" },
+  EVENTS: { label: "EVENT", color: "#E08A3C" },
+  MEDIA_TEAM: { label: "MEDIA", color: "#8064A2" },
+  EXEC: { label: "EXEC", color: "var(--color-incorrect)" },
+  NON_MANDATORY: { label: "OPTIONAL", color: "var(--color-slate)" },
+  GENERAL: { label: "", color: "var(--color-text-3)" },
 };
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -434,7 +434,7 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
             key={e.id}
             style={{
               display: "grid",
-              gridTemplateColumns: "52px 78px 1fr",
+              gridTemplateColumns: "52px 72px 72px 1fr",
               columnGap: 16,
               alignItems: "baseline",
               padding: "14px 0",
@@ -444,9 +444,6 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
           >
             <span
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
                 fontSize: 12,
                 fontWeight: 600,
                 letterSpacing: "0.05em",
@@ -455,17 +452,19 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
                 fontVariantNumeric: "tabular-nums",
               }}
             >
-              <span
-                aria-hidden
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: 999,
-                  backgroundColor: TYPE_DOT[e.type] ?? TYPE_DOT.GENERAL,
-                  flexShrink: 0,
-                }}
-              />
               {isToday ? "Today" : DAY_LABELS[e.dayOfWeek]}
+            </span>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                color: (TYPE_TAG[e.type] ?? TYPE_TAG.GENERAL).color,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {(TYPE_TAG[e.type] ?? TYPE_TAG.GENERAL).label}
             </span>
             <span
               style={{
