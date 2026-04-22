@@ -1,8 +1,31 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { TopChrome } from "@/components/top-chrome";
+
+/**
+ * Plays either the standard page-enter fade or, once per signin, the larger
+ * `welcome-enter` animation. The welcome flag is set by login-client in
+ * sessionStorage just before navigation and consumed here on first mount.
+ */
+function PageTransition({ children }: { children: ReactNode }) {
+  const [isWelcome] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.sessionStorage.getItem("aisa-welcome") === "1";
+  });
+
+  useEffect(() => {
+    if (isWelcome && typeof window !== "undefined") {
+      window.sessionStorage.removeItem("aisa-welcome");
+    }
+  }, [isWelcome]);
+
+  return (
+    <div className={isWelcome ? "welcome-enter" : "page-enter"}>{children}</div>
+  );
+}
 
 export type ShellUser = {
   id: string;
@@ -25,6 +48,7 @@ export function MainShell({
   user: ShellUser | null;
   children: ReactNode;
 }) {
+  const pathname = usePathname() ?? "/";
   return (
     <div
       data-theme="light"
@@ -57,7 +81,8 @@ export function MainShell({
             backgroundColor: "var(--color-bg)",
           }}
         >
-          {children}
+          {/* key={pathname} remounts on route change so the CSS animation retriggers */}
+          <PageTransition key={pathname}>{children}</PageTransition>
         </main>
       </div>
     </div>

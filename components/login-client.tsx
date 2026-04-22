@@ -20,6 +20,7 @@ export function LoginClient() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [exiting, setExiting] = useState(false);
   const [error, setError] = useState<string | null>(
     incomingError ? decodeURIComponent(incomingError) : null,
   );
@@ -34,6 +35,19 @@ export function LoginClient() {
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const supabase = createClient();
+
+  // Shared post-signin handoff: flag the target page for the welcome
+  // entrance, play the form's exit animation, then navigate. Keeping the
+  // delay in sync with `.login-exit` in globals.css (260ms).
+  const finishSignIn = async () => {
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem("aisa-welcome", "1");
+    }
+    setExiting(true);
+    await new Promise((resolve) => setTimeout(resolve, 260));
+    router.push(next);
+    router.refresh();
+  };
 
   const startResendCooldown = () => {
     setResendSecondsLeft(RESEND_COOLDOWN_SECONDS);
@@ -121,8 +135,7 @@ export function LoginClient() {
         return;
       }
 
-      router.push(next);
-      router.refresh();
+      await finishSignIn();
     } else {
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
@@ -140,8 +153,7 @@ export function LoginClient() {
         headers: { "Content-Type": "application/json" },
       });
 
-      router.push(next);
-      router.refresh();
+      await finishSignIn();
     }
   };
 
@@ -173,7 +185,10 @@ export function LoginClient() {
         minHeight: "100vh",
       }}
     >
-      <div style={{ width: "100%", maxWidth: 380 }}>
+      <div
+        className={exiting ? "login-exit" : undefined}
+        style={{ width: "100%", maxWidth: 380 }}
+      >
         {/* Heading */}
         <div style={{ marginBottom: 32 }}>
           <h1
