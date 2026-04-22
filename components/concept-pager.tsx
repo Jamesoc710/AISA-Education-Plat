@@ -7,7 +7,8 @@ type Sibling = { name: string; slug: string } | null;
 
 /**
  * Bottom prev/next pager for concept detail pages.
- * Two bordered cards in a row; either side can be empty (placeholder).
+ * Two slots in a row — a link card when a sibling exists, a muted
+ * "Beginning / End of section" placeholder when not.
  */
 export function ConceptPager({
   prev,
@@ -25,35 +26,57 @@ export function ConceptPager({
         marginTop: "var(--space-7)",
       }}
     >
-      <PagerCard direction="prev" item={prev} />
-      <PagerCard direction="next" item={next} />
+      <PagerSlot direction="prev" item={prev} />
+      <PagerSlot direction="next" item={next} />
     </div>
   );
 }
 
-function PagerCard({
+function PagerSlot({
   direction,
   item,
 }: {
   direction: "prev" | "next";
   item: Sibling;
 }) {
+  const align = direction === "prev" ? "flex-start" : "flex-end";
+  const textAlign = direction === "prev" ? "left" : "right";
+  const label = direction === "prev" ? "Previous" : "Next";
+  const terminal =
+    direction === "prev" ? "Beginning of section" : "End of section";
+
   if (!item) {
     return (
       <div
-        aria-hidden
         style={{
-          minHeight: 64,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: align,
+          justifyContent: "center",
+          gap: "var(--space-1)",
+          padding: "14px 18px",
           borderRadius: "var(--radius-3)",
-          border: "1px dashed var(--color-border-subtle)",
-          opacity: 0,
+          border: "1px dashed var(--color-border)",
+          color: "var(--color-text-3)",
+          textAlign,
+          minHeight: 64,
         }}
-      />
+      >
+        <DirectionLabel direction={direction} label={label} />
+        <span
+          style={{
+            fontSize: "var(--text-sm)",
+            fontWeight: 500,
+            color: "var(--color-text-3)",
+            fontStyle: "italic",
+          }}
+        >
+          {terminal}
+        </span>
+      </div>
     );
   }
-  const align = direction === "prev" ? "flex-start" : "flex-end";
-  const label = direction === "prev" ? "Previous" : "Next";
-  const iconName = direction === "prev" ? "chevron-right" : "chevron-right";
+
   return (
     <Link
       href={`/concepts/${item.slug}`}
@@ -70,7 +93,7 @@ function PagerCard({
         textDecoration: "none",
         color: "inherit",
         transition: "box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease",
-        textAlign: direction === "prev" ? "left" : "right",
+        textAlign,
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = "var(--shadow-card-hover)";
@@ -81,26 +104,7 @@ function PagerCard({
         e.currentTarget.style.transform = "translateY(0)";
       }}
     >
-      <span
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "var(--space-2)",
-          fontSize: "var(--text-xs)",
-          fontWeight: 600,
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
-          color: "var(--color-text-3)",
-        }}
-      >
-        {direction === "prev" && (
-          <span style={{ display: "inline-flex", transform: "rotate(180deg)" }}>
-            <Icon name={iconName} size={12} strokeWidth={2} />
-          </span>
-        )}
-        {label}
-        {direction === "next" && <Icon name={iconName} size={12} strokeWidth={2} />}
-      </span>
+      <DirectionLabel direction={direction} label={label} />
       <span
         style={{
           fontSize: "var(--text-base)",
@@ -113,5 +117,38 @@ function PagerCard({
         {item.name}
       </span>
     </Link>
+  );
+}
+
+function DirectionLabel({
+  direction,
+  label,
+}: {
+  direction: "prev" | "next";
+  label: string;
+}) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        fontSize: "var(--text-xs)",
+        fontWeight: 600,
+        letterSpacing: "0.06em",
+        textTransform: "uppercase",
+        color: "var(--color-text-3)",
+      }}
+    >
+      {direction === "prev" && (
+        <span style={{ display: "inline-flex", transform: "rotate(180deg)" }}>
+          <Icon name="chevron-right" size={12} strokeWidth={2} />
+        </span>
+      )}
+      {label}
+      {direction === "next" && (
+        <Icon name="chevron-right" size={12} strokeWidth={2} />
+      )}
+    </span>
   );
 }

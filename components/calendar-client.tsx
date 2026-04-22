@@ -252,7 +252,7 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
         </button>
 
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-          <StatusTag tone="accent" uppercase>
+          <StatusTag tone="neutral" uppercase>
             Week {currentWeek.weekNumber}
           </StatusTag>
           <span
@@ -619,16 +619,6 @@ function HomeworkPanel({
               }}
             >
               <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-3)" }}>
-                <span
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: "50%",
-                    backgroundColor: tokens.bar,
-                    marginTop: "var(--space-2)",
-                    flexShrink: 0,
-                  }}
-                />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div
                     style={{
