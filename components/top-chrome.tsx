@@ -90,11 +90,6 @@ export function TopChrome({ user }: { user: ShellUser | null }) {
         Ask a mentor
       </Button>
 
-      {/* Notifications (visual only for Phase 1) */}
-      <IconButton ariaLabel="Notifications">
-        <Icon name="bell" size={16} strokeWidth={1.85} />
-      </IconButton>
-
       {/* Avatar / sign-in */}
       {user ? <UserMenu user={user} /> : <SignInLink />}
 
@@ -198,42 +193,6 @@ function MentorComingSoonDialog({ open, onClose }: { open: boolean; onClose: () 
       </div>
     </div>,
     document.body,
-  );
-}
-
-function IconButton({
-  children,
-  onClick,
-  ariaLabel,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  ariaLabel: string;
-}) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      aria-label={ariaLabel}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: 34,
-        height: 34,
-        backgroundColor: hovered ? "var(--color-surface-2)" : "transparent",
-        border: "1px solid transparent",
-        borderRadius: "var(--radius-2)",
-        cursor: "pointer",
-        color: hovered ? "var(--color-text)" : "var(--color-text-2)",
-        transition: "background-color 120ms ease, color 120ms ease",
-      }}
-    >
-      {children}
-    </button>
   );
 }
 
