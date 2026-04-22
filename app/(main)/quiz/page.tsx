@@ -1,15 +1,29 @@
 import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 import { QuizClient } from "@/components/quiz-client";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Quiz | AISA Atlas",
-  description: "Test your AI knowledge across concepts and sections.",
+  title: "Quiz | TCO",
+  description: "Pressure-test what you've read. Pick a mode and go.",
+};
+
+type ResumePick = {
+  conceptId: string;
+  conceptName: string;
+  conceptSlug: string;
+  attemptedAt: string;
 };
 
 export default async function QuizPage() {
+  const [tiers, resume] = await Promise.all([loadTiers(), loadResumePick()]);
+
+  return <QuizClient tiers={tiers} resume={resume} />;
+}
+
+async function loadTiers() {
   const tiers = await prisma.tier.findMany({
     select: {
       id: true,
@@ -35,7 +49,7 @@ export default async function QuizPage() {
     orderBy: { sortOrder: "asc" },
   });
 
-  const tierData = tiers.map((t: typeof tiers[number]) => ({
+  return tiers.map((t: typeof tiers[number]) => ({
     id: t.id,
     name: t.name,
     slug: t.slug,
@@ -52,6 +66,37 @@ export default async function QuizPage() {
         })),
     })),
   }));
+}
 
-  return <QuizClient tiers={tierData} />;
+async function loadResumePick(): Promise<ResumePick | null> {
+  const supabase = await createClient();
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
+
+  if (!authUser) return null;
+
+  const lastAttempt = await prisma.quizAttempt.findFirst({
+    where: { userId: authUser.id },
+    orderBy: { attemptedAt: "desc" },
+    select: {
+      attemptedAt: true,
+      question: {
+        select: {
+          concept: {
+            select: { id: true, name: true, slug: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (!lastAttempt?.question.concept) return null;
+
+  return {
+    conceptId: lastAttempt.question.concept.id,
+    conceptName: lastAttempt.question.concept.name,
+    conceptSlug: lastAttempt.question.concept.slug,
+    attemptedAt: lastAttempt.attemptedAt.toISOString(),
+  };
 }

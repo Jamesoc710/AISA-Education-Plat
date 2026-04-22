@@ -36,6 +36,13 @@ type TierOption = {
 type QuizMode = "concept" | "section" | "tier" | "mixed";
 type Phase = "select-mode" | "select-target" | "loading" | "quiz" | "summary";
 
+export type QuizResumePick = {
+  conceptId: string;
+  conceptName: string;
+  conceptSlug: string;
+  attemptedAt: string;
+};
+
 // ── Tile palette per tier (matches --tile-{color}-bg/fg vars) ─────────────────
 
 const TIER_TILE: Record<string, string> = {
@@ -80,7 +87,13 @@ function BackButton({ onClick }: { onClick: () => void }) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export function QuizClient({ tiers }: { tiers: TierOption[] }) {
+export function QuizClient({
+  tiers,
+  resume,
+}: {
+  tiers: TierOption[];
+  resume: QuizResumePick | null;
+}) {
   const [phase, setPhase] = useState<Phase>("select-mode");
   const [mode, setMode] = useState<QuizMode | null>(null);
   const [, setSelectedId] = useState<string>("");
@@ -236,7 +249,12 @@ export function QuizClient({ tiers }: { tiers: TierOption[] }) {
       className="quiz-content-padding"
     >
       {phase === "select-mode" && (
-        <ModeSelect onSelect={handleModeSelect} error={error} />
+        <ModeSelect
+          onSelect={handleModeSelect}
+          error={error}
+          resume={resume}
+          onResume={(conceptId) => startQuiz("concept", conceptId)}
+        />
       )}
 
       {phase === "select-target" && mode && (
@@ -320,9 +338,13 @@ const MODE_CARDS: {
 function ModeSelect({
   onSelect,
   error,
+  resume,
+  onResume,
 }: {
   onSelect: (m: QuizMode) => void;
   error: string | null;
+  resume: QuizResumePick | null;
+  onResume: (conceptId: string) => void;
 }) {
   return (
     <div className="animate-fade-in">
@@ -340,16 +362,17 @@ function ModeSelect({
       </h1>
       <p
         style={{
-          margin: "0 0 36px",
+          margin: "0 0 28px",
           fontSize: "var(--text-md)",
           color: "var(--color-text-2)",
           lineHeight: 1.55,
           maxWidth: 580,
         }}
       >
-        Test your understanding of AI concepts. Pick how you&apos;d like to be
-        quizzed.
+        Pressure-test what you&rsquo;ve read. Pick a mode and go.
       </p>
+
+      {resume && <ResumeStrip resume={resume} onResume={onResume} />}
 
       {error && (
         <p
@@ -381,6 +404,120 @@ function ModeSelect({
       </div>
     </div>
   );
+}
+
+function ResumeStrip({
+  resume,
+  onResume,
+}: {
+  resume: QuizResumePick;
+  onResume: (conceptId: string) => void;
+}) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => onResume(resume.conceptId)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-3)",
+        width: "100%",
+        padding: "14px 16px",
+        marginBottom: "var(--space-5)",
+        backgroundColor: hov
+          ? "var(--color-accent-soft)"
+          : "var(--color-surface)",
+        border: `1px solid ${hov ? "var(--color-accent)" : "var(--color-border)"}`,
+        borderRadius: "var(--radius-2)",
+        cursor: "pointer",
+        textAlign: "left",
+        fontFamily: "inherit",
+        boxShadow: "var(--shadow-card)",
+        transition: "border-color 140ms ease, background-color 140ms ease",
+      }}
+    >
+      <div
+        aria-hidden
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 32,
+          height: 32,
+          borderRadius: "var(--radius-2)",
+          backgroundColor: "var(--color-accent-soft)",
+          color: "var(--color-accent-on-soft)",
+          flexShrink: 0,
+        }}
+      >
+        <Icon name="arrows-clockwise" size={16} strokeWidth={1.85} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontSize: "var(--text-xs)",
+            fontWeight: 600,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            color: "var(--color-text-3)",
+          }}
+        >
+          Pick up where you left off
+        </div>
+        <div
+          style={{
+            fontSize: "var(--text-sm)",
+            fontWeight: 550,
+            color: "var(--color-text)",
+            marginTop: 2,
+            letterSpacing: "-0.005em",
+          }}
+        >
+          {resume.conceptName}
+          <span
+            style={{
+              marginLeft: 8,
+              fontWeight: 400,
+              color: "var(--color-text-3)",
+            }}
+          >
+            · {relativeAttemptedAt(resume.attemptedAt)}
+          </span>
+        </div>
+      </div>
+      <span
+        style={{
+          fontSize: "var(--text-sm)",
+          fontWeight: 600,
+          color: "var(--color-accent-on-soft)",
+          flexShrink: 0,
+        }}
+      >
+        Resume →
+      </span>
+    </button>
+  );
+}
+
+function relativeAttemptedAt(iso: string): string {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const diffMs = Date.now() - then;
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  if (hours < 1) return "just now";
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "yesterday";
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return `${weeks}w ago`;
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function ModeCard({
