@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";

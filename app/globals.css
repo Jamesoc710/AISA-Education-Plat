@@ -322,18 +322,20 @@ input:focus:not(:focus-visible) {
 
 /* ── Browse page — responsive ──────────────────────────────────── */
 
-/* Section-level layout: vertical stack. */
+/* Section-level layout: vertical stack. Editorial spacing — rows lean on
+   the left color rail rather than card borders for grouping, so sections
+   need more vertical air between them than a packed list would. */
 .browse-sections {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 28px;
 }
 
-/* Concept list inside an expanded section — stacked vertically. */
+/* Concept list inside an expanded section — tight stack with hair-rule
+   dividers drawn by each ConceptRow's borderTop. */
 .browse-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
 @media (max-width: 640px) {

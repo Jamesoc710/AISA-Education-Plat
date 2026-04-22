@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Quiz | TCO",
-  description: "Pressure-test what you've read. Pick a mode and go.",
+  description: "Pick a mode to see where you're at.",
 };
 
 type ResumePick = {

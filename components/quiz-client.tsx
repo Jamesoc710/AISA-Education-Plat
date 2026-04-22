@@ -369,7 +369,7 @@ function ModeSelect({
           maxWidth: 580,
         }}
       >
-        Pressure-test what you&rsquo;ve read. Pick a mode and go.
+        Pick a mode to see where you&rsquo;re at.
       </p>
 
       {resume && <ResumeStrip resume={resume} onResume={onResume} />}

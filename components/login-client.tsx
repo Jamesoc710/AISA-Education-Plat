@@ -243,16 +243,6 @@ export function LoginClient() {
                 autoComplete="email"
                 style={inputStyle("email")}
               />
-              <p
-                style={{
-                  margin: "6px 2px 0",
-                  fontSize: "var(--text-xs)",
-                  color: "var(--color-text-3)",
-                  lineHeight: 1.45,
-                }}
-              >
-                Use an organization email, if you have one.
-              </p>
             </div>
 
             <div>

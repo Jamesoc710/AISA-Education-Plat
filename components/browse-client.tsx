@@ -3,11 +3,10 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ConceptCard } from "@/components/concept-card";
 import { IconTile } from "@/components/ui/icon-tile";
 import { Icon } from "@/components/ui/icon";
-import { getSectionVisual } from "@/lib/section-icons";
-import type { SectionGroup } from "@/lib/types";
+import { getSectionVisual, getConceptVisual } from "@/lib/section-icons";
+import type { SectionGroup, ConceptData } from "@/lib/types";
 
 const BOOKMARKS_KEY = "aisa-atlas-bookmarks";
 const EXPANDED_KEY = "aisa-atlas-browse-expanded";
@@ -275,6 +274,10 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
 }
 
 // ── Section Row ──────────────────────────────────────────────────────────────
+//
+// Tile-as-left-rail layout: a 4px vertical color bar (matching the section's
+// tile-fg color) runs down the row's full height. No outer border or card
+// fill — the rail + typography carry the grouping.
 
 function SectionRow({
   section,
@@ -292,135 +295,296 @@ function SectionRow({
   const [hovered, setHovered] = useState(false);
   const visual = getSectionVisual(section.slug);
   const preview = section.concepts.map((c) => c.name).join(" · ");
+  const railColor = `var(--tile-${visual.color}-fg)`;
 
   return (
-    <div>
-      {/* Clickable section card */}
-      <button
-        type="button"
-        onClick={onToggleExpanded}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        aria-expanded={expanded}
+    <div
+      style={{
+        display: "flex",
+        alignItems: "stretch",
+        gap: "var(--space-4)",
+      }}
+    >
+      {/* Left color rail — continuous from header through expanded concepts */}
+      <div
+        aria-hidden
         style={{
-          display: "flex",
-          alignItems: "flex-start",
-          gap: "var(--space-4)",
-          width: "100%",
-          backgroundColor: hovered ? "var(--color-surface-2)" : "var(--color-surface)",
-          border: "1px solid var(--color-border)",
-          borderRadius: "var(--radius-1)",
-          padding: "16px 18px",
-          cursor: "pointer",
-          fontFamily: "inherit",
-          textAlign: "left",
-          color: "inherit",
-          transition: "background-color 140ms ease",
+          width: 3,
+          flexShrink: 0,
+          backgroundColor: railColor,
+          borderRadius: 2,
         }}
-      >
-        <IconTile icon={visual.icon} color={visual.color} size="md" />
+      />
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", flexWrap: "wrap" }}>
-            <h2
-              style={{
-                margin: 0,
-                fontSize: "var(--text-md)",
-                fontWeight: 600,
-                color: "var(--color-text)",
-                letterSpacing: "-0.015em",
-                lineHeight: 1.25,
-              }}
-            >
-              {section.name}
-            </h2>
-            <span
-              style={{
-                fontSize: "var(--text-sm)",
-                color: "var(--color-text-3)",
-                fontWeight: 500,
-              }}
-            >
-              {section.concepts.length} concept{section.concepts.length === 1 ? "" : "s"}
-            </span>
-          </div>
-          {section.description && (
-            <p
-              style={{
-                margin: "6px 0 0 0",
-                fontSize: "var(--text-sm)",
-                color: "var(--color-text-2)",
-                lineHeight: 1.55,
-              }}
-            >
-              {section.description}
-            </p>
-          )}
-          {preview && (
-            <p
-              style={{
-                margin: "8px 0 0 0",
-                fontSize: "var(--text-sm)",
-                color: "var(--color-text-3)",
-                lineHeight: 1.4,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-              title={preview}
-            >
-              {preview}
-            </p>
-          )}
-        </div>
-
-        <span
-          aria-hidden
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Clickable section header */}
+        <button
+          type="button"
+          onClick={onToggleExpanded}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          aria-expanded={expanded}
           style={{
             display: "flex",
-            color: "var(--color-text-3)",
-            transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
-            transition: "transform 220ms cubic-bezier(0.2, 0, 0, 1)",
-            marginTop: "var(--space-4)",
-            flexShrink: 0,
+            alignItems: "flex-start",
+            gap: "var(--space-4)",
+            width: "100%",
+            backgroundColor: "transparent",
+            border: "none",
+            padding: "8px 4px 8px 0",
+            cursor: "pointer",
+            fontFamily: "inherit",
+            textAlign: "left",
+            color: "inherit",
           }}
         >
-          <Icon name="chevron-right" size={16} strokeWidth={2} />
-        </span>
-      </button>
+          <IconTile icon={visual.icon} color={visual.color} size="md" />
 
-      {/* Expandable concept grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateRows: expanded ? "1fr" : "0fr",
-          transition: "grid-template-rows 260ms cubic-bezier(0.2, 0, 0, 1)",
-        }}
-      >
-        <div style={{ overflow: "hidden", minHeight: 0 }}>
-          <div
-            className="browse-grid"
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                gap: "var(--space-3)",
+                flexWrap: "wrap",
+              }}
+            >
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: "var(--text-lg)",
+                  fontWeight: 600,
+                  color: hovered ? railColor : "var(--color-text)",
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1.2,
+                  transition: "color 140ms ease",
+                }}
+              >
+                {section.name}
+              </h2>
+              <span
+                style={{
+                  fontSize: "var(--text-sm)",
+                  color: "var(--color-text-3)",
+                  fontWeight: 500,
+                }}
+              >
+                {section.concepts.length} concept{section.concepts.length === 1 ? "" : "s"}
+              </span>
+            </div>
+            {section.description && (
+              <p
+                style={{
+                  margin: "6px 0 0 0",
+                  fontSize: "var(--text-sm)",
+                  color: "var(--color-text-2)",
+                  lineHeight: 1.55,
+                }}
+              >
+                {section.description}
+              </p>
+            )}
+            {preview && !expanded && (
+              <p
+                style={{
+                  margin: "8px 0 0 0",
+                  fontSize: "var(--text-sm)",
+                  color: "var(--color-text-3)",
+                  lineHeight: 1.4,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+                title={preview}
+              >
+                {preview}
+              </p>
+            )}
+          </div>
+
+          <span
+            aria-hidden
             style={{
-              paddingTop: "var(--space-4)",
-              opacity: expanded ? 1 : 0,
-              transform: expanded ? "translateY(0)" : "translateY(-4px)",
-              transition: "opacity 220ms ease-out, transform 220ms ease-out",
-              transitionDelay: expanded ? "60ms" : "0ms",
+              display: "flex",
+              color: hovered ? railColor : "var(--color-text-3)",
+              transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
+              transition: "transform 220ms cubic-bezier(0.2, 0, 0, 1), color 140ms ease",
+              marginTop: "var(--space-4)",
+              flexShrink: 0,
             }}
-            inert={!expanded}
           >
-            {section.concepts.map((concept) => (
-              <ConceptCard
-                key={concept.id}
-                concept={concept}
-                bookmarked={bookmarks.has(concept.id)}
-                onToggleBookmark={onToggleBookmark}
-              />
-            ))}
+            <Icon name="chevron-right" size={16} strokeWidth={2} />
+          </span>
+        </button>
+
+        {/* Expandable concept list */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateRows: expanded ? "1fr" : "0fr",
+            transition: "grid-template-rows 260ms cubic-bezier(0.2, 0, 0, 1)",
+          }}
+        >
+          <div style={{ overflow: "hidden", minHeight: 0 }}>
+            <div
+              className="browse-grid"
+              style={{
+                paddingTop: "var(--space-2)",
+                opacity: expanded ? 1 : 0,
+                transform: expanded ? "translateY(0)" : "translateY(-4px)",
+                transition: "opacity 220ms ease-out, transform 220ms ease-out",
+                transitionDelay: expanded ? "60ms" : "0ms",
+              }}
+              inert={!expanded}
+            >
+              {section.concepts.map((concept) => (
+                <ConceptRow
+                  key={concept.id}
+                  concept={concept}
+                  bookmarked={bookmarks.has(concept.id)}
+                  onToggleBookmark={onToggleBookmark}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+// ── Concept Row (inline editorial, used only inside browse) ─────────────────
+
+function ConceptRow({
+  concept,
+  bookmarked,
+  onToggleBookmark,
+}: {
+  concept: ConceptData;
+  bookmarked: boolean;
+  onToggleBookmark: (id: string) => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const visual = getConceptVisual(concept.slug, concept.section.slug);
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: "relative",
+        borderTop: "1px solid var(--color-border)",
+      }}
+    >
+      <Link
+        href={`/concepts/${concept.slug}`}
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "var(--space-3)",
+          padding: "12px 40px 12px 4px",
+          textDecoration: "none",
+          color: "inherit",
+        }}
+      >
+        <IconTile icon={visual.icon} color={visual.color} size="sm" />
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h3
+            style={{
+              margin: 0,
+              fontSize: "var(--text-base)",
+              fontWeight: 550,
+              color: hovered ? "var(--color-accent)" : "var(--color-text)",
+              lineHeight: 1.3,
+              letterSpacing: "-0.01em",
+              transition: "color 140ms ease",
+            }}
+          >
+            {concept.name}
+          </h3>
+          <p
+            style={{
+              margin: "4px 0 0 0",
+              fontSize: "var(--text-sm)",
+              color: "var(--color-text-2)",
+              lineHeight: 1.5,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical" as const,
+              overflow: "hidden",
+            }}
+          >
+            {concept.subtitle}
+          </p>
+        </div>
+      </Link>
+
+      <div
+        style={{
+          position: "absolute",
+          top: 10,
+          right: 4,
+        }}
+      >
+        <InlineBookmarkButton
+          bookmarked={bookmarked}
+          visible={hovered || bookmarked}
+          onClick={() => onToggleBookmark(concept.id)}
+        />
+      </div>
+    </div>
+  );
+}
+
+function InlineBookmarkButton({
+  bookmarked,
+  visible,
+  onClick,
+}: {
+  bookmarked: boolean;
+  visible: boolean;
+  onClick: () => void;
+}) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        onClick();
+      }}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      title={bookmarked ? "Remove bookmark" : "Bookmark this concept"}
+      aria-label={bookmarked ? "Remove bookmark" : "Bookmark this concept"}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 26,
+        height: 26,
+        border: "none",
+        background: hov ? "var(--color-surface-2)" : "transparent",
+        cursor: "pointer",
+        padding: 0,
+        borderRadius: "var(--radius-1)",
+        opacity: visible ? 1 : 0,
+        transition: "opacity 120ms ease, background-color 120ms ease",
+        color: bookmarked
+          ? "var(--color-gold)"
+          : hov
+          ? "var(--color-text)"
+          : "var(--color-text-3)",
+      }}
+    >
+      <Icon
+        name={bookmarked ? "bookmark-filled" : "bookmark"}
+        size={14}
+        strokeWidth={1.85}
+      />
+    </button>
   );
 }
 
