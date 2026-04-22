@@ -30,10 +30,10 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect /dashboard and /admin — redirect to /login if not authenticated
-  const isProtected =
-    request.nextUrl.pathname.startsWith("/dashboard") ||
-    request.nextUrl.pathname.startsWith("/admin");
+  // Protect /admin — redirect to /login if not authenticated.
+  // Logged-out views for /dashboard, /home, /flashcards render an in-shell
+  // AuthGate panel from the page itself, so they don't need a hard redirect.
+  const isProtected = request.nextUrl.pathname.startsWith("/admin");
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone();

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { HomeClient } from "@/components/home-client";
+import { AuthGate } from "@/components/ui/auth-gate";
 import { getWeekWindow, greetingForHour } from "@/lib/week-utils";
 import {
   getWeekEvents,
@@ -22,7 +23,17 @@ export default async function HomePage() {
   const {
     data: { user: authUser },
   } = await supabase.auth.getUser();
-  if (!authUser) redirect("/login");
+  if (!authUser) {
+    return (
+      <AuthGate
+        icon="home"
+        tileColor="indigo"
+        title="Sign in to see your home"
+        body="Your week at a glance, what's due, and where to pick up — personalized to your account."
+        nextPath="/home"
+      />
+    );
+  }
 
   const dbUser = await prisma.user.findUnique({
     where: { id: authUser.id },

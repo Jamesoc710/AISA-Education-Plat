@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { DashboardClient } from "@/components/dashboard-client";
-import { redirect } from "next/navigation";
+import { AuthGate } from "@/components/ui/auth-gate";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +17,17 @@ export default async function DashboardPage() {
     data: { user: authUser },
   } = await supabase.auth.getUser();
 
-  if (!authUser) redirect("/login?redirect=/dashboard");
+  if (!authUser) {
+    return (
+      <AuthGate
+        icon="bar-chart"
+        tileColor="blue"
+        title="Sign in to see your progress"
+        body="Your dashboard tracks concept coverage, quiz accuracy, and 30-day activity — all tied to your account."
+        nextPath="/dashboard"
+      />
+    );
+  }
 
   // Fetch user profile
   const user = await prisma.user.findUnique({
