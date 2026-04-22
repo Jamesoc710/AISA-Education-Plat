@@ -854,9 +854,10 @@ function KnowledgeMapSection({
 
                     <div
                       style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: 5,
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(36px, 1fr))",
+                        gap: 8,
                       }}
                     >
                       {section.concepts.map((concept) => {
@@ -872,18 +873,22 @@ function KnowledgeMapSection({
                                 : `${concept.name} · not attempted`
                             }
                             style={{
-                              width: 14,
-                              height: 14,
+                              height: 32,
                               backgroundColor: dot.bg,
                               border: `1px solid ${dot.border}`,
                               display: "block",
-                              transition: "transform 120ms ease",
+                              transition:
+                                "border-color 120ms ease, transform 120ms ease",
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.transform = "scale(1.35)";
+                              e.currentTarget.style.borderColor =
+                                "var(--color-accent)";
+                              e.currentTarget.style.transform =
+                                "translateY(-1px)";
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.transform = "scale(1)";
+                              e.currentTarget.style.borderColor = dot.border;
+                              e.currentTarget.style.transform = "translateY(0)";
                             }}
                           />
                         );
