@@ -16,11 +16,23 @@ import type { ShellUser } from "@/components/main-shell";
  * Search state syncs with the URL `?q=` param; the page below reads the same
  * param and filters accordingly. This means the page doesn't need to own the
  * search input at all.
+ *
+ * The search input only renders on pages that actually consume `?q=` — right
+ * now that's just /browse. Everywhere else it's hidden to avoid dead UI.
  */
+const SEARCHABLE_ROUTES = ["/browse"];
+
+function isSearchable(pathname: string): boolean {
+  return SEARCHABLE_ROUTES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
+
 export function TopChrome({ user }: { user: ShellUser | null }) {
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const showSearch = isSearchable(pathname);
 
   // Local state mirrors URL — initialized synchronously to avoid flash
   const [query, setQuery] = useState(() => searchParams?.get("q") ?? "");
@@ -64,7 +76,7 @@ export function TopChrome({ user }: { user: ShellUser | null }) {
         backdropFilter: "saturate(180%) blur(8px)",
       }}
     >
-      <SearchInput value={query} onChange={setQuery} width={360} />
+      {showSearch && <SearchInput value={query} onChange={setQuery} width={360} />}
 
       <div style={{ flex: 1 }} />
 
