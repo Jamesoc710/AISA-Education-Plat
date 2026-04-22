@@ -417,6 +417,7 @@ function EventCard({
         cursor: hasExpandable ? "pointer" : "default",
         fontFamily: "inherit",
         boxShadow: expanded ? "var(--shadow-card-hover)" : "none",
+        transition: "box-shadow 180ms ease",
       }}
     >
       <div
@@ -476,47 +477,59 @@ function EventCard({
           {topicCount} {topicCount === 1 ? "topic" : "topics"}
         </div>
       )}
-      {expanded && (topicCount > 0 || event.description) && (
+      {(topicCount > 0 || event.description) && (
         <div
           style={{
-            marginTop: "var(--space-2)",
-            paddingTop: "var(--space-2)",
-            borderTop: "1px solid var(--color-border-subtle)",
+            display: "grid",
+            gridTemplateRows: expanded ? "1fr" : "0fr",
+            transition: "grid-template-rows 220ms ease",
           }}
         >
-          {topicCount > 0 && (
-            <ul
-              style={{
-                margin: 0,
-                padding: "0 0 0 16px",
-                fontSize: "var(--text-xs)",
-                color: "var(--color-text-2)",
-                lineHeight: 1.5,
-                display: "flex",
-                flexDirection: "column",
-                gap: "var(--space-1)",
-              }}
-            >
-              {event.topics!.map((t, i) => (
-                <li key={i} style={{ wordBreak: "break-word" }}>
-                  {t}
-                </li>
-              ))}
-            </ul>
-          )}
-          {event.description && (
+          <div style={{ overflow: "hidden", minHeight: 0 }}>
             <div
               style={{
-                marginTop: topicCount > 0 ? 8 : 0,
-                fontSize: "var(--text-xs)",
-                color: "var(--color-text-2)",
-                lineHeight: 1.5,
-                whiteSpace: "pre-wrap",
+                marginTop: "var(--space-2)",
+                paddingTop: "var(--space-2)",
+                borderTop: "1px solid var(--color-border-subtle)",
+                opacity: expanded ? 1 : 0,
+                transition: "opacity 180ms ease",
               }}
             >
-              {event.description}
+              {topicCount > 0 && (
+                <ul
+                  style={{
+                    margin: 0,
+                    padding: "0 0 0 16px",
+                    fontSize: "var(--text-xs)",
+                    color: "var(--color-text-2)",
+                    lineHeight: 1.5,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "var(--space-1)",
+                  }}
+                >
+                  {event.topics!.map((t, i) => (
+                    <li key={i} style={{ wordBreak: "break-word" }}>
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {event.description && (
+                <div
+                  style={{
+                    marginTop: topicCount > 0 ? 8 : 0,
+                    fontSize: "var(--text-xs)",
+                    color: "var(--color-text-2)",
+                    lineHeight: 1.5,
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {event.description}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       )}
       {event.type !== "GENERAL" && (
@@ -626,17 +639,29 @@ function HomeworkPanel({
                   >
                     {e.title}
                   </div>
-                  {isOpen && e.description && (
+                  {e.description && (
                     <div
                       style={{
-                        marginTop: "var(--space-2)",
-                        fontSize: "var(--text-sm)",
-                        color: "var(--color-text-2)",
-                        lineHeight: 1.5,
-                        whiteSpace: "pre-wrap",
+                        display: "grid",
+                        gridTemplateRows: isOpen ? "1fr" : "0fr",
+                        transition: "grid-template-rows 220ms ease",
                       }}
                     >
-                      {e.description}
+                      <div style={{ overflow: "hidden", minHeight: 0 }}>
+                        <div
+                          style={{
+                            marginTop: "var(--space-2)",
+                            fontSize: "var(--text-sm)",
+                            color: "var(--color-text-2)",
+                            lineHeight: 1.5,
+                            whiteSpace: "pre-wrap",
+                            opacity: isOpen ? 1 : 0,
+                            transition: "opacity 180ms ease",
+                          }}
+                        >
+                          {e.description}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
