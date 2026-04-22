@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
 
 type Mode = "login" | "signup";
 
@@ -11,13 +10,16 @@ export function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/dashboard";
+  const incomingError = searchParams.get("error");
 
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    incomingError ? decodeURIComponent(incomingError) : null,
+  );
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const supabase = createClient();
@@ -76,11 +78,11 @@ export function LoginClient() {
     }
   };
 
-  function inputStyle(field: string): React.CSSProperties {
+  const inputStyle = (field: string): React.CSSProperties => {
     const focused = focusedField === field;
     return {
       width: "100%",
-      padding: "10px 14px",
+      padding: "11px 14px",
       fontSize: "var(--text-sm)",
       fontFamily: "inherit",
       color: "var(--color-text)",
@@ -90,9 +92,9 @@ export function LoginClient() {
       outline: "none",
       boxSizing: "border-box",
       boxShadow: focused ? "0 0 0 3px var(--color-accent-dim)" : "none",
-      transition: "border-color 150ms ease, box-shadow 150ms ease",
+      transition: "border-color 120ms ease, box-shadow 120ms ease",
     };
-  }
+  };
 
   return (
     <div
@@ -100,151 +102,168 @@ export function LoginClient() {
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        padding: "80px 24px 40px",
+        padding: "72px 24px 48px",
+        minHeight: "100vh",
       }}
     >
-      <div style={{ width: "100%", maxWidth: 400 }}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            marginBottom: "var(--space-6)",
-            gap: "var(--space-4)",
-          }}
-        >
-          <div style={{ textAlign: "center" }}>
-            <h1
-              style={{
-                margin: "0 0 6px",
-                fontSize: "var(--text-xl)",
-                fontWeight: 600,
-                color: "var(--color-text)",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              {mode === "login" ? "Welcome back" : "Create your account"}
-            </h1>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "var(--text-base)",
-                color: "var(--color-text-2)",
-                lineHeight: 1.55,
-              }}
-            >
-              {mode === "login"
-                ? "Sign in to track your progress and continue learning."
-                : "Create an account to save progress across concepts, quizzes, and homework."}
-            </p>
-          </div>
+      <div style={{ width: "100%", maxWidth: 380 }}>
+        {/* Heading */}
+        <div style={{ marginBottom: 32 }}>
+          <h1
+            style={{
+              margin: "0 0 4px",
+              fontSize: 28,
+              fontWeight: 700,
+              color: "var(--color-text)",
+              letterSpacing: "-0.025em",
+              lineHeight: 1.2,
+            }}
+          >
+            {mode === "login" ? "Welcome back." : "Let's get started."}
+          </h1>
+          <p
+            style={{
+              margin: 0,
+              fontSize: 16,
+              fontWeight: 400,
+              color: "var(--color-text-3)",
+              letterSpacing: "-0.01em",
+              lineHeight: 1.35,
+            }}
+          >
+            {mode === "login"
+              ? "Log in to your TCO account"
+              : "Create your TCO account"}
+          </p>
         </div>
 
-        <div
-          style={{
-            backgroundColor: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "var(--radius-3)",
-            padding: "var(--space-5)",
-            boxShadow: "var(--shadow-card)",
-          }}
-        >
-          <form onSubmit={handleSubmit}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "var(--space-4)",
-              }}
-            >
-              {mode === "signup" && (
-                <div>
-                  <label htmlFor="auth-name" style={labelStyle}>Name</label>
-                  <input
-                    id="auth-name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    onFocus={() => setFocusedField("name")}
-                    onBlur={() => setFocusedField(null)}
-                    required
-                    placeholder="Your name"
-                    style={inputStyle("name")}
-                  />
-                </div>
-              )}
-
+        {/* Email / password form */}
+        <form onSubmit={handleSubmit} noValidate>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {mode === "signup" && (
               <div>
-                <label htmlFor="auth-email" style={labelStyle}>Email</label>
+                <label htmlFor="auth-name" style={labelStyle}>
+                  Name
+                </label>
                 <input
-                  id="auth-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onFocus={() => setFocusedField("email")}
+                  id="auth-name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onFocus={() => setFocusedField("name")}
                   onBlur={() => setFocusedField(null)}
                   required
-                  placeholder="you@example.com"
-                  style={inputStyle("email")}
+                  placeholder="Your name"
+                  autoComplete="name"
+                  style={inputStyle("name")}
                 />
-              </div>
-
-              <div>
-                <label htmlFor="auth-password" style={labelStyle}>Password</label>
-                <input
-                  id="auth-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => setFocusedField("password")}
-                  onBlur={() => setFocusedField(null)}
-                  required
-                  minLength={6}
-                  placeholder="At least 6 characters"
-                  style={inputStyle("password")}
-                />
-              </div>
-            </div>
-
-            {error && (
-              <div
-                style={{
-                  marginTop: "var(--space-4)",
-                  padding: "10px 14px",
-                  backgroundColor: "var(--color-incorrect-dim)",
-                  border: "1px solid var(--color-incorrect)",
-                  borderRadius: "var(--radius-2)",
-                  fontSize: "var(--text-sm)",
-                  color: "var(--color-incorrect)",
-                }}
-              >
-                {error}
               </div>
             )}
 
-            <div style={{ marginTop: 22 }}>
-              <Button
-                variant="primary"
-                type="submit"
-                disabled={loading}
-                fullWidth
+            <div>
+              <label htmlFor="auth-email" style={labelStyle}>
+                Email
+              </label>
+              <input
+                id="auth-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onFocus={() => setFocusedField("email")}
+                onBlur={() => setFocusedField(null)}
+                required
+                placeholder="you@example.com"
+                autoComplete="email"
+                style={inputStyle("email")}
+              />
+              <p
+                style={{
+                  margin: "6px 2px 0",
+                  fontSize: "var(--text-xs)",
+                  color: "var(--color-text-3)",
+                  lineHeight: 1.45,
+                }}
               >
-                {loading
-                  ? "Loading..."
-                  : mode === "login"
-                    ? "Sign in"
-                    : "Create account"}
-              </Button>
+                Use an organization email, if you have one.
+              </p>
             </div>
-          </form>
-        </div>
 
+            <div>
+              <label htmlFor="auth-password" style={labelStyle}>
+                Password
+              </label>
+              <input
+                id="auth-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setFocusedField("password")}
+                onBlur={() => setFocusedField(null)}
+                required
+                minLength={6}
+                placeholder="At least 6 characters"
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
+                style={inputStyle("password")}
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div
+              style={{
+                marginTop: 14,
+                padding: "10px 12px",
+                backgroundColor: "var(--color-incorrect-dim)",
+                border: "1px solid var(--color-incorrect)",
+                borderRadius: "var(--radius-2)",
+                fontSize: "var(--text-sm)",
+                color: "var(--color-incorrect)",
+                lineHeight: 1.4,
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              marginTop: 18,
+              width: "100%",
+              height: 44,
+              padding: "0 18px",
+              fontSize: "var(--text-sm)",
+              fontWeight: 600,
+              fontFamily: "inherit",
+              color: "#fff",
+              backgroundColor: "var(--color-accent)",
+              border: "none",
+              borderRadius: "var(--radius-2)",
+              cursor: loading ? "not-allowed" : "pointer",
+              opacity: loading ? 0.7 : 1,
+              letterSpacing: "-0.005em",
+              transition: "background-color 120ms ease, opacity 120ms ease",
+            }}
+            onMouseEnter={(e) => {
+              if (!loading)
+                e.currentTarget.style.backgroundColor = "var(--color-accent-hover)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "var(--color-accent)";
+            }}
+          >
+            {loading ? "Continuing…" : "Continue"}
+          </button>
+        </form>
+
+        {/* Mode toggle */}
         <p
           style={{
-            marginTop: "var(--space-5)",
+            marginTop: 22,
             fontSize: "var(--text-sm)",
-            color: "var(--color-text-2)",
-            textAlign: "center",
+            color: "var(--color-text-3)",
+            textAlign: "left",
           }}
         >
           {mode === "login" ? (
@@ -272,7 +291,7 @@ export function LoginClient() {
                 }}
                 style={toggleButtonStyle}
               >
-                Sign in
+                Log in
               </button>
             </>
           )}
@@ -287,7 +306,8 @@ const labelStyle: React.CSSProperties = {
   fontSize: "var(--text-xs)",
   fontWeight: 600,
   color: "var(--color-text-2)",
-  marginBottom: "var(--space-2)",
+  marginBottom: 6,
+  letterSpacing: "-0.005em",
 };
 
 const toggleButtonStyle: React.CSSProperties = {
