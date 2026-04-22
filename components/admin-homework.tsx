@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
@@ -99,6 +100,25 @@ export function AdminHomework({
   const [gradeValue, setGradeValue] = useState("");
   const [feedbackValue, setFeedbackValue] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const [deleteTarget, setDeleteTarget] = useState<AssignmentData | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(
+        `/api/admin/homework?assignmentId=${deleteTarget.id}`,
+        { method: "DELETE" },
+      );
+      if (!res.ok) return;
+      setAssignments((prev) => prev.filter((a) => a.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   async function viewSubmissions(assignment: AssignmentData) {
     setSelectedAssignment(assignment);
@@ -640,6 +660,7 @@ export function AdminHomework({
   }
 
   return (
+    <>
     <div>
       <div
         style={{
@@ -744,20 +765,207 @@ export function AdminHomework({
                   </div>
                 </div>
 
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => viewSubmissions(a)}
-                  rightIcon={<Icon name="chevron-right" size={12} strokeWidth={2} />}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-2)",
+                    flexShrink: 0,
+                  }}
                 >
-                  Submissions
-                </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => viewSubmissions(a)}
+                    rightIcon={
+                      <Icon name="chevron-right" size={12} strokeWidth={2} />
+                    }
+                  >
+                    Submissions
+                  </Button>
+                  <DeleteIconButton
+                    onClick={() => setDeleteTarget(a)}
+                    label={`Delete ${a.title}`}
+                  />
+                </div>
               </div>
             );
           })}
         </div>
       )}
     </div>
+    {deleteTarget && (
+      <DeleteConfirmDialog
+        title={deleteTarget.title}
+        body={
+          deleteTarget.submissionCount > 0
+            ? `This will also delete ${deleteTarget.submissionCount} recruit submission${
+                deleteTarget.submissionCount !== 1 ? "s" : ""
+              }. This can't be undone.`
+            : "This can't be undone."
+        }
+        confirmLabel="Delete assignment"
+        submitting={deleting}
+        onCancel={() => (deleting ? null : setDeleteTarget(null))}
+        onConfirm={handleDelete}
+      />
+    )}
+    </>
+  );
+}
+
+function DeleteIconButton({
+  onClick,
+  label,
+}: {
+  onClick: () => void;
+  label: string;
+}) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      aria-label={label}
+      title={label}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 32,
+        height: 32,
+        padding: 0,
+        border: `1px solid ${
+          hover ? "var(--color-incorrect)" : "var(--color-border)"
+        }`,
+        backgroundColor: hover
+          ? "var(--color-incorrect-dim)"
+          : "var(--color-surface)",
+        color: hover ? "var(--color-incorrect)" : "var(--color-text-3)",
+        borderRadius: "var(--radius-2)",
+        cursor: "pointer",
+        transition:
+          "background-color 120ms ease, color 120ms ease, border-color 120ms ease",
+      }}
+    >
+      <Icon name="trash" size={14} />
+    </button>
+  );
+}
+
+function DeleteConfirmDialog({
+  title,
+  body,
+  confirmLabel,
+  submitting,
+  onCancel,
+  onConfirm,
+}: {
+  title: string;
+  body: string;
+  confirmLabel: string;
+  submitting: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      data-theme="light"
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(20, 20, 30, 0.45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 100,
+      }}
+      onClick={onCancel}
+    >
+      <div
+        className="animate-fade-in"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-3)",
+          padding: "var(--space-6)",
+          maxWidth: 440,
+          width: "92%",
+          boxShadow: "var(--shadow-popover)",
+        }}
+      >
+        <h2
+          style={{
+            margin: "0 0 10px",
+            fontSize: "var(--text-md)",
+            fontWeight: 600,
+            color: "var(--color-text)",
+            letterSpacing: "-0.015em",
+          }}
+        >
+          Delete &ldquo;{title}&rdquo;?
+        </h2>
+        <p
+          style={{
+            margin: "0 0 20px",
+            fontSize: "var(--text-sm)",
+            color: "var(--color-text-2)",
+            lineHeight: 1.6,
+          }}
+        >
+          {body}
+        </p>
+        <div
+          style={{
+            display: "flex",
+            gap: "var(--space-3)",
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={onCancel}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={submitting}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: 40,
+              padding: "0 16px",
+              fontSize: "var(--text-sm)",
+              fontWeight: 600,
+              fontFamily: "inherit",
+              color: "#fff",
+              backgroundColor: "var(--color-incorrect)",
+              border: "none",
+              borderRadius: "var(--radius-2)",
+              cursor: submitting ? "not-allowed" : "pointer",
+              opacity: submitting ? 0.7 : 1,
+              letterSpacing: "-0.005em",
+              transition: "opacity 120ms ease",
+            }}
+          >
+            {submitting ? "Deleting…" : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }
 

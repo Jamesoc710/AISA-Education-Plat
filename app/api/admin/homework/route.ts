@@ -108,3 +108,29 @@ export async function PATCH(request: NextRequest) {
 
   return NextResponse.json({ submission });
 }
+
+// ── DELETE: delete an assignment and all its submissions ───────────────────
+
+export async function DELETE(request: NextRequest) {
+  const admin = await getAdminUser();
+  if (!admin) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const assignmentId = request.nextUrl.searchParams.get("assignmentId");
+  if (!assignmentId) {
+    return NextResponse.json(
+      { error: "assignmentId is required" },
+      { status: 400 }
+    );
+  }
+
+  // HomeworkSubmission → Assignment FK has no cascade, so we wipe submissions
+  // first inside a transaction before deleting the assignment itself.
+  await prisma.$transaction([
+    prisma.homeworkSubmission.deleteMany({ where: { assignmentId } }),
+    prisma.assignment.delete({ where: { id: assignmentId } }),
+  ]);
+
+  return NextResponse.json({ ok: true });
+}

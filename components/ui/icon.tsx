@@ -94,6 +94,7 @@ import {
   Shuffle,
   Star,
   ArrowRight,
+  Trash,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon, IconWeight } from "@phosphor-icons/react";
 
@@ -123,7 +124,9 @@ export type IconName =
   // Tier indicators
   | "circle-dashed" | "circle-half" | "circles-three-plus"
   // Flashcards
-  | "cards-three" | "shuffle" | "star" | "star-filled" | "arrow-right";
+  | "cards-three" | "shuffle" | "star" | "star-filled" | "arrow-right"
+  // Admin actions
+  | "trash";
 
 const REGISTRY: Record<IconName, PhosphorIcon> = {
   // Section tiles
@@ -227,6 +230,8 @@ const REGISTRY: Record<IconName, PhosphorIcon> = {
   "star": Star,
   "star-filled": Star,
   "arrow-right": ArrowRight,
+  // Admin actions
+  "trash": Trash,
 };
 
 export function Icon({

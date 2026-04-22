@@ -203,3 +203,24 @@ export async function PATCH(request: NextRequest) {
     status: updated.status,
   });
 }
+
+// ── DELETE — delete a quiz and all its attempts/answers/questions ────────────
+
+export async function DELETE(request: NextRequest) {
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const quizId = request.nextUrl.searchParams.get("quizId");
+  if (!quizId)
+    return NextResponse.json({ error: "quizId required" }, { status: 400 });
+
+  // FormalQuizAttempt → FormalQuiz has no cascade, so we wipe attempts first
+  // (which cascades to FormalQuizAnswer via its own onDelete: Cascade).
+  // Then deleting the quiz cascades to FormalQuizQuestion.
+  await prisma.$transaction([
+    prisma.formalQuizAttempt.deleteMany({ where: { formalQuizId: quizId } }),
+    prisma.formalQuiz.delete({ where: { id: quizId } }),
+  ]);
+
+  return NextResponse.json({ ok: true });
+}
