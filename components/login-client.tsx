@@ -20,6 +20,7 @@ export function LoginClient() {
   const [error, setError] = useState<string | null>(
     incomingError ? decodeURIComponent(incomingError) : null,
   );
+  const [info, setInfo] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const supabase = createClient();
@@ -28,12 +29,18 @@ export function LoginClient() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setInfo(null);
 
     if (mode === "signup") {
-      const { error: signUpError } = await supabase.auth.signUp({
+      const emailRedirectTo =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirect)}`
+          : undefined;
+
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { name } },
+        options: { data: { name }, emailRedirectTo },
       });
 
       if (signUpError) {
@@ -42,6 +49,16 @@ export function LoginClient() {
         return;
       }
 
+      // If the project has "Confirm email" ON (Supabase default), signUp
+      // returns no session — the user must click the link in their inbox,
+      // which routes through /auth/callback and creates the Prisma row there.
+      if (!data.session) {
+        setInfo(`Check ${email} for a link to confirm your account.`);
+        setLoading(false);
+        return;
+      }
+
+      // Confirmation is off — we have a session, so create the Prisma row now.
       const res = await fetch("/api/auth/callback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -225,6 +242,23 @@ export function LoginClient() {
             </div>
           )}
 
+          {info && !error && (
+            <div
+              style={{
+                marginTop: 14,
+                padding: "10px 12px",
+                backgroundColor: "var(--color-accent-soft)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-2)",
+                fontSize: "var(--text-sm)",
+                color: "var(--color-accent-on-soft)",
+                lineHeight: 1.4,
+              }}
+            >
+              {info}
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading}
@@ -274,6 +308,7 @@ export function LoginClient() {
                 onClick={() => {
                   setMode("signup");
                   setError(null);
+                  setInfo(null);
                 }}
                 style={toggleButtonStyle}
               >
@@ -288,6 +323,7 @@ export function LoginClient() {
                 onClick={() => {
                   setMode("login");
                   setError(null);
+                  setInfo(null);
                 }}
                 style={toggleButtonStyle}
               >
