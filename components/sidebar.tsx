@@ -44,19 +44,21 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
       {/* ── Logo ─────────────────────────────────────────────── */}
       <Link
         href="/browse"
+        aria-label="TCO home"
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-3)",
-          padding: "4px 8px 12px",
+          display: "inline-flex",
+          alignSelf: "flex-start",
+          padding: "0 4px",
+          margin: "-8px 0 -4px",
           textDecoration: "none",
-          color: "var(--color-text)",
+          overflow: "hidden",
         }}
       >
-        <img src="/assets/aisa-logo.png" alt="" style={{ width: 26, height: 26, flexShrink: 0 }} />
-        <span style={{ fontSize: "var(--text-md)", fontWeight: 600, letterSpacing: "-0.015em" }}>
-          Atlas
-        </span>
+        <img
+          src="/assets/tco-logo.png"
+          alt="TCO"
+          style={{ height: 72, width: "auto", flexShrink: 0, margin: "-10px 0" }}
+        />
       </Link>
 
       {/* ── Scrollable nav body ──────────────────────────────── */}
