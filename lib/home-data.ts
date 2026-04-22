@@ -57,6 +57,24 @@ export type WeakConcept = {
   accuracyPct: number;
 };
 
+export type UpcomingWorkshopConcept = {
+  slug: string;
+  name: string;
+  sectionName: string;
+};
+
+export type UpcomingWorkshop = {
+  eventId: string;
+  title: string;
+  date: string;
+  dayOfWeek: number;
+  startTime: string | null;
+  endTime: string | null;
+  location: string | null;
+  type: string;
+  concepts: UpcomingWorkshopConcept[];
+};
+
 // ─── Queries ────────────────────────────────────────────────────────────────
 
 export async function getWeekEvents(window: WeekWindow): Promise<HomeWeekEvent[]> {
@@ -84,6 +102,83 @@ export async function getWeekEvents(window: WeekWindow): Promise<HomeWeekEvent[]
     type: r.type,
     dayOfWeek: r.dayOfWeek,
   }));
+}
+
+/**
+ * Upcoming sessions (next 14 days) that the sync LLM tagged with related
+ * concepts — workshops, lectures, debates. Returns 0–2 items so the home
+ * panel stays glanceable. Admin meetings, social events, and homework rows
+ * naturally drop out because the LLM leaves their relatedConceptSlugs null.
+ */
+export async function getUpcomingWorkshops(
+  now: Date,
+  limit = 2,
+): Promise<UpcomingWorkshop[]> {
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  const horizon = new Date(today);
+  horizon.setDate(today.getDate() + 14);
+
+  const rows = await prisma.scheduleEvent.findMany({
+    where: { date: { gte: today, lte: horizon } },
+    orderBy: [{ date: "asc" }, { startTime: "asc" }],
+    select: {
+      id: true,
+      title: true,
+      date: true,
+      dayOfWeek: true,
+      startTime: true,
+      endTime: true,
+      location: true,
+      type: true,
+      relatedConceptSlugs: true,
+    },
+  });
+
+  type Row = (typeof rows)[number];
+  const tagged = rows.filter(
+    (r: Row) =>
+      Array.isArray(r.relatedConceptSlugs) && (r.relatedConceptSlugs as unknown[]).length > 0,
+  );
+  if (tagged.length === 0) return [];
+
+  const allSlugs = new Set<string>();
+  for (const r of tagged) {
+    for (const s of r.relatedConceptSlugs as string[]) allSlugs.add(s);
+  }
+  const concepts = await prisma.concept.findMany({
+    where: { slug: { in: Array.from(allSlugs) } },
+    select: { slug: true, name: true, section: { select: { name: true } } },
+  });
+  type ConceptRow = (typeof concepts)[number];
+  const bySlug = new Map(
+    concepts.map((c: ConceptRow) => [
+      c.slug,
+      { slug: c.slug, name: c.name, sectionName: c.section.name },
+    ]),
+  );
+
+  const out: UpcomingWorkshop[] = [];
+  for (const r of tagged) {
+    const slugs = r.relatedConceptSlugs as string[];
+    const resolved = slugs
+      .map((s) => bySlug.get(s))
+      .filter((c): c is UpcomingWorkshopConcept => c !== undefined);
+    if (resolved.length === 0) continue;
+    out.push({
+      eventId: r.id,
+      title: r.title,
+      date: r.date.toISOString(),
+      dayOfWeek: r.dayOfWeek,
+      startTime: r.startTime,
+      endTime: r.endTime,
+      location: r.location,
+      type: r.type,
+      concepts: resolved,
+    });
+    if (out.length >= limit) break;
+  }
+  return out;
 }
 
 /**

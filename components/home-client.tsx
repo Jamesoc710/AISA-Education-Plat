@@ -13,6 +13,7 @@ import type {
   DueItem,
   BookmarkPreview,
   WeakConcept,
+  UpcomingWorkshop,
 } from "@/lib/home-data";
 
 interface HomeClientProps {
@@ -27,6 +28,7 @@ interface HomeClientProps {
   dueItems: DueItem[];
   bookmarks: BookmarkPreview[];
   weakConcept: WeakConcept | null;
+  upcomingWorkshops: UpcomingWorkshop[];
 }
 
 // Event-type dot color — mirrors the subset of TYPE_TOKENS used in
@@ -43,11 +45,23 @@ const TYPE_DOT: Record<string, string> = {
 };
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_LABELS_LONG = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+function simplifyTime(t: string): string {
+  const m = t.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i);
+  if (!m) return t;
+  let hour = parseInt(m[1], 10);
+  const minStr = m[2] && m[2] !== "00" ? `:${m[2]}` : "";
+  const suffix = m[3] ? m[3].toLowerCase() : "";
+  if (hour >= 13 && hour <= 23) hour -= 12;
+  else if (hour === 0) hour = 12;
+  return `${hour}${minStr}${suffix}`;
+}
 
 function formatTime(start: string | null, end: string | null): string | null {
   if (!start) return null;
-  if (!end) return start;
-  return `${start}–${end}`;
+  if (!end) return simplifyTime(start);
+  return `${simplifyTime(start)}–${simplifyTime(end)}`;
 }
 
 export function HomeClient(props: HomeClientProps) {
@@ -63,6 +77,7 @@ export function HomeClient(props: HomeClientProps) {
     dueItems,
     bookmarks,
     weakConcept,
+    upcomingWorkshops,
   } = props;
 
   const today = new Date(todayISO);
@@ -110,6 +125,11 @@ export function HomeClient(props: HomeClientProps) {
           <WeekList events={weekEvents} todayDayIdx={todayDayIdx} />
         </Panel>
       </div>
+
+      {/* ── Prep for upcoming workshop ─────────────────────────────── */}
+      {upcomingWorkshops.length > 0 && (
+        <WorkshopPrepSection workshops={upcomingWorkshops} todayDayIdx={todayDayIdx} today={today} />
+      )}
 
       {/* ── Tier 3: Stay on track (Due soon + Keep sharp) ────────────── */}
       <div
@@ -704,6 +724,175 @@ function BookmarksRow({ bookmarks }: { bookmarks: BookmarkPreview[] }) {
         );
       })}
     </div>
+  );
+}
+
+// ─── Workshop prep section ────────────────────────────────────────────────
+
+function WorkshopPrepSection({
+  workshops,
+  todayDayIdx,
+  today,
+}: {
+  workshops: UpcomingWorkshop[];
+  todayDayIdx: number;
+  today: Date;
+}) {
+  return (
+    <section style={{ marginBottom: "var(--space-4)" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          marginBottom: "var(--space-3)",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "var(--text-md)",
+            fontWeight: 600,
+            letterSpacing: "-0.01em",
+            color: "var(--color-text)",
+            margin: 0,
+          }}
+        >
+          {workshops.length > 1 ? "Prep for upcoming workshops" : "Prep for upcoming workshop"}
+        </h2>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: workshops.length > 1 ? "repeat(2, 1fr)" : "1fr",
+          gap: "var(--space-3)",
+        }}
+      >
+        {workshops.map((w) => (
+          <WorkshopPrepCard key={w.eventId} workshop={w} todayDayIdx={todayDayIdx} today={today} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function WorkshopPrepCard({
+  workshop,
+  todayDayIdx,
+  today,
+}: {
+  workshop: UpcomingWorkshop;
+  todayDayIdx: number;
+  today: Date;
+}) {
+  const eventDate = new Date(workshop.date);
+  const dayDelta = daysUntil(eventDate, today);
+  const time = formatTime(workshop.startTime, workshop.endTime);
+  const isToday = workshop.dayOfWeek === todayDayIdx && dayDelta === 0;
+
+  let whenLabel: string;
+  if (isToday) {
+    whenLabel = "Today";
+  } else if (dayDelta === 1) {
+    whenLabel = "Tomorrow";
+  } else if (dayDelta !== null && dayDelta > 1 && dayDelta <= 6) {
+    whenLabel = DAY_LABELS_LONG[workshop.dayOfWeek] ?? DAY_LABELS[workshop.dayOfWeek] ?? "";
+  } else {
+    whenLabel = DAY_LABELS[workshop.dayOfWeek] ?? "";
+  }
+
+  return (
+    <article
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        padding: "18px 20px 16px",
+        borderRadius: "var(--radius-3)",
+        border: "1px solid var(--color-border)",
+        backgroundColor: "var(--color-surface)",
+        boxShadow: "var(--shadow-card)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2)",
+          fontSize: "var(--text-xs)",
+          fontWeight: 650,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          color: isToday ? "var(--color-accent)" : "var(--color-text-3)",
+          marginBottom: "var(--space-2)",
+        }}
+      >
+        <Icon name="calendar" size={13} />
+        <span>
+          {whenLabel}
+          {time && <span style={{ marginLeft: 6, color: "var(--color-text-3)" }}>· {time}</span>}
+        </span>
+      </div>
+      <h3
+        style={{
+          margin: 0,
+          fontSize: "var(--text-base)",
+          fontWeight: 600,
+          color: "var(--color-text)",
+          letterSpacing: "-0.01em",
+          lineHeight: 1.3,
+          marginBottom: "var(--space-3)",
+        }}
+      >
+        {workshop.title}
+      </h3>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 6,
+          marginBottom: "var(--space-4)",
+        }}
+      >
+        {workshop.concepts.map((c) => (
+          <span
+            key={c.slug}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "4px 10px",
+              fontSize: "var(--text-xs)",
+              fontWeight: 500,
+              color: "var(--color-text-2)",
+              backgroundColor: "var(--color-surface-2)",
+              border: "1px solid var(--color-border)",
+              borderRadius: 999,
+            }}
+          >
+            {c.name}
+          </span>
+        ))}
+      </div>
+      <div style={{ marginTop: "auto", display: "flex", justifyContent: "flex-end" }}>
+        <Link
+          href={`/flashcards/workshop/${workshop.eventId}`}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
+            padding: "8px 14px",
+            borderRadius: "var(--radius-2)",
+            fontSize: "var(--text-sm)",
+            fontWeight: 600,
+            color: "var(--color-accent-on-soft)",
+            backgroundColor: "var(--color-accent-soft)",
+            textDecoration: "none",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Review flashcards
+          <Icon name="chevron-right" size={14} />
+        </Link>
+      </div>
+    </article>
   );
 }
 

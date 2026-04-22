@@ -310,6 +310,7 @@ model ScheduleEvent {
   type          String    // TECH_TEAM | CAPITAL_TEAM | EVENTS | MEDIA_TEAM | EXEC | NON_MANDATORY | GENERAL
   category      String    @default("OTHER") // CLASS | MEETING | WORKSHOP | HOMEWORK | DEADLINE | OTHER
   topics        Json?     // string[] of sub-topics shown in expander (null if single event)
+  relatedConceptSlugs Json? // string[] of Concept.slug the LLM picked for pre-session review
   sourceRowKey  String    @unique // e.g. "w4-tue-0" — stable upsert key
   syncedAt      DateTime  @default(now())
 

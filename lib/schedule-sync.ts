@@ -195,19 +195,37 @@ export interface NormalizedEvent {
   type: string;
   startTime: string | null;
   endTime: string | null;
+  relatedConceptSlugs: string[] | null;
 }
 
-function cellContentHash(parsed: ParsedEvent[]): string {
+export interface ConceptCatalogEntry {
+  slug: string;
+  name: string;
+  sectionName: string;
+}
+
+function cellContentHash(parsed: ParsedEvent[], catalogFingerprint: string): string {
   const repr = parsed
     .map(
       (e) =>
         `${e.title} [${e.type}]${e.startTime ? ` ${e.startTime}-${e.endTime ?? "?"}` : ""}${e.description ? ` || ${e.description}` : ""}`,
     )
     .join("\n");
-  return createHash("sha256").update(repr).digest("hex");
+  return createHash("sha256").update(`${repr}||${catalogFingerprint}`).digest("hex");
 }
 
-const LLM_SYSTEM_PROMPT = `You are normalizing a single weekday cell from a shared class-calendar spreadsheet.
+function catalogFingerprint(catalog: ConceptCatalogEntry[]): string {
+  return createHash("sha256")
+    .update(catalog.map((c) => c.slug).sort().join(","))
+    .digest("hex")
+    .slice(0, 16);
+}
+
+function buildSystemPrompt(catalog: ConceptCatalogEntry[]): string {
+  const catalogText = catalog
+    .map((c) => `  - ${c.slug} — ${c.name} (${c.sectionName})`)
+    .join("\n");
+  return `You are normalizing a single weekday cell from a shared class-calendar spreadsheet.
 
 Each input line has a detected team color (TECH_TEAM, CAPITAL_TEAM, EVENTS, MEDIA_TEAM, EXEC, NON_MANDATORY, GENERAL).
 
@@ -222,10 +240,20 @@ Rules:
 - Preserve time strings exactly as they appear in the input. If the source says "12 - 1", emit startTime "12" and endTime "1" — do NOT pad with ":00", do NOT convert to 24-hour, do NOT add am/pm that wasn't there.
 - Never merge across types. Never merge if the lines look like independent items.
 
-Output strict JSON only, no markdown fences, no prose:
-{ "events": [ { "title": string, "description": string | null, "topics": string[] | null, "type": string, "startTime": string | null, "endTime": string | null } ] }`;
+For each final event, also pick 0–5 concept slugs that a student should review before that session. Choose ONLY from the concept list below — copy slugs verbatim. Pick based on the event title and its topics. Return an empty array [] when nothing in the list clearly applies (e.g. admin meetings, homework check-ins, social events). Do not invent slugs.
 
-async function normalizeWithLLM(parsed: ParsedEvent[]): Promise<NormalizedEvent[]> {
+Concepts (slug — name — section):
+${catalogText}
+
+Output strict JSON only, no markdown fences, no prose:
+{ "events": [ { "title": string, "description": string | null, "topics": string[] | null, "type": string, "startTime": string | null, "endTime": string | null, "relatedConceptSlugs": string[] } ] }`;
+}
+
+async function normalizeWithLLM(
+  parsed: ParsedEvent[],
+  catalog: ConceptCatalogEntry[],
+  catalogSlugs: Set<string>,
+): Promise<NormalizedEvent[]> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
 
@@ -240,7 +268,7 @@ async function normalizeWithLLM(parsed: ParsedEvent[]): Promise<NormalizedEvent[
   const response = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 1024,
-    system: LLM_SYSTEM_PROMPT,
+    system: buildSystemPrompt(catalog),
     messages: [{ role: "user", content: `Lines:\n${lines}\n\nReturn the normalized events JSON.` }],
   });
 
@@ -253,6 +281,11 @@ async function normalizeWithLLM(parsed: ParsedEvent[]): Promise<NormalizedEvent[
 
   return result.events.map((raw): NormalizedEvent => {
     const e = raw as Partial<NormalizedEvent>;
+    const relatedRaw = Array.isArray(e.relatedConceptSlugs) ? e.relatedConceptSlugs : [];
+    const relatedFiltered = relatedRaw
+      .map((s) => String(s))
+      .filter((s) => catalogSlugs.has(s))
+      .slice(0, 5);
     return {
       title: String(e.title ?? "").slice(0, 500),
       description: e.description ? String(e.description).slice(0, 2000) : null,
@@ -263,6 +296,7 @@ async function normalizeWithLLM(parsed: ParsedEvent[]): Promise<NormalizedEvent[
       type: String(e.type ?? "GENERAL"),
       startTime: e.startTime ? String(e.startTime) : null,
       endTime: e.endTime ? String(e.endTime) : null,
+      relatedConceptSlugs: relatedFiltered.length > 0 ? relatedFiltered : null,
     };
   });
 }
@@ -275,6 +309,7 @@ function toNormalized(parsed: ParsedEvent[]): NormalizedEvent[] {
     type: e.type,
     startTime: e.startTime,
     endTime: e.endTime,
+    relatedConceptSlugs: null,
   }));
 }
 
@@ -340,6 +375,23 @@ export async function syncCalendar(opts?: { year?: number }): Promise<SyncResult
   const ws = wb.worksheets[0];
   if (!ws) throw new Error("No worksheet found in calendar file");
 
+  // Concept catalog + fingerprint — injected into the LLM prompt so it can pick
+  // pre-session review concepts. The fingerprint goes into each cell's cache
+  // hash so a catalog change (rename, new concept) forces a re-LLM pass.
+  const catalogRows = await prisma.concept.findMany({
+    select: { slug: true, name: true, section: { select: { name: true } } },
+    orderBy: [{ section: { sortOrder: "asc" } }, { sortOrder: "asc" }],
+  });
+  const catalog: ConceptCatalogEntry[] = catalogRows.map(
+    (c: { slug: string; name: string; section: { name: string } }) => ({
+      slug: c.slug,
+      name: c.name,
+      sectionName: c.section.name,
+    }),
+  );
+  const catalogSlugs = new Set(catalog.map((c) => c.slug));
+  const catalogFP = catalogFingerprint(catalog);
+
   const errors: string[] = [];
   const seenKeys = new Set<string>();
   const records: { key: string; data: Record<string, unknown> }[] = [];
@@ -390,7 +442,7 @@ export async function syncCalendar(opts?: { year?: number }): Promise<SyncResult
         dayOfWeek,
         col,
         parsed,
-        hash: cellContentHash(parsed),
+        hash: cellContentHash(parsed, catalogFP),
       });
     }
   }
@@ -429,7 +481,7 @@ export async function syncCalendar(opts?: { year?: number }): Promise<SyncResult
       normalized = toNormalized(job.parsed);
     } else {
       try {
-        normalized = await normalizeWithLLM(job.parsed);
+        normalized = await normalizeWithLLM(job.parsed, catalog, catalogSlugs);
         llmCalls++;
         await prisma.scheduleCellCache.upsert({
           where: { cellKey: job.cellKey },
@@ -470,6 +522,10 @@ export async function syncCalendar(opts?: { year?: number }): Promise<SyncResult
           topics:
             ev.topics && ev.topics.length > 0
               ? (ev.topics.slice(0, 20) as unknown as Prisma.InputJsonValue)
+              : Prisma.JsonNull,
+          relatedConceptSlugs:
+            ev.relatedConceptSlugs && ev.relatedConceptSlugs.length > 0
+              ? (ev.relatedConceptSlugs.slice(0, 5) as unknown as Prisma.InputJsonValue)
               : Prisma.JsonNull,
           startTime: ev.startTime,
           endTime: ev.endTime,

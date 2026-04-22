@@ -9,6 +9,7 @@ import {
   getDueItems,
   getRecentBookmarks,
   getWeakestConcept,
+  getUpcomingWorkshops,
 } from "@/lib/home-data";
 
 export const dynamic = "force-dynamic";
@@ -33,13 +34,15 @@ export default async function HomePage() {
   const now = new Date();
   const week = getWeekWindow(now);
 
-  const [weekEvents, continuePick, dueItems, bookmarks, weakConcept] = await Promise.all([
-    getWeekEvents(week),
-    getContinueLearning(dbUser.id),
-    getDueItems(dbUser.id),
-    getRecentBookmarks(dbUser.id, 3),
-    getWeakestConcept(dbUser.id),
-  ]);
+  const [weekEvents, continuePick, dueItems, bookmarks, weakConcept, upcomingWorkshops] =
+    await Promise.all([
+      getWeekEvents(week),
+      getContinueLearning(dbUser.id),
+      getDueItems(dbUser.id),
+      getRecentBookmarks(dbUser.id, 3),
+      getWeakestConcept(dbUser.id),
+      getUpcomingWorkshops(now),
+    ]);
 
   const programInfo = programWeekInfo(now);
   const greeting = greetingForHour(now.getHours());
@@ -58,6 +61,7 @@ export default async function HomePage() {
       dueItems={dueItems}
       bookmarks={bookmarks}
       weakConcept={weakConcept}
+      upcomingWorkshops={upcomingWorkshops}
     />
   );
 }

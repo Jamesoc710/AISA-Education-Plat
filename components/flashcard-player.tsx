@@ -17,8 +17,10 @@ type Card = {
   sectionName: string;
 };
 
+type Deck = "all" | "bookmarked" | "workshop";
+
 type Props = {
-  deck: "all" | "bookmarked";
+  deck: Deck;
   deckLabel: string;
   cards: Card[];
 };
@@ -574,7 +576,22 @@ function BackPill() {
 
 // ── Empty state ──────────────────────────────────────────────────────────────
 
-function EmptyDeck({ deck }: { deck: "all" | "bookmarked" }) {
+function EmptyDeck({ deck }: { deck: Deck }) {
+  const title =
+    deck === "bookmarked"
+      ? "No bookmarked concepts yet"
+      : deck === "workshop"
+      ? "No concepts tagged for this session"
+      : "No cards in this deck";
+  const body =
+    deck === "bookmarked"
+      ? "Bookmark concepts from the Browse page to build your review deck."
+      : deck === "workshop"
+      ? "This session doesn't have any related concepts yet. Check the calendar for others."
+      : "Try picking a different deck.";
+  const ctaHref = deck === "bookmarked" ? "/browse" : deck === "workshop" ? "/calendar" : "/flashcards";
+  const ctaLabel =
+    deck === "bookmarked" ? "Go to Browse" : deck === "workshop" ? "Open calendar" : "Back to decks";
   return (
     <>
       <div style={{ marginBottom: "var(--space-5)" }}>
@@ -591,15 +608,11 @@ function EmptyDeck({ deck }: { deck: "all" | "bookmarked" }) {
       >
         <Icon name="bookmark" size={28} style={{ margin: "0 auto var(--space-3)" }} />
         <h2 style={{ margin: 0, fontSize: "var(--text-lg)", fontWeight: 600, color: "var(--color-text)" }}>
-          {deck === "bookmarked" ? "No bookmarked concepts yet" : "No cards in this deck"}
+          {title}
         </h2>
-        <p style={{ margin: "var(--space-2) 0 var(--space-4)", fontSize: "var(--text-sm)" }}>
-          {deck === "bookmarked"
-            ? "Bookmark concepts from the Browse page to build your review deck."
-            : "Try picking a different deck."}
-        </p>
+        <p style={{ margin: "var(--space-2) 0 var(--space-4)", fontSize: "var(--text-sm)" }}>{body}</p>
         <Link
-          href={deck === "bookmarked" ? "/browse" : "/flashcards"}
+          href={ctaHref}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -613,7 +626,7 @@ function EmptyDeck({ deck }: { deck: "all" | "bookmarked" }) {
             textDecoration: "none",
           }}
         >
-          {deck === "bookmarked" ? "Go to Browse" : "Back to decks"}
+          {ctaLabel}
         </Link>
       </div>
     </>
