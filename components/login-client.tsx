@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 type Mode = "login" | "signup";
 
+const RESEND_COOLDOWN_SECONDS = 30;
+
 export function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") ?? "/dashboard";
+  const next = searchParams.get("next") ?? "/dashboard";
   const incomingError = searchParams.get("error");
 
   const [mode, setMode] = useState<Mode>("login");
@@ -23,18 +26,63 @@ export function LoginClient() {
   const [info, setInfo] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
+  // When a signup needs email confirmation, we stash the email so the info
+  // banner can offer a resend button. Null = no pending confirmation.
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [resendSecondsLeft, setResendSecondsLeft] = useState(0);
+  const [resending, setResending] = useState(false);
+  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   const supabase = createClient();
+
+  const startResendCooldown = () => {
+    setResendSecondsLeft(RESEND_COOLDOWN_SECONDS);
+    if (tickRef.current) clearInterval(tickRef.current);
+    tickRef.current = setInterval(() => {
+      setResendSecondsLeft((s) => {
+        if (s <= 1) {
+          if (tickRef.current) clearInterval(tickRef.current);
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (tickRef.current) clearInterval(tickRef.current);
+    };
+  }, []);
+
+  const handleResend = async () => {
+    if (!pendingEmail || resendSecondsLeft > 0 || resending) return;
+    setResending(true);
+    setError(null);
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email: pendingEmail,
+    });
+    setResending(false);
+    if (resendError) {
+      setError(resendError.message);
+      return;
+    }
+    setInfo(`We sent another confirmation link to ${pendingEmail}.`);
+    startResendCooldown();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setInfo(null);
+    setPendingEmail(null);
 
     if (mode === "signup") {
       const emailRedirectTo =
         typeof window !== "undefined"
-          ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirect)}`
+          ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
           : undefined;
 
       const { data, error: signUpError } = await supabase.auth.signUp({
@@ -54,6 +102,8 @@ export function LoginClient() {
       // which routes through /auth/callback and creates the Prisma row there.
       if (!data.session) {
         setInfo(`Check ${email} for a link to confirm your account.`);
+        setPendingEmail(email);
+        startResendCooldown();
         setLoading(false);
         return;
       }
@@ -71,7 +121,7 @@ export function LoginClient() {
         return;
       }
 
-      router.push(redirect);
+      router.push(next);
       router.refresh();
     } else {
       const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -90,7 +140,7 @@ export function LoginClient() {
         headers: { "Content-Type": "application/json" },
       });
 
-      router.push(redirect);
+      router.push(next);
       router.refresh();
     }
   };
@@ -206,9 +256,40 @@ export function LoginClient() {
             </div>
 
             <div>
-              <label htmlFor="auth-password" style={labelStyle}>
-                Password
-              </label>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  justifyContent: "space-between",
+                  marginBottom: 6,
+                }}
+              >
+                <label
+                  htmlFor="auth-password"
+                  style={{ ...labelStyle, marginBottom: 0 }}
+                >
+                  Password
+                </label>
+                {mode === "login" && (
+                  <Link
+                    href="/forgot-password"
+                    style={{
+                      fontSize: "var(--text-xs)",
+                      fontWeight: 600,
+                      color: "var(--color-text-3)",
+                      textDecoration: "none",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = "var(--color-accent)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = "var(--color-text-3)";
+                    }}
+                  >
+                    Forgot password?
+                  </Link>
+                )}
+              </div>
               <input
                 id="auth-password"
                 type="password"
@@ -255,7 +336,39 @@ export function LoginClient() {
                 lineHeight: 1.4,
               }}
             >
-              {info}
+              <div>{info}</div>
+              {pendingEmail && (
+                <div style={{ marginTop: 8 }}>
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resendSecondsLeft > 0 || resending}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      fontFamily: "inherit",
+                      fontSize: "var(--text-sm)",
+                      fontWeight: 600,
+                      color: "var(--color-accent-on-soft)",
+                      cursor:
+                        resendSecondsLeft > 0 || resending
+                          ? "not-allowed"
+                          : "pointer",
+                      opacity: resendSecondsLeft > 0 || resending ? 0.6 : 1,
+                      textDecoration:
+                        resendSecondsLeft > 0 || resending ? "none" : "underline",
+                      textUnderlineOffset: 2,
+                    }}
+                  >
+                    {resending
+                      ? "Resending…"
+                      : resendSecondsLeft > 0
+                        ? `Resend in ${resendSecondsLeft}s`
+                        : "Resend confirmation email"}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -309,6 +422,7 @@ export function LoginClient() {
                   setMode("signup");
                   setError(null);
                   setInfo(null);
+                  setPendingEmail(null);
                 }}
                 style={toggleButtonStyle}
               >
@@ -324,6 +438,7 @@ export function LoginClient() {
                   setMode("login");
                   setError(null);
                   setInfo(null);
+                  setPendingEmail(null);
                 }}
                 style={toggleButtonStyle}
               >
