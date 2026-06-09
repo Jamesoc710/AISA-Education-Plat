@@ -499,3 +499,12 @@ Favor tools a student would actually use in 2026. Return as structured data, one
   6 items / 1 aggregator dup dropped → reviewed → published; cron 401 unauth'd and `skipped_published`
   in 184ms at $0 post-publish. Worst-case run ≈ $0.25; weekly ≈ $1/mo. Remaining "Next": Build Board,
   Opportunities tab.
+- **2026-06-09** — **Digest v2 content shape.** Each item now carries `whyItMatters` (its own labeled
+  section on /digest) and 1–2 `resources` (go-deeper article/video links, URL-verified like the source;
+  a dead resource drops alone, never its item; type tag corrected from the resolved hostname). Em/en
+  dashes banned from all digest output + UI copy (prompt style rule + deterministic sanitizer: digit
+  ranges → hyphens, prose dashes → commas). `max_uses` 6→10 (≤$0.10/run searches), `max_tokens` 6000.
+  Fixed a hydration mismatch on the admin card's relative timestamp (suppressHydrationWarning span).
+  Live-verified: 84s / 8 searches / 6 items, all primary-source, 2 dead resource links dropped, 0 dashes
+  in stored content; republished same day. Worst-case run ≈ $0.45 on Sonnet (≈ $0.65 on Opus 4.8 if
+  ever switched; searches are model-independent).
