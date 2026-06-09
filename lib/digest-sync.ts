@@ -42,6 +42,7 @@ export interface DigestItem {
   sourceDomain: string; // hostname of the URL the fetch actually resolved to
   category: DigestCategory | null; // colored tag in the UI; null on pre-tag editions
   resources: DigestItemResource[]; // go-deeper links, URL-verified like the source
+  relatedConceptSlugs: string[]; // catalog cross-links, validated against real slugs
 }
 
 export interface DigestSyncResult {
@@ -66,7 +67,7 @@ export function getDigestWeekOf(now: Date = new Date()): Date {
 
 // NOTE: deliberately dash-free. Models mirror prompt style, and the digest's
 // style rule bans em and en dashes in output.
-const SYSTEM_PROMPT = `You are curating "This Week in Tech", a weekly news digest for TCO (Tech Collective Org), a university tech club. Members come from mixed, often non-technical backgrounds: assume no prior knowledge, and gloss any jargon in plain English. No hype, no clickbait.
+const SYSTEM_PROMPT_BASE = `You are curating "This Week in Tech", a weekly news digest for TCO (Tech Collective Org), a university tech club. Members come from mixed, often non-technical backgrounds: assume no prior knowledge, and gloss any jargon in plain English. No hype, no clickbait.
 
 Use web search to find what ACTUALLY happened in the last 7 days. Cover a mix across three areas: AI (2-3 items), broader tech (1-2 items), and capital markets / venture capital (1-2 items).
 
@@ -75,6 +76,7 @@ Pick the 5-7 most notable items. For each item provide:
 - "summary": 2-3 plain-English sentences on what happened. Facts only; save the significance for the next field.
 - "whyItMatters": 1-2 sentences on why a student or club member should care about this.
 - "category": exactly one of "ai", "tech", or "markets" (which of the three coverage areas the item belongs to).
+- "relatedConceptSlugs": 0-2 slugs from the concept catalog at the end of this prompt that a member could study to understand this story better. Copy slugs verbatim from the catalog; use [] when nothing clearly applies. Never invent a slug.
 - "url": the source article's URL copied EXACTLY from a web search result. Never construct, shorten, or guess a URL.
 - "resources": 1-2 supplementary links that help a member go deeper. Prefer one accessible explainer article, plus one video when a good one exists. Each resource is { "title": string, "url": string, "type": "article" | "video" }. Resource URLs must also be copied EXACTLY from web search results, never invented.
 
@@ -89,7 +91,14 @@ Finally provide "bigPicture", the digest's closing section:
 - "watchFor": one sentence pointing at the most concrete upcoming thing from these stories that a member should watch (a date, a decision, a launch).
 
 Output STRICT JSON only, no markdown fences, no prose before or after the object:
-{ "headline": string, "items": [ { "title": string, "summary": string, "whyItMatters": string, "category": "ai" | "tech" | "markets", "url": string, "resources": [ { "title": string, "url": string, "type": "article" | "video" } ] } ], "bigPicture": { "narrative": string, "watchFor": string } }`;
+{ "headline": string, "items": [ { "title": string, "summary": string, "whyItMatters": string, "category": "ai" | "tech" | "markets", "relatedConceptSlugs": string[], "url": string, "resources": [ { "title": string, "url": string, "type": "article" | "video" } ] } ], "bigPicture": { "narrative": string, "watchFor": string } }`;
+
+function buildSystemPrompt(catalogText: string): string {
+  return `${SYSTEM_PROMPT_BASE}
+
+Concept catalog (slug: name (section)):
+${catalogText}`;
+}
 
 // Surrounding prose can contain braces (a live run emitted text after the
 // JSON and broke a naive first-"{"-to-last-"}" slice), so scan for every
@@ -156,6 +165,7 @@ interface ParsedItem {
   whyItMatters: string;
   url: string;
   category: DigestCategory | null;
+  relatedConceptSlugs: string[]; // raw from the model; validated against the catalog later
   resources: ParsedResource[];
 }
 
@@ -185,6 +195,7 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
       whyItMatters?: unknown;
       url?: unknown;
       category?: unknown;
+      relatedConceptSlugs?: unknown;
       resources?: unknown;
     };
     const title = cleanDigestText(String(e.title ?? "").trim().slice(0, 200));
@@ -196,6 +207,10 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
         ? e.category
         : null;
     if (!title || !summary || !whyItMatters || !/^https?:\/\//i.test(url)) return [];
+    const relatedConceptSlugs = (Array.isArray(e.relatedConceptSlugs) ? e.relatedConceptSlugs : [])
+      .map((s) => String(s).trim())
+      .filter(Boolean)
+      .slice(0, 4);
     const resources = (Array.isArray(e.resources) ? e.resources : [])
       .slice(0, MAX_RESOURCES_PER_ITEM)
       .flatMap((res): ParsedResource[] => {
@@ -205,7 +220,7 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
         if (!rTitle || !/^https?:\/\//i.test(rUrl)) return [];
         return [{ title: rTitle, url: rUrl, type: r.type === "video" ? "video" : "article" }];
       });
-    return [{ title, summary, whyItMatters, url, category, resources }];
+    return [{ title, summary, whyItMatters, url, category, relatedConceptSlugs, resources }];
   });
   if (items.length === 0) return null;
   return { headline, items, bigPicture: { narrative, watchFor } };
@@ -271,6 +286,7 @@ async function generateWithClaude(
   weekOf: Date,
   errors: string[],
   previousTitles: string[],
+  catalogText: string,
 ): Promise<{ text: string; searchesUsed: number; apiCalls: number }> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
@@ -299,7 +315,7 @@ async function generateWithClaude(
         model: MODEL,
         max_tokens: MAX_TOKENS,
         thinking: { type: "adaptive" },
-        system: SYSTEM_PROMPT,
+        system: buildSystemPrompt(catalogText),
         messages,
         tools: [
           { type: WEB_SEARCH_TOOL, name: "web_search", max_uses: WEB_SEARCH_MAX_USES },
@@ -386,12 +402,33 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
       ? (previous.items as unknown as DigestItem[]).map((i) => i.title).filter(Boolean).slice(0, 10)
       : [];
 
+  // Concept catalog for cross-links — same pattern as schedule-sync: the model
+  // picks from a verbatim list, and only slugs that really exist are persisted.
+  const catalogRows = await prisma.concept.findMany({
+    select: { slug: true, name: true, section: { select: { name: true } } },
+    orderBy: [{ section: { sortOrder: "asc" } }, { sortOrder: "asc" }],
+  });
+  const catalogText = catalogRows
+    .map(
+      (c: { slug: string; name: string; section: { name: string } }) =>
+        `${c.slug}: ${c.name} (${c.section.name})`,
+    )
+    .join("\n");
+  const catalogSlugs = new Set(
+    catalogRows.map((c: { slug: string }) => c.slug),
+  );
+
   let text = "";
   let searchesUsed = 0;
   let apiCalls = 0;
   let parsed: ParsedDigest;
   try {
-    ({ text, searchesUsed, apiCalls } = await generateWithClaude(weekOf, errors, previousTitles));
+    ({ text, searchesUsed, apiCalls } = await generateWithClaude(
+      weekOf,
+      errors,
+      previousTitles,
+      catalogText,
+    ));
     parsed = parseDigest(text);
   } catch (e) {
     errors.push(e instanceof Error ? e.message : String(e));
@@ -467,6 +504,9 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
       url: check.finalUrl,
       sourceDomain,
       category: item.category,
+      relatedConceptSlugs: item.relatedConceptSlugs
+        .filter((s) => catalogSlugs.has(s))
+        .slice(0, 2),
       resources: resources.slice(0, MAX_RESOURCES_PER_ITEM),
     });
   });

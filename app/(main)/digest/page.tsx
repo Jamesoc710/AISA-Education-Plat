@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { DigestClient } from "@/components/digest-client";
-import type { DigestItem } from "@/lib/digest-sync";
+import { editionToView } from "@/lib/digest-view";
 
 export const dynamic = "force-dynamic";
 
@@ -51,27 +51,15 @@ export default async function DigestPage({
 
   return (
     <DigestClient
-      pastEditions={pastEditions.map((p) => ({
-        weekOf: p.weekOf.toISOString(),
-        headline: p.headline,
-      }))}
-      edition={
-        edition
-          ? {
-              headline: edition.headline,
-              weekOf: edition.weekOf.toISOString(),
-              generatedAt: edition.generatedAt.toISOString(),
-              status: edition.status,
-              items: edition.items as unknown as DigestItem[],
-              bigPicture: edition.bigPicture,
-              watchFor: edition.watchFor,
-            }
-          : null
-      }
+      edition={edition ? await editionToView(edition) : null}
       stale={
         edition ? Date.now() - edition.generatedAt.getTime() > STALE_AFTER_MS : false
       }
       previewingDraft={previewingDraft}
+      pastEditions={pastEditions.map((p: { weekOf: Date; headline: string }) => ({
+        weekOf: p.weekOf.toISOString(),
+        headline: p.headline,
+      }))}
     />
   );
 }

@@ -1,17 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { DigestItem } from "@/lib/digest-sync";
-
-interface DigestEditionView {
-  headline: string;
-  weekOf: string; // ISO — Monday 00:00 UTC
-  generatedAt: string; // ISO
-  status: string;
-  items: DigestItem[];
-  bigPicture: string | null; // closer narrative, \n\n-separated paragraphs
-  watchFor: string | null;
-}
+import type { DigestEditionView, DigestItemView } from "@/lib/digest-view";
 
 export interface PastEditionRef {
   weekOf: string; // ISO
@@ -173,9 +163,10 @@ const CATEGORY_META: Record<string, { label: string; color: string }> = {
   markets: { label: "Markets", color: "var(--color-correct)" },
 };
 
-function DigestItemRow({ item, index }: { item: DigestItem; index: number }) {
+function DigestItemRow({ item, index }: { item: DigestItemView; index: number }) {
   // Older editions predate whyItMatters/resources/category, so all render conditionally
   const resources = Array.isArray(item.resources) ? item.resources : [];
+  const related = Array.isArray(item.relatedConcepts) ? item.relatedConcepts : [];
   const category = item.category ? CATEGORY_META[item.category] : undefined;
   return (
     <article
@@ -277,6 +268,45 @@ function DigestItemRow({ item, index }: { item: DigestItem; index: number }) {
             <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: "var(--color-text-2)" }}>
               {item.whyItMatters}
             </p>
+          </div>
+        )}
+        {related.length > 0 && (
+          <div
+            style={{
+              marginTop: 14,
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "baseline",
+              columnGap: 14,
+              rowGap: 6,
+            }}
+          >
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "var(--color-text-3)",
+              }}
+            >
+              Related in the catalog
+            </span>
+            {related.map((rc) => (
+              <Link
+                key={rc.slug}
+                href={`/concepts/${rc.slug}`}
+                className="editorial-link"
+                style={{
+                  fontSize: 13.5,
+                  fontWeight: 500,
+                  color: "var(--color-text)",
+                  textDecoration: "none",
+                }}
+              >
+                {rc.name}
+              </Link>
+            ))}
           </div>
         )}
         {resources.length > 0 && (
