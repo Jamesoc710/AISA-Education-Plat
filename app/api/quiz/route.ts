@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getActiveTrackSlug } from "@/lib/track";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -31,17 +32,23 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const where =
+    // Scope every quiz to the member's active track (the client never sends it).
+    const trackSlug = await getActiveTrackSlug();
+    const trackWhere = {
+      concept: { section: { tier: { track: { slug: trackSlug } } } },
+    };
+
+    const scopeWhere =
       mode === "concept"
         ? { conceptId: id! }
         : mode === "section"
           ? { concept: { sectionId: id! } }
           : mode === "tier"
             ? { concept: { section: { tierId: id! } } }
-            : {}; // mixed — all questions
+            : {}; // mixed — all questions in the active track
 
     const questions = await prisma.question.findMany({
-      where,
+      where: { AND: [scopeWhere, trackWhere] },
       include: {
         concept: {
           select: {

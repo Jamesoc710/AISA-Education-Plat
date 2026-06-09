@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
 const VALID_ROLES = [
-  "RECRUIT",
+  "MEMBER",
   "MENTOR",
   "ADMIN",
   "CURRICULUM_LEAD",

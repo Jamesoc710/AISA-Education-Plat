@@ -95,6 +95,7 @@ import {
   Star,
   ArrowRight,
   Trash,
+  Newspaper,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon, IconWeight } from "@phosphor-icons/react";
 
@@ -105,7 +106,7 @@ export type IconName =
   | "globe" | "shield" | "git-branch" | "box" | "atom" | "compass"
   // Sidebar nav
   | "home" | "grid" | "bookmark" | "bookmark-filled" | "bar-chart"
-  | "help-circle" | "clipboard-check" | "calendar" | "message-square"
+  | "help-circle" | "clipboard-check" | "calendar" | "message-square" | "newspaper"
   // Top chrome
   | "search" | "bell" | "sparkle" | "chevron-down"
   // Browse / content
@@ -156,6 +157,7 @@ const REGISTRY: Record<IconName, PhosphorIcon> = {
   "clipboard-check": ClipboardText,
   "calendar": Calendar,
   "message-square": ChatCircle,
+  "newspaper": Newspaper,
   // Top chrome
   "search": MagnifyingGlass,
   "bell": Bell,

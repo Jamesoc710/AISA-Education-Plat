@@ -6,7 +6,7 @@ import { Icon, type IconName } from "@/components/ui/icon";
 
 const NAV_ITEMS: { label: string; href: string; icon: IconName }[] = [
   { label: "Overview", href: "/admin", icon: "grid" },
-  { label: "Recruits", href: "/admin/recruits", icon: "users" },
+  { label: "Members", href: "/admin/recruits", icon: "users" },
   { label: "Assessments", href: "/admin/assessments", icon: "clipboard-check" },
   { label: "Homework", href: "/admin/homework", icon: "book-open" },
   { label: "Feedback", href: "/admin/feedback", icon: "message-square" },
@@ -51,7 +51,7 @@ export function AdminShell({
             letterSpacing: "-0.02em",
           }}
         >
-          Mentor console
+          Console
         </h1>
         <p
           style={{

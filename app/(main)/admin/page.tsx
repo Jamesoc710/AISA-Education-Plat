@@ -21,8 +21,9 @@ export default async function AdminPage() {
     totalAssignments,
     scheduleEventCount,
     latestScheduleEvent,
+    latestDigest,
   ] = await Promise.all([
-    prisma.user.count({ where: { role: "RECRUIT" } }),
+    prisma.user.count({ where: { role: "MEMBER" } }),
     prisma.quizAttempt
       .findMany({
         where: { attemptedAt: { gte: sevenDaysAgo } },
@@ -39,6 +40,19 @@ export default async function AdminPage() {
     prisma.scheduleEvent.findFirst({
       orderBy: { syncedAt: "desc" },
       select: { syncedAt: true },
+    }),
+    prisma.digestEdition.findFirst({
+      orderBy: { weekOf: "desc" },
+      select: {
+        id: true,
+        weekOf: true,
+        status: true,
+        headline: true,
+        items: true,
+        generatedAt: true,
+        searchesUsed: true,
+        durationMs: true,
+      },
     }),
   ]);
 
@@ -105,6 +119,22 @@ export default async function AdminPage() {
         eventCount: scheduleEventCount,
         lastSyncedAt: latestScheduleEvent?.syncedAt.toISOString() ?? null,
       }}
+      digest={
+        latestDigest
+          ? {
+              id: latestDigest.id,
+              weekOf: latestDigest.weekOf.toISOString(),
+              status: latestDigest.status,
+              headline: latestDigest.headline,
+              itemCount: Array.isArray(latestDigest.items)
+                ? latestDigest.items.length
+                : 0,
+              generatedAt: latestDigest.generatedAt.toISOString(),
+              searchesUsed: latestDigest.searchesUsed,
+              durationMs: latestDigest.durationMs,
+            }
+          : null
+      }
     />
   );
 }

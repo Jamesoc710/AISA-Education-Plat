@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { getActiveTrackSlug } from "@/lib/track";
 import { FlashcardPlayer } from "@/components/flashcard-player";
 import type { Metadata } from "next";
 
@@ -33,9 +34,12 @@ export default async function FlashcardPlayerPage({ params }: Props) {
 
   if (!authUser) redirect(`/login?redirect=/flashcards/${deck}`);
 
+  const trackSlug = await getActiveTrackSlug();
+
   // Bookmarks currently live in localStorage (not DB), so we always fetch every
   // concept and let the client filter by locally-stored IDs when deck=bookmarked.
   const concepts = await prisma.concept.findMany({
+    where: { section: { tier: { track: { slug: trackSlug } } } },
     select: {
       id: true,
       name: true,

@@ -68,6 +68,11 @@ export function ShortAnswerQuestion({
         }),
       });
       const result: GradeResult = await res.json();
+      // Guard against 401s / malformed payloads (e.g. {error}) so the result
+      // panel never renders an undefined score token.
+      if (!res.ok || !["correct", "partial", "incorrect"].includes(result?.score)) {
+        throw new Error("Invalid grade response");
+      }
       setGradeResult(result);
       setRevealed(true);
       onRevealed();

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveTrackSlug } from "@/lib/track";
 import { QuizClient } from "@/components/quiz-client";
 import type { Metadata } from "next";
 
@@ -18,13 +19,18 @@ type ResumePick = {
 };
 
 export default async function QuizPage() {
-  const [tiers, resume] = await Promise.all([loadTiers(), loadResumePick()]);
+  const trackSlug = await getActiveTrackSlug();
+  const [tiers, resume] = await Promise.all([
+    loadTiers(trackSlug),
+    loadResumePick(trackSlug),
+  ]);
 
   return <QuizClient tiers={tiers} resume={resume} />;
 }
 
-async function loadTiers() {
+async function loadTiers(trackSlug: string) {
   const tiers = await prisma.tier.findMany({
+    where: { track: { slug: trackSlug } },
     select: {
       id: true,
       name: true,
@@ -68,7 +74,7 @@ async function loadTiers() {
   }));
 }
 
-async function loadResumePick(): Promise<ResumePick | null> {
+async function loadResumePick(trackSlug: string): Promise<ResumePick | null> {
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -77,7 +83,12 @@ async function loadResumePick(): Promise<ResumePick | null> {
   if (!authUser) return null;
 
   const lastAttempt = await prisma.quizAttempt.findFirst({
-    where: { userId: authUser.id },
+    where: {
+      userId: authUser.id,
+      question: {
+        concept: { section: { tier: { track: { slug: trackSlug } } } },
+      },
+    },
     orderBy: { attemptedAt: "desc" },
     select: {
       attemptedAt: true,

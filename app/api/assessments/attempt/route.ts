@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 /**
  * POST /api/assessments/attempt
- * Submits a formal quiz attempt for the authenticated recruit.
+ * Submits a formal quiz attempt for the authenticated member.
  *
  * Body: {
  *   quizId: string,

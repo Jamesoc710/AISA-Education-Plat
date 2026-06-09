@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         id: user.id,
         email: user.email!,
         name,
-        role: "RECRUIT",
+        role: "MEMBER",
       },
       update: {
         email: user.email!,

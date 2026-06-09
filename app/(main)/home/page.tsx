@@ -11,6 +11,7 @@ import {
   getWeakestConcept,
   getUpcomingWorkshops,
 } from "@/lib/home-data";
+import { getActiveTrackSlug } from "@/lib/track";
 
 export const dynamic = "force-dynamic";
 
@@ -43,13 +44,14 @@ export default async function HomePage() {
 
   const now = new Date();
   const week = getWeekWindow(now);
+  const trackSlug = await getActiveTrackSlug();
 
   const [weekEvents, continuePick, dueItems, weakConcept, upcomingWorkshops] =
     await Promise.all([
       getWeekEvents(week),
-      getContinueLearning(dbUser.id),
+      getContinueLearning(dbUser.id, trackSlug),
       getDueItems(dbUser.id),
-      getWeakestConcept(dbUser.id),
+      getWeakestConcept(dbUser.id, trackSlug),
       getUpcomingWorkshops(now),
     ]);
 

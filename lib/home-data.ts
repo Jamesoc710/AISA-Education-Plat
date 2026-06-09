@@ -185,7 +185,7 @@ export async function getUpcomingWorkshops(
  * Where to resume. Most-recent quiz attempt → its concept. If none, the
  * first concept in the first fundamentals section (by sortOrder).
  */
-export async function getContinueLearning(userId: string): Promise<ContinuePick | null> {
+export async function getContinueLearning(userId: string, trackSlug: string): Promise<ContinuePick | null> {
   const lastAttempt = await prisma.quizAttempt.findFirst({
     where: { userId },
     orderBy: { attemptedAt: "desc" },
@@ -218,6 +218,7 @@ export async function getContinueLearning(userId: string): Promise<ContinuePick 
   }
 
   const firstConcept = await prisma.concept.findFirst({
+    where: { section: { tier: { track: { slug: trackSlug } } } },
     orderBy: [{ section: { tier: { sortOrder: "asc" } } }, { section: { sortOrder: "asc" } }, { sortOrder: "asc" }],
     select: {
       name: true,
@@ -318,9 +319,13 @@ export async function getRecentBookmarks(userId: string, limit = 3): Promise<Boo
  * The concept where the user answered worst. Returns null unless the user
  * has ≥3 attempts on a single concept AND its accuracy is <60%.
  */
-export async function getWeakestConcept(userId: string): Promise<WeakConcept | null> {
+export async function getWeakestConcept(userId: string, trackSlug: string): Promise<WeakConcept | null> {
   const attempts = await prisma.quizAttempt.findMany({
-    where: { userId, isCorrect: { not: null } },
+    where: {
+      userId,
+      isCorrect: { not: null },
+      question: { concept: { section: { tier: { track: { slug: trackSlug } } } } },
+    },
     select: {
       isCorrect: true,
       question: { select: { concept: { select: { slug: true, name: true } } } },

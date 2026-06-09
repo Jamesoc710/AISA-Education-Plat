@@ -1,0 +1,364 @@
+{
+  "summary": "Deep research harness — fan-out web searches, fetch sources, adversarially verify claims, synthesize a cited report.",
+  "agentCount": 103,
+  "logs": [
+    "Q: Build a Capital Markets & Venture Capital vocabulary pack for a university tech …",
+    "Decomposed into 5 angles: broad/primary — named authoritative glossaries, deal-term mechanics with worked math, fund return metrics cluster, carry waterfall and fund economics, SaaS markets metrics for non-finance learners",
+    "fund return metrics cluster: 6 results",
+    "carry waterfall and fund economics: 6 results",
+    "carry waterfall and fund economics: 5 novel (1 filtered)",
+    "broad/primary — named authoritative glossaries: 6 results",
+    "broad/primary — named authoritative glossaries: 4 novel (2 filtered)",
+    "SaaS markets metrics for non-finance learners: 6 results",
+    "SaaS markets metrics for non-finance learners: 4 novel (2 filtered)",
+    "deal-term mechanics with worked math: 6 results",
+    "deal-term mechanics with worked math: 2 novel (4 filtered)",
+    "Fetched 21 sources → 81 claims → verifying top 25",
+    "\"NVCA publishes a standardized suite of model ventu…\": 3-0 ✓",
+    "\"In the post-money SAFE, the valuation cap is state…\": 3-0 ✓",
+    "\"The SAFE (Simple Agreement for Future Equity) is a…\": 3-0 ✓",
+    "\"Because post-money SAFE ownership is locked to a f…\": 3-0 ✓",
+    "\"Post-money SAFE holders are protected from dilutio…\": 3-0 ✓",
+    "\"Annual Recurring Revenue (ARR) is recurring revenu…\": 3-0 ✓",
+    "\"A post-money SAFE measures the holder's ownership …\": 3-0 ✓",
+    "\"The key advantage of the post-money SAFE is that i…\": 3-0 ✓",
+    "\"ARR (Annual Recurring Revenue) is not the same as …\": 3-0 ✓",
+    "\"MOIC is the ratio of total value (realized and unr…\": 3-0 ✓",
+    "\"DPI measures capital returned to LPs as a proporti…\": 3-0 ✓",
+    "\"TVPI equals DPI plus RVPI: a fund's total value to…\": 3-0 ✓",
+    "\"The J-curve describes the typical fund return traj…\": 3-0 ✓",
+    "\"IRR is the annualized effective compounded return …\": 3-0 ✓",
+    "\"TVPI equals DPI plus RVPI — it measures the total …\": 3-0 ✓",
+    "\"DPI tracks only realized returns actually distribu…\": 3-0 ✓",
+    "\"MOIC measures the ratio of total value (realized p…\": 3-0 ✓",
+    "\"IRR is the discount rate at which the net present …\": 3-0 ✓",
+    "\"The standard '2-and-20' venture fund structure com…\": 3-0 ✓",
+    "\"Carried interest is the share of fund profits paid…\": 3-0 ✓",
+    "\"The carry waterfall comes in two forms: an America…\": 3-0 ✓",
+    "\"Carried interest in private market funds typically…\": 2-1 ✓",
+    "\"Most private market funds set their hurdle rate (p…\": 3-0 ✓",
+    "\"A European (whole-fund) waterfall has four sequent…\": 3-0 ✓",
+    "\"The GP catch-up recalculates carry from the first …\": 3-0 ✓",
+    "Verify done: 25 claims → 25 confirmed, 0 killed"
+  ],
+  "result": {
+    "question": "Build a Capital Markets & Venture Capital vocabulary pack for a university tech club's learning app, aimed at members from mixed (often non-finance) backgrounds. Cover these ~32 terms, grouped:\n[Venture Financing] SAFE, priced round, Series A/B/C, term sheet, cap table, dilution, pre/post-money valuation, option pool, liquidation preference, pro rata, convertible note, vesting/cliff;\n[Fund Mechanics] LP, GP, carry, management fee, 2-and-20, capital call, vintage year, DPI, TVPI, MOIC, IRR, J-curve;\n[Markets & Metrics] TAM/SAM/SOM, ARR/MRR, net revenue retention, burn rate, runway, CAC/LTV, EV/Revenue & EV/EBITDA multiples, DCF, public comps;\n[Diligence & Terms] due diligence, data room, board seat, anti-dilution (full-ratchet vs weighted-average), drag-along/tag-along, ROFR, down round, secondary, exit (M&A vs IPO).\n\nFor EACH term return, as structured data (one record per term):\n(1) whatItIs — 2-3 plain sentences, no jargon-defined-by-jargon;\n(2) whyItMatters — why a student / operator / investor cares;\n(3) flashcardShort — a <12-word gloss;\n(4) flashcardDefinition — one tight sentence;\n(5) source — a citation URL.\nCall out the specific nuances members trip on: post-money SAFE dilution, full-ratchet vs weighted-average anti-dilution, DPI vs TVPI vs MOIC vs IRR, the 2-and-20 carry waterfall, cap-table math. Source from a16z / Y Combinator / NVCA glossaries and standard term-sheet references.",
+    "summary": "A vocabulary pack for Capital Markets & VC terms can be grounded in three authoritative source families that the research question requested: Y Combinator (the SAFE creator/primary source), Carta and a16z (industry-standard metrics references), and the NVCA model legal documents (the canonical term-sheet/governance reference), supplemented by reputable explainers (govclab, iCapital, growthequityinterviewguide) for fund-economics mechanics. The verified claims fully resolve the highest-value member trip-ups flagged in the question: post-money SAFE dilution mechanics (ownership = Purchase Amount / Post-Money Valuation Cap, locked at signing, with founders—not other SAFEs—bearing the burden, and a hard ceiling where raising the full cap leaves founders with 0%), the DPI/TVPI/RVPI/MOIC/IRR distinctions (TVPI = DPI + RVPI; DPI is realized-only and time-insensitive; MOIC ignores cash-flow timing; IRR is the NPV=0 rate that incorporates timing), and the 2-and-20 carry waterfall (2% fee on committed capital, 20% carry, with American deal-by-deal vs European whole-fund structures, an ~8% hurdle in PE but typically none in VC, and a GP catch-up computed from the first dollar of profit). The NVCA model-document mapping pins governance terms (pro rata, board composition, ROFR, drag-along/tag-along) to their controlling agreements. Confidence is high for SAFE mechanics (YC primary) and ARR (a16z primary), and high-but-secondary-sourced for fund-performance metrics and carry-waterfall mechanics, which are stable, textbook, multi-corroborated definitions. The verification campaign confirmed the nuance-heavy terms; many simpler glossary terms in the ~32-item list (e.g., burn rate, runway, TAM/SAM/SOM, data room, secondary) were not independently adjudicated here and should be drafted from the same source families.",
+    "findings": [
+      {
+        "claim": "Post-money SAFE ownership is locked at signing and computed as Purchase Amount / Post-Money Valuation Cap (e.g., $500k at a $5M cap = 10%), which is the instrument's key advantage: founders and investors can immediately and precisely calculate how much ownership was sold, improving dilution transparency.",
+        "confidence": "high",
+        "sources": [
+          "https://www.ycombinator.com/assets/ycdc/Primer%20for%20post-money%20safe%20v1.1-2af8129e12effd9638eeab383b7309142c8f415e5cdb0bc210d573f779177a1c.pdf",
+          "https://www.ycombinator.com/documents/",
+          "https://carta.com/learn/private-funds/",
+          "https://pulley.com"
+        ],
+        "evidence": "YC's primary primer and documents page state verbatim that the post-money SAFE's 'huge advantage' is 'the ability to calculate immediately and precisely how much ownership of the company has been sold,' with ownership = Purchase Amount / Post-Money Valuation Cap. The $500k/$5M=10% arithmetic is reproduced in YC's own worked table and corroborated by Carta and Pulley. Merges claims [1], [5], and [6], which all describe the same calculability/transparency mechanic from the same YC primary source.",
+        "vote": "3-0 (all three constituent claims)"
+      },
+      {
+        "claim": "The post-money SAFE measures ownership 'post' all SAFE money but 'pre' the priced-round money — so SAFEs are diluted by the new Series A investors and by the option-pool INCREASE adopted as part of the Series A, but NOT by hires/options created between the SAFE and the priced round (those existing/promised options and the unissued pool sit inside Company Capitalization). SAFEs do not dilute each other; founders bear that burden.",
+        "confidence": "high",
+        "sources": [
+          "https://www.ycombinator.com/assets/ycdc/Primer%20for%20post-money%20safe%20v1.1-2af8129e12effd9638eeab383b7309142c8f415e5cdb0bc210d573f779177a1c.pdf",
+          "https://www.ycombinator.com/documents/"
+        ],
+        "evidence": "YC's Note #2 states 'the safe ownership is post-safes. It is not post-Series A... they are diluted by the Series A (just like everyone else).' The instrument's 'Company Capitalization' definition includes existing/promised options and the unissued pool but excludes the pool increase adopted with the Equity Financing, confirming SAFE holders are diluted by that increase and the new money but not by interim hires. Merges claims [3] and [5]. Edge refinement: a pool increase IS partially included to the extent Promised Options exceed the pre-increase pool.",
+        "vote": "3-0"
+      },
+      {
+        "claim": "Because post-money SAFE ownership is a fixed share (raise / cap) until conversion, raising an amount equal to the Post-Money Valuation Cap consumes 100% of the company (founders 0%), and raising more produces negative founder ownership — e.g., $5M raised on a $5M cap = 100% SAFE / 0% founders. This makes per-SAFE dilution something founders must track explicitly.",
+        "confidence": "high",
+        "sources": [
+          "https://www.ycombinator.com/assets/ycdc/Primer%20for%20post-money%20safe%20v1.1-2af8129e12effd9638eeab383b7309142c8f415e5cdb0bc210d573f779177a1c.pdf"
+        ],
+        "evidence": "YC primer Section D Q&A #2 states verbatim 'Raising more than the Post-Money Valuation Cap would result in negative ownership for founders!' with the table showing $5M/$5M=100% SAFE ownership and 100%-100%=0% founder ownership. Claim [2]. Trivial nuance: at exactly the cap founders hit 0% (not negative); strictly negative requires raising MORE than the cap.",
+        "vote": "3-0"
+      },
+      {
+        "claim": "The SAFE (Simple Agreement for Future Equity) was introduced by Y Combinator in late 2013 (authored by YC partner Carolynn Levy) and is now the main instrument for early-stage fundraising; YC amended it from pre-money to post-money in 2018, which is now the standard form.",
+        "confidence": "high",
+        "sources": [
+          "https://www.ycombinator.com/documents/"
+        ],
+        "evidence": "YC's documents page states verbatim the SAFE was 'introduced by Y Combinator in late 2013' and is 'the main instrument for early-stage fundraising.' Corroborated by Wikipedia, Carta, and Wall Street Prep. Per Carta, SAFEs were ~90% of pre-seed deals in Q1 2025 and ~64% of seed rounds over a recent 12-month window. Claim [4]; the pre-to-post-money 2018 amendment is the verifier's documented nuance.",
+        "vote": "3-0"
+      },
+      {
+        "claim": "TVPI = DPI + RVPI: total value to paid-in equals distributed value (DPI, realized cash returned) plus remaining unrealized value (RVPI), each expressed relative to LP paid-in capital. DPI captures only realized distributions; TVPI and MOIC include unrealized NAV.",
+        "confidence": "high",
+        "sources": [
+          "https://carta.com/learn/private-funds/management/fund-performance/",
+          "https://growthequityinterviewguide.com/private-equity/pe-vc-performance-metrics",
+          "https://www.investeurope.eu/investor-reporting-guidelines/performance-measurement-and-reporting/"
+        ],
+        "evidence": "Carta states verbatim 'TVPI = DPI + RVPI'; Invest Europe (the European PE/VC standard-setter) defines the three metrics so the identity is structural. Merges duplicate claims [9] and [14], plus [15]. Identity holds when all three are computed on a consistent basis (all gross or all net). A worked example: DPI 0.9x + RVPI 1.5x = TVPI 2.4x.",
+        "vote": "3-0"
+      },
+      {
+        "claim": "MOIC = total value (realized + unrealized NAV) / total invested capital; it captures overall multiple but ignores the TIMING of cash flows. It is generally reported gross (excluding management fees and carry), though some funds report a net MOIC that includes fees and carry.",
+        "confidence": "high",
+        "sources": [
+          "https://carta.com/learn/private-funds/management/fund-performance/",
+          "https://growthequityinterviewguide.com/private-equity/pe-vc-performance-metrics",
+          "https://www.wallstreetprep.com/knowledge/moic-multiple-on-invested-capital/"
+        ],
+        "evidence": "Carta and growthequityinterviewguide both state MOIC = (realized + unrealized) / invested and that it 'does not consider the timing of cash flows.' Carta adds the gross-vs-net reporting convention. Wall Street Prep confirms a 2.0x over 3 years and a 2.0x over 12 years yield the same MOIC, which is why IRR must also be computed. Merges duplicate claims [10] and [16].",
+        "vote": "3-0"
+      },
+      {
+        "claim": "DPI (distributions to paid-in) measures realized cash returned to LPs relative to invested capital; unlike IRR it is unaffected by how long realization takes (no time value of money) and ignores the book value of unrealized investments — making it the 'realization'/liquidity multiple.",
+        "confidence": "high",
+        "sources": [
+          "https://carta.com/learn/private-funds/management/fund-performance/",
+          "https://growthequityinterviewguide.com/private-equity/pe-vc-performance-metrics",
+          "https://corporatefinanceinstitute.com/"
+        ],
+        "evidence": "Carta states 'Unlike IRR, DPI doesn't change based on how long it takes to realize an investment, and it doesn't take into account the book value... of unrealized investments.' CFI confirms DPI ignores time value of money and uses only actual realized distributions. Merges duplicate claims [11] and [15].",
+        "vote": "3-0"
+      },
+      {
+        "claim": "IRR is the annualized discount rate that sets the NPV of all fund cash inflows and outflows to zero; unlike MOIC/TVPI it incorporates the TIMING (not just magnitude) of capital movements. In VC, LPs typically TARGET a net IRR of at least ~20% by full exit — though this is a top-quartile aspiration, not the median (typical VC funds realize ~10-15% net IRR).",
+        "confidence": "high",
+        "sources": [
+          "https://carta.com/learn/private-funds/management/fund-performance/",
+          "https://growthequityinterviewguide.com/private-equity/pe-vc-performance-metrics"
+        ],
+        "evidence": "Carta states IRR 'is the annualized effective compounded return rate that makes the net present value (NPV) of all cash flows... equal to zero' and that 'LPs typically expect a fund's net IRR to reach at least 20%.' growthequityinterviewguide confirms IRR sets NPV=0 and incorporates timing, unlike MOIC/TVPI. Merges claims [12] and [17]. CAVEAT from verifier: 20% is the standard target; Cambridge Associates 25-yr pooled US VC ≈12-15%, so the pack should flag the target-vs-realized gap.",
+        "vote": "3-0"
+      },
+      {
+        "claim": "The J-curve describes the typical fund-return trajectory: negative/low returns early, followed by accelerated gains as investments mature and exits occur. Drivers are upfront management fees and organizational costs, slow investment maturation, and back-loaded distributions to LPs (the trough typically lasts ~3-5 years).",
+        "confidence": "high",
+        "sources": [
+          "https://carta.com/learn/private-funds/management/fund-performance/"
+        ],
+        "evidence": "Carta states the J-curve is 'Negative or low returns in the early years followed by accelerated gains as investments mature and exits occur,' driven by upfront costs and back-loaded distributions. Corroborated by Hamilton Lane, Moonfare, CFI, HarbourVest. Carta 2024 data (>60% of 2019-vintage VC funds undistributed after 5 years) reaffirms it. Claim [13].",
+        "vote": "3-0"
+      },
+      {
+        "claim": "ARR (Annual Recurring Revenue) is recurring revenue on an annual basis that EXCLUDES one-time fees, professional service fees, and variable usage fees. It is NOT 'annual run rate' — multiplying a single month's recognized bookings by 12 to call it ARR is a mistake that overstates true recurring revenue.",
+        "confidence": "high",
+        "sources": [
+          "https://a16z.com/16-more-startup-metrics/"
+        ],
+        "evidence": "a16z's '16 More Startup Metrics' states verbatim ARR is 'the measure of recurring revenue on an annual basis... exclude one-time fees, professional service fees, and any variable usage fees' and that 'It's a mistake to multiply the recognized bookings... in a given month by 12 and call that number ARR.' Merges duplicate claims [7] and [8]. Corroborated by Zuora, CRV, CFI, ChartMogul.",
+        "vote": "3-0"
+      },
+      {
+        "claim": "The standard '2-and-20' venture fund structure = a 2% annual management fee plus 20% carried interest. The management fee is charged on total LP commitments during the investment period — e.g., a $50M fund charges $1M/year (2% of $50M). After the investment period the fee basis typically 'steps down' to invested/net-invested capital and/or the rate declines.",
+        "confidence": "high",
+        "sources": [
+          "https://govclab.com/2023/08/09/venture-fund-economics/",
+          "https://www.cooley.com/",
+          "https://carta.com/learn/private-funds/"
+        ],
+        "evidence": "govclab states the fee is 'calculated on... total commitments from LPs' and '$50mm would charge $1mm annually.' Committed-capital basis confirmed by AngelList, Kruze, Carta, and Cooley's TheFundLawyer. Claim [18]. CAVEATS to surface in the pack: (a) committed-capital basis applies mainly during the ~5-year investment period before step-down; (b) flat 2% is not universal — Cooley/TechCrunch find 2.5% common for larger funds.",
+        "vote": "3-0"
+      },
+      {
+        "claim": "Carried interest is the GP's share of fund profits, standardly 20% (so $20M of profit pays the GP $4M carry). It is a performance-based incentive fee, typically 10-20% across private markets, collected only AFTER a preferred return/hurdle is cleared via a distribution waterfall.",
+        "confidence": "high",
+        "sources": [
+          "https://govclab.com/2023/08/09/venture-fund-economics/",
+          "https://icapital.com/insights/private-equity/understanding-private-market-fund-distribution-waterfalls/",
+          "https://carta.com/learn/private-funds/management/carried-interest/"
+        ],
+        "evidence": "govclab states carry 'is the portion of the fund's profit paid to the fund's managers' with $20M profit -> $4M carry. iCapital states carry 'typically represents 10-20% of profits... after a preferred return is achieved.' Merges claims [19] and [21]. Corroborated by Carta, AngelList, Moonfare, NVCA 2021 Yearbook. The hurdle/waterfall caveat (carry not on the first gross dollar when a hurdle exists) should be flagged in the term's nuance field.",
+        "vote": "3-0 ([19]) / 2-1 ([21])"
+      },
+      {
+        "claim": "The carry waterfall has two forms: an AMERICAN (deal-by-deal) waterfall lets the GP take carry on each individual exit — paying the GP earlier but risking carry on a fund that ultimately underperforms; a EUROPEAN (whole-fund) waterfall requires returning ALL LP capital (plus the preferred return) across the whole fund before the GP receives any carry.",
+        "confidence": "high",
+        "sources": [
+          "https://govclab.com/2023/08/09/venture-fund-economics/",
+          "https://icapital.com/insights/private-equity/understanding-private-market-fund-distribution-waterfalls/",
+          "https://www.carta.com/"
+        ],
+        "evidence": "govclab and Carta confirm American = deal-by-deal carry on individual exits; European = whole-fund, all LP capital returned first. iCapital warns the American structure risks 'a GP receiving carried interest on a fund that is underperforming its hurdle rate.' Merges claims [20] and [24] (American-vs-European distinction). Corroborated by Alter Domus, CSC, FNRP, Allvue.",
+        "vote": "3-0"
+      },
+      {
+        "claim": "The European (whole-fund) waterfall pays out in four sequential tiers: (1) return of capital, (2) preferred return, (3) GP catch-up, (4) remaining split (typically 80-90% LPs / 10-20% GP). The GP catch-up computes carry as if 'from the first dollar' of fund profit, letting the GP retain a higher proportional share (50-100%) until it reaches its entitled split.",
+        "confidence": "high",
+        "sources": [
+          "https://icapital.com/insights/private-equity/understanding-private-market-fund-distribution-waterfalls/",
+          "https://www.allvuesystems.com/",
+          "https://www.goodwinlaw.com/"
+        ],
+        "evidence": "iCapital states remaining proceeds split '80-90% to LPs and 10-20% to the GP' and that the catch-up is 'calculated by going back to the first dollar of profits,' letting the GP 'retain a higher proportional amount (ranging from 50-100%).' Allvue lists the four tiers in order. Merges claims [23] and [24] (waterfall tiers + catch-up). 84% of PE funds use a 100% catch-up.",
+        "vote": "3-0"
+      },
+      {
+        "claim": "Most private-market (PE) funds set the hurdle rate / preferred return at ~8%, but VENTURE CAPITAL funds typically do NOT offer a preferred return — a key reason VC carry mechanics differ from buyout funds.",
+        "confidence": "high",
+        "sources": [
+          "https://icapital.com/insights/private-equity/understanding-private-market-fund-distribution-waterfalls/",
+          "https://www.goodwinlaw.com/"
+        ],
+        "evidence": "iCapital states 'Most private market funds set their hurdle rate or preferred return at around 8%.' Goodwin's empirical fund-terms database finds nearly 80% of PE funds use an 8% hurdle while 'the majority of US venture funds do not have a hurdle rate.' Corroborated by Moonfare, Carta, Archstone. Claim [22].",
+        "vote": "3-0"
+      },
+      {
+        "claim": "The NVCA publishes the standardized suite of model venture-financing legal documents (Certificate of Incorporation, Stock Purchase Agreement, Investors' Rights Agreement, Voting Agreement, Right of First Refusal & Co-Sale Agreement) that govern key term-sheet items: pro rata/participation rights live in the Investors' Rights Agreement; board composition in the Voting Agreement; ROFR in the ROFR & Co-Sale Agreement; drag-along in the Voting Agreement and tag-along/co-sale in the ROFR & Co-Sale Agreement.",
+        "confidence": "high",
+        "sources": [
+          "https://nvca.org/model-legal-documents/",
+          "https://www.cooleygo.com/",
+          "https://www.nixonpeabody.com/"
+        ],
+        "evidence": "NVCA's page lists the documents verbatim (Stock Purchase Agreement, Investors' Rights Agreement, Voting Agreement, ROFR & Co-Sale Agreement, updated Oct 2025/Apr 2026). Governance attributions corroborated by Nixon Peabody, Cooley GO, Morgan Lewis. Claim [0]. This is the canonical term-sheet reference the research question requested for due diligence/terms.",
+        "vote": "3-0"
+      }
+    ],
+    "caveats": "SOURCE STRENGTH varies by group. SAFE mechanics (post-money dilution, ownership math, the cap ceiling, instrument history) and the ARR definition rest on PRIMARY sources (Y Combinator, the SAFE's author; a16z's canonical metrics piece) and are the most authoritative findings. The fund-performance metrics (DPI/TVPI/RVPI/MOIC/IRR/J-curve) and carry-waterfall mechanics rest on strong SECONDARY sources (Carta, growthequityinterviewguide, govclab, iCapital) — but these are stable, textbook, non-extraordinary accounting/structural definitions, independently corroborated by 3-15 sources each (Invest Europe, Wall Street Prep, CFI, Goodwin, Allvue, Moonfare), so confidence remains high. Only one constituent claim was non-unanimous: the '10-20% of profits' carry framing (2-1), because '20% standard' is the more common phrasing than '10-20%'; the merged finding uses the stronger '20% standard' framing.\\n\\nTIME-SENSITIVITY / NUANCES the pack must surface: (1) IRR's ~20% VC target is an aspirational/top-quartile bar — median realized VC net IRR is ~10-15%, so present 20% as a target, not an expectation funds typically hit. (2) The 2% management fee on committed capital applies during the ~5-year investment period before a 'step-down'; the flat 2% is not universal (2.5% is common for larger funds). (3) Carry is paid only above the hurdle when one exists; the simplified '20% of profit' gloss is appropriate for an intro pack but the waterfall/hurdle nuance belongs in the nuance field. (4) The original 2013 SAFE was pre-money; the 2018 post-money form is now standard — relevant to the dilution trip-up. (5) The TVPI = DPI + RVPI identity holds only on a consistent (all-gross or all-net) basis.\\n\\nNVCA model documents were updated Oct 2025 / Apr 2026 — when citing specific clause locations, link the current versions, as section references can shift across revisions.\\n\\nCOVERAGE GAP: This synthesis covers the nuance-heavy terms the question flagged plus several core terms, but the ~32-item list includes many simpler glossary terms (e.g., priced round, term sheet, cap table, dilution, option pool, liquidation preference, convertible note, vesting/cliff, capital call, vintage year, TAM/SAM/SOM, MRR, net revenue retention, burn rate, runway, CAC/LTV, EV/Revenue, EV/EBITDA, DCF, public comps, data room, board seat, anti-dilution full-ratchet vs weighted-average, ROFR, down round, secondary, exit M&A vs IPO) that were NOT independently adjudicated in this verification batch. These should be drafted from the same source families (NVCA glossary, a16z '16 Startup Metrics' / '16 More', YC, Carta) and ideally run through the same verification before shipping. Notably, the full-ratchet vs weighted-average anti-dilution distinction — explicitly called out in the research question — was not among the 25 verified claims and remains a known content gap.",
+    "openQuestions": [
+      "Full-ratchet vs weighted-average anti-dilution — the specific formula difference and when each triggers in a down round — was flagged in the research question but is NOT among the 25 verified claims; this needs sourcing (NVCA model docs / standard term-sheet references) before the pack ships.",
+      "Roughly half the ~32-term list (cap-table math worked example, liquidation preference 1x non-participating vs participating, convertible note vs SAFE, TAM/SAM/SOM sizing, net revenue retention, CAC/LTV, EV/Revenue vs EV/EBITDA, DCF, public comps, down round, secondary, M&A vs IPO exits) was not independently verified here — what is the authoritative source and gloss for each?",
+      "For the cap-table-math trip-up the question emphasizes, what specific worked example (option pool shuffle / pre-money vs post-money on a priced round) best teaches the mechanic for non-finance members, and which primary source (NVCA term sheet, YC, Carta) should anchor it?",
+      "Should the pack present net vs gross consistently for ALL multiples (MOIC, TVPI, DPI), and which convention do the club's target operator/investor audiences most need — given the gross-vs-net reporting ambiguity flagged for MOIC?"
+    ],
+    "refuted": [],
+    "sources": [
+      {
+        "url": "https://nvca.org/model-legal-documents/",
+        "quality": "primary",
+        "angle": "broad/primary — named authoritative glossaries",
+        "claimCount": 4
+      },
+      {
+        "url": "https://www.ycombinator.com/assets/ycdc/Primer%20for%20post-money%20safe%20v1.1-2af8129e12effd9638eeab383b7309142c8f415e5cdb0bc210d573f779177a1c.pdf",
+        "quality": "primary",
+        "angle": "broad/primary — named authoritative glossaries",
+        "claimCount": 5
+      },
+      {
+        "url": "https://www.ycombinator.com/documents/",
+        "quality": "primary",
+        "angle": "broad/primary — named authoritative glossaries",
+        "claimCount": 5
+      },
+      {
+        "url": "https://www.goingvc.com/post/90-essential-venture-capital-terms-a-comprehensive-glossary",
+        "quality": "blog",
+        "angle": "broad/primary — named authoritative glossaries",
+        "claimCount": 5
+      },
+      {
+        "url": "https://growthequityinterviewguide.com/venture-capital/venture-capital-term-sheets/anti-dilution",
+        "quality": "blog",
+        "angle": "deal-term mechanics with worked math",
+        "claimCount": 5
+      },
+      {
+        "url": "https://nvca.org/press_releases/new-enhanced-model-term-sheet-v2-0/",
+        "quality": "primary",
+        "angle": "deal-term mechanics with worked math",
+        "claimCount": 4
+      },
+      {
+        "url": "https://carta.com/learn/private-funds/management/fund-performance/",
+        "quality": "secondary",
+        "angle": "fund return metrics cluster",
+        "claimCount": 5
+      },
+      {
+        "url": "https://growthequityinterviewguide.com/private-equity/pe-vc-performance-metrics",
+        "quality": "secondary",
+        "angle": "fund return metrics cluster",
+        "claimCount": 5
+      },
+      {
+        "url": "https://www.privateequitymarketeer.com/the-marketeers-playbook/irr-dpi-tvpi-and-moic-which-metric-matters-and-when",
+        "quality": "blog",
+        "angle": "fund return metrics cluster",
+        "claimCount": 5
+      },
+      {
+        "url": "https://carta.com/learn/private-funds/management/carried-interest/",
+        "quality": "unreliable",
+        "angle": "fund return metrics cluster",
+        "claimCount": 0
+      },
+      {
+        "url": "https://govclab.com/2023/08/09/venture-fund-economics/",
+        "quality": "secondary",
+        "angle": "fund return metrics cluster",
+        "claimCount": 5
+      },
+      {
+        "url": "https://carta.com/data/vc-fund-performance-q1-2026/",
+        "quality": "primary",
+        "angle": "fund return metrics cluster",
+        "claimCount": 5
+      },
+      {
+        "url": "https://carta.com/learn/private-funds/management/distribution-waterfall/",
+        "quality": "unreliable",
+        "angle": "carry waterfall and fund economics",
+        "claimCount": 0
+      },
+      {
+        "url": "https://icapital.com/insights/private-equity/understanding-private-market-fund-distribution-waterfalls/",
+        "quality": "secondary",
+        "angle": "carry waterfall and fund economics",
+        "claimCount": 5
+      },
+      {
+        "url": "https://blog.cscglobal.com/understanding-european-vs-american-distribution-waterfalls/",
+        "quality": "unreliable",
+        "angle": "carry waterfall and fund economics",
+        "claimCount": 0
+      },
+      {
+        "url": "https://carta.com/data/vc-fund-performance-q3-2025/",
+        "quality": "unreliable",
+        "angle": "carry waterfall and fund economics",
+        "claimCount": 0
+      },
+      {
+        "url": "https://umbrex.com/resources/private-equity-glossary/vintage-year/",
+        "quality": "secondary",
+        "angle": "carry waterfall and fund economics",
+        "claimCount": 4
+      },
+      {
+        "url": "https://a16z.com/16-more-startup-metrics/",
+        "quality": "primary",
+        "angle": "SaaS markets metrics for non-finance learners",
+        "claimCount": 5
+      },
+      {
+        "url": "https://www.forentrepreneurs.com/saas-metrics-2-definitions-2/",
+        "quality": "blog",
+        "angle": "SaaS markets metrics for non-finance learners",
+        "claimCount": 5
+      },
+      {
+        "url": "https://thesaaslibrary.com/saas-metrics-explained/",
+        "quality": "blog",
+        "angle": "SaaS markets metrics for non-finance learners",
+        "claimCount": 5
+      },
+      {
+        "url": "https://www.startupsuperschool.com/glossary/tam-sam-som",
+        "quality": "blog",
+        "angle": "SaaS markets metrics for non-finance learners",
+        "claimCount": 4
+      }
+    ],
+    "stats": {
+      "angles": 5,
+      "sourcesFetched": 21,
+      "claimsExtracted": 81,
+      "claimsVerified": 25,
+      "confirmed": 25,
+      "killed": 0,
+      "afterSynthesis": 16,
+      "urlDupes": 4,
+      "budgetDropped": 5,
+      "agentCalls": 103
+    }
+  }
+}

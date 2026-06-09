@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { IconTile } from "@/components/ui/icon-tile";
 import { Icon } from "@/components/ui/icon";
 import { getSectionVisual, getConceptVisual } from "@/lib/section-icons";
+import type { TrackSummary } from "@/lib/track";
 import type { SectionGroup, ConceptData } from "@/lib/types";
 
 const BOOKMARKS_KEY = "aisa-atlas-bookmarks";
@@ -15,25 +16,38 @@ const TIER_COPY: Record<string, { title: string; subtitle: string }> = {
   fundamentals: {
     title: "Fundamentals",
     subtitle:
-      "The building blocks. If you can't explain these, you're not ready for projects, site tours, or client conversations.",
+      "The building blocks — start here to get a confident mental model of how it all works.",
   },
   intermediate: {
     title: "Intermediate",
     subtitle:
-      "The 'how it works in the real world' layer. What separates a participant from a valuable team member.",
+      "How it actually works in the real world — the layer that turns familiarity into real understanding.",
   },
   advanced: {
     title: "Advanced",
     subtitle:
-      "The cutting edge and the deep dives. What separates someone who's informed from someone who's a thought leader.",
+      "The cutting edge and the deep dives, for when you want to go from informed to genuinely fluent.",
   },
 };
 
-export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
+export function BrowseClient({
+  sections,
+  tracks = [],
+  activeTrackSlug = "ai",
+}: {
+  sections: SectionGroup[];
+  tracks?: TrackSummary[];
+  activeTrackSlug?: string;
+}) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const query = (searchParams?.get("q") ?? "").trim();
   const filter = searchParams?.get("filter") === "bookmarked" ? "bookmarked" : "all";
   const tierFilter = searchParams?.get("tier") ?? null;
+
+  const activeTrack = tracks.find((t) => t.slug === activeTrackSlug) ?? null;
+  // A track with no authored content yet (e.g. Capital Markets pre-seed).
+  const trackIsEmpty = sections.length === 0;
 
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
   const [userExpanded, setUserExpanded] = useState<Set<string>>(new Set());
@@ -156,6 +170,22 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
   return (
     <div style={{ padding: "32px 32px 80px" }}>
       <div style={{ maxWidth: 1040, margin: "0 auto" }}>
+        {/* ── Track switcher ──────────────────────────────────── */}
+        {tracks.length > 1 && (
+          <TrackSwitcher
+            tracks={tracks}
+            activeSlug={activeTrackSlug}
+            onSwitch={(slug) => {
+              if (slug === activeTrackSlug) return;
+              void fetch("/api/track", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ slug }),
+              }).then(() => router.refresh());
+            }}
+          />
+        )}
+
         {/* ── Page header ─────────────────────────────────────── */}
         <div style={{ marginBottom: "var(--space-6)" }}>
           <h1
@@ -252,7 +282,9 @@ export function BrowseClient({ sections }: { sections: SectionGroup[] }) {
         )}
 
         {/* ── Sections / empty state ──────────────────────────── */}
-        {filteredSections.length === 0 ? (
+        {trackIsEmpty ? (
+          <TrackEmptyState track={activeTrack} />
+        ) : filteredSections.length === 0 ? (
           <EmptyState query={query} filter={filter} />
         ) : (
           <div className="browse-sections">
@@ -621,6 +653,105 @@ function EmptyState({ query, filter }: { query: string; filter: "all" | "bookmar
         {filter === "bookmarked"
           ? "Star a concept on any card to save it for later."
           : "Try adjusting your search or clearing the filter."}
+      </p>
+    </div>
+  );
+}
+
+// ── Track Switcher ───────────────────────────────────────────────────────────
+// A row of pills, one per track. The active pill is filled with that track's
+// own accent color so the surface visibly "feels" like the track you're in.
+
+function TrackSwitcher({
+  tracks,
+  activeSlug,
+  onSwitch,
+}: {
+  tracks: TrackSummary[];
+  activeSlug: string;
+  onSwitch: (slug: string) => void;
+}) {
+  return (
+    <div
+      role="tablist"
+      aria-label="Track"
+      style={{
+        display: "flex",
+        gap: "var(--space-2)",
+        flexWrap: "wrap",
+        marginBottom: "var(--space-5)",
+      }}
+    >
+      {tracks.map((t) => {
+        const active = t.slug === activeSlug;
+        return (
+          <button
+            key={t.slug}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onSwitch(t.slug)}
+            onMouseEnter={(e) => {
+              if (!active) {
+                e.currentTarget.style.backgroundColor = "var(--color-surface-2)";
+                e.currentTarget.style.color = "var(--color-text)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!active) {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = "var(--color-text-2)";
+              }
+            }}
+            style={{
+              padding: "6px 14px",
+              borderRadius: 999,
+              fontSize: "var(--text-sm)",
+              fontWeight: 600,
+              fontFamily: "inherit",
+              cursor: active ? "default" : "pointer",
+              border: `1px solid ${active ? t.accentColor : "var(--color-border)"}`,
+              backgroundColor: active ? t.accentColor : "transparent",
+              color: active ? "#fff" : "var(--color-text-2)",
+              transition: "background-color 120ms ease, color 120ms ease, border-color 120ms ease",
+            }}
+          >
+            {t.name}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Track Empty State ────────────────────────────────────────────────────────
+// Shown when a track has no authored content yet (e.g. Capital Markets pre-seed).
+
+function TrackEmptyState({ track }: { track: TrackSummary | null }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "80px 24px",
+        gap: "var(--space-4)",
+        backgroundColor: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: "var(--radius-1)",
+        textAlign: "center",
+      }}
+    >
+      <span style={{ color: track?.accentColor ?? "var(--color-text-3)" }}>
+        <Icon name="book-open" size={28} strokeWidth={1.5} />
+      </span>
+      <p style={{ fontSize: "var(--text-base)", margin: 0, fontWeight: 600, color: "var(--color-text)" }}>
+        {track ? `${track.name} is coming soon` : "Coming soon"}
+      </p>
+      <p style={{ fontSize: "var(--text-sm)", margin: 0, color: "var(--color-text-2)", maxWidth: 400, lineHeight: 1.55 }}>
+        We&apos;re building out this track. Content lands here shortly — switch back to
+        Artificial Intelligence to keep exploring in the meantime.
       </p>
     </div>
   );

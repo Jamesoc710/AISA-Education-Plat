@@ -12,9 +12,10 @@ model User {
   id        String   @id // Supabase auth UUID — no auto-generate
   email     String   @unique
   name      String
-  role      String   @default("RECRUIT") // RECRUIT | MENTOR | ADMIN | CURRICULUM_LEAD | PROJECT_LEAD
+  role      String   @default("MEMBER") // MEMBER | MENTOR | ADMIN | CURRICULUM_LEAD | PROJECT_LEAD
   cohort    String?  // [FUTURE] e.g. "Spring 2026"
   mentorId  String?  // [FUTURE] self-referential FK
+  activeTrackId String? // currently-selected track (also mirrored to a cookie for SSR)
   createdAt DateTime @default(now())
 
   mentor    User?  @relation("MentorRecruits", fields: [mentorId], references: [id])
@@ -31,20 +32,56 @@ model User {
   createdFormalQuizzes   FormalQuiz[]          @relation("FormalQuizCreator")
   formalQuizAttempts     FormalQuizAttempt[]
   feedbackSubmitted      Feedback[]
+  trackMemberships       TrackMembership[]
 
   @@map("users")
 }
 
+// ─── Tracks (top-level content domain: AI / Capital Markets / Field Guides) ──
+// New root above Tier. Tier is the only model that needs the FK — Section /
+// Concept / Question / Bookmark inherit a Track transitively through Tier.
+
+model Track {
+  id          String  @id @default(cuid())
+  slug        String  @unique // "ai" | "capital-markets" | "field-guides"
+  name        String
+  shortName   String
+  description String
+  accentColor String  // per-track accent swatch
+  isPrimary   Boolean @default(false) // AI = true
+  sortOrder   Int
+
+  tiers       Tier[]
+  memberships TrackMembership[]
+
+  @@map("tracks")
+}
+
+model TrackMembership {
+  userId   String
+  trackId  String
+  joinedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  track Track @relation(fields: [trackId], references: [id])
+
+  @@id([userId, trackId])
+  @@map("track_memberships")
+}
+
 model Tier {
   id          String    @id @default(cuid())
+  trackId     String?   // nullable for safe migration; backfilled to the "ai" track
   name        String
   slug        String    @unique
   description String
   sortOrder   Int
   color       String
 
+  track       Track?    @relation(fields: [trackId], references: [id])
   sections    Section[]
 
+  @@index([trackId])
   @@map("tiers")
 }
 
@@ -348,4 +385,24 @@ model ScheduleCellCache {
   updatedAt   DateTime @updatedAt
 
   @@map("schedule_cell_cache")
+}
+
+// ─── "This Week in Tech" digest (weekly cron + admin review-before-publish) ─
+
+model DigestEdition {
+  id          String    @id @default(cuid())
+  weekOf      DateTime  @unique           // Monday 00:00 UTC of the digest week
+  headline    String
+  items       Json                        // [{ title, summary, whyItMatters, url, sourceDomain, resources: [{ title, url, type, sourceDomain }] }] — all URLs verified (200) before persist
+  bigPicture  String?                     // "The big picture" closer: 1-2 paragraphs synthesizing the week (\n\n-separated)
+  watchFor    String?                     // "What to watch": one concrete upcoming thing from the stories
+  contentHash String                      // SHA256 of normalized headline+items; identical regenerate skips the write
+  status      String    @default("draft") // draft | published — cron never publishes
+  generatedAt DateTime  @default(now())
+  publishedAt DateTime?
+  searchesUsed Int?                       // observability: web searches the generating run used
+  durationMs   Int?                       // observability: wall-clock of the generating run
+
+  @@index([status])
+  @@map("digest_editions")
 }

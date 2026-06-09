@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Recruits | Admin | AISA Atlas",
+  title: "Members | Admin | AISA Atlas",
 };
 
 export default async function AdminRecruitsPage() {

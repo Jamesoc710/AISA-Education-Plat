@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { TopChrome } from "@/components/top-chrome";
+import type { TrackSummary } from "@/lib/track";
 
 /**
  * Plays either the standard page-enter fade or, once per signin, the larger
@@ -43,9 +44,13 @@ export type ShellUser = {
  */
 export function MainShell({
   user,
+  tracks = [],
+  activeTrackSlug = "ai",
   children,
 }: {
   user: ShellUser | null;
+  tracks?: TrackSummary[];
+  activeTrackSlug?: string;
   children: ReactNode;
 }) {
   const pathname = usePathname() ?? "/";
@@ -63,7 +68,7 @@ export function MainShell({
         fontFamily: "var(--font-sans)",
       }}
     >
-      <Sidebar user={user} />
+      <Sidebar user={user} tracks={tracks} activeTrackSlug={activeTrackSlug} />
 
       <div
         style={{

@@ -10,6 +10,22 @@ export type GradeResult = {
 };
 
 /**
+ * Claude often wraps its JSON in ```json fences or adds a stray sentence
+ * around it, which makes a raw JSON.parse throw. Pull out the first balanced
+ * {...} block so parsing is resilient to that formatting.
+ */
+function extractJsonObject(text: string): string {
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start === -1 || end === -1 || end <= start) {
+    throw new Error(
+      `No JSON object found in model output: ${text.slice(0, 120)}`,
+    );
+  }
+  return text.slice(start, end + 1);
+}
+
+/**
  * Grade a short-answer response using Claude Haiku.
  *
  * @param questionText  - The question that was asked
@@ -60,8 +76,8 @@ Respond in EXACTLY this JSON format (no other text):
     });
 
     const text =
-      response.content[0].type === "text" ? response.content[0].text : "";
-    const parsed = JSON.parse(text) as GradeResult;
+      response.content[0]?.type === "text" ? response.content[0].text : "";
+    const parsed = JSON.parse(extractJsonObject(text)) as GradeResult;
 
     // Validate the score value
     if (!["correct", "partial", "incorrect"].includes(parsed.score)) {

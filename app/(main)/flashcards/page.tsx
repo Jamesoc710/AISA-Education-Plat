@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { getActiveTrackSlug } from "@/lib/track";
 import { FlashcardsPicker } from "@/components/flashcards-picker";
 import { AuthGate } from "@/components/ui/auth-gate";
 import type { Metadata } from "next";
@@ -29,7 +30,10 @@ export default async function FlashcardsPickerPage() {
     );
   }
 
-  const totalConcepts = await prisma.concept.count();
+  const trackSlug = await getActiveTrackSlug();
+  const totalConcepts = await prisma.concept.count({
+    where: { section: { tier: { track: { slug: trackSlug } } } },
+  });
 
   return <FlashcardsPicker totalConcepts={totalConcepts} />;
 }
