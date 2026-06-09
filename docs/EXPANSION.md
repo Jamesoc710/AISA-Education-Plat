@@ -514,7 +514,10 @@ Favor tools a student would actually use in 2026. Return as structured data, one
   and recapping). First Opus run (170s / 9 searches) exposed a coherence bug: URL verification dropped
   2 items (Yahoo Finance blocks bots) while the closer still referenced them. Fixed two ways: a dead
   source URL now promotes the item's first verified resource link to be the source (story survives),
-  and if any item still drops entirely the closer is omitted for that run. **Final live re-run +
-  republish pending: the API key ran out of credits mid-verification.** Current DB draft is the
-  4-item first-Opus run (unpublished; its closer has the dangling refs). After topping up: admin
-  "Generate now" → review → publish. Opus run cost ≈ $0.30-0.70 incl. thinking; ~$2-3/mo weekly.
+  and if any item still drops entirely the closer is omitted for that run. A second Opus run then
+  truncated at a 12K `max_tokens` (adaptive-thinking depth varies run to run) → switched the call to
+  `messages.stream(...).finalMessage()` with a 24K budget (the TS SDK's non-streaming guard throws
+  above ~21K anyway). **Shipped + republished same day:** verified run 216s / 6 searches / 6 items /
+  0 drops / closer grounded in visible items / 0 dashes. Opus run cost ≈ $0.30-0.70 incl. thinking;
+  ~$2-3/mo weekly. Watch prod runtimes: ~220s against the 300s route ceiling; if it creeps, trim
+  `WEB_SEARCH_MAX_USES` first.

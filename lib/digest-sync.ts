@@ -15,7 +15,10 @@ const MODEL = "claude-opus-4-8";
 const WEB_SEARCH_TOOL = "web_search_20250305" as const;
 const WEB_SEARCH_MAX_USES = 10; // $10 per 1,000 searches → ≤ $0.10/run hard cap
 const MAX_API_CALLS = 4; // pause_turn continuation bound — this run's LLM_CAP
-const MAX_TOKENS = 12000; // adaptive thinking shares this budget with the ~4K JSON output
+// Adaptive thinking shares this budget with the ~4K JSON output, and thinking
+// depth varies run to run (12000 truncated once). Streaming lifts the SDK's
+// non-streaming cap; this is now mostly a per-run output-cost ceiling (~$0.60).
+const MAX_TOKENS = 24000;
 const MIN_ITEMS = 3; // fewer verified items than this = failed run, no write
 const MAX_ITEMS = 7;
 const RAW_ITEM_CAP = 10; // accept a few extra pre-verification, trim after
@@ -260,17 +263,21 @@ async function generateWithClaude(
 
   // Server-side search loop can pause (stop_reason "pause_turn"); resume by
   // echoing the assistant turn. MAX_API_CALLS bounds total spend per run.
+  // Streamed because thinking + search push runs past the SDK's 10-minute
+  // non-streaming estimate guard; finalMessage() assembles the full response.
   do {
-    response = await client.messages.create({
-      model: MODEL,
-      max_tokens: MAX_TOKENS,
-      thinking: { type: "adaptive" },
-      system: SYSTEM_PROMPT,
-      messages,
-      tools: [
-        { type: WEB_SEARCH_TOOL, name: "web_search", max_uses: WEB_SEARCH_MAX_USES },
-      ],
-    });
+    response = await client.messages
+      .stream({
+        model: MODEL,
+        max_tokens: MAX_TOKENS,
+        thinking: { type: "adaptive" },
+        system: SYSTEM_PROMPT,
+        messages,
+        tools: [
+          { type: WEB_SEARCH_TOOL, name: "web_search", max_uses: WEB_SEARCH_MAX_USES },
+        ],
+      })
+      .finalMessage();
     apiCalls++;
     searchesUsed += response.usage.server_tool_use?.web_search_requests ?? 0;
 
