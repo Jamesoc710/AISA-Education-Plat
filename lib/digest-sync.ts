@@ -25,6 +25,12 @@ const RAW_ITEM_CAP = 10; // accept a few extra pre-verification, trim after
 const MAX_RESOURCES_PER_ITEM = 2;
 const URL_TIMEOUT_MS = 8000;
 
+export interface DigestQuizQuestion {
+  question: string;
+  options: { text: string; isCorrect: boolean }[]; // exactly 4, exactly one correct
+  explanation: string;
+}
+
 export interface DigestItemResource {
   title: string;
   url: string;
@@ -86,12 +92,14 @@ Style rule: never use em dashes or en dashes anywhere in your output. Use commas
 
 Also provide "headline": one sentence (max ~20 words) capturing the week's overall story.
 
+Also provide "quiz": 3-4 multiple-choice questions that test whether a member absorbed this week's items. Each question has: "question" (one sentence, answerable purely from the items above, no outside knowledge), "options" (exactly 4, exactly one with "isCorrect": true, with plausible distractors), and "explanation" (1-2 sentences on why the correct answer is right). No trick questions.
+
 Finally provide "bigPicture", the digest's closing section:
 - "narrative": 1-2 short paragraphs (separated by a blank line) that connect this week's stories into a larger story: the through-line, where the stories reinforce or cut against each other, and what they signal about where AI, tech, and the markets are heading. Synthesize, never recap. Refer to stories in passing (like "the IPO wave"), never re-summarize them. Ground every claim in the items above and introduce no new facts.
 - "watchFor": one sentence pointing at the most concrete upcoming thing from these stories that a member should watch (a date, a decision, a launch).
 
 Output STRICT JSON only, no markdown fences, no prose before or after the object:
-{ "headline": string, "items": [ { "title": string, "summary": string, "whyItMatters": string, "category": "ai" | "tech" | "markets", "relatedConceptSlugs": string[], "url": string, "resources": [ { "title": string, "url": string, "type": "article" | "video" } ] } ], "bigPicture": { "narrative": string, "watchFor": string } }`;
+{ "headline": string, "items": [ { "title": string, "summary": string, "whyItMatters": string, "category": "ai" | "tech" | "markets", "relatedConceptSlugs": string[], "url": string, "resources": [ { "title": string, "url": string, "type": "article" | "video" } ] } ], "quiz": [ { "question": string, "options": [ { "text": string, "isCorrect": boolean } ], "explanation": string } ], "bigPicture": { "narrative": string, "watchFor": string } }`;
 
 function buildSystemPrompt(catalogText: string): string {
   return `${SYSTEM_PROMPT_BASE}
@@ -173,12 +181,40 @@ interface ParsedDigest {
   headline: string;
   items: ParsedItem[];
   bigPicture: { narrative: string; watchFor: string };
+  quiz: DigestQuizQuestion[] | null; // additive: a bad quiz never fails the run
+}
+
+function parseQuiz(raw: unknown): DigestQuizQuestion[] | null {
+  if (!Array.isArray(raw)) return null;
+  const out: DigestQuizQuestion[] = [];
+  for (const entry of raw.slice(0, 5)) {
+    const q = entry as { question?: unknown; options?: unknown; explanation?: unknown };
+    const question = cleanDigestText(String(q.question ?? "").trim().slice(0, 300));
+    const explanation = cleanDigestText(String(q.explanation ?? "").trim().slice(0, 400));
+    const options = (Array.isArray(q.options) ? q.options : []).slice(0, 4).map((o) => {
+      const oo = o as { text?: unknown; isCorrect?: unknown };
+      return {
+        text: cleanDigestText(String(oo.text ?? "").trim().slice(0, 200)),
+        isCorrect: oo.isCorrect === true,
+      };
+    });
+    if (!question || !explanation || options.length !== 4) continue;
+    if (options.some((o) => !o.text)) continue;
+    if (options.filter((o) => o.isCorrect).length !== 1) continue;
+    out.push({ question, options, explanation });
+  }
+  return out.length >= 3 ? out.slice(0, 4) : null;
 }
 
 function digestFromCandidate(candidate: string): ParsedDigest | null {
-  let raw: { headline?: unknown; items?: unknown; bigPicture?: unknown };
+  let raw: { headline?: unknown; items?: unknown; bigPicture?: unknown; quiz?: unknown };
   try {
-    raw = JSON.parse(candidate) as { headline?: unknown; items?: unknown; bigPicture?: unknown };
+    raw = JSON.parse(candidate) as {
+      headline?: unknown;
+      items?: unknown;
+      bigPicture?: unknown;
+      quiz?: unknown;
+    };
   } catch {
     return null;
   }
@@ -223,7 +259,7 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
     return [{ title, summary, whyItMatters, url, category, relatedConceptSlugs, resources }];
   });
   if (items.length === 0) return null;
-  return { headline, items, bigPicture: { narrative, watchFor } };
+  return { headline, items, bigPicture: { narrative, watchFor }, quiz: parseQuiz(raw.quiz) };
 }
 
 function parseDigest(text: string): ParsedDigest {
@@ -271,10 +307,11 @@ function contentHashOf(
   items: DigestItem[],
   bigPicture: string,
   watchFor: string,
+  quiz: DigestQuizQuestion[] | null,
 ): string {
   // All inputs are freshly constructed literals, so key order is deterministic
   return createHash("sha256")
-    .update(JSON.stringify({ headline, items, bigPicture, watchFor }))
+    .update(JSON.stringify({ headline, items, bigPicture, watchFor, quiz }))
     .digest("hex");
 }
 
@@ -568,8 +605,12 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
   const closerSafe = finalItems.length === parsed.items.length;
   const bigPicture = closerSafe ? parsed.bigPicture.narrative : null;
   const watchFor = closerSafe ? parsed.bigPicture.watchFor || null : null;
+  // The quiz is written against the model's full item list too
+  const quiz = closerSafe ? parsed.quiz : null;
   if (!closerSafe) {
-    errors.push("Items were dropped, omitting the big-picture closer this run");
+    errors.push("Items were dropped, omitting the big-picture closer and quiz this run");
+  } else if (!parsed.quiz) {
+    errors.push("Model returned no valid quiz, edition persisted without one");
   }
 
   // 3. Hash + upsert as draft. Re-fetch first: an admin may have published
@@ -579,6 +620,7 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
     finalItems,
     bigPicture ?? "",
     watchFor ?? "",
+    quiz,
   );
   const current = await prisma.digestEdition.findUnique({ where: { weekOf } });
 
@@ -606,6 +648,7 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
     items: finalItems as unknown as Prisma.InputJsonValue,
     bigPicture,
     watchFor,
+    quiz: quiz ? (quiz as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
     contentHash,
     status: "draft",
     generatedAt: new Date(),

@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import type { DigestEditionView, DigestItemView } from "@/lib/digest-view";
+import type { DigestQuizQuestion } from "@/lib/digest-sync";
 
 export interface PastEditionRef {
   weekOf: string; // ISO
@@ -133,6 +135,10 @@ export function DigestClient({
 
             {edition.bigPicture && (
               <BigPictureSection narrative={edition.bigPicture} watchFor={edition.watchFor} />
+            )}
+
+            {edition.quiz && edition.quiz.length > 0 && (
+              <DigestQuizSection quiz={edition.quiz} />
             )}
 
             {pastEditions.length > 0 && (
@@ -486,6 +492,108 @@ function BigPictureSection({
         )}
       </section>
     </>
+  );
+}
+
+function DigestQuizSection({ quiz }: { quiz: DigestQuizQuestion[] }) {
+  return (
+    <>
+      <HairRule top={40} bottom={36} />
+      <section style={{ maxWidth: 760 }}>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: "var(--color-text-3)",
+            marginBottom: 6,
+          }}
+        >
+          Test yourself
+        </div>
+        <p style={{ margin: "0 0 22px", fontSize: 14, color: "var(--color-text-3)" }}>
+          A few quick questions on this week. Just for you, nothing is recorded.
+        </p>
+        {quiz.map((q, i) => (
+          <QuizQuestionRow key={i} q={q} index={i} />
+        ))}
+      </section>
+    </>
+  );
+}
+
+function QuizQuestionRow({ q, index }: { q: DigestQuizQuestion; index: number }) {
+  const [picked, setPicked] = useState<number | null>(null);
+  const answered = picked !== null;
+
+  return (
+    <div style={{ marginBottom: 28 }}>
+      <div
+        style={{
+          fontSize: 16,
+          fontWeight: 600,
+          lineHeight: 1.4,
+          color: "var(--color-text)",
+          marginBottom: 12,
+        }}
+      >
+        {index + 1}. {q.question}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {q.options.map((opt, oi) => {
+          const isPicked = picked === oi;
+          const showCorrect = answered && opt.isCorrect;
+          const showWrong = answered && isPicked && !opt.isCorrect;
+          return (
+            <button
+              key={oi}
+              type="button"
+              disabled={answered}
+              onClick={() => setPicked(oi)}
+              style={{
+                textAlign: "left",
+                fontFamily: "inherit",
+                fontSize: 14.5,
+                lineHeight: 1.45,
+                padding: "10px 14px",
+                borderRadius: "var(--radius-2)",
+                border: `1px solid ${
+                  showCorrect
+                    ? "var(--color-correct)"
+                    : showWrong
+                      ? "var(--color-incorrect)"
+                      : "var(--color-border)"
+                }`,
+                backgroundColor: showCorrect
+                  ? "var(--color-correct-dim)"
+                  : showWrong
+                    ? "var(--color-incorrect-dim)"
+                    : "var(--color-surface)",
+                color: "var(--color-text)",
+                cursor: answered ? "default" : "pointer",
+                opacity: answered && !showCorrect && !showWrong ? 0.55 : 1,
+              }}
+            >
+              {opt.text}
+            </button>
+          );
+        })}
+      </div>
+      {answered && (
+        <p
+          style={{
+            margin: "10px 0 0",
+            fontSize: 14,
+            lineHeight: 1.55,
+            color: "var(--color-text-2)",
+          }}
+        >
+          {q.options[picked]?.isCorrect ? "Correct. " : "Not quite. "}
+          {q.explanation}
+        </p>
+      )}
+    </div>
   );
 }
 

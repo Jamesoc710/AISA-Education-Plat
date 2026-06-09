@@ -396,6 +396,7 @@ model DigestEdition {
   items       Json                        // [{ title, summary, whyItMatters, url, sourceDomain, resources: [{ title, url, type, sourceDomain }] }] — all URLs verified (200) before persist
   bigPicture  String?                     // "The big picture" closer: 1-2 paragraphs synthesizing the week (\n\n-separated)
   watchFor    String?                     // "What to watch": one concrete upcoming thing from the stories
+  quiz        Json?                       // 3-4 self-check MC questions: [{ question, options: [{text, isCorrect}x4], explanation }]
   contentHash String                      // SHA256 of normalized headline+items; identical regenerate skips the write
   status      String    @default("draft") // draft | published — cron never publishes
   generatedAt DateTime  @default(now())

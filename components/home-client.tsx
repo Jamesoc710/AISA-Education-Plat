@@ -9,6 +9,7 @@ import type {
   DueItem,
   WeakConcept,
   UpcomingWorkshop,
+  DigestTeaser,
 } from "@/lib/home-data";
 
 interface HomeClientProps {
@@ -20,6 +21,7 @@ interface HomeClientProps {
   dueItems: DueItem[];
   weakConcept: WeakConcept | null;
   upcomingWorkshops: UpcomingWorkshop[];
+  digestTeaser: DigestTeaser | null;
 }
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -74,6 +76,7 @@ export function HomeClient(props: HomeClientProps) {
     dueItems,
     weakConcept,
     upcomingWorkshops,
+    digestTeaser,
   } = props;
 
   const today = new Date(todayISO);
@@ -130,6 +133,14 @@ export function HomeClient(props: HomeClientProps) {
         <ContinueSection pick={continuePick} />
 
         <HairRule top={40} bottom={40} />
+
+        {/* ── This Week in Tech teaser ────────────────────────────── */}
+        {digestTeaser && (
+          <>
+            <DigestTeaserSection teaser={digestTeaser} />
+            <HairRule top={40} bottom={40} />
+          </>
+        )}
 
         {/* ── Two-column: This week | On plate + Practice ─────────── */}
         <div
@@ -235,6 +246,62 @@ export function HomeClient(props: HomeClientProps) {
 }
 
 // ─── Shared primitives ──────────────────────────────────────────────────────
+
+function DigestTeaserSection({ teaser }: { teaser: DigestTeaser }) {
+  return (
+    <div>
+      <SectionEyebrow>This Week in Tech</SectionEyebrow>
+      <Link
+        href="/digest"
+        className="editorial-link"
+        style={{ textDecoration: "none", color: "var(--color-text)" }}
+      >
+        <h2
+          style={{
+            margin: 0,
+            fontSize: 26,
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
+            lineHeight: 1.25,
+            maxWidth: 780,
+          }}
+        >
+          {teaser.headline}
+        </h2>
+      </Link>
+      {teaser.itemTitles.length > 0 && (
+        <p
+          style={{
+            margin: "10px 0 0",
+            fontSize: 14.5,
+            lineHeight: 1.5,
+            color: "var(--color-text-3)",
+            maxWidth: 740,
+          }}
+        >
+          Inside: {teaser.itemTitles.join(" · ")}
+        </p>
+      )}
+      <div style={{ marginTop: 14 }}>
+        <Link
+          href="/digest"
+          className="editorial-link"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            fontSize: 14.5,
+            fontWeight: 600,
+            color: "var(--color-accent)",
+            textDecoration: "none",
+          }}
+        >
+          Read the digest <ArrowRight />
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 function HairRule({ top = 32, bottom = 32 }: { top?: number; bottom?: number }) {
   return (

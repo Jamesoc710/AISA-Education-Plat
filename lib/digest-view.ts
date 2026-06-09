@@ -1,6 +1,6 @@
 import { prisma } from "./prisma";
 import type { DigestEdition } from "@prisma/client";
-import type { DigestItem } from "./digest-sync";
+import type { DigestItem, DigestQuizQuestion } from "./digest-sync";
 
 // Server-side serialization for the /digest pages: ISO dates + concept names
 // resolved at render time (a concept rename never goes stale in old editions).
@@ -22,6 +22,7 @@ export interface DigestEditionView {
   items: DigestItemView[];
   bigPicture: string | null;
   watchFor: string | null;
+  quiz: DigestQuizQuestion[] | null;
 }
 
 export async function editionToView(edition: DigestEdition): Promise<DigestEditionView> {
@@ -51,6 +52,9 @@ export async function editionToView(edition: DigestEdition): Promise<DigestEditi
     status: edition.status,
     bigPicture: edition.bigPicture,
     watchFor: edition.watchFor,
+    quiz: Array.isArray(edition.quiz)
+      ? (edition.quiz as unknown as DigestQuizQuestion[])
+      : null,
     items: items.map((i) => ({
       ...i,
       relatedConcepts: (Array.isArray(i.relatedConceptSlugs) ? i.relatedConceptSlugs : []).flatMap(
