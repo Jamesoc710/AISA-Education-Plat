@@ -311,8 +311,8 @@ alumni page (no alumni base yet) · standalone Data/Product tracks (fold the bes
 ### NOW — make the rebrand structurally true
 **Goal:** AI members notice nothing; Capital members get a real home on day one.
 
-- [ ] **Track model + migration** (`Track`, `Tier.trackId`, `User.activeTrackId`, `TrackMembership`; backfill AI) — **M**
-- [ ] **Track-scope all read paths** (Browse `?track=` + switcher pill, Quiz, Flashcards, Progress via cookie) — **M**
+- [x] **Track model + migration** (`Track`, `Tier.trackId`, `User.activeTrackId`, `TrackMembership`; backfill AI) — **M** — shipped 2026-06-09
+- [x] **Track-scope all read paths** (Browse `?track=` + switcher pill, Quiz, Flashcards, Progress via cookie) — **M** — shipped 2026-06-09; verified AI=10 / Capital=0 / AI=10
 - [ ] **Capital Markets Vocabulary track** (~32 `cap-*` Concept rows, 1 tier / 4 sections, `SECTION_VISUALS`) — **M**
 - [ ] **"CAPITAL" sidebar group + terminology cleanup** (§4: `RECRUIT→MEMBER`, strip gatekeeping copy) — **S**
 
@@ -465,3 +465,8 @@ Favor tools a student would actually use in 2026. Return as structured data, one
 
 - **2026-06-08** — Plan authored. Practice-quiz + assessment **LLM grader fixed** (`lib/grading.ts`
   robust JSON extraction + client hardening), verified live. Status report + live Playwright audit complete.
+- **2026-06-09** — **Phase 1 foundation shipped** (branch `feat/tco-expansion-phase-1`): `Track` model +
+  migration + AI backfill; 3 tracks seeded (AI / Capital Markets / Field Guides); track-scoped Browse
+  (with a per-track-colored switcher pill + coming-soon empty state) + Quiz + Flashcards + Progress;
+  softened gatekeeping tier copy. Verified live (AI unchanged; Capital empty-but-clean; `tsc` clean).
+  Remaining "Now": seed Capital vocab (awaiting research), add the CAPITAL sidebar group, `RECRUIT→MEMBER`.
