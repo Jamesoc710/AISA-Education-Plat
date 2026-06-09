@@ -30,7 +30,7 @@ type SortKey =
   | "lastActive";
 
 const VALID_ROLES = [
-  "RECRUIT",
+  "MEMBER",
   "MENTOR",
   "ADMIN",
   "CURRICULUM_LEAD",
@@ -190,7 +190,7 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
             letterSpacing: "-0.01em",
           }}
         >
-          Recruits
+          Members
         </h2>
         <StatusTag tone="neutral">{recruits.length}</StatusTag>
         <div style={{ flex: 1 }} />
@@ -512,7 +512,7 @@ function EmptyState() {
             marginBottom: "var(--space-1)",
           }}
         >
-          No recruits found
+          No members found
         </div>
         <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
           Try a different search term.

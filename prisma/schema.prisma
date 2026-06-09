@@ -12,7 +12,7 @@ model User {
   id        String   @id // Supabase auth UUID — no auto-generate
   email     String   @unique
   name      String
-  role      String   @default("RECRUIT") // RECRUIT | MENTOR | ADMIN | CURRICULUM_LEAD | PROJECT_LEAD
+  role      String   @default("MEMBER") // MEMBER | MENTOR | ADMIN | CURRICULUM_LEAD | PROJECT_LEAD
   cohort    String?  // [FUTURE] e.g. "Spring 2026"
   mentorId  String?  // [FUTURE] self-referential FK
   activeTrackId String? // currently-selected track (also mirrored to a cookie for SSR)

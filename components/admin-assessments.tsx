@@ -697,7 +697,7 @@ export function AdminAssessments({
         title={deleteTarget.title}
         body={
           deleteTarget.attemptCount > 0
-            ? `This will also delete ${deleteTarget.attemptCount} recruit attempt${
+            ? `This will also delete ${deleteTarget.attemptCount} member attempt${
                 deleteTarget.attemptCount !== 1 ? "s" : ""
               } and their answers. This can't be undone.`
             : "This can't be undone."

@@ -61,7 +61,7 @@ function statusTone(status: ActivityItem["status"]): StatusTagTone {
 
 export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewProps) {
   const statCards: { value: number; label: string; tile: "indigo" | "sky" | "honey" | "mint" }[] = [
-    { value: stats.totalRecruits, label: "Total recruits", tile: "indigo" },
+    { value: stats.totalRecruits, label: "Total members", tile: "indigo" },
     { value: stats.activeThisWeek, label: "Active this week", tile: "sky" },
     { value: stats.pendingToGrade, label: "Pending to grade", tile: "honey" },
     { value: stats.formalQuizzes, label: "Formal quizzes", tile: "mint" },
@@ -242,7 +242,7 @@ function EmptyState() {
           No recent activity
         </div>
         <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
-          Recruit progress will show up here as it happens.
+          Member progress will show up here as it happens.
         </div>
       </div>
     </div>

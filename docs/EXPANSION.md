@@ -314,7 +314,7 @@ alumni page (no alumni base yet) · standalone Data/Product tracks (fold the bes
 - [x] **Track model + migration** (`Track`, `Tier.trackId`, `User.activeTrackId`, `TrackMembership`; backfill AI) — **M** — shipped 2026-06-09
 - [x] **Track-scope all read paths** (Browse `?track=` + switcher pill, Quiz, Flashcards, Progress via cookie) — **M** — shipped 2026-06-09; verified AI=10 / Capital=0 / AI=10
 - [x] **Capital Markets Vocabulary track** — **M** — shipped 2026-06-09; **42** `cm-*` Concept rows (1 "Vocabulary" tier / 4 sections) seeded from deep research, live behind the switcher. (Quiz questions for these terms not yet authored.)
-- [ ] **"CAPITAL" sidebar group + terminology cleanup** (§4: `RECRUIT→MEMBER`, strip gatekeeping copy) — **S**
+- [x] **Sidebar track switcher + terminology cleanup** — **S** — shipped 2026-06-09. A global Tracks switcher in the sidebar (3 tracks, accent dots; AI tier links gate to the AI track); `RECRUIT→MEMBER` across the role value, both signup callbacks, role validation, admin UI ("Console" / "Members" / "Total members"), and a DB migration of 21 users.
 
 **Stage deliverable:** *A member opens Browse, flips a track switcher to "Capital Markets," and
 studies 32 VC terms through the same flashcards + practice quiz + bookmarks + progress they already
@@ -475,3 +475,9 @@ Favor tools a student would actually use in 2026. Return as structured data, one
   (42 cards) all live for the Capital track. 10/42 terms adversarially verified; rest drafted from cited
   primary sources (YC / a16z / NVCA / Carta) — spot-check the formula-bearing ones before a hard launch.
   Remaining "Now": CAPITAL sidebar group, `RECRUIT→MEMBER`. Follow-up: author quiz questions for Capital terms.
+- **2026-06-09** — **"Now" stage closed out.** Sidebar **Tracks switcher** (global, cookie-based; LEARN
+  tier links gate to AI) wired through layout/main-shell/sidebar; switching re-scopes the whole app
+  (verified: Home "Continue learning" follows the active track). **`RECRUIT→MEMBER` rename** complete —
+  role default, both signup callbacks, `VALID_ROLES`, admin count + copy ("Console", "Members" tab,
+  "Total members"), and `scripts/migrate-recruit-to-member.ts` migrated 21 existing users. `tsc` clean,
+  zero console errors. **Phase 1 (Now) done.** Next phase: Build Board + "This Week in Tech" digest.

@@ -481,7 +481,7 @@ export function AdminHomework({
         ) : submissions.length === 0 ? (
           <EmptyCard
             title="No submissions yet"
-            description="Recruit submissions will appear here once they start turning work in."
+            description="Member submissions will appear here once they start turning work in."
             icon="clipboard-check"
           />
         ) : (
@@ -693,7 +693,7 @@ export function AdminHomework({
       {assignments.length === 0 ? (
         <EmptyCard
           title="No assignments yet"
-          description="Create one to start posting work for recruits."
+          description="Create one to start posting work for members."
           icon="clipboard-check"
         />
       ) : (
@@ -799,7 +799,7 @@ export function AdminHomework({
         title={deleteTarget.title}
         body={
           deleteTarget.submissionCount > 0
-            ? `This will also delete ${deleteTarget.submissionCount} recruit submission${
+            ? `This will also delete ${deleteTarget.submissionCount} member submission${
                 deleteTarget.submissionCount !== 1 ? "s" : ""
               }. This can't be undone.`
             : "This can't be undone."

@@ -22,7 +22,7 @@ export default async function AdminPage() {
     scheduleEventCount,
     latestScheduleEvent,
   ] = await Promise.all([
-    prisma.user.count({ where: { role: "RECRUIT" } }),
+    prisma.user.count({ where: { role: "MEMBER" } }),
     prisma.quizAttempt
       .findMany({
         where: { attemptedAt: { gte: sevenDaysAgo } },
