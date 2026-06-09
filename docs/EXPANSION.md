@@ -326,7 +326,7 @@ alumni page (no alumni base yet) · standalone Data/Product tracks (fold the bes
 
 - [x] **Track model + migration** (`Track`, `Tier.trackId`, `User.activeTrackId`, `TrackMembership`; backfill AI) — **M** — shipped 2026-06-09
 - [x] **Track-scope all read paths** (Browse `?track=` + switcher pill, Quiz, Flashcards, Progress via cookie) — **M** — shipped 2026-06-09; verified AI=10 / Capital=0 / AI=10
-- [x] **Capital Markets Vocabulary track** — **M** — shipped 2026-06-09; **42** `cm-*` Concept rows (1 "Vocabulary" tier / 4 sections) seeded from deep research, live behind the switcher. (Quiz questions for these terms not yet authored.)
+- [x] **Capital Markets Vocabulary track** — **M** — shipped 2026-06-09; **42** `cm-*` Concept rows (1 "Vocabulary" tier / 4 sections) seeded from deep research, live behind the switcher. (Quiz questions shipped later the same day: 84 MC, 2 per term — see changelog.)
 - [x] **Sidebar track switcher + terminology cleanup** — **S** — shipped 2026-06-09. A global Tracks switcher in the sidebar (3 tracks, accent dots; AI tier links gate to the AI track); `RECRUIT→MEMBER` across the role value, both signup callbacks, role validation, admin UI ("Console" / "Members" / "Total members"), and a DB migration of 21 users.
 
 **Stage deliverable:** *A member opens Browse, flips a track switcher to "Capital Markets," and
@@ -561,3 +561,16 @@ Favor tools a student would actually use in 2026. Return as structured data, one
   inline answer-and-reveal player on /digest (client-side only, nothing recorded). Verified live:
   162s / 8 searches / 6 items / 4 valid questions; republished. All remaining digest ideas
   (email-on-publish first among them) parked in the LATER checklist.
+- **2026-06-09** — **Capital Markets quiz questions shipped** (`feat/capital-quiz-questions`). 84 authored
+  MC questions, 2 per `cm-*` term, derived strictly from the seeded vocab pack + the cited research file
+  (no new facts); difficulty mirrors each concept's; distractors lean on real cross-term confusions
+  (SAFE vs note, DPI vs TVPI, drag vs tag, fee vs carry); targets the §10 nuance list (post-money SAFE
+  math, full-ratchet vs weighted-average, DPI/TVPI/MOIC/IRR, the 2-and-20 waterfall, cap-table math);
+  zero em/en dashes. Data: `prisma/seed-data/capital-markets-questions.ts`; seeded to prod via idempotent
+  `scripts/seed-capital-questions.ts` (--check static / --verify read-only modes, upsert keyed by
+  conceptSlug+questionText, never deletes, 84 created / 0 updated). Playwright-verified live as the QA
+  admin: Capital mixed quiz served 10/10 capital-only questions, MC grading correct on both paths
+  (check + explanation on a right answer; cross + correct revealed on a wrong one), results screen grouped
+  all 4 capital sections with review-these links to `cm-*` concepts, AI mixed quiz unchanged
+  (Parameters / GPUs / Attention), zero console errors. The Phase 1 "Now" stage is now fully
+  content-complete: Capital members get Browse + flashcards + quiz parity with AI.
