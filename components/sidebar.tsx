@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SidebarNavItem } from "@/components/ui/sidebar-nav-item";
 import { Icon } from "@/components/ui/icon";
 import { FeedbackDialog } from "@/components/feedback-dialog";
 import type { ShellUser } from "@/components/main-shell";
+import type { TrackSummary } from "@/lib/track";
 
 /**
  * Fixed left sidebar — Uxcel-style.
@@ -15,14 +16,33 @@ import type { ShellUser } from "@/components/main-shell";
  * Items routing to pages not yet migrated to the new shell still link normally;
  * those pages will appear dark until their own phase ships.
  */
-export function Sidebar({ user }: { user: ShellUser | null }) {
+export function Sidebar({
+  user,
+  tracks = [],
+  activeTrackSlug = "ai",
+}: {
+  user: ShellUser | null;
+  tracks?: TrackSummary[];
+  activeTrackSlug?: string;
+}) {
   const pathname = usePathname() ?? "";
+  const router = useRouter();
   const searchParams = useSearchParams();
   const filter = searchParams?.get("filter") ?? null;
   const tier = searchParams?.get("tier") ?? null;
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const onBrowse = pathname === "/browse";
   const browseDefault = onBrowse && !filter && !tier;
+  const isAiTrack = activeTrackSlug === "ai";
+
+  const switchTrack = (slug: string) => {
+    if (slug === activeTrackSlug) return;
+    void fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug }),
+    }).then(() => router.refresh());
+  };
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -91,30 +111,51 @@ export function Sidebar({ user }: { user: ShellUser | null }) {
           />
         </div>
 
+        {/* TRACKS switcher — sets the active-track cookie + refreshes */}
+        {tracks.length > 1 && (
+          <>
+            <SectionLabel>Tracks</SectionLabel>
+            <div>
+              {tracks.map((t) => (
+                <TrackNavButton
+                  key={t.slug}
+                  track={t}
+                  active={t.slug === activeTrackSlug}
+                  onClick={() => switchTrack(t.slug)}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
         {/* LEARN group */}
         <SectionLabel>Learn</SectionLabel>
         <div>
-          <SidebarNavItem
-            href="/browse?tier=fundamentals"
-            label="Fundamentals"
-            iconName="circle-dashed"
-            defaultIconColor="var(--color-gold)"
-            active={onBrowse && tier === "fundamentals"}
-          />
-          <SidebarNavItem
-            href="/browse?tier=intermediate"
-            label="Intermediate"
-            iconName="circle-half"
-            defaultIconColor="var(--color-blue)"
-            active={onBrowse && tier === "intermediate"}
-          />
-          <SidebarNavItem
-            href="/browse?tier=advanced"
-            label="Advanced"
-            iconName="circles-three-plus"
-            defaultIconColor="var(--color-slate)"
-            active={onBrowse && tier === "advanced"}
-          />
+          {isAiTrack && (
+            <>
+              <SidebarNavItem
+                href="/browse?tier=fundamentals"
+                label="Fundamentals"
+                iconName="circle-dashed"
+                defaultIconColor="var(--color-gold)"
+                active={onBrowse && tier === "fundamentals"}
+              />
+              <SidebarNavItem
+                href="/browse?tier=intermediate"
+                label="Intermediate"
+                iconName="circle-half"
+                defaultIconColor="var(--color-blue)"
+                active={onBrowse && tier === "intermediate"}
+              />
+              <SidebarNavItem
+                href="/browse?tier=advanced"
+                label="Advanced"
+                iconName="circles-three-plus"
+                defaultIconColor="var(--color-slate)"
+                active={onBrowse && tier === "advanced"}
+              />
+            </>
+          )}
           <SidebarNavItem
             href="/quiz"
             label="Practice quiz"
@@ -220,5 +261,71 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     >
       {children}
     </div>
+  );
+}
+
+/**
+ * A track row in the sidebar's Tracks group. Clicking switches the active
+ * track (cookie via /api/track) and refreshes so every surface re-scopes.
+ * The active track shows its own accent dot + a filled background.
+ */
+function TrackNavButton({
+  track,
+  active,
+  onClick,
+}: {
+  track: TrackSummary;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-current={active ? "true" : undefined}
+      title={track.name}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-3)",
+        padding: "8px 10px",
+        borderRadius: "var(--radius-2)",
+        fontSize: "var(--text-sm)",
+        fontWeight: active ? 600 : 500,
+        color: active ? "var(--color-text)" : "var(--color-text-2)",
+        backgroundColor: active ? "var(--color-surface-2)" : "transparent",
+        border: "none",
+        width: "100%",
+        textAlign: "left",
+        cursor: active ? "default" : "pointer",
+        transition: "background-color 100ms ease, color 100ms ease",
+      }}
+      onMouseEnter={(e) => {
+        if (!active) {
+          e.currentTarget.style.backgroundColor = "var(--color-surface-2)";
+          e.currentTarget.style.color = "var(--color-text)";
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          e.currentTarget.style.backgroundColor = "transparent";
+          e.currentTarget.style.color = "var(--color-text-2)";
+        }
+      }}
+    >
+      <span
+        aria-hidden
+        style={{
+          width: 9,
+          height: 9,
+          borderRadius: 999,
+          backgroundColor: track.accentColor,
+          flexShrink: 0,
+        }}
+      />
+      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        {track.name}
+      </span>
+    </button>
   );
 }
