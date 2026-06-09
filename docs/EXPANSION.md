@@ -521,3 +521,19 @@ Favor tools a student would actually use in 2026. Return as structured data, one
   0 drops / closer grounded in visible items / 0 dashes. Opus run cost ≈ $0.30-0.70 incl. thinking;
   ~$2-3/mo weekly. Watch prod runtimes: ~220s against the 300s route ceiling; if it creeps, trim
   `WEB_SEARCH_MAX_USES` first.
+- **2026-06-09** — **Digest v4** (cite fix + archive + memory + tags + cross-links). (1) Fixed leaked
+  web_search `<cite>` markup persisting as literal text inside JSON-string output — `cleanDigestText`
+  strips it (tolerating tags sliced by length caps) + prompt rule + in-place clean of the live edition.
+  (2) **Archive**: `/digest/[week]` serves any published edition; "Past editions" hairline list on
+  /digest; drafts unreachable by URL. (3) **Week-over-week memory**: previous edition's titles go into
+  the prompt ("only repeat with a material new development"); first fires next Monday. (4) **Category
+  tags**: validated `ai|tech|markets` per item, track-accent byline dots. (5) **Catalog cross-links**:
+  concept catalog injected into the prompt (schedule-sync pattern), `relatedConceptSlugs` (0-2)
+  validated server-side, names resolved at render via `lib/digest-view.ts`, "Related in the catalog"
+  links per item — the news→concept education hook and the Trend Tracker dry run. (6) **Recovery
+  turn**: a live run burned all searches and ended with narration, no JSON — the pipeline now forces
+  one text-only continuation (`tool_choice: none`) reusing the research. (7) Observability:
+  `searchesUsed`/`durationMs` columns, last-run stats + a 48h awaiting-review amber hint on the admin
+  card. Verified live: 215s / 9 searches / 6 items, all categorized, cross-track slugs (`cm-*` on the
+  IPO + Broadcom items), resource-promotion fired (dead openai.com source → VentureBeat link promoted),
+  0 dashes / 0 cite tags; republished.
