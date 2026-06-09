@@ -40,9 +40,10 @@ stack, the design system, and the core learning machinery — all of it generali
 ## 2. Where we are today (June 2026)
 
 - **(Update 2026-06-09)** The TCO pivot is live in production: Track model + track-scoped
-  Browse/Quiz/Flashcards/Progress, the 42-term Capital Markets vocabulary track, MEMBER rename,
-  and the full "This Week in Tech" digest (weekly Opus + web-search pipeline, review-before-publish,
-  archive, home teaser, self-check quiz). First unattended digest cron: Mon 13:00 UTC.
+  Browse/Quiz/Flashcards/Progress, the 42-term Capital Markets vocabulary track **with its 84
+  authored quiz questions (quiz content complete)**, MEMBER rename, and the full "This Week in
+  Tech" digest (weekly Opus + web-search pipeline, review-before-publish, archive, home teaser,
+  self-check quiz). First unattended digest cron: Mon 13:00 UTC.
 - **Live & real.** Deployed on Vercel; ~21 real members used it actively in late April, then it
   went dormant. Revival is part of the goal.
 - **Feature-complete core:** Browse (16 sections / 57 AI concepts), concept detail, practice quiz
@@ -326,7 +327,8 @@ alumni page (no alumni base yet) · standalone Data/Product tracks (fold the bes
 
 - [x] **Track model + migration** (`Track`, `Tier.trackId`, `User.activeTrackId`, `TrackMembership`; backfill AI) — **M** — shipped 2026-06-09
 - [x] **Track-scope all read paths** (Browse `?track=` + switcher pill, Quiz, Flashcards, Progress via cookie) — **M** — shipped 2026-06-09; verified AI=10 / Capital=0 / AI=10
-- [x] **Capital Markets Vocabulary track** — **M** — shipped 2026-06-09; **42** `cm-*` Concept rows (1 "Vocabulary" tier / 4 sections) seeded from deep research, live behind the switcher. (Quiz questions shipped later the same day: 84 MC, 2 per term — see changelog.)
+- [x] **Capital Markets Vocabulary track** — **M** — shipped 2026-06-09; **42** `cm-*` Concept rows (1 "Vocabulary" tier / 4 sections) seeded from deep research, live behind the switcher.
+- [x] **Capital quiz questions** — **M** — shipped 2026-06-09 (`feat/capital-quiz-questions`, merged); **84 MC questions** (2 per `cm-*` term, difficulty mirroring each concept, §10 nuance coverage), seeded to prod + Playwright-verified: capital-only quiz, both grading paths, AI quiz unchanged. **Capital quiz content is DONE** — Capital members have full Browse / flashcards / quiz parity with AI. Only optional extras remain: short-answer questions (LLM-graded, AI-track style) if demand shows, and the §9 Capital-lead spot-check of formula-bearing vocab.
 - [x] **Sidebar track switcher + terminology cleanup** — **S** — shipped 2026-06-09. A global Tracks switcher in the sidebar (3 tracks, accent dots; AI tier links gate to the AI track); `RECRUIT→MEMBER` across the role value, both signup callbacks, role validation, admin UI ("Console" / "Members" / "Total members"), and a DB migration of 21 users.
 
 **Stage deliverable:** *A member opens Browse, flips a track switcher to "Capital Markets," and
