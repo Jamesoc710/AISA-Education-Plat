@@ -76,7 +76,7 @@ Pick the 5-7 most notable items. For each item provide:
 
 Prefer primary sources, meaning the outlet that actually reported the story, over aggregator "news roundup" pages. Use at most one item from any aggregator or roundup site.
 
-Style rule: never use em dashes or en dashes anywhere in your output. Use commas, periods, or parentheses instead, and write number ranges with a plain hyphen (like 5-7).
+Style rule: never use em dashes or en dashes anywhere in your output. Use commas, periods, or parentheses instead, and write number ranges with a plain hyphen (like 5-7). Never include citation markup (like <cite> tags or reference indexes) inside any JSON string; write plain text only.
 
 Also provide "headline": one sentence (max ~20 words) capturing the week's overall story.
 
@@ -129,6 +129,17 @@ function stripDashes(s: string): string {
     .replace(/[,\s]+$/, "");
 }
 
+// With the web_search tool active the model writes internal citation markup
+// (<cite index="...">...</cite>). Inside JSON strings the API can't lift it
+// into citation metadata, so it leaks through as literal text. Strip it, then
+// apply the dash rule. Newlines are preserved (paragraph breaks are real).
+export function cleanDigestText(s: string): string {
+  // ">?" because a length cap can slice a tag in half, leaving it unclosed
+  return stripDashes(
+    s.replace(/<\/?cite\b[^>]*>?/gi, "").replace(/[ \t]{2,}/g, " "),
+  );
+}
+
 interface ParsedResource {
   title: string;
   url: string;
@@ -156,11 +167,11 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
   } catch {
     return null;
   }
-  const headline = stripDashes(String(raw.headline ?? "").trim().slice(0, 300));
+  const headline = cleanDigestText(String(raw.headline ?? "").trim().slice(0, 300));
   if (!headline || !Array.isArray(raw.items) || raw.items.length === 0) return null;
   const bp = raw.bigPicture as { narrative?: unknown; watchFor?: unknown } | undefined;
-  const narrative = stripDashes(String(bp?.narrative ?? "").trim().slice(0, 1500));
-  const watchFor = stripDashes(String(bp?.watchFor ?? "").trim().slice(0, 300));
+  const narrative = cleanDigestText(String(bp?.narrative ?? "").trim().slice(0, 1500));
+  const watchFor = cleanDigestText(String(bp?.watchFor ?? "").trim().slice(0, 300));
   if (!narrative) return null; // the closer is part of the contract now
   const items = raw.items.slice(0, RAW_ITEM_CAP).flatMap((entry): ParsedItem[] => {
     const e = entry as {
@@ -170,16 +181,16 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
       url?: unknown;
       resources?: unknown;
     };
-    const title = stripDashes(String(e.title ?? "").trim().slice(0, 200));
-    const summary = stripDashes(String(e.summary ?? "").trim().slice(0, 600));
-    const whyItMatters = stripDashes(String(e.whyItMatters ?? "").trim().slice(0, 400));
+    const title = cleanDigestText(String(e.title ?? "").trim().slice(0, 200));
+    const summary = cleanDigestText(String(e.summary ?? "").trim().slice(0, 600));
+    const whyItMatters = cleanDigestText(String(e.whyItMatters ?? "").trim().slice(0, 400));
     const url = String(e.url ?? "").trim();
     if (!title || !summary || !whyItMatters || !/^https?:\/\//i.test(url)) return [];
     const resources = (Array.isArray(e.resources) ? e.resources : [])
       .slice(0, MAX_RESOURCES_PER_ITEM)
       .flatMap((res): ParsedResource[] => {
         const r = res as { title?: unknown; url?: unknown; type?: unknown };
-        const rTitle = stripDashes(String(r.title ?? "").trim().slice(0, 200));
+        const rTitle = cleanDigestText(String(r.title ?? "").trim().slice(0, 200));
         const rUrl = String(r.url ?? "").trim();
         if (!rTitle || !/^https?:\/\//i.test(rUrl)) return [];
         return [{ title: rTitle, url: rUrl, type: r.type === "video" ? "video" : "article" }];
