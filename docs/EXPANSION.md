@@ -178,6 +178,13 @@ Plus the cron route (`Bearer CRON_SECRET`) and an admin **"Sync now"** button.
 > cron successfully fetches (200), and require `sourceDomain` to be extracted from the *real*
 > returned URL — never model-generated. Guards against hallucinated headlines.
 
+> **web_search tool-version learning (digest, 2026-06-09):** use `web_search_20250305`, not
+> `web_search_20260209` — the newer version's dynamic-filtering rounds pushed a live Sonnet 4.6
+> run to ~410s (past any Vercel function ceiling); plain search finishes in ~65s. Set
+> `export const maxDuration = 300` on every web-search route, and extract model JSON with a
+> balanced-brace scanner (prose after the JSON broke first-`{`-to-last-`}` slicing). Searches
+> bill at $10/1k + tokens; `usage.server_tool_use.web_search_requests` reports the count.
+
 ### 6.2 The card surface (clone of `browse-client.tsx`)
 Brilliant-style bordered rows + colored `IconTile` left rail, 18px titles, content-preview lines,
 ~1040px. Use for **catalog / act** surfaces: Browse, Build Board, Trend list-view, Tools Directory.
@@ -327,7 +334,7 @@ questions · switching tracks re-scopes Browse/Quiz/Flashcards/Progress · no co
 **Goal:** a dormant club has a reason to log in weekly + proof other humans are here.
 
 - [ ] **Build Board — Showcase** (admin-seeded; `Project` wired to `ProjectAssignment`; `/build` + detail) — **L**
-- [ ] **This Week in Tech digest** (first live-pipeline feature; `DigestEdition`; admin-reviewed publish) — **M**
+- [x] **This Week in Tech digest** (first live-pipeline feature; `DigestEdition`; admin-reviewed publish) — **M** — shipped 2026-06-09; first edition generated, reviewed, and published same day
 - [ ] **Opportunities tab** (`Opportunity`; deadline urgency; same card surface) — **M**
 
 **Stage deliverable:** *A member lands on Home, sees a fresh weekly "This Week in Tech" brief, browses
@@ -481,3 +488,14 @@ Favor tools a student would actually use in 2026. Return as structured data, one
   role default, both signup callbacks, `VALID_ROLES`, admin count + copy ("Console", "Members" tab,
   "Total members"), and `scripts/migrate-recruit-to-member.ts` migrated 21 existing users. `tsc` clean,
   zero console errors. **Phase 1 (Now) done.** Next phase: Build Board + "This Week in Tech" digest.
+- **2026-06-09** — **"This Week in Tech" digest shipped** (first §6.1 live-data feature, proving the
+  web-search cron + cost guard + URL verification). `DigestEdition` model (weekOf-unique, draft→publish);
+  `lib/digest-sync.ts` (Sonnet 4.6 + `web_search_20250305` max_uses 6, ≤4-call pause_turn cap, balanced-
+  JSON parse, URL-verify + real `sourceDomain`, SHA-256 hash skip, published editions immutable to the
+  pipeline — checked *before* any LLM spend); cron `/api/cron/sync-digest` Mon 13:00 UTC + admin
+  generate/publish routes (`maxDuration 300`); admin Overview card (Generate now / Review draft /
+  Publish); `/digest` editorial page (last-updated line, amber >8d staleness banner, admin
+  `?preview=draft`) + sidebar "This Week". Live-verified end-to-end: generation 65s / 5 searches /
+  6 items / 1 aggregator dup dropped → reviewed → published; cron 401 unauth'd and `skipped_published`
+  in 184ms at $0 post-publish. Worst-case run ≈ $0.25; weekly ≈ $1/mo. Remaining "Next": Build Board,
+  Opportunities tab.
