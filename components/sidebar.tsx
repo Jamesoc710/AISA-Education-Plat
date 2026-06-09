@@ -109,6 +109,12 @@ export function Sidebar({
             iconName="bar-chart"
             active={isActive("/dashboard")}
           />
+          <SidebarNavItem
+            href="/digest"
+            label="This Week"
+            iconName="newspaper"
+            active={isActive("/digest")}
+          />
         </div>
 
         {/* TRACKS switcher — sets the active-track cookie + refreshes */}
