@@ -10,6 +10,7 @@ import {
   getDueItems,
   getWeakestConcept,
   getUpcomingWorkshops,
+  getDigestTeaser,
 } from "@/lib/home-data";
 import { getActiveTrackSlug } from "@/lib/track";
 
@@ -46,13 +47,14 @@ export default async function HomePage() {
   const week = getWeekWindow(now);
   const trackSlug = await getActiveTrackSlug();
 
-  const [weekEvents, continuePick, dueItems, weakConcept, upcomingWorkshops] =
+  const [weekEvents, continuePick, dueItems, weakConcept, upcomingWorkshops, digestTeaser] =
     await Promise.all([
       getWeekEvents(week),
       getContinueLearning(dbUser.id, trackSlug),
       getDueItems(dbUser.id),
       getWeakestConcept(dbUser.id, trackSlug),
       getUpcomingWorkshops(now),
+      getDigestTeaser(),
     ]);
 
   const greeting = greetingForHour(now.getHours());
@@ -68,6 +70,7 @@ export default async function HomePage() {
       dueItems={dueItems}
       weakConcept={weakConcept}
       upcomingWorkshops={upcomingWorkshops}
+      digestTeaser={digestTeaser}
     />
   );
 }

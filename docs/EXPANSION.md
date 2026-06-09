@@ -352,6 +352,13 @@ links resolve (200) · Build Board never shows an empty state at launch · expir
 - [ ] **Capital Deal Teardowns** + **Market Pulse** weekly cron — **M**
 - [ ] **Field Guides** (Builder → Dev → Security → Careers, gated on authored content) — **M each**
 - [ ] **Resource queue** (`Resource.status`) + **per-track URL routes** `/t/[slug]/…` — **S**
+- [ ] **Digest follow-ups** (deferred 2026-06-09, in priority order): email-on-publish (Resend free
+  tier, opt-in flag on User, `sentAt` idempotency, editorial HTML template) · link-preview (og:)
+  metadata on /digest routes · "Previously" update-links from the week-over-week memory to archived
+  weeks · Tuesday backup cron (no-ops when an edition exists) + draft-ready admin email · member
+  story submissions queue (pending→review, mirrors Resource queue) · track-aware item ordering via
+  the active-track cookie · per-edition "was this useful?" reactions · prompt nudge for ≥1 video
+  resource — **S–M each**
 
 **Stage deliverable:** *A member explores a live bubble field of trends (and clicks through to the
 concept behind a headline), reads "what GPQA actually measures and who leads," studies an annotated
@@ -537,3 +544,12 @@ Favor tools a student would actually use in 2026. Return as structured data, one
   card. Verified live: 215s / 9 searches / 6 items, all categorized, cross-track slugs (`cm-*` on the
   IPO + Broadcom items), resource-promotion fired (dead openai.com source → VentureBeat link promoted),
   0 dashes / 0 cite tags; republished.
+- **2026-06-09** — **Merged + deployed; digest v5 (home teaser + self-check quiz).**
+  `feat/tco-expansion-phase-1` merged to master (4e77c98) and deployed. /home gains a "This Week in
+  Tech" teaser (linked headline + top item titles, published editions only). The pipeline also
+  generates a 3-4 question multiple-choice self-check quiz in the same Opus call (strict validation:
+  exactly 4 options, exactly 1 correct, sanitized; an invalid quiz never fails the run; omitted with
+  the closer when an item drops in verification), stored in `DigestEdition.quiz` and rendered as an
+  inline answer-and-reveal player on /digest (client-side only, nothing recorded). Verified live:
+  162s / 8 searches / 6 items / 4 valid questions; republished. All remaining digest ideas
+  (email-on-publish first among them) parked in the LATER checklist.

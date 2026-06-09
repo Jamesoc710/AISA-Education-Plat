@@ -359,3 +359,31 @@ export async function getWeakestConcept(userId: string, trackSlug: string): Prom
     accuracyPct: Math.round((worst.correct / worst.total) * 100),
   };
 }
+
+// ─── This Week in Tech teaser ───────────────────────────────────────────────
+
+export type DigestTeaser = {
+  headline: string;
+  weekOf: string; // ISO
+  itemTitles: string[]; // first few item titles for the sub-line
+};
+
+export async function getDigestTeaser(): Promise<DigestTeaser | null> {
+  const edition = await prisma.digestEdition.findFirst({
+    where: { status: "published" },
+    orderBy: { weekOf: "desc" },
+    select: { headline: true, weekOf: true, items: true },
+  });
+  if (!edition) return null;
+  const items = Array.isArray(edition.items)
+    ? (edition.items as { title?: unknown }[])
+    : [];
+  return {
+    headline: edition.headline,
+    weekOf: edition.weekOf.toISOString(),
+    itemTitles: items
+      .map((i) => String(i.title ?? "").trim())
+      .filter(Boolean)
+      .slice(0, 2),
+  };
+}
