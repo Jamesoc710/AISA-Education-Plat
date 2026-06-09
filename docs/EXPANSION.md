@@ -5,7 +5,9 @@
 > architecture decision everything hangs on, every feature fleshed out, and a phased roadmap
 > with concrete deliverables at each stage.
 >
-> **Status:** Planning → ready to execute. Last updated 2026-06-08.
+> **Status:** Executing. Phase 1 ("Now") **shipped**; "This Week in Tech" digest **shipped, merged
+> to master, and live in production** (complete for now — follow-up ideas parked in §8 LATER).
+> Next up: Build Board + Opportunities. Last updated 2026-06-09.
 > **Owner:** @etownjames7 · **Doc home:** `docs/EXPANSION.md`
 
 ---
@@ -37,6 +39,10 @@ stack, the design system, and the core learning machinery — all of it generali
 
 ## 2. Where we are today (June 2026)
 
+- **(Update 2026-06-09)** The TCO pivot is live in production: Track model + track-scoped
+  Browse/Quiz/Flashcards/Progress, the 42-term Capital Markets vocabulary track, MEMBER rename,
+  and the full "This Week in Tech" digest (weekly Opus + web-search pipeline, review-before-publish,
+  archive, home teaser, self-check quiz). First unattended digest cron: Mon 13:00 UTC.
 - **Live & real.** Deployed on Vercel; ~21 real members used it actively in late April, then it
   went dormant. Revival is part of the goal.
 - **Feature-complete core:** Browse (16 sections / 57 AI concepts), concept detail, practice quiz
@@ -334,7 +340,7 @@ questions · switching tracks re-scopes Browse/Quiz/Flashcards/Progress · no co
 **Goal:** a dormant club has a reason to log in weekly + proof other humans are here.
 
 - [ ] **Build Board — Showcase** (admin-seeded; `Project` wired to `ProjectAssignment`; `/build` + detail) — **L**
-- [x] **This Week in Tech digest** (first live-pipeline feature; `DigestEdition`; admin-reviewed publish) — **M** — shipped 2026-06-09; first edition generated, reviewed, and published same day
+- [x] **This Week in Tech digest** (first live-pipeline feature; `DigestEdition`; admin-reviewed publish) — **M** — shipped 2026-06-09 and iterated same day to v5 (per-item whyItMatters + verified go-deeper resources + category tags + catalog cross-links; big-picture closer + what-to-watch; archive routes; week-over-week memory; home teaser; self-check quiz). **Merged to master + deployed; COMPLETE for now** — remaining ideas live in the LATER "Digest follow-ups" entry. Watch: first unattended prod cron Mon 13:00 UTC.
 - [ ] **Opportunities tab** (`Opportunity`; deadline urgency; same card surface) — **M**
 
 **Stage deliverable:** *A member lands on Home, sees a fresh weekly "This Week in Tech" brief, browses
@@ -343,6 +349,8 @@ openings. The app visibly feels alive and populated.*
 
 **Acceptance:** digest cron runs + admin can "Generate now" and review before publish · all digest
 links resolve (200) · Build Board never shows an empty state at launch · expired opportunities auto-archive.
+*(Digest acceptance criteria met 2026-06-09 — Generate now / review / publish verified end-to-end and
+URL verification enforced in the pipeline; the cron's first unattended production run lands Monday.)*
 
 ### LATER — depth + AI-landscape literacy
 **Goal:** deepen each track and add the editorial landscape surfaces, now that retention features are proven.
