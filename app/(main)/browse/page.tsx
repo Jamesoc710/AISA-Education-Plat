@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { BrowseClient } from "@/components/browse-client";
+import { getActiveTrackSlug, getTracks } from "@/lib/track";
 import type { ConceptData, SectionGroup } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-async function getConcepts(): Promise<SectionGroup[]> {
+async function getConcepts(trackSlug: string): Promise<SectionGroup[]> {
   const concepts = await prisma.concept.findMany({
+    where: { section: { tier: { track: { slug: trackSlug } } } },
     include: {
       section: {
         include: { tier: true },
@@ -80,6 +82,9 @@ async function getConcepts(): Promise<SectionGroup[]> {
 }
 
 export default async function BrowsePage() {
-  const sections = await getConcepts();
-  return <BrowseClient sections={sections} />;
+  const trackSlug = await getActiveTrackSlug();
+  const [tracks, sections] = await Promise.all([getTracks(), getConcepts(trackSlug)]);
+  return (
+    <BrowseClient sections={sections} tracks={tracks} activeTrackSlug={trackSlug} />
+  );
 }
