@@ -343,10 +343,52 @@ async function generateWithClaude(
     throw new Error("Response truncated at max_tokens, digest JSON incomplete");
   }
 
-  const text = response.content
-    .filter((b): b is Anthropic.TextBlock => b.type === "text")
-    .map((b) => b.text)
-    .join("");
+  const textOf = (r: Anthropic.Message) =>
+    r.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("");
+
+  let text = textOf(response);
+
+  // Seen live: the model can exhaust its search budget and end the turn with
+  // research narration but no JSON. One forced text-only continuation reuses
+  // everything it already found instead of failing the whole run.
+  let hasJson = true;
+  try {
+    parseDigest(text);
+  } catch {
+    hasJson = false;
+  }
+  if (!hasJson && apiCalls < MAX_API_CALLS) {
+    errors.push("Turn ended without JSON; forcing a text-only continuation");
+    messages.push({ role: "assistant", content: response.content });
+    messages.push({
+      role: "user",
+      content:
+        "Output the strict JSON object now, exactly per the schema in the system prompt, based on what you already found. No prose before or after it.",
+    });
+    response = await client.messages
+      .stream({
+        model: MODEL,
+        max_tokens: MAX_TOKENS,
+        thinking: { type: "adaptive" },
+        system: buildSystemPrompt(catalogText),
+        messages,
+        tools: [
+          { type: WEB_SEARCH_TOOL, name: "web_search", max_uses: WEB_SEARCH_MAX_USES },
+        ],
+        tool_choice: { type: "none" },
+      })
+      .finalMessage();
+    apiCalls++;
+    searchesUsed += response.usage.server_tool_use?.web_search_requests ?? 0;
+    if (response.stop_reason === "max_tokens") {
+      throw new Error("Response truncated at max_tokens, digest JSON incomplete");
+    }
+    text = textOf(response);
+  }
+
   return { text, searchesUsed, apiCalls };
 }
 
