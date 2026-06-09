@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { getActiveTrackSlug } from "@/lib/track";
 import { DashboardClient } from "@/components/dashboard-client";
 import { AuthGate } from "@/components/ui/auth-gate";
 import type { Metadata } from "next";
@@ -35,8 +36,11 @@ export default async function DashboardPage() {
     select: { name: true },
   });
 
-  // Fetch all tiers → sections → concepts (for the completion map)
+  const trackSlug = await getActiveTrackSlug();
+
+  // Fetch all tiers → sections → concepts for the active track (completion map)
   const tiers = await prisma.tier.findMany({
+    where: { track: { slug: trackSlug } },
     select: {
       id: true,
       name: true,
