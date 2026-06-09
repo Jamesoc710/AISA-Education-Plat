@@ -389,10 +389,10 @@ function DescriptionMarkdown({ content }: { content: string }) {
             </p>
           ),
           ul: ({ children }) => (
-            <ul style={{ margin: "0 0 14px", paddingLeft: 22 }}>{children}</ul>
+            <ul style={{ margin: "0 0 14px", paddingLeft: 22, listStyle: "disc" }}>{children}</ul>
           ),
           ol: ({ children }) => (
-            <ol style={{ margin: "0 0 14px", paddingLeft: 22 }}>{children}</ol>
+            <ol style={{ margin: "0 0 14px", paddingLeft: 22, listStyle: "decimal" }}>{children}</ol>
           ),
           li: ({ children }) => (
             <li
