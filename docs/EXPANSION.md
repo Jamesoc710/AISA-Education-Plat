@@ -313,7 +313,7 @@ alumni page (no alumni base yet) · standalone Data/Product tracks (fold the bes
 
 - [x] **Track model + migration** (`Track`, `Tier.trackId`, `User.activeTrackId`, `TrackMembership`; backfill AI) — **M** — shipped 2026-06-09
 - [x] **Track-scope all read paths** (Browse `?track=` + switcher pill, Quiz, Flashcards, Progress via cookie) — **M** — shipped 2026-06-09; verified AI=10 / Capital=0 / AI=10
-- [ ] **Capital Markets Vocabulary track** (~32 `cap-*` Concept rows, 1 tier / 4 sections, `SECTION_VISUALS`) — **M**
+- [x] **Capital Markets Vocabulary track** — **M** — shipped 2026-06-09; **42** `cm-*` Concept rows (1 "Vocabulary" tier / 4 sections) seeded from deep research, live behind the switcher. (Quiz questions for these terms not yet authored.)
 - [ ] **"CAPITAL" sidebar group + terminology cleanup** (§4: `RECRUIT→MEMBER`, strip gatekeeping copy) — **S**
 
 **Stage deliverable:** *A member opens Browse, flips a track switcher to "Capital Markets," and
@@ -469,4 +469,9 @@ Favor tools a student would actually use in 2026. Return as structured data, one
   migration + AI backfill; 3 tracks seeded (AI / Capital Markets / Field Guides); track-scoped Browse
   (with a per-track-colored switcher pill + coming-soon empty state) + Quiz + Flashcards + Progress;
   softened gatekeeping tier copy. Verified live (AI unchanged; Capital empty-but-clean; `tsc` clean).
-  Remaining "Now": seed Capital vocab (awaiting research), add the CAPITAL sidebar group, `RECRUIT→MEMBER`.
+- **2026-06-09** — **Capital Markets vocabulary seeded** (42 `cm-*` terms from deep research →
+  `prisma/seed-data/capital-markets-vocab.ts` via `scripts/seed-capital-markets.ts`; research report
+  preserved at `docs/research/capital-markets-vocab-research.json`). Browse / concept detail / flashcards
+  (42 cards) all live for the Capital track. 10/42 terms adversarially verified; rest drafted from cited
+  primary sources (YC / a16z / NVCA / Carta) — spot-check the formula-bearing ones before a hard launch.
+  Remaining "Now": CAPITAL sidebar group, `RECRUIT→MEMBER`. Follow-up: author quiz questions for Capital terms.

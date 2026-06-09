@@ -41,6 +41,12 @@ export const SECTION_VISUALS: Record<string, SectionVisual> = {
   "modern-non-llm-ai":          { icon: "box",      color: "stone" },
   "advanced-training-mechanics":{ icon: "atom",     color: "steel" },
   "research-meta-skills":       { icon: "compass",  color: "mauve" },
+
+  // ── Capital Markets track (green / gold family) ─────────────────
+  "cm-venture-financing": { icon: "currency-dollar",  color: "sage"  },
+  "cm-fund-mechanics":    { icon: "scales",           color: "mint"  },
+  "cm-markets-metrics":   { icon: "chart-line-up",    color: "honey" },
+  "cm-diligence-terms":   { icon: "magnifying-glass", color: "sky"   },
 };
 
 export const CONCEPT_VISUALS: Record<string, IconName> = {
