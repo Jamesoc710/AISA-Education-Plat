@@ -341,7 +341,7 @@ questions · switching tracks re-scopes Browse/Quiz/Flashcards/Progress · no co
 ### NEXT — kill the empty-room feeling (revival)
 **Goal:** a dormant club has a reason to log in weekly + proof other humans are here.
 
-- [ ] **Build Board — Showcase** (admin-seeded; `Project` wired to `ProjectAssignment`; `/build` + detail) — **L**
+- [ ] **Build Board — Showcase** (admin-seeded; `Project` wired to `ProjectAssignment`; `/build` + detail) — **L** — **built + verified 2026-06-09** on `feat/build-board` (schema live in prod, 3 QA drafts seeded, full role-matrix Playwright pass). **Blocked on content:** waiting on the 3-5 real member projects; nothing publishes or merges until they land (per the §7.5 no-placeholder rule).
 - [x] **This Week in Tech digest** (first live-pipeline feature; `DigestEdition`; admin-reviewed publish) — **M** — shipped 2026-06-09 and iterated same day to v5 (per-item whyItMatters + verified go-deeper resources + category tags + catalog cross-links; big-picture closer + what-to-watch; archive routes; week-over-week memory; home teaser; self-check quiz). **Merged to master + deployed; COMPLETE for now** — remaining ideas live in the LATER "Digest follow-ups" entry. Watch: first unattended prod cron Mon 13:00 UTC.
 - [ ] **Opportunities tab** (`Opportunity`; deadline urgency; same card surface) — **M**
 
@@ -563,6 +563,21 @@ Favor tools a student would actually use in 2026. Return as structured data, one
   inline answer-and-reveal player on /digest (client-side only, nothing recorded). Verified live:
   162s / 8 searches / 6 items / 4 valid questions; republished. All remaining digest ideas
   (email-on-publish first among them) parked in the LATER checklist.
+- **2026-06-09** — **Build Board Showcase built** (`feat/build-board`, not merged: review-gated on real
+  content). Additive schema live in prod via db push: `Project` + `ProjectInterest`, FK + unique wired onto
+  the empty `ProjectAssignment` stub. `/build` on the card surface (track-colored hammer tiles, blurb
+  preview, contributor initials from assignments + an `extraContributors` Json fallback for non-members,
+  looking-for tags, repo/demo chips) + `/build/[slug]` detail (Markdown body, team list, breadcrumb).
+  Join mechanic, per decision (club has no Discord): in-app interest record, one per member per project,
+  optional 500-char note, dialog portaled + light-theme wrapped; leads/admins see name + mailto + note in
+  an on-page Moderation panel. Draft-to-approved gate via PATCH `/api/admin/projects/[id]`
+  (ADMIN/PROJECT_LEAD); members and anonymous only ever query `status: "approved"`. Sidebar "Build Board"
+  link. Seeding: `scripts/seed-projects.ts` (idempotent by slug, creates land as draft, updates never touch
+  status, --check/--verify/--delete modes, dash-ban validation) + 3 `qa-sample-*` drafts for layout QA.
+  Playwright-verified as the QA admin: full role matrix (anonymous / MEMBER / ADMIN), approve -> anonymous
+  sees exactly one project -> unpublish -> empty state again, draft URLs 307 for non-moderators, interest
+  flow end to end, zero console errors; `tsc` clean. Next: collect real projects, swap the seed file,
+  approve, verify member view, merge. Opportunities tab still pending.
 - **2026-06-09** — **Capital Markets quiz questions shipped** (`feat/capital-quiz-questions`). 84 authored
   MC questions, 2 per `cm-*` term, derived strictly from the seeded vocab pack + the cited research file
   (no new facts); difficulty mirrors each concept's; distractors lean on real cross-term confusions
