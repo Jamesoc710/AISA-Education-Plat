@@ -9,13 +9,13 @@ import { prisma } from "./prisma";
 // content-hash skip → upsert by weekOf as a DRAFT. Publishing is a separate,
 // human admin action — this module never sets status to "published".
 
-const MODEL = "claude-sonnet-4-6";
+const MODEL = "claude-opus-4-8";
 // 20250305, not 20260209: the newer version's dynamic-filtering rounds pushed a
 // live run to ~410s, past any Vercel function ceiling. Plain search is fast.
 const WEB_SEARCH_TOOL = "web_search_20250305" as const;
 const WEB_SEARCH_MAX_USES = 10; // $10 per 1,000 searches → ≤ $0.10/run hard cap
 const MAX_API_CALLS = 4; // pause_turn continuation bound — this run's LLM_CAP
-const MAX_TOKENS = 6000; // 7 items × (summary + whyItMatters + resources) + headroom
+const MAX_TOKENS = 12000; // adaptive thinking shares this budget with the ~4K JSON output
 const MIN_ITEMS = 3; // fewer verified items than this = failed run, no write
 const MAX_ITEMS = 7;
 const RAW_ITEM_CAP = 10; // accept a few extra pre-verification, trim after
@@ -77,8 +77,12 @@ Style rule: never use em dashes or en dashes anywhere in your output. Use commas
 
 Also provide "headline": one sentence (max ~20 words) capturing the week's overall story.
 
+Finally provide "bigPicture", the digest's closing section:
+- "narrative": 1-2 short paragraphs (separated by a blank line) that connect this week's stories into a larger story: the through-line, where the stories reinforce or cut against each other, and what they signal about where AI, tech, and the markets are heading. Synthesize, never recap. Refer to stories in passing (like "the IPO wave"), never re-summarize them. Ground every claim in the items above and introduce no new facts.
+- "watchFor": one sentence pointing at the most concrete upcoming thing from these stories that a member should watch (a date, a decision, a launch).
+
 Output STRICT JSON only, no markdown fences, no prose before or after the object:
-{ "headline": string, "items": [ { "title": string, "summary": string, "whyItMatters": string, "url": string, "resources": [ { "title": string, "url": string, "type": "article" | "video" } ] } ] }`;
+{ "headline": string, "items": [ { "title": string, "summary": string, "whyItMatters": string, "url": string, "resources": [ { "title": string, "url": string, "type": "article" | "video" } ] } ], "bigPicture": { "narrative": string, "watchFor": string } }`;
 
 // Surrounding prose can contain braces (a live run emitted text after the
 // JSON and broke a naive first-"{"-to-last-"}" slice), so scan for every
@@ -139,17 +143,22 @@ interface ParsedItem {
 interface ParsedDigest {
   headline: string;
   items: ParsedItem[];
+  bigPicture: { narrative: string; watchFor: string };
 }
 
 function digestFromCandidate(candidate: string): ParsedDigest | null {
-  let raw: { headline?: unknown; items?: unknown };
+  let raw: { headline?: unknown; items?: unknown; bigPicture?: unknown };
   try {
-    raw = JSON.parse(candidate) as { headline?: unknown; items?: unknown };
+    raw = JSON.parse(candidate) as { headline?: unknown; items?: unknown; bigPicture?: unknown };
   } catch {
     return null;
   }
   const headline = stripDashes(String(raw.headline ?? "").trim().slice(0, 300));
   if (!headline || !Array.isArray(raw.items) || raw.items.length === 0) return null;
+  const bp = raw.bigPicture as { narrative?: unknown; watchFor?: unknown } | undefined;
+  const narrative = stripDashes(String(bp?.narrative ?? "").trim().slice(0, 1500));
+  const watchFor = stripDashes(String(bp?.watchFor ?? "").trim().slice(0, 300));
+  if (!narrative) return null; // the closer is part of the contract now
   const items = raw.items.slice(0, RAW_ITEM_CAP).flatMap((entry): ParsedItem[] => {
     const e = entry as {
       title?: unknown;
@@ -175,7 +184,7 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
     return [{ title, summary, whyItMatters, url, resources }];
   });
   if (items.length === 0) return null;
-  return { headline, items };
+  return { headline, items, bigPicture: { narrative, watchFor } };
 }
 
 function parseDigest(text: string): ParsedDigest {
@@ -218,9 +227,16 @@ async function verifyUrl(url: string): Promise<{ ok: boolean; finalUrl: string }
   }
 }
 
-function contentHashOf(headline: string, items: DigestItem[]): string {
-  // Items are freshly constructed literals, so key order is deterministic
-  return createHash("sha256").update(JSON.stringify({ headline, items })).digest("hex");
+function contentHashOf(
+  headline: string,
+  items: DigestItem[],
+  bigPicture: string,
+  watchFor: string,
+): string {
+  // All inputs are freshly constructed literals, so key order is deterministic
+  return createHash("sha256")
+    .update(JSON.stringify({ headline, items, bigPicture, watchFor }))
+    .digest("hex");
 }
 
 const VIDEO_HOST_RE = /(^|\.)(youtube\.com|youtu\.be|vimeo\.com)$/i;
@@ -248,6 +264,7 @@ async function generateWithClaude(
     response = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
+      thinking: { type: "adaptive" },
       system: SYSTEM_PROMPT,
       messages,
       tools: [
@@ -345,10 +362,19 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
   const seenUrls = new Set<string>();
   const items: DigestItem[] = [];
   parsed.items.forEach((item, idx) => {
-    const check = itemChecks[idx];
+    const rChecks = resourceChecks[idx];
+    let check = itemChecks[idx];
+    let promotedResourceIdx = -1;
     if (!check.ok) {
-      errors.push(`Dropped (URL not reachable): ${item.url}`);
-      return;
+      // Dead source: promote the item's first verified resource to be the
+      // source so the story (and any closer reference to it) survives.
+      promotedResourceIdx = rChecks.findIndex((rc) => rc.ok);
+      if (promotedResourceIdx === -1) {
+        errors.push(`Dropped (URL not reachable): ${item.url}`);
+        return;
+      }
+      check = rChecks[promotedResourceIdx];
+      errors.push(`Source unreachable, promoted a resource link: ${item.url} -> ${check.finalUrl}`);
     }
     if (seenUrls.has(check.finalUrl)) {
       errors.push(`Dropped (duplicate URL): ${item.url}`);
@@ -365,7 +391,8 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
 
     const resources: DigestItemResource[] = [];
     item.resources.forEach((res, rIdx) => {
-      const rCheck = resourceChecks[idx][rIdx];
+      if (rIdx === promotedResourceIdx) return; // now serving as the source
+      const rCheck = rChecks[rIdx];
       if (!rCheck.ok) {
         errors.push(`Dropped resource (URL not reachable): ${res.url}`);
         return;
@@ -407,9 +434,24 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
     return fail("failed", searchesUsed, apiCalls);
   }
 
+  // The closer was written against the model's full item list. If any item
+  // failed to survive verification, the narrative may reference a story the
+  // reader can't see, so omit it for this run rather than persist it.
+  const closerSafe = finalItems.length === parsed.items.length;
+  const bigPicture = closerSafe ? parsed.bigPicture.narrative : null;
+  const watchFor = closerSafe ? parsed.bigPicture.watchFor || null : null;
+  if (!closerSafe) {
+    errors.push("Items were dropped, omitting the big-picture closer this run");
+  }
+
   // 3. Hash + upsert as draft. Re-fetch first: an admin may have published
   //    during the minute the generation took, and we must not clobber that.
-  const contentHash = contentHashOf(parsed.headline, finalItems);
+  const contentHash = contentHashOf(
+    parsed.headline,
+    finalItems,
+    bigPicture ?? "",
+    watchFor ?? "",
+  );
   const current = await prisma.digestEdition.findUnique({ where: { weekOf } });
 
   const base = {
@@ -434,6 +476,8 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
   const data = {
     headline: parsed.headline,
     items: finalItems as unknown as Prisma.InputJsonValue,
+    bigPicture,
+    watchFor,
     contentHash,
     status: "draft",
     generatedAt: new Date(),

@@ -8,6 +8,8 @@ interface DigestEditionView {
   generatedAt: string; // ISO
   status: string;
   items: DigestItem[];
+  bigPicture: string | null; // closer narrative, \n\n-separated paragraphs
+  watchFor: string | null;
 }
 
 interface DigestClientProps {
@@ -109,7 +111,11 @@ export function DigestClient({ edition, stale, previewingDraft }: DigestClientPr
               ))}
             </div>
 
-            <HairRule top={8} bottom={24} />
+            {edition.bigPicture && (
+              <BigPictureSection narrative={edition.bigPicture} watchFor={edition.watchFor} />
+            )}
+
+            <HairRule top={edition.bigPicture ? 40 : 8} bottom={24} />
             <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
               Curated weekly for TCO members. Every link goes to the original source.
             </div>
@@ -240,6 +246,70 @@ function DigestItemRow({ item, index }: { item: DigestItem; index: number }) {
         )}
       </div>
     </article>
+  );
+}
+
+function BigPictureSection({
+  narrative,
+  watchFor,
+}: {
+  narrative: string;
+  watchFor: string | null;
+}) {
+  const paragraphs = narrative
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  return (
+    <>
+      <HairRule top={8} bottom={36} />
+      <section style={{ maxWidth: 760 }}>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: "var(--color-text-3)",
+            marginBottom: 16,
+          }}
+        >
+          The big picture
+        </div>
+        {paragraphs.map((p, i) => (
+          <p
+            key={i}
+            style={{
+              margin: i === 0 ? 0 : "14px 0 0",
+              fontSize: 16,
+              lineHeight: 1.65,
+              color: "var(--color-text-2)",
+            }}
+          >
+            {p}
+          </p>
+        ))}
+        {watchFor && (
+          <div style={{ marginTop: 20 }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: "var(--color-accent)",
+                marginBottom: 6,
+              }}
+            >
+              What to watch
+            </div>
+            <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: "var(--color-text-2)" }}>
+              {watchFor}
+            </p>
+          </div>
+        )}
+      </section>
+    </>
   );
 }
 

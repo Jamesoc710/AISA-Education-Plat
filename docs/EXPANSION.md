@@ -508,3 +508,13 @@ Favor tools a student would actually use in 2026. Return as structured data, one
   Live-verified: 84s / 8 searches / 6 items, all primary-source, 2 dead resource links dropped, 0 dashes
   in stored content; republished same day. Worst-case run ≈ $0.45 on Sonnet (≈ $0.65 on Opus 4.8 if
   ever switched; searches are model-independent).
+- **2026-06-09** — **Digest v3: Opus + "The big picture" closer.** Model switched to `claude-opus-4-8`
+  with adaptive thinking (`max_tokens` 12000); new `bigPicture`/`watchFor` columns + a closing section
+  on /digest (synthesis-not-recap narrative + a concrete "What to watch" line; prompt forbids new facts
+  and recapping). First Opus run (170s / 9 searches) exposed a coherence bug: URL verification dropped
+  2 items (Yahoo Finance blocks bots) while the closer still referenced them. Fixed two ways: a dead
+  source URL now promotes the item's first verified resource link to be the source (story survives),
+  and if any item still drops entirely the closer is omitted for that run. **Final live re-run +
+  republish pending: the API key ran out of credits mid-verification.** Current DB draft is the
+  4-item first-Opus run (unpublished; its closer has the dangling refs). After topping up: admin
+  "Generate now" → review → publish. Opus run cost ≈ $0.30-0.70 incl. thinking; ~$2-3/mo weekly.

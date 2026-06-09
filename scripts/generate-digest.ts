@@ -13,6 +13,11 @@ async function main() {
   if (edition) {
     console.log(`\nDB row: status=${edition.status} generatedAt=${edition.generatedAt.toISOString()}`);
     console.log(`Headline: ${edition.headline}`);
+    if (edition.bigPicture) {
+      console.log(`\nThe big picture:\n${edition.bigPicture}`);
+      if (edition.watchFor) console.log(`What to watch: ${edition.watchFor}`);
+      console.log("");
+    }
     for (const item of edition.items as {
       title: string;
       url: string;

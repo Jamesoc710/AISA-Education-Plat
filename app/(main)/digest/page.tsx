@@ -51,6 +51,8 @@ export default async function DigestPage({
               generatedAt: edition.generatedAt.toISOString(),
               status: edition.status,
               items: edition.items as unknown as DigestItem[],
+              bigPicture: edition.bigPicture,
+              watchFor: edition.watchFor,
             }
           : null
       }
