@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { DigestItem } from "@/lib/digest-sync";
 
 interface DigestEditionView {
@@ -12,10 +13,17 @@ interface DigestEditionView {
   watchFor: string | null;
 }
 
+export interface PastEditionRef {
+  weekOf: string; // ISO
+  headline: string;
+}
+
 interface DigestClientProps {
   edition: DigestEditionView | null;
   stale: boolean;
   previewingDraft: boolean;
+  archiveView?: boolean; // viewing a past week via /digest/[week]
+  pastEditions?: PastEditionRef[];
 }
 
 function formatWeekOf(iso: string): string {
@@ -40,13 +48,35 @@ function formatUpdated(iso: string): string {
  * "This Week in Tech" — editorial read surface (the §6.3 language: Hanken,
  * hairline rules, no cards). Renders one published edition.
  */
-export function DigestClient({ edition, stale, previewingDraft }: DigestClientProps) {
+export function DigestClient({
+  edition,
+  stale,
+  previewingDraft,
+  archiveView = false,
+  pastEditions = [],
+}: DigestClientProps) {
   return (
     <div
       data-surface="editorial"
       style={{ backgroundColor: "var(--color-bg)", minHeight: "100%" }}
     >
       <div style={{ maxWidth: 1080, margin: "0 auto", padding: "56px 48px 96px" }}>
+        {archiveView && (
+          <div style={{ marginBottom: 22 }}>
+            <Link
+              href="/digest"
+              className="editorial-link"
+              style={{
+                fontSize: 13.5,
+                fontWeight: 500,
+                color: "var(--color-text-2)",
+                textDecoration: "none",
+              }}
+            >
+              ← Latest edition
+            </Link>
+          </div>
+        )}
         {previewingDraft && edition && (
           <Banner tone="info">
             {edition.status === "draft"
@@ -115,7 +145,17 @@ export function DigestClient({ edition, stale, previewingDraft }: DigestClientPr
               <BigPictureSection narrative={edition.bigPicture} watchFor={edition.watchFor} />
             )}
 
-            <HairRule top={edition.bigPicture ? 40 : 8} bottom={24} />
+            {pastEditions.length > 0 && (
+              <PastEditionsSection
+                editions={pastEditions}
+                label={archiveView ? "More editions" : "Past editions"}
+              />
+            )}
+
+            <HairRule
+              top={edition.bigPicture || pastEditions.length > 0 ? 40 : 8}
+              bottom={24}
+            />
             <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
               Curated weekly for TCO members. Every link goes to the original source.
             </div>
@@ -246,6 +286,77 @@ function DigestItemRow({ item, index }: { item: DigestItem; index: number }) {
         )}
       </div>
     </article>
+  );
+}
+
+function weekLabelShort(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+function PastEditionsSection({
+  editions,
+  label,
+}: {
+  editions: PastEditionRef[];
+  label: string;
+}) {
+  return (
+    <>
+      <HairRule top={40} bottom={36} />
+      <section>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: "var(--color-text-3)",
+            marginBottom: 10,
+          }}
+        >
+          {label}
+        </div>
+        <div>
+          {editions.map((e, i) => (
+            <Link
+              key={e.weekOf}
+              href={`/digest/${e.weekOf.slice(0, 10)}`}
+              className="editorial-link"
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                gap: 20,
+                padding: "13px 0",
+                borderTop: i === 0 ? "none" : "1px solid var(--color-border-subtle)",
+                textDecoration: "none",
+              }}
+            >
+              <span
+                style={{
+                  width: 110,
+                  flexShrink: 0,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--color-text-3)",
+                }}
+              >
+                {weekLabelShort(e.weekOf)}
+              </span>
+              <span style={{ fontSize: 15, fontWeight: 500, color: "var(--color-text)" }}>
+                {e.headline}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
 

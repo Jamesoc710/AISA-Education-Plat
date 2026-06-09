@@ -41,8 +41,20 @@ export default async function DigestPage({
         orderBy: { weekOf: "desc" },
       });
 
+  const pastEditions = edition
+    ? await prisma.digestEdition.findMany({
+        where: { status: "published", weekOf: { lt: edition.weekOf } },
+        orderBy: { weekOf: "desc" },
+        select: { weekOf: true, headline: true },
+      })
+    : [];
+
   return (
     <DigestClient
+      pastEditions={pastEditions.map((p) => ({
+        weekOf: p.weekOf.toISOString(),
+        headline: p.headline,
+      }))}
       edition={
         edition
           ? {
