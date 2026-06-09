@@ -4,6 +4,7 @@ import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 import { AdminCalendarSync } from "@/components/admin-calendar-sync";
+import { AdminDigestCard, type DigestEditionSummary } from "@/components/admin-digest-card";
 
 interface Stats {
   totalRecruits: number;
@@ -29,6 +30,7 @@ interface AdminOverviewProps {
   stats: Stats;
   activity: ActivityItem[];
   calendarSync: CalendarSyncInfo;
+  digest: DigestEditionSummary | null;
 }
 
 function relativeTime(timestamp: string): string {
@@ -59,7 +61,7 @@ function statusTone(status: ActivityItem["status"]): StatusTagTone {
   }
 }
 
-export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewProps) {
+export function AdminOverview({ stats, activity, calendarSync, digest }: AdminOverviewProps) {
   const statCards: { value: number; label: string; tile: "indigo" | "sky" | "honey" | "mint" }[] = [
     { value: stats.totalRecruits, label: "Total members", tile: "indigo" },
     { value: stats.activeThisWeek, label: "Active this week", tile: "sky" },
@@ -73,6 +75,7 @@ export function AdminOverview({ stats, activity, calendarSync }: AdminOverviewPr
         lastSyncedAt={calendarSync.lastSyncedAt}
         eventCount={calendarSync.eventCount}
       />
+      <AdminDigestCard edition={digest} />
       <div
         style={{
           display: "grid",
