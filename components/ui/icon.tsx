@@ -96,6 +96,12 @@ import {
   ArrowRight,
   Trash,
   Newspaper,
+  // Build Board
+  Hammer,
+  GithubLogo,
+  ArrowSquareOut,
+  PaperPlaneTilt,
+  RocketLaunch,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon, IconWeight } from "@phosphor-icons/react";
 
@@ -127,7 +133,10 @@ export type IconName =
   // Flashcards
   | "cards-three" | "shuffle" | "star" | "star-filled" | "arrow-right"
   // Admin actions
-  | "trash";
+  | "trash"
+  // Build Board
+  | "hammer" | "github-logo" | "arrow-square-out" | "paper-plane-tilt"
+  | "rocket-launch";
 
 const REGISTRY: Record<IconName, PhosphorIcon> = {
   // Section tiles
@@ -234,6 +243,12 @@ const REGISTRY: Record<IconName, PhosphorIcon> = {
   "arrow-right": ArrowRight,
   // Admin actions
   "trash": Trash,
+  // Build Board
+  "hammer": Hammer,
+  "github-logo": GithubLogo,
+  "arrow-square-out": ArrowSquareOut,
+  "paper-plane-tilt": PaperPlaneTilt,
+  "rocket-launch": RocketLaunch,
 };
 
 export function Icon({
