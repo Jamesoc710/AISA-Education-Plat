@@ -13,8 +13,14 @@ async function main() {
   if (edition) {
     console.log(`\nDB row: status=${edition.status} generatedAt=${edition.generatedAt.toISOString()}`);
     console.log(`Headline: ${edition.headline}`);
-    for (const item of edition.items as { title: string; url: string; sourceDomain: string }[]) {
-      console.log(`  - ${item.title} (${item.sourceDomain})\n    ${item.url}`);
+    for (const item of edition.items as {
+      title: string;
+      url: string;
+      sourceDomain: string;
+      resources?: { title: string; type: string }[];
+    }[]) {
+      const extras = item.resources?.map((r) => `[${r.type}] ${r.title}`).join(" · ") ?? "";
+      console.log(`  - ${item.title} (${item.sourceDomain})\n    ${item.url}${extras ? `\n    go deeper: ${extras}` : ""}`);
     }
   } else {
     console.log("\nNo DB row for this week (run failed or was skipped).");

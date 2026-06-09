@@ -11,21 +11,31 @@ import { prisma } from "./prisma";
 
 const MODEL = "claude-sonnet-4-6";
 // 20250305, not 20260209: the newer version's dynamic-filtering rounds pushed a
-// live run to ~410s — past any Vercel function ceiling. Plain search is fast.
+// live run to ~410s, past any Vercel function ceiling. Plain search is fast.
 const WEB_SEARCH_TOOL = "web_search_20250305" as const;
-const WEB_SEARCH_MAX_USES = 6; // $10 per 1,000 searches → ≤ $0.06/run hard cap
+const WEB_SEARCH_MAX_USES = 10; // $10 per 1,000 searches → ≤ $0.10/run hard cap
 const MAX_API_CALLS = 4; // pause_turn continuation bound — this run's LLM_CAP
-const MAX_TOKENS = 4096;
+const MAX_TOKENS = 6000; // 7 items × (summary + whyItMatters + resources) + headroom
 const MIN_ITEMS = 3; // fewer verified items than this = failed run, no write
 const MAX_ITEMS = 7;
 const RAW_ITEM_CAP = 10; // accept a few extra pre-verification, trim after
+const MAX_RESOURCES_PER_ITEM = 2;
 const URL_TIMEOUT_MS = 8000;
+
+export interface DigestItemResource {
+  title: string;
+  url: string;
+  type: "article" | "video";
+  sourceDomain: string;
+}
 
 export interface DigestItem {
   title: string;
   summary: string;
+  whyItMatters: string;
   url: string;
   sourceDomain: string; // hostname of the URL the fetch actually resolved to
+  resources: DigestItemResource[]; // go-deeper links, URL-verified like the source
 }
 
 export interface DigestSyncResult {
@@ -48,21 +58,27 @@ export function getDigestWeekOf(now: Date = new Date()): Date {
   return monday;
 }
 
-const SYSTEM_PROMPT = `You are curating "This Week in Tech" — a weekly news digest for TCO (Tech Collective Org), a university tech club. Members come from mixed, often non-technical backgrounds: assume no prior knowledge, and gloss any jargon in plain English. No hype, no clickbait.
+// NOTE: deliberately dash-free. Models mirror prompt style, and the digest's
+// style rule bans em and en dashes in output.
+const SYSTEM_PROMPT = `You are curating "This Week in Tech", a weekly news digest for TCO (Tech Collective Org), a university tech club. Members come from mixed, often non-technical backgrounds: assume no prior knowledge, and gloss any jargon in plain English. No hype, no clickbait.
 
 Use web search to find what ACTUALLY happened in the last 7 days. Cover a mix across three areas: AI (2-3 items), broader tech (1-2 items), and capital markets / venture capital (1-2 items).
 
 Pick the 5-7 most notable items. For each item provide:
 - "title": a clear, factual headline (max ~15 words).
-- "summary": 2-3 plain-English sentences — what happened, and why a student should care.
+- "summary": 2-3 plain-English sentences on what happened. Facts only; save the significance for the next field.
+- "whyItMatters": 1-2 sentences on why a student or club member should care about this.
 - "url": the source article's URL copied EXACTLY from a web search result. Never construct, shorten, or guess a URL.
+- "resources": 1-2 supplementary links that help a member go deeper. Prefer one accessible explainer article, plus one video when a good one exists. Each resource is { "title": string, "url": string, "type": "article" | "video" }. Resource URLs must also be copied EXACTLY from web search results, never invented.
 
-Prefer primary sources — the outlet that actually reported the story — over aggregator "news roundup" pages. Use at most one item from any aggregator/roundup site.
+Prefer primary sources, meaning the outlet that actually reported the story, over aggregator "news roundup" pages. Use at most one item from any aggregator or roundup site.
+
+Style rule: never use em dashes or en dashes anywhere in your output. Use commas, periods, or parentheses instead, and write number ranges with a plain hyphen (like 5-7).
 
 Also provide "headline": one sentence (max ~20 words) capturing the week's overall story.
 
-Output STRICT JSON only — no markdown fences, no prose before or after the object:
-{ "headline": string, "items": [ { "title": string, "summary": string, "url": string } ] }`;
+Output STRICT JSON only, no markdown fences, no prose before or after the object:
+{ "headline": string, "items": [ { "title": string, "summary": string, "whyItMatters": string, "url": string, "resources": [ { "title": string, "url": string, "type": "article" | "video" } ] } ] }`;
 
 // Surrounding prose can contain braces (a live run emitted text after the
 // JSON and broke a naive first-"{"-to-last-"}" slice), so scan for every
@@ -95,9 +111,34 @@ function* balancedJsonCandidates(text: string): Generator<string> {
   }
 }
 
+// Backstop for the prompt's no-dash style rule: em/en dashes between digits
+// become hyphens (5-7), every other em/en dash becomes a comma pause.
+function stripDashes(s: string): string {
+  return s
+    .replace(/(\d)\s*[–—]\s*(\d)/g, "$1-$2")
+    .replace(/\s*[–—]\s*/g, ", ")
+    .replace(/,\s*,/g, ", ")
+    .replace(/^,\s*/, "")
+    .replace(/[,\s]+$/, "");
+}
+
+interface ParsedResource {
+  title: string;
+  url: string;
+  type: "article" | "video";
+}
+
+interface ParsedItem {
+  title: string;
+  summary: string;
+  whyItMatters: string;
+  url: string;
+  resources: ParsedResource[];
+}
+
 interface ParsedDigest {
   headline: string;
-  items: { title: string; summary: string; url: string }[];
+  items: ParsedItem[];
 }
 
 function digestFromCandidate(candidate: string): ParsedDigest | null {
@@ -107,15 +148,31 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
   } catch {
     return null;
   }
-  const headline = String(raw.headline ?? "").trim().slice(0, 300);
+  const headline = stripDashes(String(raw.headline ?? "").trim().slice(0, 300));
   if (!headline || !Array.isArray(raw.items) || raw.items.length === 0) return null;
-  const items = raw.items.slice(0, RAW_ITEM_CAP).flatMap((entry) => {
-    const e = entry as { title?: unknown; summary?: unknown; url?: unknown };
-    const title = String(e.title ?? "").trim().slice(0, 200);
-    const summary = String(e.summary ?? "").trim().slice(0, 600);
+  const items = raw.items.slice(0, RAW_ITEM_CAP).flatMap((entry): ParsedItem[] => {
+    const e = entry as {
+      title?: unknown;
+      summary?: unknown;
+      whyItMatters?: unknown;
+      url?: unknown;
+      resources?: unknown;
+    };
+    const title = stripDashes(String(e.title ?? "").trim().slice(0, 200));
+    const summary = stripDashes(String(e.summary ?? "").trim().slice(0, 600));
+    const whyItMatters = stripDashes(String(e.whyItMatters ?? "").trim().slice(0, 400));
     const url = String(e.url ?? "").trim();
-    if (!title || !summary || !/^https?:\/\//i.test(url)) return [];
-    return [{ title, summary, url }];
+    if (!title || !summary || !whyItMatters || !/^https?:\/\//i.test(url)) return [];
+    const resources = (Array.isArray(e.resources) ? e.resources : [])
+      .slice(0, MAX_RESOURCES_PER_ITEM)
+      .flatMap((res): ParsedResource[] => {
+        const r = res as { title?: unknown; url?: unknown; type?: unknown };
+        const rTitle = stripDashes(String(r.title ?? "").trim().slice(0, 200));
+        const rUrl = String(r.url ?? "").trim();
+        if (!rTitle || !/^https?:\/\//i.test(rUrl)) return [];
+        return [{ title: rTitle, url: rUrl, type: r.type === "video" ? "video" : "article" }];
+      });
+    return [{ title, summary, whyItMatters, url, resources }];
   });
   if (items.length === 0) return null;
   return { headline, items };
@@ -162,17 +219,11 @@ async function verifyUrl(url: string): Promise<{ ok: boolean; finalUrl: string }
 }
 
 function contentHashOf(headline: string, items: DigestItem[]): string {
-  const repr = JSON.stringify({
-    headline,
-    items: items.map((i) => ({
-      title: i.title,
-      summary: i.summary,
-      url: i.url,
-      sourceDomain: i.sourceDomain,
-    })),
-  });
-  return createHash("sha256").update(repr).digest("hex");
+  // Items are freshly constructed literals, so key order is deterministic
+  return createHash("sha256").update(JSON.stringify({ headline, items })).digest("hex");
 }
+
+const VIDEO_HOST_RE = /(^|\.)(youtube\.com|youtu\.be|vimeo\.com)$/i;
 
 // ─── LLM call (bounded server-tool loop) ────────────────────────────────────
 
@@ -221,7 +272,7 @@ async function generateWithClaude(
     throw new Error(`Hit API call cap (${MAX_API_CALLS}) while still in pause_turn`);
   }
   if (response.stop_reason === "max_tokens") {
-    throw new Error("Response truncated at max_tokens — digest JSON incomplete");
+    throw new Error("Response truncated at max_tokens, digest JSON incomplete");
   }
 
   const text = response.content
@@ -255,7 +306,7 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
   //    LLM spend. An admin must unpublish first to regenerate a week.
   const existing = await prisma.digestEdition.findUnique({ where: { weekOf } });
   if (existing && existing.status === "published") {
-    errors.push("Edition for this week is already published — leaving it untouched");
+    errors.push("Edition for this week is already published, leaving it untouched");
     return {
       ok: true,
       weekOf: weekOf.toISOString(),
@@ -285,12 +336,16 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
     return fail("failed", searchesUsed, apiCalls);
   }
 
-  // 2. URL-verify every item; dedupe by resolved URL.
-  const checks = await Promise.all(parsed.items.map((i) => verifyUrl(i.url)));
+  // 2. URL-verify every item AND every resource; dedupe by resolved URL.
+  //    A dead resource link only drops that resource, never its item.
+  const [itemChecks, resourceChecks] = await Promise.all([
+    Promise.all(parsed.items.map((i) => verifyUrl(i.url))),
+    Promise.all(parsed.items.map((i) => Promise.all(i.resources.map((r) => verifyUrl(r.url))))),
+  ]);
   const seenUrls = new Set<string>();
   const items: DigestItem[] = [];
   parsed.items.forEach((item, idx) => {
-    const check = checks[idx];
+    const check = itemChecks[idx];
     if (!check.ok) {
       errors.push(`Dropped (URL not reachable): ${item.url}`);
       return;
@@ -307,14 +362,47 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
       return;
     }
     seenUrls.add(check.finalUrl);
-    items.push({ title: item.title, summary: item.summary, url: check.finalUrl, sourceDomain });
+
+    const resources: DigestItemResource[] = [];
+    item.resources.forEach((res, rIdx) => {
+      const rCheck = resourceChecks[idx][rIdx];
+      if (!rCheck.ok) {
+        errors.push(`Dropped resource (URL not reachable): ${res.url}`);
+        return;
+      }
+      if (rCheck.finalUrl === check.finalUrl || resources.some((r) => r.url === rCheck.finalUrl)) {
+        return; // resource duplicates the source or a sibling, silently skip
+      }
+      let rDomain: string;
+      try {
+        rDomain = new URL(rCheck.finalUrl).hostname.replace(/^www\./, "");
+      } catch {
+        return;
+      }
+      resources.push({
+        title: res.title,
+        url: rCheck.finalUrl,
+        // Hostname beats the model's claim for the type tag
+        type: VIDEO_HOST_RE.test(new URL(rCheck.finalUrl).hostname) ? "video" : res.type,
+        sourceDomain: rDomain,
+      });
+    });
+
+    items.push({
+      title: item.title,
+      summary: item.summary,
+      whyItMatters: item.whyItMatters,
+      url: check.finalUrl,
+      sourceDomain,
+      resources: resources.slice(0, MAX_RESOURCES_PER_ITEM),
+    });
   });
   const dropped = parsed.items.length - items.length;
   const finalItems = items.slice(0, MAX_ITEMS);
 
   if (finalItems.length < MIN_ITEMS) {
     errors.push(
-      `Only ${finalItems.length}/${MIN_ITEMS} items survived URL verification — not persisting`,
+      `Only ${finalItems.length}/${MIN_ITEMS} items survived URL verification, not persisting`,
     );
     return fail("failed", searchesUsed, apiCalls);
   }
@@ -339,7 +427,7 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
     return { ...base, outcome: "cached", durationMs: Date.now() - t0 };
   }
   if (current && current.status === "published") {
-    errors.push("Edition was published while generating — leaving it untouched");
+    errors.push("Edition was published while generating, leaving it untouched");
     return { ...base, outcome: "skipped_published", durationMs: Date.now() - t0 };
   }
 

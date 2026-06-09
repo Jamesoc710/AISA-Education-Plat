@@ -59,8 +59,8 @@ export function AdminDigestCard({ edition }: AdminDigestCardProps) {
         const messages: Record<string, string> = {
           created: `Draft generated: ${json.itemCount} items (${json.searchesUsed} searches)`,
           updated: `Draft regenerated: ${json.itemCount} items (${json.searchesUsed} searches)`,
-          cached: "No changes — content matches the existing edition",
-          skipped_published: "This week is already published — unpublish first to regenerate",
+          cached: "No changes (content matches the existing edition)",
+          skipped_published: "Already published. Unpublish first to regenerate",
         };
         setResult({ ok: true, message: messages[json.outcome] ?? json.outcome });
         router.refresh();
@@ -159,9 +159,17 @@ export function AdminDigestCard({ edition }: AdminDigestCardProps) {
           )}
         </div>
         <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
-          {edition
-            ? `Week of ${weekLabel(edition.weekOf)} · ${edition.itemCount} items · generated ${relativeTime(edition.generatedAt)}`
-            : "No editions yet — generate the first draft"}
+          {edition ? (
+            <>
+              Week of {weekLabel(edition.weekOf)} · {edition.itemCount} items ·{" "}
+              {/* relative time drifts between SSR and hydration; keep the client value */}
+              <span suppressHydrationWarning>
+                generated {relativeTime(edition.generatedAt)}
+              </span>
+            </>
+          ) : (
+            "No editions yet. Generate the first draft"
+          )}
           {result && (
             <span
               style={{

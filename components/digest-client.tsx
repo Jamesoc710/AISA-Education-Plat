@@ -48,7 +48,7 @@ export function DigestClient({ edition, stale, previewingDraft }: DigestClientPr
         {previewingDraft && edition && (
           <Banner tone="info">
             {edition.status === "draft"
-              ? "Draft preview — members can't see this edition until it's published from the admin console."
+              ? "Draft preview. Members can't see this edition until it's published from the admin console."
               : "Previewing the latest edition (already published)."}
           </Banner>
         )}
@@ -97,7 +97,7 @@ export function DigestClient({ edition, stale, previewingDraft }: DigestClientPr
 
             {stale && (
               <Banner tone="warning">
-                This edition is more than a week old — a fresh one is on its way.
+                This edition is more than a week old. A fresh one is on its way.
               </Banner>
             )}
 
@@ -121,6 +121,8 @@ export function DigestClient({ edition, stale, previewingDraft }: DigestClientPr
 }
 
 function DigestItemRow({ item, index }: { item: DigestItem; index: number }) {
+  // Older editions predate whyItMatters/resources, so both render conditionally
+  const resources = Array.isArray(item.resources) ? item.resources : [];
   return (
     <article
       style={{
@@ -154,20 +156,9 @@ function DigestItemRow({ item, index }: { item: DigestItem; index: number }) {
             {item.title}
           </a>
         </h2>
-        <p
-          style={{
-            margin: "10px 0 0",
-            fontSize: 15.5,
-            lineHeight: 1.6,
-            color: "var(--color-text-2)",
-            maxWidth: 720,
-          }}
-        >
-          {item.summary}
-        </p>
         <div
           style={{
-            marginTop: 10,
+            marginTop: 8,
             fontSize: 12,
             fontWeight: 500,
             letterSpacing: "0.1em",
@@ -177,6 +168,76 @@ function DigestItemRow({ item, index }: { item: DigestItem; index: number }) {
         >
           {item.sourceDomain}
         </div>
+        <p
+          style={{
+            margin: "12px 0 0",
+            fontSize: 15.5,
+            lineHeight: 1.6,
+            color: "var(--color-text-2)",
+            maxWidth: 720,
+          }}
+        >
+          {item.summary}
+        </p>
+        {item.whyItMatters && (
+          <div style={{ marginTop: 14, maxWidth: 720 }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: "var(--color-accent)",
+                marginBottom: 6,
+              }}
+            >
+              Why it matters
+            </div>
+            <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: "var(--color-text-2)" }}>
+              {item.whyItMatters}
+            </p>
+          </div>
+        )}
+        {resources.length > 0 && (
+          <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>
+            {resources.map((res) => (
+              <a
+                key={res.url}
+                href={res.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="editorial-link"
+                style={{
+                  alignSelf: "flex-start",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 10,
+                  fontSize: 13.5,
+                  fontWeight: 500,
+                  color: "var(--color-text-2)",
+                  textDecoration: "none",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 10.5,
+                    fontWeight: 600,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: "var(--color-text-3)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: 999,
+                    padding: "2px 8px",
+                    flexShrink: 0,
+                  }}
+                >
+                  {res.type}
+                </span>
+                {res.title}
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </article>
   );
@@ -218,8 +279,8 @@ function EmptyState() {
         The first edition is on its way.
       </h1>
       <p style={{ margin: "18px 0 0", fontSize: 16, lineHeight: 1.6, color: "var(--color-text-2)", maxWidth: 560 }}>
-        Every week we round up the 5–7 stories that matter across AI, tech, and the
-        markets — in plain English. Check back soon.
+        Every week we round up the five to seven stories that matter across AI, tech,
+        and the markets, in plain English. Check back soon.
       </p>
     </div>
   );

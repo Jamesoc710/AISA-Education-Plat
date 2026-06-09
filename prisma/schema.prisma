@@ -393,7 +393,7 @@ model DigestEdition {
   id          String    @id @default(cuid())
   weekOf      DateTime  @unique           // Monday 00:00 UTC of the digest week
   headline    String
-  items       Json                        // [{ title, summary, url, sourceDomain }] — URLs verified (200) before persist
+  items       Json                        // [{ title, summary, whyItMatters, url, sourceDomain, resources: [{ title, url, type, sourceDomain }] }] — all URLs verified (200) before persist
   contentHash String                      // SHA256 of normalized headline+items; identical regenerate skips the write
   status      String    @default("draft") // draft | published — cron never publishes
   generatedAt DateTime  @default(now())
