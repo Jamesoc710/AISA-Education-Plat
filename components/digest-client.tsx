@@ -166,9 +166,17 @@ export function DigestClient({
   );
 }
 
+// Category tag colors echo the track accents (AI blue, tech slate, markets green)
+const CATEGORY_META: Record<string, { label: string; color: string }> = {
+  ai: { label: "AI", color: "var(--color-accent)" },
+  tech: { label: "Tech", color: "var(--color-slate)" },
+  markets: { label: "Markets", color: "var(--color-correct)" },
+};
+
 function DigestItemRow({ item, index }: { item: DigestItem; index: number }) {
-  // Older editions predate whyItMatters/resources, so both render conditionally
+  // Older editions predate whyItMatters/resources/category, so all render conditionally
   const resources = Array.isArray(item.resources) ? item.resources : [];
+  const category = item.category ? CATEGORY_META[item.category] : undefined;
   return (
     <article
       style={{
@@ -205,6 +213,9 @@ function DigestItemRow({ item, index }: { item: DigestItem; index: number }) {
         <div
           style={{
             marginTop: 8,
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
             fontSize: 12,
             fontWeight: 500,
             letterSpacing: "0.1em",
@@ -212,7 +223,31 @@ function DigestItemRow({ item, index }: { item: DigestItem; index: number }) {
             color: "var(--color-text-3)",
           }}
         >
-          {item.sourceDomain}
+          {category && (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                color: category.color,
+                fontWeight: 600,
+              }}
+            >
+              <span
+                aria-hidden
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: 999,
+                  backgroundColor: "currentColor",
+                  flexShrink: 0,
+                }}
+              />
+              {category.label}
+            </span>
+          )}
+          {category && <span aria-hidden>·</span>}
+          <span>{item.sourceDomain}</span>
         </div>
         <p
           style={{

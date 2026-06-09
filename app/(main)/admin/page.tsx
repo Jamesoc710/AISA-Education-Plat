@@ -50,6 +50,8 @@ export default async function AdminPage() {
         headline: true,
         items: true,
         generatedAt: true,
+        searchesUsed: true,
+        durationMs: true,
       },
     }),
   ]);
@@ -128,6 +130,8 @@ export default async function AdminPage() {
                 ? latestDigest.items.length
                 : 0,
               generatedAt: latestDigest.generatedAt.toISOString(),
+              searchesUsed: latestDigest.searchesUsed,
+              durationMs: latestDigest.durationMs,
             }
           : null
       }

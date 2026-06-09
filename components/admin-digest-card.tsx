@@ -14,6 +14,8 @@ export interface DigestEditionSummary {
   headline: string;
   itemCount: number;
   generatedAt: string; // ISO
+  searchesUsed: number | null;
+  durationMs: number | null;
 }
 
 interface AdminDigestCardProps {
@@ -29,6 +31,17 @@ function relativeTime(timestamp: string): string {
   if (hr < 24) return `${hr}h ago`;
   const day = Math.floor(hr / 24);
   return `${day}d ago`;
+}
+
+/** Amber nudge when a draft has sat unreviewed past 48h. */
+function DraftAgeHint({ generatedAt }: { generatedAt: string }) {
+  const days = Math.floor((Date.now() - new Date(generatedAt).getTime()) / 86400000);
+  if (days < 2) return null;
+  return (
+    <span suppressHydrationWarning style={{ color: "var(--color-gold)", fontWeight: 600 }}>
+      {" "}· awaiting review for {days}d
+    </span>
+  );
 }
 
 function weekLabel(iso: string): string {
@@ -166,6 +179,15 @@ export function AdminDigestCard({ edition }: AdminDigestCardProps) {
               <span suppressHydrationWarning>
                 generated {relativeTime(edition.generatedAt)}
               </span>
+              {edition.searchesUsed != null && edition.durationMs != null && (
+                <>
+                  {" · "}
+                  {edition.searchesUsed} searches · {Math.round(edition.durationMs / 1000)}s
+                </>
+              )}
+              {edition.status === "draft" && (
+                <DraftAgeHint generatedAt={edition.generatedAt} />
+              )}
             </>
           ) : (
             "No editions yet. Generate the first draft"

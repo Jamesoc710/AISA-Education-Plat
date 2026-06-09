@@ -32,12 +32,15 @@ export interface DigestItemResource {
   sourceDomain: string;
 }
 
+export type DigestCategory = "ai" | "tech" | "markets";
+
 export interface DigestItem {
   title: string;
   summary: string;
   whyItMatters: string;
   url: string;
   sourceDomain: string; // hostname of the URL the fetch actually resolved to
+  category: DigestCategory | null; // colored tag in the UI; null on pre-tag editions
   resources: DigestItemResource[]; // go-deeper links, URL-verified like the source
 }
 
@@ -71,6 +74,7 @@ Pick the 5-7 most notable items. For each item provide:
 - "title": a clear, factual headline (max ~15 words).
 - "summary": 2-3 plain-English sentences on what happened. Facts only; save the significance for the next field.
 - "whyItMatters": 1-2 sentences on why a student or club member should care about this.
+- "category": exactly one of "ai", "tech", or "markets" (which of the three coverage areas the item belongs to).
 - "url": the source article's URL copied EXACTLY from a web search result. Never construct, shorten, or guess a URL.
 - "resources": 1-2 supplementary links that help a member go deeper. Prefer one accessible explainer article, plus one video when a good one exists. Each resource is { "title": string, "url": string, "type": "article" | "video" }. Resource URLs must also be copied EXACTLY from web search results, never invented.
 
@@ -85,7 +89,7 @@ Finally provide "bigPicture", the digest's closing section:
 - "watchFor": one sentence pointing at the most concrete upcoming thing from these stories that a member should watch (a date, a decision, a launch).
 
 Output STRICT JSON only, no markdown fences, no prose before or after the object:
-{ "headline": string, "items": [ { "title": string, "summary": string, "whyItMatters": string, "url": string, "resources": [ { "title": string, "url": string, "type": "article" | "video" } ] } ], "bigPicture": { "narrative": string, "watchFor": string } }`;
+{ "headline": string, "items": [ { "title": string, "summary": string, "whyItMatters": string, "category": "ai" | "tech" | "markets", "url": string, "resources": [ { "title": string, "url": string, "type": "article" | "video" } ] } ], "bigPicture": { "narrative": string, "watchFor": string } }`;
 
 // Surrounding prose can contain braces (a live run emitted text after the
 // JSON and broke a naive first-"{"-to-last-"}" slice), so scan for every
@@ -151,6 +155,7 @@ interface ParsedItem {
   summary: string;
   whyItMatters: string;
   url: string;
+  category: DigestCategory | null;
   resources: ParsedResource[];
 }
 
@@ -179,12 +184,17 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
       summary?: unknown;
       whyItMatters?: unknown;
       url?: unknown;
+      category?: unknown;
       resources?: unknown;
     };
     const title = cleanDigestText(String(e.title ?? "").trim().slice(0, 200));
     const summary = cleanDigestText(String(e.summary ?? "").trim().slice(0, 600));
     const whyItMatters = cleanDigestText(String(e.whyItMatters ?? "").trim().slice(0, 400));
     const url = String(e.url ?? "").trim();
+    const category: DigestCategory | null =
+      e.category === "ai" || e.category === "tech" || e.category === "markets"
+        ? e.category
+        : null;
     if (!title || !summary || !whyItMatters || !/^https?:\/\//i.test(url)) return [];
     const resources = (Array.isArray(e.resources) ? e.resources : [])
       .slice(0, MAX_RESOURCES_PER_ITEM)
@@ -195,7 +205,7 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
         if (!rTitle || !/^https?:\/\//i.test(rUrl)) return [];
         return [{ title: rTitle, url: rUrl, type: r.type === "video" ? "video" : "article" }];
       });
-    return [{ title, summary, whyItMatters, url, resources }];
+    return [{ title, summary, whyItMatters, url, category, resources }];
   });
   if (items.length === 0) return null;
   return { headline, items, bigPicture: { narrative, watchFor } };
@@ -260,12 +270,19 @@ const VIDEO_HOST_RE = /(^|\.)(youtube\.com|youtu\.be|vimeo\.com)$/i;
 async function generateWithClaude(
   weekOf: Date,
   errors: string[],
+  previousTitles: string[],
 ): Promise<{ text: string; searchesUsed: number; apiCalls: number }> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
   const client = new Anthropic({ apiKey });
 
-  const userPrompt = `Today is ${new Date().toUTCString()}. Compile the digest for the week of ${weekOf.toISOString().slice(0, 10)}. Search the web for notable AI / tech / capital-markets news from the past 7 days, then return the JSON.`;
+  // Week-over-week memory: stops long-running sagas from leading every week
+  const previousBlock =
+    previousTitles.length > 0
+      ? `\n\nThe previous edition covered these stories:\n${previousTitles.map((t) => `- ${t}`).join("\n")}\nOnly repeat one of these if there is a material new development, and frame it as the update, not a rerun.`
+      : "";
+
+  const userPrompt = `Today is ${new Date().toUTCString()}. Compile the digest for the week of ${weekOf.toISOString().slice(0, 10)}. Search the web for notable AI / tech / capital-markets news from the past 7 days, then return the JSON.${previousBlock}`;
 
   const messages: Anthropic.MessageParam[] = [{ role: "user", content: userPrompt }];
   let searchesUsed = 0;
@@ -359,12 +376,22 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
   // 1. Generate. Any failure from here on leaves the DB untouched — the
   //    /digest page keeps serving the last published edition (graceful
   //    degradation; the staleness banner covers the gap).
+  const previous = await prisma.digestEdition.findFirst({
+    where: { weekOf: { lt: weekOf } },
+    orderBy: { weekOf: "desc" },
+    select: { items: true },
+  });
+  const previousTitles =
+    previous && Array.isArray(previous.items)
+      ? (previous.items as unknown as DigestItem[]).map((i) => i.title).filter(Boolean).slice(0, 10)
+      : [];
+
   let text = "";
   let searchesUsed = 0;
   let apiCalls = 0;
   let parsed: ParsedDigest;
   try {
-    ({ text, searchesUsed, apiCalls } = await generateWithClaude(weekOf, errors));
+    ({ text, searchesUsed, apiCalls } = await generateWithClaude(weekOf, errors, previousTitles));
     parsed = parseDigest(text);
   } catch (e) {
     errors.push(e instanceof Error ? e.message : String(e));
@@ -439,6 +466,7 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
       whyItMatters: item.whyItMatters,
       url: check.finalUrl,
       sourceDomain,
+      category: item.category,
       resources: resources.slice(0, MAX_RESOURCES_PER_ITEM),
     });
   });
@@ -500,6 +528,8 @@ export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncR
     status: "draft",
     generatedAt: new Date(),
     publishedAt: null,
+    searchesUsed,
+    durationMs: Date.now() - t0,
   };
   await prisma.digestEdition.upsert({
     where: { weekOf },

@@ -400,6 +400,8 @@ model DigestEdition {
   status      String    @default("draft") // draft | published — cron never publishes
   generatedAt DateTime  @default(now())
   publishedAt DateTime?
+  searchesUsed Int?                       // observability: web searches the generating run used
+  durationMs   Int?                       // observability: wall-clock of the generating run
 
   @@index([status])
   @@map("digest_editions")
