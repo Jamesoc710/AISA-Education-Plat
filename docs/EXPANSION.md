@@ -578,6 +578,12 @@ Favor tools a student would actually use in 2026. Return as structured data, one
   sees exactly one project -> unpublish -> empty state again, draft URLs 307 for non-moderators, interest
   flow end to end, zero console errors; `tsc` clean. Next: collect real projects, swap the seed file,
   approve, verify member view, merge. Opportunities tab still pending.
+  **Same-day follow-up (user feedback):** the board also celebrates *finished* work. Added `Project.stage`
+  (idea | building | polishing | completed | paused; `lib/project-stages.ts`) rendered as tile-colored
+  chips on cards + detail, `walkthroughUrl` as a third link chip (Loom etc.), and extraContributors
+  upgraded to `{ name, role? }` objects so unlinked contributors can carry a real role. First real project
+  seeded as a draft: **LA Fires Assistant** (AI, polishing, James OConnor lead, repo + demo + walkthrough).
+  Verified live; still gated on the remaining real projects.
 - **2026-06-09** — **Capital Markets quiz questions shipped** (`feat/capital-quiz-questions`). 84 authored
   MC questions, 2 per `cm-*` term, derived strictly from the seeded vocab pack + the cited research file
   (no new facts); difficulty mirrors each concept's; distractors lean on real cross-term confusions
