@@ -341,7 +341,7 @@ questions · switching tracks re-scopes Browse/Quiz/Flashcards/Progress · no co
 ### NEXT — kill the empty-room feeling (revival)
 **Goal:** a dormant club has a reason to log in weekly + proof other humans are here.
 
-- [ ] **Build Board — Showcase** (admin-seeded; `Project` wired to `ProjectAssignment`; `/build` + detail) — **L** — **built + verified 2026-06-09** on `feat/build-board` (schema live in prod, 3 QA drafts seeded, full role-matrix Playwright pass). **Blocked on content:** waiting on the 3-5 real member projects; nothing publishes or merges until they land (per the §7.5 no-placeholder rule).
+- [x] **Build Board — Showcase** (admin-seeded; `Project` wired to `ProjectAssignment`; `/build` + detail) — **L** — **shipped 2026-06-09**: 3 real member projects live (LA Fires Assistant, AgentRank, AI Acceleration Visualization), QA placeholders deleted, member view verified, merged to master. Stage chips + walkthrough links added same day from user feedback.
 - [x] **This Week in Tech digest** (first live-pipeline feature; `DigestEdition`; admin-reviewed publish) — **M** — shipped 2026-06-09 and iterated same day to v5 (per-item whyItMatters + verified go-deeper resources + category tags + catalog cross-links; big-picture closer + what-to-watch; archive routes; week-over-week memory; home teaser; self-check quiz). **Merged to master + deployed; COMPLETE for now** — remaining ideas live in the LATER "Digest follow-ups" entry. Watch: first unattended prod cron Mon 13:00 UTC.
 - [ ] **Opportunities tab** (`Opportunity`; deadline urgency; same card surface) — **M**
 
@@ -584,6 +584,16 @@ Favor tools a student would actually use in 2026. Return as structured data, one
   upgraded to `{ name, role? }` objects so unlinked contributors can carry a real role. First real project
   seeded as a draft: **LA Fires Assistant** (AI, polishing, James OConnor lead, repo + demo + walkthrough).
   Verified live; still gated on the remaining real projects.
+- **2026-06-09** — **Build Board LAUNCHED.** User supplied 3 real projects and gave the publish OK:
+  **LA Fires Assistant** (AI, polishing, repo + demo + Loom), **AgentRank** (AI, building, repo;
+  behavioral agent-readiness leaderboard vs Lighthouse 13.3 static audit), **AI Acceleration
+  Visualization** (AI, idea; capability/infrastructure/adoption gap, working title, stage set to idea
+  per the lead's own "no code yet" note). All three leads account-linked to jsoc@uoregon.edu (users.name
+  set to "James O'Connor" at the user's request). Approved via the in-app moderation flow, QA placeholder
+  drafts deleted from prod (script --delete; interest records cascaded) and removed from the seed file,
+  anonymous member view verified (exactly 3 projects, no Draft chips, all detail pages 200). Merged to
+  master. Em/en dashes in supplied copy converted at authoring time (colons/hyphens). Remaining from the
+  NEXT stage: Opportunities tab.
 - **2026-06-09** — **Capital Markets quiz questions shipped** (`feat/capital-quiz-questions`). 84 authored
   MC questions, 2 per `cm-*` term, derived strictly from the seeded vocab pack + the cited research file
   (no new facts); difficulty mirrors each concept's; distractors lean on real cross-term confusions
