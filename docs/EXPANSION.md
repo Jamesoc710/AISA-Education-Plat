@@ -343,7 +343,17 @@ questions · switching tracks re-scopes Browse/Quiz/Flashcards/Progress · no co
 
 - [x] **Build Board — Showcase** (admin-seeded; `Project` wired to `ProjectAssignment`; `/build` + detail) — **L** — **shipped 2026-06-09**: 3 real member projects live (LA Fires Assistant, AgentRank, AI Acceleration Visualization), QA placeholders deleted, member view verified, merged to master. Stage chips + walkthrough links added same day from user feedback.
 - [x] **This Week in Tech digest** (first live-pipeline feature; `DigestEdition`; admin-reviewed publish) — **M** — shipped 2026-06-09 and iterated same day to v5 (per-item whyItMatters + verified go-deeper resources + category tags + catalog cross-links; big-picture closer + what-to-watch; archive routes; week-over-week memory; home teaser; self-check quiz). **Merged to master + deployed; COMPLETE for now** — remaining ideas live in the LATER "Digest follow-ups" entry. Watch: first unattended prod cron Mon 13:00 UTC.
-- [ ] **Opportunities tab** (`Opportunity`; deadline urgency; same card surface) — **M**
+- [ ] **Opportunities tab** (`Opportunity`; deadline urgency; same card surface) — **M** — planning pass
+  done 2026-06-09, **execution paused pending James x Maggie conversation.** Settled design: `/build`
+  gets tabs **Projects | Opportunities** (`?tab=opportunities`); no detail page (card holds org, type
+  chip, track dot, deadline + red-inside-7-days urgency, Apply link); auto-archive = member query
+  excludes past-deadline rows (no cron), moderators see Expired chips; types `internship | club-project
+  | job | research | competition` (pure module like project-stages); optional `projectId` cross-link so
+  club-project postings point at their showcase project; bookmarking deferred. **Editorial rule:** if it
+  expires it is an opportunity, if it is about something members built it is a project. Sourcing: hand-seed
+  first (same draft -> approve gate + seed-script pattern as the showcase); an LLM web-search discovery
+  cron (digest pipeline clone, drafts-only, never auto-publish, deadlines human-confirmed) is a purely
+  additive fast-follow if curation feels like a chore.
 
 **Stage deliverable:** *A member lands on Home, sees a fresh weekly "This Week in Tech" brief, browses
 a Build Board of 3–5 real member projects with "request to join," and finds 2–3 live internship/club
