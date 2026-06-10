@@ -19,6 +19,7 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PROJECT_SEEDS, type ProjectSeed } from "../prisma/seed-data/projects";
+import { isProjectStage, PROJECT_STAGES } from "../lib/project-stages";
 
 // Em dash, en dash, figure dash, horizontal bar: banned in member-facing text.
 const BANNED_DASHES = /[‒–—―]/;
@@ -31,7 +32,7 @@ function textFields(p: ProjectSeed): string[] {
     p.blurb,
     p.description ?? "",
     ...p.lookingFor,
-    ...p.extraContributors,
+    ...p.extraContributors.flatMap((e) => [e.name, e.role ?? ""]),
     ...p.team.map((t) => t.role),
   ];
 }
@@ -53,7 +54,10 @@ function validateStatic(): string[] {
     if (p.trackSlug !== null && !TRACK_SLUGS.has(p.trackSlug)) {
       errors.push(`${label}: unknown trackSlug ${p.trackSlug}`);
     }
-    for (const url of [p.repoUrl, p.demoUrl]) {
+    if (!isProjectStage(p.stage)) {
+      errors.push(`${label}: stage must be one of ${PROJECT_STAGES.join(" | ")}`);
+    }
+    for (const url of [p.repoUrl, p.demoUrl, p.walkthroughUrl]) {
       if (url && !/^https?:\/\//.test(url)) errors.push(`${label}: invalid URL ${url}`);
     }
     if (p.team.some((t) => !t.email.includes("@"))) {
@@ -62,7 +66,7 @@ function validateStatic(): string[] {
     if (p.team.some((t) => !t.role.trim())) {
       errors.push(`${label}: team entry with empty role`);
     }
-    if (p.extraContributors.some((n) => !n.trim())) {
+    if (p.extraContributors.some((e) => !e.name.trim())) {
       errors.push(`${label}: empty extraContributors name`);
     }
     if (textFields(p).some((t) => BANNED_DASHES.test(t))) {
@@ -208,10 +212,15 @@ async function main() {
         blurb: p.blurb,
         description: p.description ?? null,
         trackId: p.trackSlug ? trackBySlug.get(p.trackSlug)! : null,
+        stage: p.stage,
         lookingFor: p.lookingFor,
         repoUrl: p.repoUrl ?? null,
         demoUrl: p.demoUrl ?? null,
-        extraContributors: p.extraContributors,
+        walkthroughUrl: p.walkthroughUrl ?? null,
+        // Json column: strip undefined roles so the value is pure JSON
+        extraContributors: p.extraContributors.map((e) =>
+          e.role ? { name: e.name, role: e.role } : { name: e.name },
+        ),
       };
       const row = await prisma.project.upsert({
         where: { slug: p.slug },
@@ -231,7 +240,7 @@ async function main() {
         });
       }
       console.log(
-        `  ✓ ${p.slug} (${row.status}, team ${p.team.length}, extras ${p.extraContributors.length})`,
+        `  ✓ ${p.slug} (${row.status}, ${p.stage}, team ${p.team.length}, extras ${p.extraContributors.length})`,
       );
     }
 

@@ -262,11 +262,13 @@ model Project {
   blurb             String    // one or two sentences shown on the card
   description       String?   // Markdown body for the detail page
   status            String    @default("draft") // draft | approved
+  stage             String    @default("building") // idea | building | polishing | completed | paused
   trackId           String?   // drives the card's IconTile color
   lookingFor        Json?     // string[] of open-role tags, e.g. ["designer"]
   repoUrl           String?
   demoUrl           String?
-  extraContributors Json?     // string[] contributor names without app accounts
+  walkthroughUrl    String?   // video walkthrough (Loom etc.)
+  extraContributors Json?     // [{ name, role? }] contributors without app accounts (legacy: string[])
   createdById       String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt

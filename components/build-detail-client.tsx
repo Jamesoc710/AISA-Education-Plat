@@ -13,6 +13,7 @@ import { getTrackTileColor } from "@/lib/section-icons";
 import {
   DraftChip,
   LookingForTag,
+  StageChip,
   initialsFor,
 } from "@/components/build-client";
 import type { ProjectDetailData } from "@/lib/build";
@@ -93,6 +94,7 @@ export function BuildDetailClient({
               >
                 {project.title}
               </h1>
+              <StageChip stage={project.stage} />
               {project.status === "draft" && <DraftChip />}
             </div>
             {project.track && (
@@ -157,6 +159,9 @@ export function BuildDetailClient({
           )}
           {project.demoUrl && (
             <LinkButton href={project.demoUrl} icon="arrow-square-out" label="Live demo" />
+          )}
+          {project.walkthroughUrl && (
+            <LinkButton href={project.walkthroughUrl} icon="play-circle" label="Walkthrough" />
           )}
         </div>
 
@@ -315,7 +320,7 @@ function LinkButton({
   label,
 }: {
   href: string;
-  icon: "github-logo" | "arrow-square-out";
+  icon: "github-logo" | "arrow-square-out" | "play-circle";
   label: string;
 }) {
   const [hov, setHov] = useState(false);

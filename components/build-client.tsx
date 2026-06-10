@@ -5,6 +5,7 @@ import Link from "next/link";
 import { IconTile } from "@/components/ui/icon-tile";
 import { Icon } from "@/components/ui/icon";
 import { getTrackTileColor } from "@/lib/section-icons";
+import { stageMeta } from "@/lib/project-stages";
 import type { ProjectCardData, ProjectContributor } from "@/lib/build";
 
 /**
@@ -45,8 +46,8 @@ export function BuildClient({
               maxWidth: 680,
             }}
           >
-            What members are building right now. Open a project to meet the team,
-            see what help it needs, and request to join.
+            What members are building and what they have shipped. Open a project
+            to meet the team, see what help it needs, or request to join.
           </p>
         </div>
 
@@ -121,6 +122,7 @@ function ProjectCard({ project }: { project: ProjectCardData }) {
           >
             {project.title}
           </h2>
+          <StageChip stage={project.stage} />
           {project.track && (
             <span
               style={{
@@ -190,7 +192,7 @@ function ProjectCard({ project }: { project: ProjectCardData }) {
 
           <span style={{ flex: 1 }} />
 
-          {(project.repoUrl || project.demoUrl) && (
+          {(project.repoUrl || project.demoUrl || project.walkthroughUrl) && (
             <div
               style={{
                 position: "relative",
@@ -205,6 +207,9 @@ function ProjectCard({ project }: { project: ProjectCardData }) {
               )}
               {project.demoUrl && (
                 <ExternalChip href={project.demoUrl} icon="arrow-square-out" label="Demo" />
+              )}
+              {project.walkthroughUrl && (
+                <ExternalChip href={project.walkthroughUrl} icon="play-circle" label="Walkthrough" />
               )}
             </div>
           )}
@@ -228,6 +233,28 @@ function ProjectCard({ project }: { project: ProjectCardData }) {
 }
 
 // ── Shared pieces (also used by the detail page) ─────────────────────────────
+
+/** Stage pill: where the project sits in its lifecycle (idea -> completed). */
+export function StageChip({ stage }: { stage: string }) {
+  const meta = stageMeta(stage);
+  return (
+    <span
+      style={{
+        padding: "2px 8px",
+        borderRadius: 999,
+        fontSize: "var(--text-xs)",
+        fontWeight: 600,
+        color: `var(--tile-${meta.tileColor}-fg)`,
+        backgroundColor: `var(--tile-${meta.tileColor}-bg)`,
+        textTransform: "uppercase",
+        letterSpacing: "0.05em",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {meta.label}
+    </span>
+  );
+}
 
 export function DraftChip() {
   return (
@@ -335,7 +362,7 @@ function ExternalChip({
   label,
 }: {
   href: string;
-  icon: "github-logo" | "arrow-square-out";
+  icon: "github-logo" | "arrow-square-out" | "play-circle";
   label: string;
 }) {
   const [hov, setHov] = useState(false);

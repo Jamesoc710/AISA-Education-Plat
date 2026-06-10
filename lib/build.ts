@@ -30,6 +30,7 @@ export type ProjectCardData = {
   title: string;
   blurb: string;
   status: string; // draft | approved
+  stage: string; // idea | building | polishing | completed | paused
   track: {
     slug: string;
     shortName: string;
@@ -38,6 +39,7 @@ export type ProjectCardData = {
   lookingFor: string[];
   repoUrl: string | null;
   demoUrl: string | null;
+  walkthroughUrl: string | null;
   contributors: ProjectContributor[];
 };
 
@@ -58,6 +60,26 @@ export type ProjectDetailData = ProjectCardData & {
 function asStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((v): v is string => typeof v === "string");
+}
+
+/** extraContributors Json: [{ name, role? }] objects, tolerating legacy plain strings. */
+function asExtraContributors(value: unknown): ProjectContributor[] {
+  if (!Array.isArray(value)) return [];
+  const out: ProjectContributor[] = [];
+  for (const v of value) {
+    if (typeof v === "string" && v.trim()) {
+      out.push({ name: v, role: "Contributor" });
+    } else if (v && typeof v === "object") {
+      const rec = v as { name?: unknown; role?: unknown };
+      if (typeof rec.name === "string" && rec.name.trim()) {
+        out.push({
+          name: rec.name,
+          role: typeof rec.role === "string" && rec.role.trim() ? rec.role : "Contributor",
+        });
+      }
+    }
+  }
+  return out;
 }
 
 /** Resolve the signed-in member (null when logged out). */
@@ -83,9 +105,11 @@ type ProjectWithTeam = {
   title: string;
   blurb: string;
   status: string;
+  stage: string;
   lookingFor: unknown;
   repoUrl: string | null;
   demoUrl: string | null;
+  walkthroughUrl: string | null;
   extraContributors: unknown;
   track: { slug: string; shortName: string; accentColor: string } | null;
   assignments: { role: string; user: { name: string } }[];
@@ -98,19 +122,19 @@ function toCard(p: ProjectWithTeam): ProjectCardData {
       role: a.role,
     }),
   );
-  const extras: ProjectContributor[] = asStringArray(p.extraContributors).map(
-    (name) => ({ name, role: "Contributor" }),
-  );
+  const extras = asExtraContributors(p.extraContributors);
   return {
     id: p.id,
     slug: p.slug,
     title: p.title,
     blurb: p.blurb,
     status: p.status,
+    stage: p.stage,
     track: p.track,
     lookingFor: asStringArray(p.lookingFor),
     repoUrl: p.repoUrl,
     demoUrl: p.demoUrl,
+    walkthroughUrl: p.walkthroughUrl,
     contributors: [...team, ...extras],
   };
 }
