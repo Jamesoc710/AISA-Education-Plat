@@ -115,6 +115,12 @@ export function Sidebar({
             iconName="newspaper"
             active={isActive("/digest")}
           />
+          <SidebarNavItem
+            href="/build"
+            label="Build Board"
+            iconName="hammer"
+            active={isActive("/build")}
+          />
         </div>
 
         {/* TRACKS switcher — sets the active-track cookie + refreshes */}
