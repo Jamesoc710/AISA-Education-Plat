@@ -1,12 +1,11 @@
 import type { ProjectStage } from "../../lib/project-stages";
 
 /**
- * Build Board project seeds.
+ * Build Board project seeds (real member projects, provided by James 2026-06-09).
  *
- * la-fires-assistant is REAL content (provided by James, 2026-06-09).
- * The qa-sample-* entries exist to verify the showcase layout end to end and
- * must NEVER be approved. Once the remaining real projects land, remove them:
- * `npx tsx --env-file=.env scripts/seed-projects.ts --delete qa-sample-rag-helper,qa-sample-cap-table-lab,qa-sample-club-site`.
+ * Seeding is idempotent by slug (`npx tsx --env-file=.env scripts/seed-projects.ts`):
+ * new entries land as drafts, re-runs never touch approval status. Approve each
+ * project from its /build/[slug] page as ADMIN or PROJECT_LEAD.
  *
  * Authoring rules:
  *  - slugs: kebab-case, unique, stable (they are the public URL)
@@ -32,10 +31,7 @@ export type ProjectSeed = {
   extraContributors: { name: string; role?: string }[];
 };
 
-const QA_ADMIN_EMAIL = "etownjames7+atlasqa@gmail.com";
-
 export const PROJECT_SEEDS: ProjectSeed[] = [
-  // ── Real projects ──────────────────────────────────────────────────────────
   {
     slug: "la-fires-assistant",
     title: "LA Fires Assistant",
@@ -122,63 +118,5 @@ export const PROJECT_SEEDS: ProjectSeed[] = [
     lookingFor: ["front-end dev", "data visualization", "designer"],
     team: [{ email: "jsoc@uoregon.edu", role: "Lead" }],
     extraContributors: [],
-  },
-
-  // ── QA samples (layout verification only, never approve) ──────────────────
-  {
-    slug: "qa-sample-rag-helper",
-    title: "Course Catalog RAG Helper",
-    blurb:
-      "A chat assistant that answers questions about club workshops and the concept catalog, built on retrieval over our own content.",
-    description: [
-      "**What it is.** A small retrieval-augmented chat tool: ask it anything about the club's workshops or the concept catalog and it answers with citations back to the source page.",
-      "",
-      "**Where it stands.**",
-      "",
-      "- Embeddings + retrieval working over the 57 AI concepts",
-      "- Basic chat UI prototyped",
-      "- Needs evaluation, prompt polish, and a real frontend",
-      "",
-      "Stack: Next.js, Supabase, the Anthropic API. Good first project if you want hands-on RAG experience, see [the repo](https://example.com/qa-sample) for the setup guide.",
-    ].join("\n"),
-    trackSlug: "ai",
-    stage: "building",
-    lookingFor: ["frontend dev", "prompt engineer"],
-    repoUrl: "https://github.com/example/qa-sample-rag-helper",
-    demoUrl: "https://example.com/qa-sample-demo",
-    team: [{ email: QA_ADMIN_EMAIL, role: "Lead" }],
-    extraContributors: [{ name: "Jordan Sample" }, { name: "Priya Placeholder" }],
-  },
-  {
-    slug: "qa-sample-cap-table-lab",
-    title: "Cap Table Lab",
-    blurb:
-      "An interactive cap table you can break: model a SAFE converting into a priced round and watch dilution land on every shareholder.",
-    description: [
-      "**What it is.** A spreadsheet-style playground for the Capital Markets track: start from a clean cap table, add a post-money SAFE, run a Series A, and see exactly who gets diluted and by how much.",
-      "",
-      "**Where it stands.** Formula engine sketched in a notebook; needs someone who enjoys finance modeling to pressure-test the math against the cm- vocabulary before any UI work starts.",
-    ].join("\n"),
-    trackSlug: "capital-markets",
-    stage: "idea",
-    lookingFor: ["finance modeler"],
-    repoUrl: "https://github.com/example/qa-sample-cap-table-lab",
-    team: [],
-    extraContributors: [{ name: "Casey Example" }],
-  },
-  {
-    slug: "qa-sample-club-site",
-    title: "Club Site Refresh",
-    blurb:
-      "Rebuilding the public club site: new landing page, event highlights, and a join form that actually works on phones.",
-    trackSlug: null,
-    stage: "completed",
-    lookingFor: ["designer", "writer"],
-    team: [],
-    extraContributors: [
-      { name: "Sam Placeholder" },
-      { name: "Riley Test" },
-      { name: "Alex Demo" },
-    ],
   },
 ];
