@@ -97,6 +97,33 @@ export const PROJECT_SEEDS: ProjectSeed[] = [
     extraContributors: [],
   },
 
+  {
+    slug: "ai-acceleration-viz",
+    title: "AI Acceleration Visualization",
+    blurb:
+      "A data-driven site showing that AI capabilities and infrastructure are going exponential while adoption lags: three domains plotted in parallel so the gap is self-evident, traced from GPT-2 (Feb 2019) onward.",
+    description: [
+      "*Working title.* An interactive visualization built around a single thesis: AI capabilities are accelerating faster than adoption can keep up, and infrastructure buildout is outpacing both. Rather than asserting the gap, the site plots real data across three domains in parallel and lets viewers see it for themselves.",
+      "",
+      "**The story** splits into a supply side (what is being built and spent) and an actualization side (whether any of it is landing):",
+      "",
+      "- **Capabilities:** frontier model releases, benchmark saturation curves (MMLU, GPQA, SWE-bench, HumanEval, Arena ELO), compute scaling (~6-month doubling), inference cost decay, context window growth",
+      "- **Hardware & investment:** data center buildout, Nvidia data center revenue, hyperscaler capex, private AI funding and valuations, research velocity (arXiv, OpenAlex)",
+      "- **Adoption, the lag story:** consumer awareness spiked (fastest-adopted consumer product in history) but enterprise deployment is stuck near 6-7% of US businesses, with productivity gains trailing. Surfaces depth-vs-breadth and underused sources like the US Census BTOS.",
+      "",
+      "**Methodology choices:** timeline starts at GPT-2 (Feb 2019) to capture the pre-ChatGPT scaling era; Epoch AI canonical for compute, Stanford AI Index for macro stats; conflicts documented rather than silently resolved; raw values stored, normalized at plot time.",
+      "",
+      "**The build runs in two phases.** Phase One collects seven high-signal datasets (Epoch model/compute, key benchmarks, hyperscaler capex, Nvidia revenue, Census BTOS, arXiv submissions, ChatGPT WAU milestones). Phase Two adds ~20-25 messier datasets, automated via Claude Code with parallel source-type subagents (api-fetcher, sec-fetcher, web-scraper, pdf-extractor, csv-normalizer, data-validator) driven by a datasets.yaml manifest, plus the visualization and site build itself.",
+      "",
+      "**Stack:** Claude Code multi-agent pipeline for collection; data sources include Epoch AI, SEC EDGAR, US Census BTOS, arXiv, OpenAlex, and Nvidia investor filings.",
+    ].join("\n"),
+    trackSlug: "ai",
+    stage: "idea",
+    lookingFor: ["front-end dev", "data visualization", "designer"],
+    team: [{ email: "jsoc@uoregon.edu", role: "Lead" }],
+    extraContributors: [],
+  },
+
   // ── QA samples (layout verification only, never approve) ──────────────────
   {
     slug: "qa-sample-rag-helper",
