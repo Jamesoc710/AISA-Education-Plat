@@ -1,0 +1,675 @@
+﻿{
+    "summary":  "Round 2 closed most of the pack\u0027s gaps: seven leader tables passed adversarial verification (MMLU-Pro, GPQA Diamond, SWE-bench Verified, Humanity\u0027s Last Exam, FrontierMath, MMMU, and ARC-AGI v1/v2), all four previously missing benchmark records verified (HumanEval, AIME, TAU-bench, and ARC-AGI-2 status), and both fact checks resolved (the SWE-bench Verified deprecation story is partly true; the FutureHouse HLE answer-quality finding is confirmed). Verifier corrections have been applied throughout, including the Princeton maintainer attribution in the SWE-bench check, the Pass^k notation fix for TAU-bench, the agi.safe.ai wording for HLE, the ARC Prize maintainer wording, and softened phrasing wherever primary confirmation was incomplete. Everything in leaderTables, records, and checks is publishable now, with FrontierMath carrying a needsRecheck flag because Epoch AI is mid-review of the benchmark and the verifier returned medium confidence. The remaining blockers are the LiveCodeBench leader table (no trustworthy source could be read) and an arena.ai leaderboard snapshot that round 2 never produced; smaller rechecks are itemized in stillMissing.",
+    "leaderTables":  [
+                         {
+                             "benchmark":  "MMLU-Pro",
+                             "leaderboardUrl":  "https://huggingface.co/spaces/TIGER-Lab/MMLU-Pro",
+                             "boardLastUpdated":  "2026-03-11",
+                             "observedDate":  "2026-06-11",
+                             "official":  true,
+                             "needsRecheck":  false,
+                             "leaders":  [
+                                             {
+                                                 "rank":  1,
+                                                 "variant":  "standard",
+                                                 "model":  "Gemini-3.1-Pro",
+                                                 "lab":  "Google DeepMind",
+                                                 "score":  "91.16% overall accuracy",
+                                                 "asOfDate":  "2026-03-11",
+                                                 "sourceUrl":  "https://huggingface.co/datasets/TIGER-Lab/mmlu_pro_leaderboard_submission/resolve/main/results.csv",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  2,
+                                                 "variant":  "November 2025 release",
+                                                 "model":  "Gemini-3-Pro (11/25)",
+                                                 "lab":  "Google DeepMind",
+                                                 "score":  "90.1% overall accuracy",
+                                                 "asOfDate":  "2026-03-11",
+                                                 "sourceUrl":  "https://huggingface.co/datasets/TIGER-Lab/mmlu_pro_leaderboard_submission/resolve/main/results.csv",
+                                                 "selfReported":  true,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  3,
+                                                 "variant":  "standard; \u0027GPT-o1\u0027 is the CSV\u0027s non-standard label, most likely OpenAI\u0027s o1 series",
+                                                 "model":  "GPT-o1",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "89.3% overall accuracy",
+                                                 "asOfDate":  "2026-03-11",
+                                                 "sourceUrl":  "https://huggingface.co/datasets/TIGER-Lab/mmlu_pro_leaderboard_submission/resolve/main/results.csv",
+                                                 "selfReported":  true,
+                                                 "disputed":  false
+                                             }
+                                         ],
+                             "notes":  "Status ok. Data read directly from the live results.csv that backs the official TIGER-Lab HuggingFace space; the space itself is JavaScript rendered and would not load in a plain fetch, so the raw CSV (262 rows, last committed 2026-03-11) was pulled and verified row by row. Scores are stored as proportions (0.9116 equals 91.16%) and the board ranks by the Overall column. Rank 1 (Gemini-3.1-Pro) is the only top-3 entry independently evaluated by TIGER-Lab; ranks 2 and 3 are self-reported by the submitting labs and lack subject-level breakdowns in the CSV. The \u0027GPT-o1\u0027 label is non-standard and most likely refers to OpenAI\u0027s o1 series; flag this for readers. The board is stale relative to the newest frontier models (last data update March 2026, observed June 2026), so very recent releases may be absent. Rankings also vary by leaderboard: at least one third-party aggregator shows a different leader (Qwen3.6 Plus at 88.5% across roughly 119 models); that is a different board and snapshot and does not contradict the official TIGER-Lab data cited here."
+                         },
+                         {
+                             "benchmark":  "GPQA Diamond",
+                             "leaderboardUrl":  "https://artificialanalysis.ai/evaluations/gpqa-diamond",
+                             "boardLastUpdated":  null,
+                             "observedDate":  "2026-06-11",
+                             "official":  false,
+                             "needsRecheck":  false,
+                             "leaders":  [
+                                             {
+                                                 "rank":  1,
+                                                 "variant":  "GPQA Diamond, Artificial Analysis independent evaluation",
+                                                 "model":  "Gemini 3.1 Pro Preview",
+                                                 "lab":  "Google",
+                                                 "score":  "94.1%",
+                                                 "asOfDate":  "2026-06-11",
+                                                 "sourceUrl":  "https://artificialanalysis.ai/evaluations/gpqa-diamond",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  2,
+                                                 "variant":  "GPQA Diamond, Artificial Analysis independent evaluation, xhigh reasoning setting",
+                                                 "model":  "GPT-5.5 (xhigh)",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "93.5%",
+                                                 "asOfDate":  "2026-06-11",
+                                                 "sourceUrl":  "https://artificialanalysis.ai/evaluations/gpqa-diamond",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  3,
+                                                 "variant":  "GPQA Diamond, Artificial Analysis independent evaluation, high reasoning setting",
+                                                 "model":  "GPT-5.5 (high)",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "93.2%",
+                                                 "asOfDate":  "2026-06-11",
+                                                 "sourceUrl":  "https://artificialanalysis.ai/evaluations/gpqa-diamond",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             }
+                                         ],
+                             "notes":  "Status partial. There is no official live leaderboard for GPQA Diamond; the benchmark comes from a research paper (arxiv.org/abs/2311.12022) with no maintainer-run board. Scores are from Artificial Analysis, an independent third-party evaluator that runs its own evals rather than accepting lab submissions, so these are independent measurements, not self-reports. The Artificial Analysis page shows no explicit last-updated timestamp, so the observation date (2026-06-11) is the best available anchor, and all three rows cite the board-level URL because the site does not expose stable per-row deep links. Cross-aggregator divergence is real: llm-stats.com ranks Claude Mythos, a gated research preview, at about 94.6%, above Gemini 3.1 Pro, but Artificial Analysis only evaluates publicly accessible models, so Claude Mythos does not appear on its board at all. The benchmark is widely described as largely saturated, with top models clustered within 1-2 percentage points of each other, a range inside typical inter-run variance. Epoch AI also runs independent GPQA Diamond evals, but its ranked table is JavaScript rendered and was not readable this round."
+                         },
+                         {
+                             "benchmark":  "SWE-bench Verified",
+                             "leaderboardUrl":  "https://www.swebench.com/verified.html",
+                             "boardLastUpdated":  "2026-02-27",
+                             "observedDate":  "2026-06-11",
+                             "official":  true,
+                             "needsRecheck":  false,
+                             "leaders":  [
+                                             {
+                                                 "rank":  1,
+                                                 "variant":  "All Agents view",
+                                                 "model":  "live-SWE-agent + Claude 4.5 Opus medium (20251101)",
+                                                 "lab":  "UIUC (University of Illinois Urbana-Champaign)",
+                                                 "score":  "79.2% resolved (500-instance Verified split)",
+                                                 "asOfDate":  "2025-12-15",
+                                                 "sourceUrl":  "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
+                                                 "selfReported":  true,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  1,
+                                                 "variant":  "All Agents view, tied with rank 1",
+                                                 "model":  "Sonar Foundation Agent + Claude 4.5 Opus",
+                                                 "lab":  "Sonar (SonarSource)",
+                                                 "score":  "79.2% resolved (500-instance Verified split)",
+                                                 "asOfDate":  "2025-12-05",
+                                                 "sourceUrl":  "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
+                                                 "selfReported":  true,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  3,
+                                                 "variant":  "All Agents view",
+                                                 "model":  "TRAE + Doubao-Seed-Code",
+                                                 "lab":  "ByteDance",
+                                                 "score":  "78.8% resolved (500-instance Verified split)",
+                                                 "asOfDate":  "2025-09-28",
+                                                 "sourceUrl":  "https://raw.githubusercontent.com/SWE-bench/swe-bench.github.io/master/data/leaderboards.json",
+                                                 "selfReported":  true,
+                                                 "disputed":  false
+                                             }
+                                         ],
+                             "notes":  "Status ok. Data sourced from the official swe-bench/swe-bench.github.io repository (data/leaderboards.json, 7.3 MB, last committed 2026-02-27); the public site is JavaScript rendered, so the raw JSON (180 Verified entries) was parsed directly. Ranks 1 and 2 are tied at 79.2%. All three top entries carry checked: false in the data, meaning they are self-submitted and not independently confirmed by the board operators; in the same data, checked: true marks operator-verified entries and checked: null marks the operator-run standardized mini-SWE-agent view. This reading of the checked field is an interpretive gloss consistent with the data pattern, not documented in the repo README. The top standardized operator-run entry is mini-SWE-agent + Claude 4.5 Opus (high reasoning) at 76.8%, submitted 2026-02-17 by Anthropic. The board carries no deprecation banner and remains active; as of late 2025 it prioritizes and encourages academic, open-source, reproducible Verified submissions, though the restriction is not absolute, since non-academic self-reported entries continued to appear after November 2025. Separately, OpenAI stopped reporting SWE-bench Verified scores in February 2026, citing flawed tests and contamination (see the fact check in this pack); the maintainers did not retire the benchmark."
+                         },
+                         {
+                             "benchmark":  "Humanity\u0027s Last Exam (HLE)",
+                             "leaderboardUrl":  "https://labs.scale.com/leaderboard/humanitys_last_exam",
+                             "boardLastUpdated":  "2025-04-03",
+                             "observedDate":  "2026-06-11",
+                             "official":  true,
+                             "needsRecheck":  false,
+                             "leaders":  [
+                                             {
+                                                 "rank":  1,
+                                                 "variant":  "multimodal",
+                                                 "model":  "gemini-3.1-pro-preview (thinking high)",
+                                                 "lab":  "Google",
+                                                 "score":  "46.44% (+/-1.96)",
+                                                 "asOfDate":  "2026-06-11",
+                                                 "sourceUrl":  "https://labs.scale.com/leaderboard/humanitys_last_exam",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  1,
+                                                 "variant":  "multimodal, shares rank 1 (overlapping confidence intervals)",
+                                                 "model":  "gpt-5.4-pro-2026-03-05",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "44.32% (+/-1.95)",
+                                                 "asOfDate":  "2026-06-11",
+                                                 "sourceUrl":  "https://labs.scale.com/leaderboard/humanitys_last_exam",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  3,
+                                                 "variant":  "multimodal",
+                                                 "model":  "Muse Spark",
+                                                 "lab":  "Meta (Meta Superintelligence Labs)",
+                                                 "score":  "40.56% (+/-1.92)",
+                                                 "asOfDate":  "2026-06-11",
+                                                 "sourceUrl":  "https://labs.scale.com/leaderboard/humanitys_last_exam",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  3,
+                                                 "variant":  "multimodal, shares rank 3 (overlapping confidence intervals)",
+                                                 "model":  "gemini-3-pro-preview",
+                                                 "lab":  "Google",
+                                                 "score":  "37.52% (+/-1.90)",
+                                                 "asOfDate":  "2026-06-11",
+                                                 "sourceUrl":  "https://labs.scale.com/leaderboard/humanitys_last_exam",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             }
+                                         ],
+                             "notes":  "Status ok. Source is the official Scale Labs leaderboard, read via live browser render on 2026-06-11; all scores were run by Scale AI, not self-reported by labs. The \u0027April 3, 2025\u0027 date shown on the board refers to the HLE dataset finalization (2,500 questions locked), not a last board update; the board is live and continues to add new models, including 2026 releases. Scores are accuracy on the 2,500-question public set at temperature 0.0. Ranking uses Rank (Upper Bound), so models whose 95% confidence intervals overlap share a rank: gemini-3.1-pro-preview and gpt-5.4-pro share rank 1, and Muse Spark and gemini-3-pro-preview share rank 3. Muse Spark is confirmed as a Meta Superintelligence Labs model released April 2026. A separate text-only leaderboard exists at /humanitys_last_exam_text_only. agi.safe.ai is the original HLE site (CAIS and Scale AI) and hosts its own older results table; the live submission leaderboard is the Scale Labs board cited here (an earlier draft incorrectly said agi.safe.ai redirects, which it does not). Important context: independent analyses estimate a meaningful share of HLE reference answers are wrong (see the fact check in this pack), and these scores are on the uncorrected question set."
+                         },
+                         {
+                             "benchmark":  "FrontierMath",
+                             "leaderboardUrl":  "https://epoch.ai/frontiermath/tiers-1-4",
+                             "boardLastUpdated":  "2026-05-11",
+                             "observedDate":  "2026-06-11",
+                             "official":  true,
+                             "needsRecheck":  true,
+                             "leaders":  [
+                                             {
+                                                 "rank":  1,
+                                                 "variant":  "reasoning/pro variant",
+                                                 "model":  "GPT-5.5 Pro",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "52% Tiers 1-3, 40% Tier 4",
+                                                 "asOfDate":  "2026-04-29",
+                                                 "sourceUrl":  "https://epochai.substack.com/p/gpt-55-pro-achieves-a-new-high-score",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  2,
+                                                 "variant":  "pro reasoning variant",
+                                                 "model":  "GPT-5.4 Pro",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "50% Tiers 1-3, 38% Tier 4",
+                                                 "asOfDate":  "2026-03-05",
+                                                 "sourceUrl":  "https://x.com/EpochAIResearch/status/2029626255776395425",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  3,
+                                                 "variant":  "pro reasoning variant",
+                                                 "model":  "GPT-5.2 Pro",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "31% Tier 4 (Tiers 1-3 not separately reported in this update)",
+                                                 "asOfDate":  "2026-01-23",
+                                                 "sourceUrl":  "https://epochai.substack.com/p/new-record-on-frontiermath-tier-4",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  4,
+                                                 "variant":  "internal high-compute scaffold, not the released model",
+                                                 "model":  "o3 (high-compute internal version)",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "25.2% (claimed, Tiers 1-4 combined)",
+                                                 "asOfDate":  "2024-12",
+                                                 "sourceUrl":  "https://www.lesswrong.com/posts/8ZgLYwBmB3vLavjKE/some-lessons-from-the-openai-frontiermath-debacle",
+                                                 "selfReported":  true,
+                                                 "disputed":  true
+                                             }
+                                         ],
+                             "notes":  "Status partial, needsRecheck true. The verifier returned medium confidence: it confirmed every ranked number against Epoch AI primary announcements but could not load the live JavaScript-rendered board to confirm the full current table. Recheck reasons: (1) Epoch AI announced on 2026-05-11 that an AI-assisted review flagged fatal errors in roughly one third of FrontierMath problems; corrected scores are pending human review, so every figure here is pre-correction. (2) GPT-5.5 (non-Pro) at 51.7% Tiers 1-3 (35.4% Tier 4) is OpenAI\u0027s own launch figure from April 23, 2026, and multiple sources indicate the official board as of late May 2026 ranks GPT-5.5 Pro above GPT-5.5 above GPT-5.4 Pro, which would place GPT-5.5 between ranks 1 and 2 here; this could not be fully confirmed against the live board, so it is noted rather than ranked. Some sources also show GPT-5.5 Pro at 52.4% on the board versus the 52% in the Epoch announcement cited. All ranked scores except the o3 entry come from Epoch AI\u0027s own independent evaluations with pre-release access, not lab self-reports. The o3 25.2% figure (December 2024) is both self-reported and disputed: it came from an internal high-compute scaffold, and Epoch\u0027s independent test of the public o3 found about 10%; it is retained as a teaching example. OpenAI funded FrontierMath and has ownership of and access to problems and solutions, a disclosed conflict noted by Epoch AI. Tiers 1-3 cover undergraduate through advanced graduate mathematics (300 problems); Tier 4 is research-level (50 problems). The rank 2 asOfDate reflects the model version date (gpt-5.4-pro-2026-03-05); Epoch\u0027s evaluation announcement followed in mid-March 2026."
+                         },
+                         {
+                             "benchmark":  "MMMU",
+                             "leaderboardUrl":  "https://mmmu-benchmark.github.io/",
+                             "boardLastUpdated":  "2026-04-08",
+                             "observedDate":  "2026-06-11",
+                             "official":  true,
+                             "needsRecheck":  false,
+                             "leaders":  [
+                                             {
+                                                 "rank":  1,
+                                                 "variant":  "MMMU Validation split",
+                                                 "model":  "GPT-5.1",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "85.4% (MMMU Validation, overall accuracy)",
+                                                 "asOfDate":  "2025-11-13",
+                                                 "sourceUrl":  "https://raw.githubusercontent.com/MMMU-Benchmark/mmmu-benchmark.github.io/main/leaderboard_data.json",
+                                                 "selfReported":  true,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  2,
+                                                 "variant":  "MMMU Validation split, third-party research method built on GPT-5-mini",
+                                                 "model":  "DreamPRM-1.5 (GPT-5-mini w/ thinking)",
+                                                 "lab":  "Third-party research (coder-qicao / GitHub)",
+                                                 "score":  "84.6% (MMMU Validation, overall accuracy)",
+                                                 "asOfDate":  "2025-09-05",
+                                                 "sourceUrl":  "https://raw.githubusercontent.com/MMMU-Benchmark/mmmu-benchmark.github.io/main/leaderboard_data.json",
+                                                 "selfReported":  true,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  3,
+                                                 "variant":  "MMMU Validation split",
+                                                 "model":  "GPT-5 w/ thinking",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "84.2% (MMMU Validation, overall accuracy)",
+                                                 "asOfDate":  "2025-08-07",
+                                                 "sourceUrl":  "https://raw.githubusercontent.com/MMMU-Benchmark/mmmu-benchmark.github.io/main/leaderboard_data.json",
+                                                 "selfReported":  true,
+                                                 "disputed":  false
+                                             }
+                                         ],
+                             "notes":  "Status ok. Data parsed directly from the official leaderboard_data.json in the mmmu-benchmark.github.io repository (last commit 2026-04-08), the file that powers the JavaScript-rendered public leaderboard. The HTML page shows a stale static string reading \u0027Last updated: 09/05/2025\u0027; the underlying data file is newer. The Validation split (189 non-human entries) is the primary ranking surface the research community uses; the Test split (55 entries) is far sparser, reportedly because the operators released test-set answers in early 2026, invalidating new test submissions (the specific February 2026 date for that release could not be independently verified). All listed entries are self-reported because the MMMU leaderboard accepts self-submitted results rather than running independent evals. Human Expert (High) scores 88.6% on Validation and is excluded as a non-model reference point. Test split top 3 in the same file: KiQ-v0 at 65.9% (University of Arkansas CVIU lab), InternVL2.5-78B at 61.8% (OpenGVLab / Shanghai AI Lab), and Spark4.0-Turbo at 60.3% (iFLYTEK). The roughly 19-point gap between validation and test toplines reflects that the best recent proprietary models have not submitted test results, not worse performance. GPT-5.1 also carries an MMMU-Pro score of 76.0 in the same file; this table uses the Validation split and labels the metric accordingly."
+                         },
+                         {
+                             "benchmark":  "ARC-AGI (v1 and v2)",
+                             "leaderboardUrl":  "https://arcprize.org/leaderboard",
+                             "boardLastUpdated":  "2026-06-09",
+                             "observedDate":  "2026-06-11",
+                             "official":  false,
+                             "needsRecheck":  false,
+                             "leaders":  [
+                                             {
+                                                 "rank":  1,
+                                                 "variant":  "ARC-AGI-2, self-reported aggregator layer, exact compute settings not disclosed",
+                                                 "model":  "GPT-5.5",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "85%",
+                                                 "asOfDate":  "2026-06-09",
+                                                 "sourceUrl":  "https://benchlm.ai/benchmarks/arcAgi2",
+                                                 "selfReported":  true,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  2,
+                                                 "variant":  "ARC-AGI-2, self-reported aggregator layer, exact compute settings not disclosed",
+                                                 "model":  "GPT-5.4 Pro",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "83.3%",
+                                                 "asOfDate":  "2026-06-09",
+                                                 "sourceUrl":  "https://benchlm.ai/benchmarks/arcAgi2",
+                                                 "selfReported":  true,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  3,
+                                                 "variant":  "ARC-AGI-2, self-reported aggregator layer, exact compute settings not disclosed",
+                                                 "model":  "Gemini 3.1 Pro",
+                                                 "lab":  "Google DeepMind",
+                                                 "score":  "77.1%",
+                                                 "asOfDate":  "2026-06-09",
+                                                 "sourceUrl":  "https://benchlm.ai/benchmarks/arcAgi2",
+                                                 "selfReported":  true,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  1,
+                                                 "variant":  "ARC-AGI-1, verified by ARC Prize at the stated $10k compute limit; a high-compute config scored 87.5% but is not leaderboard-eligible under cost rules",
+                                                 "model":  "o3 (high-efficiency, semi-private eval)",
+                                                 "lab":  "OpenAI",
+                                                 "score":  "75.7% (semi-private eval, within $10k compute budget)",
+                                                 "asOfDate":  "2024-12-20",
+                                                 "sourceUrl":  "https://arcprize.org/blog/oai-o3-pub-breakthrough",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  1,
+                                                 "variant":  "ARC-AGI-2, verified by ARC Prize (December 2025)",
+                                                 "model":  "Gemini 3 Pro with Poetiq refinement",
+                                                 "lab":  "Google DeepMind",
+                                                 "score":  "54% at $30/task",
+                                                 "asOfDate":  "2025-12-05",
+                                                 "sourceUrl":  "https://arcprize.org/blog/arc-prize-2025-results-analysis",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             },
+                                             {
+                                                 "rank":  2,
+                                                 "variant":  "ARC-AGI-2, verified by ARC Prize (December 2025)",
+                                                 "model":  "Claude Opus 4.5 (Thinking, 64k)",
+                                                 "lab":  "Anthropic",
+                                                 "score":  "37.6% at $2.20/task",
+                                                 "asOfDate":  "2025-12-05",
+                                                 "sourceUrl":  "https://arcprize.org/blog/arc-prize-2025-results-analysis",
+                                                 "selfReported":  false,
+                                                 "disputed":  false
+                                             }
+                                         ],
+                             "notes":  "Status partial. The official arcprize.org leaderboard page is JavaScript rendered and was not directly readable, so two clearly separated data layers are reported, and ranks are scoped within each benchmark variant and layer, not globally. The official flag is set to false because the live official board was never directly read and the 2026 topline entries come from third-party aggregators; the entries marked selfReported false cite official ARC Prize blog posts and are maintainer-verified. Layer 1, verified by ARC Prize: for ARC-AGI-1, OpenAI o3 at 75.7% on the semi-private eval within the $10k compute budget (December 2024); a high-compute o3 config scored 87.5% but is not leaderboard-eligible under cost rules. For ARC-AGI-2 as of December 2025, ARC Prize verified Gemini 3 Pro with Poetiq refinement at 54% ($30/task) and Claude Opus 4.5 (Thinking, 64k) at 37.6% ($2.20/task). Layer 2, self-reported aggregator data, not ARC Prize verified: benchlm.ai and llm-stats.com (updated 2026-06-09) list GPT-5.5 at 85%, GPT-5.4 Pro at 83.3%, and Gemini 3.1 Pro at 77.1% on ARC-AGI-2; llm-stats.com explicitly shows 0 verified results out of 13 self-reported entries (16 models evaluated). For student-facing use, treat the arcprize.org figures as the authoritative verified baseline and label all aggregator figures as self-reported lab claims. The ARC Prize verified testing policy is at arcprize.org/policy."
+                         }
+                     ],
+    "records":  [
+                    {
+                        "benchmark":  "HumanEval",
+                        "whatItMeasures":  "HumanEval tests whether an AI model can write a correct Python function from a plain-language description, judging each attempt by whether the code passes a set of pre-written unit tests.",
+                        "whyItMatters":  "Introduced in July 2021 alongside OpenAI\u0027s Codex model, HumanEval was the first standardized, unit-test-based benchmark for AI code generation, giving researchers a common yardstick at a time when \"can AI code?\" was an open question. It established Pass@k as the field\u0027s default code-evaluation metric and directly shaped how labs trained and compared coding models through 2023. By 2024 it had been so thoroughly solved by frontier models that it effectively retired from competitive use, making its saturation story itself a lesson in how AI progress outpaces benchmarks.",
+                        "scoring":  {
+                                        "metric":  "Pass@k (most commonly Pass@1): the probability that at least one of k generated code samples for a given problem passes all unit tests; reported as a percentage from 0 to 100",
+                                        "maintainer":  "OpenAI created the dataset and evaluation harness (GitHub: openai/human-eval); no official OpenAI leaderboard is maintained; active third-party leaderboards include EvalPlus (evalplus.github.io) for the stricter HumanEval+ variant and aggregators such as llm-stats.com and paperswithcode.com",
+                                        "officialUrl":  "https://arxiv.org/abs/2107.03374",
+                                        "scale":  "0 to 100 percent; original 2021 Codex baseline was 28.8% Pass@1; frontier models as of 2025-2026 cluster between 92% and 97%"
+                                    },
+                        "watchOutFor":  "Saturation: by 2024-2025 nearly every frontier model exceeded 90% Pass@1, and multiple models have reached 95-97%, meaning score differences of 1-2 points are statistically meaningless as a signal of real-world coding ability. Contamination: HumanEval\u0027s 164 problems have been publicly available since 2021 and appear in virtually all large code-training corpora; research found the median HumanEval prompt appears over 9,000 times on GitHub, and studies of models fine-tuned on semantically similar data showed pass@1 gains of up to 14 points unrelated to genuine skill. Narrow scope: 84.8% of the problems are classified as easy, five concept categories cover 72% of all problems, and the benchmark tests only single-function Python, missing multi-file projects, debugging, security, tool use, and real engineering workflows. Weak tests: the average of 7.7 unit tests per problem means some incorrect solutions pass. For these reasons, leading evaluation groups now use SWE-bench and LiveCodeBench for frontier comparisons.",
+                        "leaders":  [
+                                        {
+                                            "model":  "Claude Opus 4.6 (Anthropic)",
+                                            "score":  "96.3% Pass@1",
+                                            "lab":  "Anthropic",
+                                            "asOfDate":  "January 2026",
+                                            "sourceUrl":  "https://www.codesota.com/browse/computer-code/code-generation/humaneval",
+                                            "selfReported":  true
+                                        },
+                                        {
+                                            "model":  "GPT-5 (OpenAI)",
+                                            "score":  "95.1% Pass@1",
+                                            "lab":  "OpenAI",
+                                            "asOfDate":  "December 2025",
+                                            "sourceUrl":  "https://www.codesota.com/browse/computer-code/code-generation/humaneval",
+                                            "selfReported":  true
+                                        },
+                                        {
+                                            "model":  "o3 (OpenAI)",
+                                            "score":  "94.8% Pass@1",
+                                            "lab":  "OpenAI",
+                                            "asOfDate":  "April 2025",
+                                            "sourceUrl":  "https://www.codesota.com/browse/computer-code/code-generation/humaneval",
+                                            "selfReported":  true
+                                        }
+                                    ],
+                        "whyCare":  "If a model scores below 70% on HumanEval it cannot reliably write simple, self-contained code, which is a genuine red flag for any coding use case. But if a model scores 95% it tells you almost nothing useful beyond that minimum bar, because nearly every major model in 2025 clears 90% and the benchmark is too narrow and too contaminated to separate a great coding assistant from a mediocre one.",
+                        "relatedConcepts":  [
+                                                "code generation",
+                                                "benchmark saturation and contamination",
+                                                "Pass@k evaluation",
+                                                "software engineering agents"
+                                            ],
+                        "sources":  [
+                                        "https://arxiv.org/abs/2107.03374",
+                                        "https://github.com/openai/human-eval",
+                                        "https://evalplus.github.io/",
+                                        "https://evalplus.github.io/leaderboard.html",
+                                        "https://www.codesota.com/browse/computer-code/code-generation/humaneval",
+                                        "https://llm-stats.com/benchmarks/humaneval",
+                                        "https://arxiv.org/html/2407.07565v1",
+                                        "https://arxiv.org/html/2602.16763",
+                                        "https://runloop.ai/blog/humaneval-when-machines-learned-to-code",
+                                        "https://blaxel.ai/blog/humaneval-benchmark",
+                                        "https://www.demandsphere.com/research/demandsphere-radar/ai-frontier-model-tracker/benchmarks/human-eval/",
+                                        "https://klu.ai/glossary/humaneval-benchmark",
+                                        "https://huggingface.co/openbmb/MiniCPM-SALA"
+                                    ],
+                        "status":  "partial",
+                        "notes":  "Leaders section uses scores from CodeSOTA (codesota.com), which aggregates vendor-reported and model-card figures; all three listed scores are self-reported by the respective labs and not independently reproduced by a neutral third party. OpenAI does not maintain an official HumanEval leaderboard; the original GitHub repository (openai/human-eval) is dormant with no active updates, though it is not formally archived on GitHub. The EvalPlus leaderboard at evalplus.github.io is the closest to an authoritative third-party tracker for HumanEval+, but the page renders via JavaScript and full table data could not be extracted; the third-party aggregator llm-stats.com shows MiniCPM-SALA at 95.1% as of June 2026, but this score could not be verified against the model card (which embeds results in images). Because HumanEval is widely considered saturated and superseded, exact frontier rankings carry low informational value; the saturation and contamination story is the primary educational content."
+                    },
+                    {
+                        "benchmark":  "AIME (American Invitational Mathematics Examination, used as an LLM eval)",
+                        "whatItMeasures":  "AIME measures a model\u0027s ability to solve 30 challenging, multi-step math competition problems covering algebra, geometry, number theory, and combinatorics, where each answer is a three-digit integer from 000 to 999 and there is no partial credit.",
+                        "whyItMatters":  "AIME is one of the hardest standardized tests given to human high-school students, so using it as an LLM eval sets a high ceiling on mathematical reasoning ability. Progress on AIME tracks the broader advance of chain-of-thought and reinforcement-learning-trained reasoning models, and top models now routinely outperform the median human qualifier. Because the exam is released fresh each year by the MAA, each new edition provides a low-contamination snapshot of where frontier models actually stand, unlike static datasets that age into training corpora.",
+                        "scoring":  {
+                                        "metric":  "Exact-match accuracy (pass@1): number of correct integer answers out of 30 problems, reported as a percentage from 0 to 100. Each model is typically run four times per problem and the average is taken (MathArena\u0027s default; not universal across every model). Human qualifiers typically solve 4-6 of 15 problems per session (roughly 27-40%).",
+                                        "maintainer":  "AIME as a competition is run by the Mathematical Association of America (MAA). Independent LLM evaluation is run by MathArena (ETH Zurich SRI lab, NeurIPS D\u0026B 2025 paper) and separately by Epoch AI on their OTIS Mock AIME variant.",
+                                        "officialUrl":  "https://matharena.ai/",
+                                        "scale":  "0-100% (30 problems; one point each, no deductions)"
+                                    },
+                        "watchOutFor":  "Contamination is the dominant concern. Problems from AIME 2024 and earlier have been freely available online for years and are widely scraped into pretraining corpora. MathArena\u0027s controlled study (arXiv 2505.23281) found that most frontier models scored 10-20 percentage points higher on AIME 2024 than on the fresh AIME 2025 problems, with one model (QwQ-Preview-32B) showing a near-60-point anomaly, a near-certain sign of memorization rather than reasoning. This means any benchmark number labeled \"AIME 2024\" or earlier should be treated as an unreliable upper bound. Saturation is also emerging: by mid-2025 the top MathArena-verified scores on AIME 2025 were already above 93-95%, and by 2026 top models on AIME 2026 cluster between 93-97%, compressing the useful signal. Labs sometimes self-report with Python-tool access enabled, which inflates scores because the problems are designed for pencil-and-paper solving; always check whether a reported score is tool-assisted.",
+                        "leaders":  [
+                                        {
+                                            "model":  "Step-3.5-Flash",
+                                            "lab":  "StepFun AI",
+                                            "score":  "96.67%",
+                                            "asOfDate":  "2026-05-01",
+                                            "sourceUrl":  "https://matharena.ai/?comp=aime--aime_2026",
+                                            "selfReported":  false
+                                        },
+                                        {
+                                            "model":  "Kimi-K2.6",
+                                            "lab":  "Moonshot AI",
+                                            "score":  "96.4%",
+                                            "asOfDate":  "2026-05-01",
+                                            "sourceUrl":  "https://matharena.ai/?comp=aime--aime_2026",
+                                            "selfReported":  false
+                                        },
+                                        {
+                                            "model":  "Kimi-K2.5",
+                                            "lab":  "Moonshot AI",
+                                            "score":  "95.83%",
+                                            "asOfDate":  "2026-05-01",
+                                            "sourceUrl":  "https://huggingface.co/datasets/MathArena/aime_2026",
+                                            "selfReported":  false
+                                        }
+                                    ],
+                        "whyCare":  "If an AI can reliably solve AIME problems, it has gone well past the level of a high-achieving math student, which matters because the same reasoning machinery applies to drug design, financial modeling, and engineering. Watching scores on fresh, uncontaminated AIME editions is one of the cleaner ways to track whether AI reasoning is genuinely improving or just getting better at recognizing problems it has seen before.",
+                        "relatedConcepts":  [
+                                                "Mathematical reasoning",
+                                                "Chain-of-thought prompting",
+                                                "Benchmark contamination",
+                                                "Reinforcement learning from human feedback (RLHF)"
+                                            ],
+                        "sources":  [
+                                        "https://matharena.ai/",
+                                        "https://matharena.ai/competitions",
+                                        "https://matharena.ai/?comp=aime--aime_2026",
+                                        "https://arxiv.org/abs/2505.23281",
+                                        "https://arxiv.org/html/2505.23281v2",
+                                        "https://arxiv.org/abs/2605.00674",
+                                        "https://github.com/eth-sri/matharena",
+                                        "https://huggingface.co/datasets/MathArena/aime_2025",
+                                        "https://huggingface.co/datasets/MathArena/aime_2026",
+                                        "https://epoch.ai/benchmarks/otis-mock-aime-2024-2025",
+                                        "https://epoch.ai/blog/grok-4-math",
+                                        "https://maa.org/maa-invitational-competitions/",
+                                        "https://en.wikipedia.org/wiki/American_Invitational_Mathematics_Examination",
+                                        "https://benchlm.ai/benchmarks/aime2025",
+                                        "https://artificialanalysis.ai/evaluations/aime-2025",
+                                        "https://intuitionlabs.ai/articles/aime-2025-ai-benchmark-explained",
+                                        "https://www.emergentmind.com/topics/aime-benchmarks",
+                                        "https://llm-stats.com/benchmarks/aime-2025",
+                                        "https://llm-stats.com/benchmarks/aime-2026"
+                                    ],
+                        "status":  "partial",
+                        "notes":  "Leaders table uses MathArena\u0027s AIME 2026 leaderboard (the current low-contamination edition as of June 2026) because MathArena deprecated AIME 2025 once it aged into potential training data. Scores come from the MathArena HuggingFace dataset page (MathArena/aime_2026) and the matharena.ai leaderboard; the verifier confirmed the top three exactly against that data. Kimi-K2.5 at 95.83% is tied at the same score with GLM-5 and Ring-2.6-1T. Caution: the llm-stats.com AIME 2026 aggregator page is stale, omits Step-3.5-Flash entirely, and shows a different ordering, so it should not be used for leader numbers. For AIME 2025, the MathArena arxiv paper (2505.23281v2, Table 11) is the most authoritative independent source and shows GPT-5 (high) at 95.0%, GLM 4.5 at 93.33%, and o4-mini (high) at 91.67%; these are the figures to cite when discussing the 2025 wave of reasoning models. Several aggregator leaderboards (llm-stats.com, benchlm.ai) list models like GPT-5.2 Pro with perfect scores on AIME 2025; these may be post-deprecation evals where problems re-entered training data, so they are noted but not used as primary leaders. The MathArena platform is maintained by ETH Zurich\u0027s SRI lab (Jasper Dekoninck et al.) and was accepted at the NeurIPS 2025 Datasets and Benchmarks track. The Epoch AI OTIS Mock AIME is a related but distinct benchmark using student-authored problems; Grok 4 scored 84% (plus or minus 5%) there as of July 2025."
+                    },
+                    {
+                        "benchmark":  "TAU-bench (tau-bench)",
+                        "whatItMeasures":  "TAU-bench measures how reliably an AI agent can complete customer service tasks by using software tools, following business policy rules, and conversing with a simulated human user across multiple independent attempts in airline and retail scenarios.",
+                        "whyItMatters":  "Most earlier benchmarks tested AI on isolated questions or code problems, but real deployments require agents to hold multi-turn conversations, call APIs correctly, and follow company policies all at once. TAU-bench was the first widely adopted benchmark to combine all three requirements in a realistic customer-service setting, making it a reference point for anyone building or evaluating AI agents for enterprise use. Its Pass^k metric also exposed a reliability problem that single-run accuracy hides: models that succeed 60% of the time on one try may succeed consistently only 25% of the time across multiple independent runs.",
+                        "scoring":  {
+                                        "metric":  "Pass^k: the probability that an agent completes the same task correctly on every one of k independent attempts; higher k means stricter reliability requirements. The most commonly reported values are Pass^1 (single-run accuracy) and Pass^4. Note the caret: Pass^k requires success on all k attempts, unlike the pass@k metric used in code benchmarks, which counts success on at least one of k. Tasks are scored by comparing the final database state to the annotated goal state, not by judging conversation quality.",
+                                        "maintainer":  "Original benchmark by Sierra Research (Shunyu Yao, Noah Shinn, Pedram Razavi, Karthik Narasimhan); independent verified evaluations run by the Holistic Agent Leaderboard (HAL) at Princeton University",
+                                        "officialUrl":  "https://hal.cs.princeton.edu/taubench_airline",
+                                        "scale":  "0.0 to 1.0 (reported as a proportion or percentage). At launch in 2024, GPT-4o scored Pass^1 of 0.420 on airline and 0.604 on retail. As of mid-2025, the top verified score on the airline split is 56% (o4-mini High and Claude 3.7 Sonnet, HAL leaderboard). Self-reported retail scores from labs reach up to 0.862 (Claude Sonnet 4.5, llm-stats.com), but those numbers are not independently verified."
+                                    },
+                        "watchOutFor":  "Three concerns stand out. First, all scores aggregated on third-party leaderboards (llm-stats.com, steel.dev) are self-reported by the labs that built the models, creating an obvious conflict of interest and making cross-lab comparisons unreliable. The only independently verified scores as of mid-2025 are on the HAL leaderboard at Princeton, which covers only the airline split. Second, a data leakage incident was discovered in the TAU-bench Few-Shot agent scaffold: the demonstration file contained actual test-set examples rather than training examples, inflating scores; HAL removed all Few-Shot results from its leaderboard after discovering this. Third, researchers have shown that LLM-simulated users are unreliable proxies for real humans: agent success rates shift by up to 9 percentage points depending on which LLM plays the simulated user, and the simulation systematically underrepresents how speakers of non-standard English varieties interact (see arXiv 2601.17087). The benchmark is not saturated - top verified scores remain well below 60% on airline - but it is slowly being superseded by tau2-bench and tau3-bench, which add a dual-control telecom domain, a banking knowledge domain, and voice evaluation.",
+                        "leaders":  [
+                                        {
+                                            "model":  "o4-mini High (April 2025)",
+                                            "lab":  "OpenAI",
+                                            "score":  "56.00% Pass^1 (airline, verified)",
+                                            "asOfDate":  "2025-04-01",
+                                            "sourceUrl":  "https://hal.cs.princeton.edu/taubench_airline",
+                                            "selfReported":  false
+                                        },
+                                        {
+                                            "model":  "Claude 3.7 Sonnet (Feb 2025)",
+                                            "lab":  "Anthropic",
+                                            "score":  "56.00% Pass^1 (airline, verified)",
+                                            "asOfDate":  "2025-02-01",
+                                            "sourceUrl":  "https://hal.cs.princeton.edu/taubench_airline",
+                                            "selfReported":  false
+                                        },
+                                        {
+                                            "model":  "o3 Medium (April 2025)",
+                                            "lab":  "OpenAI",
+                                            "score":  "54.00% Pass^1 (airline, verified)",
+                                            "asOfDate":  "2025-04-01",
+                                            "sourceUrl":  "https://hal.cs.princeton.edu/taubench_airline",
+                                            "selfReported":  false
+                                        }
+                                    ],
+                        "whyCare":  "When a company deploys an AI assistant to handle flight changes or product returns, that assistant needs to get it right every single time, not just most of the time. TAU-bench is the benchmark that first measured this consistency gap and showed that even the best AI systems fail at this kind of work surprisingly often, which is why it became a reference point for anyone deciding whether to trust AI agents with real customer interactions.",
+                        "relatedConcepts":  [
+                                                "AI agents and tool use",
+                                                "multi-turn dialogue and conversation management",
+                                                "benchmark evaluation and reliability metrics",
+                                                "reinforcement learning from human feedback (RLHF) and policy following"
+                                            ],
+                        "sources":  [
+                                        "https://arxiv.org/abs/2406.12045",
+                                        "https://github.com/sierra-research/tau-bench",
+                                        "https://github.com/sierra-research/tau2-bench",
+                                        "https://hal.cs.princeton.edu/taubench_airline",
+                                        "https://sierra.ai/resources/research/tau-bench",
+                                        "https://sierra.ai/resources/research/tau-squared-bench",
+                                        "https://sierra.ai/resources/research/tau-3-bench",
+                                        "https://iclr.cc/virtual/2025/poster/28170",
+                                        "https://arxiv.org/abs/2601.17087",
+                                        "https://llm-stats.com/benchmarks/tau-bench-retail",
+                                        "https://llm-stats.com/benchmarks/tau-bench-airline",
+                                        "https://arxiv.org/abs/2506.07982"
+                                    ],
+                        "status":  "partial",
+                        "notes":  "Status is partial for two reasons. First, HAL (Princeton) has verified scores only for the airline split (50 tasks); no independently verified retail leaderboard exists as of June 2026. The retail leaders shown on llm-stats.com (e.g., Claude Sonnet 4.5 at 0.862) are entirely self-reported by Anthropic and cannot be independently confirmed. Second, scores on steel.dev were checked and found to be unreliable - model names and figures there did not correspond to known public results and were excluded. The three leaders listed above are all from the HAL verified airline leaderboard. The original tau-bench GitHub README also contains a verified results table showing Claude 3.5 Sonnet (Oct 2024) at Pass^1 of 0.460 airline and 0.692 retail, and GPT-4o at 0.420 airline and 0.604 retail; these are from the paper authors\u0027 own evaluation runs using a fixed scaffold and are the most comparable historical baseline. The benchmark was accepted as a poster at ICLR 2025. The active development line has moved to tau2-bench (arXiv 2506.07982, June 2025) and tau3-bench (February 2026), which add a telecom dual-control domain, a banking knowledge domain, and full-duplex voice evaluation."
+                    },
+                    {
+                        "benchmark":  "ARC-AGI-2",
+                        "whatItMeasures":  "ARC-AGI-2 measures whether an AI system can solve novel visual puzzles it has never seen before by inferring abstract rules from a handful of examples, testing the kind of flexible, on-the-fly reasoning humans use rather than pattern-matching over memorized training data.",
+                        "whyItMatters":  "ARC-AGI-2 was designed specifically to resist the strategies that let AI systems look capable on earlier benchmarks, such as brute-force search and statistical memorization, making it a meaningful stress test for genuine reasoning ability. It revealed a dramatic gap between what frontier AI can appear to do on standard tests and what it can actually do when novelty is guaranteed, because leading reasoning models scored only around 3% at launch while humans solved the same tasks easily. Tracking progress on ARC-AGI-2 gives researchers and policymakers a more honest signal of how close AI systems are to human-level general problem-solving, which is why its creator, Francois Chollet, treats performance on it as a proxy for progress toward general intelligence.",
+                        "scoring":  {
+                                        "metric":  "Percentage of tasks solved correctly out of 120 tasks per evaluation set; the official competition also tracks cost per task in USD to penalize expensive brute-force compute.",
+                                        "maintainer":  "ARC Prize Foundation (Francois Chollet and Mike Knoop).",
+                                        "officialUrl":  "https://arcprize.org/leaderboard",
+                                        "scale":  "0-100%, where 85% on the private evaluation set is the grand prize threshold; human panel solves 100% when requiring at least 2 humans per task; average individual human scores approximately 66% on tasks they attempt."
+                                    },
+                        "watchOutFor":  "Most scores on the public leaderboard are self-reported by labs and not independently verified by ARC Prize, so top numbers like GPT-5.5 at 85% should be treated as vendor claims until reproduced. The grand prize requires 85% on the Kaggle private evaluation set under strict resource constraints (no internet, 12-hour time limit, four NVIDIA L4 GPUs), and that threshold had not been met by any competition team as of mid-2026, with the best Kaggle competition score being 24% in 2025. The benchmark is approaching saturation on the unconstrained public leaderboard, which is partly why ARC-AGI-3 has already been announced for frontier agentic challenges. There are no known data contamination concerns because tasks are novel by design, but the gap between public leaderboard scores and constrained competition scores reveals that raw model capability and efficient, reproducible problem-solving are very different things.",
+                        "leaders":  [
+                                        {
+                                            "model":  "GPT-5.5",
+                                            "lab":  "OpenAI",
+                                            "score":  "85.0%",
+                                            "asOfDate":  "2026-04-24",
+                                            "sourceUrl":  "https://llm-stats.com/benchmarks/arc-agi-v2",
+                                            "selfReported":  true
+                                        },
+                                        {
+                                            "model":  "Gemini 3.1 Pro",
+                                            "lab":  "Google",
+                                            "score":  "77.1%",
+                                            "asOfDate":  "2026-06-09",
+                                            "sourceUrl":  "https://llm-stats.com/benchmarks/arc-agi-v2",
+                                            "selfReported":  true
+                                        },
+                                        {
+                                            "model":  "GPT-5.4",
+                                            "lab":  "OpenAI",
+                                            "score":  "73.3%",
+                                            "asOfDate":  "2026-06-09",
+                                            "sourceUrl":  "https://llm-stats.com/benchmarks/arc-agi-v2",
+                                            "selfReported":  true
+                                        }
+                                    ],
+                        "whyCare":  "ARC-AGI-2 is the benchmark that most directly tests whether AI can think flexibly like a human rather than recite patterns it was trained on, so it gives students a clearer picture of what current AI can and cannot actually do. When a model that scores near-perfect on school-style tests drops to single digits on ARC-AGI-2, it exposes the difference between looking intelligent and reasoning from scratch.",
+                        "relatedConcepts":  [
+                                                "Fluid intelligence and abstract reasoning",
+                                                "Generalization vs. memorization in machine learning",
+                                                "Benchmark saturation and the limits of AI evaluation",
+                                                "Compute efficiency and cost-accuracy tradeoffs in AI systems"
+                                            ],
+                        "sources":  [
+                                        "https://arcprize.org/blog/announcing-arc-agi-2-and-arc-prize-2025",
+                                        "https://arcprize.org/blog/arc-prize-2025-results-analysis",
+                                        "https://arcprize.org/blog/arc-agi-2-technical-report",
+                                        "https://arcprize.org/arc-agi/2",
+                                        "https://arcprize.org/competitions/2026/arc-agi-2",
+                                        "https://arcprize.org/policy",
+                                        "https://arcprize.org/leaderboard",
+                                        "https://arxiv.org/html/2505.11831v1",
+                                        "https://arxiv.org/html/2601.10904v1",
+                                        "https://llm-stats.com/benchmarks/arc-agi-v2",
+                                        "https://benchlm.ai/benchmarks/arcAgi2",
+                                        "https://officechai.com/ai/gpt-5-5-tops-arc-agi-2-with-85-score/"
+                                    ],
+                        "status":  "partial",
+                        "notes":  "The round-1 claim that pure LLMs score 0%, reasoners score single digits, and humans score 100% on the 120-task set was partially correct at launch (May 2025) but is now significantly outdated. At launch: pure LLMs (Claude 3.7, o1-pro) scored 0.9%, and top reasoning models (o3-mini High, o3 Medium) scored 3.0% on the semi-private set. However, by mid-2026, self-reported public leaderboard scores have climbed dramatically, with GPT-5.5 reaching 85% and several models above 70%. The human baseline clarification: 100% of tasks were solved by at least 2 of the roughly 400+ testers, but the average individual human scores approximately 66% on tasks they attempt, and the human panel average was reported as 60% at a cost of $17/task. These are distinct numbers and the distinction matters. The 85% grand prize threshold remains unclaimed in the Kaggle competition format (resource-constrained), with the 2025 competition top score being 24.03% (NVARC). The leaders field lists self-reported public leaderboard scores; no independently ARC-Prize-verified score for these models was found, and llm-stats.com shows 0 verified results for ARC-AGI-2. The ARC Prize leaderboard page is JavaScript-rendered and could not be directly fetched; leaderboard numbers come from llm-stats.com and benchlm.ai aggregators cross-referenced with search results and primary blog posts. Note that benchlm.ai lists a GPT-5.4 Pro variant at 83.3%, while llm-stats.com (this record\u0027s cited source) lists GPT-5.4 at 73.3%; these are different model variants, not a contradiction."
+                    }
+                ],
+    "checks":  [
+                   {
+                       "question":  "Did OpenAI or the SWE-bench team deprecate, retire, or supersede SWE-bench Verified on or around 2026-02-23, citing test flaws and training-data contamination? If so, what replaced it?",
+                       "verdict":  "partly-true",
+                       "evidence":  "On February 23, 2026, OpenAI published a post titled \"Why SWE-bench Verified no longer measures frontier coding capabilities\" announcing that it would stop reporting SWE-bench Verified scores. OpenAI cited two specific problems: (1) at least 59.4% of audited benchmark tasks had flawed test cases that rejected functionally correct solutions by enforcing specific implementation details not described in the task, and (2) every major frontier model showed training-data contamination, having encountered the 500 Verified tasks and their solutions during training and reproducing memorized patches rather than solving problems through reasoning. The performance gap makes the contamination visible: models score around 80% on Verified but only 23-58% on SWE-bench Pro, suggesting Verified was largely measuring memorization. OpenAI recommended that model developers switch to reporting results on SWE-bench Pro, developed by Scale AI researchers, which uses a rotating held-out task pool drawn from issues released after training cutoffs and mandates standardized evaluation harnesses to block scaffolding inflation.\n\nHowever, the claim is only partly true in a critical respect: the SWE-bench maintainers, researchers from Princeton University (Princeton NLP / Princeton Language and Intelligence) with collaborators from the University of Chicago, did NOT retire or deprecate the benchmark. As of June 2026, swebench.com/verified.html continues to present SWE-bench Verified as an active leaderboard with no deprecation banner or retirement notice. A GitHub issue (#571, opened April 25, 2026) asks why swe-bench-verified disappeared from the CLI tool, but no official maintainer deprecation announcement exists in the repository. The action on February 23, 2026 was OpenAI unilaterally stopping its own internal use and public reporting of the benchmark, not a formal retirement by the benchmark\u0027s creators. The benchmark itself remains available and is still used by parts of the community, though adoption is declining as the industry shifts toward SWE-bench Pro.\n\nVerification note: OpenAI\u0027s post was confirmed via its indexed title and multiple independent secondary sources rather than a direct page fetch (the page returned HTTP 403 to automated fetching), so the exact on-page phrasing merits a quick human spot check before quoting it verbatim.",
+                       "sources":  [
+                                       "https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/",
+                                       "https://the-decoder.com/openai-wants-to-retire-the-ai-coding-benchmark-that-everyone-has-been-competing-on/",
+                                       "https://byteiota.com/openai-abandons-swe-bench-verified-59-flawed-tests/",
+                                       "https://www.codesota.com/news/swe-bench-contamination-debate",
+                                       "https://tessl.io/blog/openai-moves-beyond-swe-bench-verified-as-coding-benchmarks-saturate/",
+                                       "https://www.swebench.com/verified.html",
+                                       "https://github.com/swe-bench/SWE-bench/issues",
+                                       "https://labs.scale.com/leaderboard/swe_bench_pro_private",
+                                       "https://www.morphllm.com/swe-bench-pro"
+                                   ],
+                       "observedDate":  "2026-06-11"
+                   },
+                   {
+                       "question":  "Did FutureHouse (or another group) publish an analysis estimating that roughly 30% of Humanity\u0027s Last Exam reference answers may be incorrect, and what exactly did it find?",
+                       "verdict":  "confirmed",
+                       "evidence":  "FutureHouse published a research post titled \"About 30% of Humanity\u0027s Last Exam Chemistry/Biology Answers are Likely Wrong\" on July 23, 2025 (updated September 16, 2025, with a further update on September 20, 2025). The scope was the text-only chemistry and biology subsets of HLE, covering 321 questions total out of the full 2,500-question benchmark.\n\nThe central finding: 29 plus or minus 3.7 percent (95% CI) of text-only chemistry and biology questions had answers that directly conflicted with peer-reviewed evidence. At the rationale level, 53.3 percent of the checked chemistry and biology rationales combined (n=171) conflicted with published literature: 57.0 percent of chemistry rationales and 51.6 percent of biology/health rationales. FutureHouse used their PaperQA2 agent (\"Crow\") to retrieve supporting or contradicting evidence from scientific literature for each HLE rationale, then validated 150 outputs using independent expert evaluators on a Likert scale.\n\nFutureHouse attributed the errors in part to a design flaw in HLE\u0027s review protocol: reviewers were not required to verify the full accuracy of a question\u0027s rationale if doing so would take more than 5 minutes. The benchmark\u0027s goal of producing questions frontier models could not answer also incentivized highly convoluted questions that, in some cases, lost scientific validity.\n\nA frequently cited example: one HLE question designated \"Oganesson\" as the rarest noble gas on Earth as of 2002, even though Oganesson is a synthetic element that existed for only milliseconds in a Russian nuclear reactor.\n\nScale AI, which co-created the benchmark, conducted a follow-up analysis and estimated the error rate at approximately 18 percent of the bio/chem subset, lower than FutureHouse\u0027s 29 percent. Scale AI also noted that using a single-reviewer methodology would push their own disagreement rate to approximately 25 percent, closer to the FutureHouse figure. These follow-up details are documented in FutureHouse\u0027s September 20, 2025 update (appended to the LessWrong cross-post) and Scale AI\u0027s revised preprint; note that the scale.com blog post listed in sources is Scale\u0027s original January 2025 launch announcement and does not itself contain the follow-up numbers. Scale AI revised their preprint and launched HLE-Rolling, a continuously updated version of the benchmark intended to address community feedback (live as the cais/hle-rolling dataset on HuggingFace).\n\nA separate and independent verification effort by Alibaba Group and the Qwen Team, submitted to arXiv in February 2026 as \"HLE-Verified\" (arXiv:2602.13964), reviewed the full HLE dataset and found that 1,170 items required revision after defects were identified, and 689 items were categorized as uncertain. That paper found that correcting erroneous problems raised model accuracy by 30 to 40 percentage points on the affected items, and by 7 to 10 percentage points across the full revised dataset. This independent study corroborates FutureHouse\u0027s concern about systematic answer errors, though it covers all subjects rather than only chemistry and biology.\n\nIn summary: the 30 percent figure is specifically scoped to the text-only chemistry and biology questions in HLE. It is not a claim about the full HLE dataset across all subjects. Scale AI\u0027s own follow-up found a lower but still significant error rate (18 percent), and the broader HLE-Verified paper independently confirmed substantial answer-level defects across the full benchmark.",
+                       "sources":  [
+                                       "https://www.futurehouse.org/research-announcements/hle-exam",
+                                       "https://www.lesswrong.com/posts/JANqfGrMyBgcKtGgK/about-30-of-humanity-s-last-exam-chemistry-biology-answers",
+                                       "https://arxiv.org/html/2602.13964v2",
+                                       "https://scale.com/blog/humanitys-last-exam-results",
+                                       "https://huggingface.co/datasets/cais/hle-rolling",
+                                       "https://en.wikipedia.org/wiki/Humanity%27s_Last_Exam",
+                                       "https://huggingface.co/datasets/futurehouse/hle-gold-bio-chem"
+                                   ],
+                       "observedDate":  "2026-06-11"
+                   }
+               ],
+    "stillMissing":  [
+                         "LiveCodeBench: no trustworthy current leader table could be obtained because the official board is JavaScript rendered, the backing 6.63 MB performances_generation.json was too large to retrieve fully, and every readable aggregator showed mutually inconsistent data; re-attempt with working browser automation or a full download and parse of the official JSON from the LiveCodeBench GitHub Pages repo.",
+                         "arena.ai: round 2 produced no current leaderboard snapshot, so the pack still pairs the round-1 methodology findings with no arena leader rankings; capture the top rankings with an observed date next round.",
+                         "FrontierMath (flagged needsRecheck): Epoch AI\u0027s error review (fatal errors flagged in roughly one third of problems as of 2026-05-11) means corrected scores are pending, and whether GPT-5.5 non-Pro (51.7% Tiers 1-3) is a distinct entry on the official board was not fully confirmed; re-read the live Epoch board once corrected scores publish.",
+                         "ARC Prize official leaderboard: the live arcprize.org board was never directly rendered, so the 2026 ARC-AGI-2 toplines rest on third-party aggregators of self-reported lab claims; obtain a direct render to confirm the current verified standings and replace aggregator sourcing.",
+                         "GPQA Diamond: Epoch AI\u0027s independent ranked table (epoch.ai/benchmarks/gpqa-diamond) remains unread due to JavaScript rendering, leaving the leader table resting on Artificial Analysis alone; fetch it to add a second independent evaluator and reconcile the cross-aggregator divergence around the gated Claude Mythos preview.",
+                         "HumanEval: the EvalPlus leaderboard, the closest thing to an authoritative third-party tracker, could not be extracted, so the listed leaders are vendor self-reported figures via the CodeSOTA aggregator; extract the EvalPlus HumanEval+ table to firm up rankings.",
+                         "TAU-bench retail split: no independently verified retail leaderboard exists anywhere as of June 2026 (HAL at Princeton verifies airline only), and steel.dev figures were judged unreliable and excluded, so verified retail leaders remain an open gap.",
+                         "MMMU: the claim that test-set answers were released in February 2026, invalidating new test submissions, could not be independently verified; confirm against an MMMU operator announcement before publishing that specific date.",
+                         "SWE-bench deprecation check: OpenAI\u0027s 2026-02-23 post was verified via its indexed title and secondary sources, not a direct page fetch (HTTP 403); a human should confirm the exact on-page phrasing before quoting it."
+                     ],
+    "caveats":  "Time-sensitivity: every observation is anchored to 2026-06-11 and these boards move at very different speeds. The HLE Scale Labs board, the Artificial Analysis GPQA Diamond page, and the ARC-AGI-2 aggregator numbers were changing within days of observation (aggregators last updated 2026-06-09), while other boards are stale: the MMLU-Pro CSV was last committed 2026-03-11, the SWE-bench Verified data file 2026-02-27, and the MMMU data file 2026-04-08, so the newest frontier models may be absent from those tables. Sourcing compromises: GPQA Diamond has no official leaderboard, so its table relies on a single independent third-party evaluator (Artificial Analysis), and a competing aggregator ranks a gated model (Claude Mythos, about 94.6%) on top, which Artificial Analysis does not evaluate; AIME leaders come from MathArena (ETH Zurich), an independent academic evaluator rather than the MAA, which runs only the human competition; ARC-AGI-2 toplines and HumanEval leaders come from third-party aggregators of vendor claims, not maintainer-run boards. Self-reported numbers that survived (all clearly labeled): the SWE-bench Verified top three (checked false in the official data), MMLU-Pro ranks 2 and 3, all MMMU leaderboard entries (the board accepts self-submissions), the ARC-AGI-2 scores of 85%, 83.3%, and 77.1% (zero ARC Prize verified results exist for ARC-AGI-2), and all three HumanEval leaders. One disputed number is retained deliberately as a teaching example: the December 2024 o3 FrontierMath claim of 25.2%, which is self-reported, came from an internal high-compute scaffold, and contrasts with Epoch AI\u0027s roughly 10% measurement of the public model. Benchmark-integrity caveats: all FrontierMath scores are pre-correction while Epoch reviews fatal errors flagged in roughly one third of problems (FrontierMath carries needsRecheck true), and HLE leader scores sit on a question set where independent analyses estimate 18 to 29 percent of chemistry and biology reference answers are wrong (HLE-Rolling is the announced fix). HumanEval and GPQA Diamond are widely described as saturated, so small score gaps on them are not meaningful signals; HumanEval and SWE-bench Verified are both being superseded for frontier comparisons (by LiveCodeBench and SWE-bench Pro respectively), which should be stated wherever their leader numbers appear.",
+    "stats":  {
+                  "tasks":  14,
+                  "verified":  13,
+                  "refutedOrUnavailable":  1,
+                  "producerDied":  0,
+                  "agentCalls":  29
+              }
+}

@@ -435,16 +435,20 @@ math. Source from a16z / Y Combinator / NVCA glossaries and standard term-sheet 
 
 ### Prompt 2 — AI benchmarks + trend map *(run before the Later phase)*
 
-> **Status (2026-06-11): Part A pass 1 DONE** via deep-research workflow (refined 12-benchmark
-> question) — 27 sources, 131 claims extracted, 25 adversarially verified (20 confirmed / 5
-> refuted), 11 cited findings → `docs/research/benchmarks-research.json`. Solid coverage
-> (what-it-measures / scoring / maintainer / watch-outs) for MMLU-Pro, GPQA (+Diamond),
-> SWE-bench (+Verified), HLE, FrontierMath, LiveCodeBench, ARC-AGI-1, MMMU, and arena.ai
-> (LMArena's successor; lmarena.ai 301s there). **Still needed before §7.3 ships:** current
-> top-3 leader tables for everything except the arena.ai text board; all content for HumanEval,
-> AIME, and TAU-bench; ARC-AGI-2 status (initial claim refuted); confirm the reported 2026-02-23
-> SWE-bench Verified deprecation. Part B (trend map) NOT yet run. Reusable-code survey for the
-> build lives at `docs/research/benchmarks-codebase-survey.json`.
+> **Status (2026-06-11): Part A research DONE (2 verified passes).** Pass 1 (methodology,
+> 11 cited findings) → `docs/research/benchmarks-research.json`. Pass 2 (13/14 tasks verified:
+> 7 leader tables + full records for HumanEval/AIME/TAU-bench/ARC-AGI-2 + 2 fact checks) →
+> `docs/research/benchmarks-research-round2.json`. All 13 pack benchmarks now have verified
+> bodies; current leader tables verified for everything **except LiveCodeBench** (JS-rendered
+> board + 6.6MB data JSON unparseable this round — re-attempt via browser automation or parse
+> `performances_generation.json` from the GitHub Pages repo). Load-bearing verified facts:
+> OpenAI publicly dropped SWE-bench Verified on 2026-02-23 (59.4% flawed tests + contamination;
+> recommends SWE-bench Pro) but the Princeton maintainers did NOT retire the board; FutureHouse's
+> ~29% HLE chem/bio answer-error finding is confirmed (Scale's follow-up says ~18%; HLE-Rolling
+> is the fix); FrontierMath numbers carry `needsRecheck` (Epoch reviewing fatal errors in ~1/3 of
+> problems); ARC-AGI-2 mid-2026 toplines are all self-reported lab claims. Small remaining
+> rechecks are itemized in the round-2 JSON's `stillMissing` (9 items). **Part B (trend map)
+> NOT yet run.** Reusable-code survey: `docs/research/benchmarks-codebase-survey.json`.
 
 ```
 Produce a current (mid-2026) content pack for an AI-literacy education site aimed at university
