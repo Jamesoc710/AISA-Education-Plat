@@ -1,0 +1,518 @@
+﻿{
+    "live-data pipeline":  {
+                               "summary":  "The aisa-atlas live-data sync pipeline has two cron-backed flows that share one architecture: fetch/generate -\u003e validate -\u003e SHA-256 content-hash skip -\u003e Prisma upsert, fronted by thin Vercel cron routes authenticated with CRON_SECRET and mirrored by Supabase-admin-gated manual routes. The digest flow (lib/digest-sync.ts, the canonical template per its own header comment) makes one streamed Anthropic call on model \"claude-opus-4-8\" with adaptive thinking, max_tokens 24000, and the server-side web_search tool pinned to version \"web_search_20250305\" with max_uses: 10 (the newer 20260209 version was rejected because dynamic filtering pushed a live run to ~410s, past Vercel\u0027s 300s maxDuration); a do/while loop echoes the assistant turn on stop_reason \"pause_turn\", bounded by MAX_API_CALLS = 4, with one extra forced text-only recovery turn (tool_choice: {type: \"none\"}) if the turn ends without JSON. Output is extracted via a string-aware balanced-brace generator (balancedJsonCandidates) keeping the last digest-shaped candidate, sanitized by cleanDigestText (cite-tag strip + stripDashes em/en-dash removal), then every item URL and resource URL is verified by verifyUrl (real GET, redirect-follow, 8s abort, browser UA; res.ok counts as verified; sourceDomain always derived from the resolved res.url, never model output) with a resource-promotion fallback when a source URL is dead. The schedule flow (lib/schedule-sync.ts) parses a SharePoint xlsx deterministically, then normalizes multi-line cells with claude-haiku-4-5-20251001 (max_tokens 1024, naive regex JSON extract), cached per cell in prisma.scheduleCellCache by SHA-256 of cell content + a 16-char catalog fingerprint, capped at LLM_CAP = 100 calls/run, and falling back to the deterministic toNormalized() parse on any LLM failure or cap hit. Failures never touch the DB: digest writes require \u003e= MIN_ITEMS (3) verified items, published editions are immutable to the pipeline (checked before spend and re-checked before upsert), and identical contentHash returns outcome \"cached\" with no write.",
+                               "keyFiles":  [
+                                                {
+                                                    "path":  "lib/digest-sync.ts",
+                                                    "role":  "Canonical LLM+web_search sync pipeline a new cron feature would clone: model/tool constants (MODEL, WEB_SEARCH_TOOL, WEB_SEARCH_MAX_USES, MAX_API_CALLS, MAX_TOKENS), streamed pause_turn loop with recovery turn (generateWithClaude), balancedJsonCandidates JSON extraction, cleanDigestText/stripDashes sanitizers, verifyUrl + resource-promotion, contentHashOf cache-skip, draft-only upsert in generateDigest"
+                                                },
+                                                {
+                                                    "path":  "lib/schedule-sync.ts",
+                                                    "role":  "Deterministic-parse + per-cell LLM normalization variant: cellContentHash/catalogFingerprint cache keys into prisma.scheduleCellCache, LLM_CAP = 100 budget guard, toNormalized() deterministic fallback, claude-haiku-4-5-20251001 call in normalizeWithLLM, syncCalendar orchestrator"
+                                                },
+                                                {
+                                                    "path":  "app/api/cron/sync-digest/route.ts",
+                                                    "role":  "Cron route template: export const maxDuration = 300, CRON_SECRET Bearer check, calls generateDigest(), returns 500 when result.ok is false so Vercel marks the cron run failed"
+                                                },
+                                                {
+                                                    "path":  "app/api/cron/sync-schedule/route.ts",
+                                                    "role":  "Minimal cron route (no maxDuration override): same CRON_SECRET Bearer check, calls syncCalendar(), 500 only on thrown error"
+                                                },
+                                                {
+                                                    "path":  "app/api/admin/digest/route.ts",
+                                                    "role":  "Manual admin mirror: maxDuration = 300; POST = \u0027Generate now\u0027 (same generateDigest, always draft); PATCH = human publish/unpublish (only place status becomes \u0027published\u0027); local requireAdmin() (Supabase auth + Prisma role ADMIN, returns null instead of redirecting like lib/admin.ts)"
+                                                },
+                                                {
+                                                    "path":  "app/api/admin/sync-schedule/route.ts",
+                                                    "role":  "Manual admin trigger for schedule sync with the same API-route requireAdmin() guard"
+                                                },
+                                                {
+                                                    "path":  "vercel.json",
+                                                    "role":  "Cron registration: /api/cron/sync-schedule daily \u00270 6 * * *\u0027, /api/cron/sync-digest Mondays \u00270 13 * * 1\u0027 â€” new cron features add an entry here"
+                                                }
+                                            ],
+                               "exports":  [
+                                               "generateDigest(opts?: { now?: Date }): Promise\u003cDigestSyncResult\u003e â€” full digest pipeline (LLM -\u003e verify -\u003e hash -\u003e draft upsert), called by both cron and admin routes",
+                                               "getDigestWeekOf(now?: Date): Date â€” Monday 00:00 UTC week anchor used as the upsert key",
+                                               "cleanDigestText(s: string): string â€” strips leaked \u003ccite\u003e markup, collapses whitespace, applies stripDashes (module-private) em/en-dash sanitizer; the no-dash backstop pattern",
+                                               "DigestSyncResult / DigestItem / DigestItemResource / DigestQuizQuestion / DigestCategory â€” result and persisted-JSON shapes for digest editions",
+                                               "syncCalendar(opts?: { year?: number }): Promise\u003cSyncResult\u003e â€” full schedule pipeline (xlsx fetch -\u003e parse -\u003e cached LLM normalize -\u003e upsert -\u003e prune)",
+                                               "buildDownloadUrl(shareUrl: string): string â€” SharePoint share-link to direct-download URL converter",
+                                               "NormalizedEvent / ConceptCatalogEntry / SyncResult â€” schedule normalization shapes"
+                                           ],
+                               "gotchas":  [
+                                               "Web search tool is pinned to \u0027web_search_20250305\u0027, NOT the newer \u0027web_search_20260209\u0027: the 20260209 dynamic-filtering rounds pushed a live run to ~410s, beyond any Vercel function ceiling (maxDuration is 300). Keep the old version for any new search-backed cron feature.",
+                                               "Budget caps are layered and all required: web_search max_uses: 10 (~$0.10/run), MAX_API_CALLS = 4 bounding the pause_turn continuation do/while (the run throws if still pause_turn at the cap), MAX_TOKENS = 24000 as the output-cost ceiling; schedule-sync uses LLM_CAP = 100 calls/run and silently degrades to the deterministic parse past it.",
+                                               "The digest Anthropic call MUST use client.messages.stream(...).finalMessage(), not create(): adaptive thinking + search push runs past the SDK\u0027s ~10-minute non-streaming estimate guard. The schedule Haiku call (1024 tokens) uses plain create().",
+                                               "pause_turn handling: push {role: \u0027assistant\u0027, content: response.content} and re-send the SAME request; do NOT add a \u0027continue\u0027 user message. A separate one-shot recovery turn (only if the turn ended with no parseable JSON and apiCalls \u003c MAX_API_CALLS) appends the assistant turn plus a \u0027output the strict JSON now\u0027 user message and re-calls with tool_choice: {type: \u0027none\u0027}.",
+                                               "JSON extraction must use the balanced-brace scanner (balancedJsonCandidates generator: tracks depth, in-string state, and escapes, yields every top-level {...}, parseDigest keeps the LAST digest-shaped one) â€” a naive first-{-to-last-} slice broke on a live run where the model emitted prose after the JSON.",
+                                               "Content-hash cache-skip: contentHashOf = sha256(JSON.stringify({headline, items, bigPicture, watchFor, quiz})) â€” key order is deterministic only because the inputs are freshly constructed literals; compare against the row\u0027s contentHash and return outcome \u0027cached\u0027 without writing. Schedule variant: cellContentHash = sha256(`${cellRepr}||${catalogFingerprint}`) where catalogFingerprint = sha256(sorted slugs).slice(0,16), so a concept-catalog change forces a re-LLM pass.",
+                                               "URL verification (verifyUrl): a real GET (not HEAD) with redirect: \u0027follow\u0027, 8000ms AbortController timeout, a browser-like User-Agent (news sites 403 bot UAs), and body cancel; verified means res.ok. sourceDomain is ALWAYS derived from the resolved res.url hostname (www-stripped), never from model output â€” this is the anti-hallucination guard. If a source URL is dead, the first verified resource is promoted to be the source (promotedResourceIdx) before dropping the item; dedupe is by resolved finalUrl.",
+                                               "Fewer than MIN_ITEMS (3) surviving verification = failed run with NO DB write; the /digest page keeps serving the last published edition. If ANY item was dropped, the bigPicture closer and quiz are nulled for that run (they were written against the full item list). A bad quiz alone never fails the run.",
+                                               "The pipeline only ever writes status \u0027draft\u0027. Publishing is a human PATCH on /api/admin/digest. Published editions are immutable to the pipeline: checked before any LLM spend AND re-fetched after generation (an admin may publish during the minutes-long run) â€” both return outcome \u0027skipped_published\u0027.",
+                                               "CRON_SECRET auth: Vercel cron sends \u0027Authorization: Bearer \u003cCRON_SECRET\u003e\u0027; routes compare the header to `Bearer ${process.env.CRON_SECRET}` and explicitly reject when CRON_SECRET is unset (otherwise \u0027Bearer undefined\u0027 would match). Admin mirrors use a route-local requireAdmin() (Supabase getUser + Prisma role === \u0027ADMIN\u0027) â€” NOT lib/admin.ts requireAdmin, which redirects and is page-only.",
+                                               "maxDuration: export const maxDuration = 300 on both digest routes (cron + admin \u0027Generate now\u0027); the schedule routes have no override (default duration suffices). Cron routes return result with status 500 when result.ok is false so Vercel marks the cron run as failed.",
+                                               "Dash rule is enforced twice: the system prompt is deliberately dash-free and bans em/en dashes in output (models mirror prompt style), and cleanDigestText -\u003e stripDashes sanitizes anyway (digit-range dashes become hyphens \u00275-7\u0027, all other em/en dashes become \u0027, \u0027). cleanDigestText also strips \u003ccite ...\u003e markup the web_search tool leaks as literal text inside JSON strings (regex tolerates a truncation-sliced unclosed tag). This matches the user\u0027s global no-em-dash rule.",
+                                               "Concept cross-links: the model picks slugs from a verbatim catalog injected into the system prompt, and only slugs that exist in the DB (Set membership check) are persisted â€” never trust model slugs.",
+                                               "Env vars: ANTHROPIC_API_KEY (both libs throw if unset), CRON_SECRET (cron auth), SCHEDULE_SHEET_URL (SharePoint share link for schedule-sync), DATABASE_URL, NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY (admin auth).",
+                                               "Failure philosophy: any throw or validation failure leaves the DB untouched (graceful degradation); schedule-sync\u0027s deterministic fallback is toNormalized(parsed) â€” raw parsed events with topics/relatedConceptSlugs null â€” used on LLM error, LLM cap, single-line cells, and the homework column (which never need LLM merging)."
+                                           ]
+                           },
+    "prisma schema + seeds":  {
+                                  "summary":  "aisa-atlas uses Prisma 7 (prisma-client-js generator, PostgreSQL via Supabase, PrismaPg driver adapter) with a single schema at prisma/schema.prisma. Content hangs off a Track \u003e Tier \u003e Section \u003e Concept \u003e Question chain where only Tier carries the trackId FK (nullable, backfilled to the \"ai\" track); everything below inherits its track transitively, and every level has a globally @unique slug. All models use cuid() string ids (except User, whose id is the Supabase auth UUID, and join tables with composite @@id), map to snake_case table names via @@map, and store enums/JSON arrays as plain String/Json columns with comment-documented allowed values. Two migrations exist from the initial March 2026 setup (20260326231318_init, 20260327194246_add_simple_explanation), but everything since (Track, Project, DigestEdition, ScheduleCellCache, Feedback, etc.) was applied with `prisma db push` â€” db push is the current workflow, and memory notes warn the dev server must be restarted after push/generate. Seeding is split between a destructive full reseed (prisma/seed.ts, wired as the package.json \"seed\"/prisma.seed script) and surgical idempotent upsert scripts under scripts/ that follow a --check (static validation only) / --verify (validation + read-only DB cross-check) / default-seed convention, including a banned em/en-dash regex check on all member-facing text.",
+                                  "keyFiles":  [
+                                                   {
+                                                       "path":  "prisma/schema.prisma",
+                                                       "role":  "Single source of truth for all 22 models; new models go here following cuid id + @@map snake_case + String pseudo-enums + Json-for-arrays conventions, then applied with prisma db push"
+                                                   },
+                                                   {
+                                                       "path":  "scripts/seed-projects.ts",
+                                                       "role":  "The canonical surgical seed script to clone: static validation (kebab-case slug regex, dash ban, URL/email checks), --check/--verify/--delete modes, connect() via DIRECT_URL ?? DATABASE_URL with PrismaPg adapter, upsert-by-slug where create sets status:\u0027draft\u0027 and update never touches status/approvedAt"
+                                                   },
+                                                   {
+                                                       "path":  "scripts/seed-tracks.ts",
+                                                       "role":  "Minimal idempotent seed example: upsert Tracks by slug, then backfill Tier.trackId null -\u003e ai track; touches only tracks + tiers"
+                                                   },
+                                                   {
+                                                       "path":  "prisma/seed.ts",
+                                                       "role":  "Full DESTRUCTIVE reseed (deleteMany in reverse dependency order, then insert curriculum/questions/resources); registered as package.json prisma.seed (tsx prisma/seed.ts); do NOT run against live data casually"
+                                                   },
+                                                   {
+                                                       "path":  "prisma/seed-data/projects.ts",
+                                                       "role":  "exports ProjectSeed type + PROJECT_SEEDS array consumed by seed-projects.ts (team listed by email, trackSlug not trackId)"
+                                                   },
+                                                   {
+                                                       "path":  "prisma/seed-data/curriculum.ts",
+                                                       "role":  "exports TIERS, SECTIONS, CONCEPTS, CONCEPT_RELATIONS for the AI track curriculum"
+                                                   },
+                                                   {
+                                                       "path":  "prisma/seed-data/capital-markets-vocab.ts",
+                                                       "role":  "exports CAPITAL_MARKETS_TRACK, VOCAB_SECTIONS, CAPITAL_MARKETS_VOCAB (+ VocabTerm/VocabSource types) consumed by scripts/seed-capital-markets.ts"
+                                                   },
+                                                   {
+                                                       "path":  "prisma/seed-data/capital-markets-questions.ts",
+                                                       "role":  "exports CapitalQuestionSeed + CAPITAL_MARKETS_QUESTIONS for scripts/seed-capital-questions.ts"
+                                                   },
+                                                   {
+                                                       "path":  "prisma/seed-data/questions.ts",
+                                                       "role":  "exports QUESTIONS (AI-track quiz questions; MC options stored as JSON string in Question.options)"
+                                                   },
+                                                   {
+                                                       "path":  "prisma/seed-data/resources.ts",
+                                                       "role":  "exports RESOURCES (per-concept external links)"
+                                                   },
+                                                   {
+                                                       "path":  "prisma/seed-data/simple-explanations.ts",
+                                                       "role":  "exports SIMPLE_EXPLANATIONS Record\u003cconceptSlug,string\u003e merged into Concept.simpleExplanation (flashcard-shorts.ts / flashcard-definitions.ts follow the same Record-keyed-by-slug pattern)"
+                                                   },
+                                                   {
+                                                       "path":  "prisma/migrations",
+                                                       "role":  "Only two early migrations (20260326231318_init, 20260327194246_add_simple_explanation); all subsequent schema evolution uses prisma db push, so do not add migrations for new models"
+                                                   },
+                                                   {
+                                                       "path":  "scripts/generate-digest.ts",
+                                                       "role":  "Producer for DigestEdition rows (weekly digest pipeline with web_search)"
+                                                   },
+                                                   {
+                                                       "path":  "lib/project-stages.ts",
+                                                       "role":  "exports PROJECT_STAGES + isProjectStage used by seed validation; reuse instead of redefining stage enums"
+                                                   }
+                                               ],
+                                  "exports":  [
+                                                  "PROJECT_SEEDS / ProjectSeed (prisma/seed-data/projects.ts) â€” typed seed rows keyed by slug, team-by-email, trackSlug",
+                                                  "PROJECT_STAGES / isProjectStage (lib/project-stages.ts) â€” canonical stage values and guard used in seed validation",
+                                                  "TIERS, SECTIONS, CONCEPTS, CONCEPT_RELATIONS (prisma/seed-data/curriculum.ts) â€” AI curriculum tree, all keyed by slug",
+                                                  "QUESTIONS (prisma/seed-data/questions.ts) â€” quiz question seeds per concept slug",
+                                                  "RESOURCES (prisma/seed-data/resources.ts) â€” resource seeds per concept slug",
+                                                  "SIMPLE_EXPLANATIONS, FLASHCARD_SHORTS, FLASHCARD_DEFINITIONS (prisma/seed-data/*) â€” Record\u003cconceptSlug, string\u003e content overlays",
+                                                  "CAPITAL_MARKETS_TRACK, VOCAB_SECTIONS, CAPITAL_MARKETS_VOCAB, VocabTerm, VocabSource (prisma/seed-data/capital-markets-vocab.ts) â€” Capital Markets track seed data",
+                                                  "CAPITAL_MARKETS_QUESTIONS, CapitalQuestionSeed (prisma/seed-data/capital-markets-questions.ts) â€” Capital Markets question seeds"
+                                              ],
+                                  "gotchas":  [
+                                                  "Model inventory (22): User (Supabase-auth users, id = auth UUID not cuid, role string MEMBER|MENTOR|ADMIN|CURRICULUM_LEAD|PROJECT_LEAD, activeTrackId mirrored to a cookie); Track (top-level domain: ai | capital-markets | field-guides, accentColor, isPrimary, sortOrder); TrackMembership (user\u003c-\u003etrack join, @@id([userId,trackId])); Tier (curriculum level under Track; trackId is NULLABLE for safe migration and backfilled to ai); Section (group under Tier); Concept (the learning unit: whatItIs/simpleExplanation/flashcard*/whyItMatters/goDeeper, difficulty string); ConceptRelation (self-join, composite @@id); Resource (external link per concept, type VIDEO|ARTICLE|PAPER|TUTORIAL); Question (per concept, type MC|SHORT_ANSWER, options is a JSON-encoded String not Json); Bookmark (composite @@id([userId,conceptId])); QuizAttempt (practice answers + llmScore/llmReasoning/llmGradedAt); HomeworkSubmission (@@unique([userId,assignmentId])); MentorNote; ProjectAssignment (@@unique([userId,projectId])); Project (Build Board card: slug @unique, status draft|approved, stage, Json lookingFor/extraContributors); ProjectInterest (@@unique([projectId,userId]), onDelete: Cascade from Project); Assignment; FormalQuiz / FormalQuizQuestion / FormalQuizAttempt / FormalQuizAnswer (formal quiz system, one attempt per user per quiz, Cascade from quiz-\u003equestions and attempt-\u003eanswers); ScheduleEvent (SharePoint calendar sync, sourceRowKey @unique upsert key like \u0027w4-tue-0\u0027, Json topics + relatedConceptSlugs); Feedback (user feedback with imagePath in the feedback-images Supabase bucket); ScheduleCellCache; DigestEdition.",
+                                                  "DigestEdition exact shape: id String @id @default(cuid()); weekOf DateTime @unique (Monday 00:00 UTC); headline String; items Json ([{ title, summary, whyItMatters, url, sourceDomain, resources: [{ title, url, type, sourceDomain }] }], all URLs verified 200 before persist); bigPicture String?; watchFor String?; quiz Json? ([{ question, options: [{text,isCorrect}x4], explanation }]); contentHash String (SHA256 of normalized headline+items, identical regenerate skips write); status String @default(\"draft\") (draft | published, cron never publishes); generatedAt DateTime @default(now()); publishedAt DateTime?; searchesUsed Int?; durationMs Int?; @@index([status]); @@map(\"digest_editions\").",
+                                                  "ScheduleCellCache exact shape: cellKey String @id (e.g. \"w4-tue\" = weekNumber+dayCode, natural PK, no cuid); contentHash String (SHA256 of raw parsed lines); normalized Json ([{ title, description, topics, type, startTime, endTime }]); updatedAt DateTime @updatedAt; @@map(\"schedule_cell_cache\"). One row per weekday cell; LLM only re-runs when contentHash changes.",
+                                                  "Track/Tier chain: ONLY Tier has trackId (nullable, @@index([trackId])); Section/Concept/Question/Bookmark resolve their track transitively through Tier. Slugs are globally @unique on Track, Tier, Section, Concept, and Project; seed files reference rows by slug (and trackSlug/conceptSlug), never by id. Track slugs are hardcoded as the set {ai, capital-markets, field-guides} in seed validation.",
+                                                  "Naming conventions: String @id @default(cuid()) everywhere except User (Supabase UUID) and ScheduleCellCache (natural key cellKey); composite @@id on pure join tables; every model has @@map(\"snake_case_plural\"); field names camelCase; pseudo-enums are String columns with allowed values in a trailing comment (no Prisma enum blocks); timestamps are createdAt @default(now()) and updatedAt @updatedAt (only Project and ScheduleCellCache have updatedAt; domain-specific ones like syncedAt/generatedAt/approvedAt/resolvedAt are used instead where they read better); string[] and object[] payloads use Json columns except Question.options which is a JSON string in a String column.",
+                                                  "Schema changes use `prisma db push`, NOT migrations â€” the two files in prisma/migrations/ are historical (March 2026). After db push/generate you MUST kill and restart the dev server (HMR cannot reload node_modules/.prisma/client; the symptom is a 500 \"Cannot read properties of undefined\"). Dev server runs on port 3100, not 3000.",
+                                                  "Seed script convention (clone scripts/seed-projects.ts): connect with DIRECT_URL ?? DATABASE_URL through new PrismaClient({ adapter: new PrismaPg({connectionString}) }) (DIRECT_URL is the session-mode pooler that supports transactions); support --check (static validation, no DB), --verify (validation + read-only DB cross-check, no writes), and default seed mode; upsert by slug so re-runs are idempotent and surgical (never deleteMany outside the seeded slugs); on Project specifically, create sets status:\"draft\" and update omits status/approvedAt so in-app approvals survive re-runs; team assignments are delete-then-recreate per seeded project only.",
+                                                  "Dash ban: static validation rejects any em/en/figure dash or horizontal bar (regex /[â€’â€“â€”â€•]/) in member-facing seed text â€” this is a project-wide content rule (LLM output is also sanitized). Hyphens are fine; slugs must match /^[a-z0-9]+(-[a-z0-9]+)*$/.",
+                                                  "prisma/seed.ts is destructive (deleteMany of attempts/bookmarks/questions/resources etc. before reinserting) â€” it is the full-curriculum reseed and is what `npx prisma db seed` runs; for incremental additions use or clone the scripts/seed-*.ts pattern instead.",
+                                                  "Json columns must hold pure JSON: strip undefined object keys before writing (see extraContributors handling in seed-projects.ts).",
+                                                  "Run seed scripts with `npx tsx --env-file=.env scripts/\u003cname\u003e.ts`; they import \"dotenv/config\" as well.",
+                                                  "This repo\u0027s AGENTS.md warns the Next.js version has breaking changes vs training data â€” read node_modules/next/dist/docs/ before writing Next.js code."
+                                              ]
+                              },
+    "editorial surface":  {
+                              "summary":  "The editorial surface is a per-page pattern, not a shared library: each editorial client component (home-client.tsx, digest-client.tsx, dashboard-client.tsx) wraps its content in a root div with data-surface=\"editorial\" plus an inner container of maxWidth 1080 / padding \"56px 48px 96px\", and locally re-declares the same private primitives (HairRule, SectionEyebrow, ArrowRight, Banner) using inline styles with CSS variables. The attribute hooks into app/globals.css where [data-surface=\"editorial\"] (layered on top of data-theme=\"light\", which is applied by components/main-shell.tsx) swaps --color-accent to Quizlet blue #4255FF and sets --font-sans to var(--font-hanken) (Hanken_Grotesk loaded via next/font in app/layout.tsx). The .editorial-link hover effect (scaleX underline + arrow translateX) is an inline \u003cstyle\u003e block duplicated at the bottom of each editorial client, scoped under [data-surface=\"editorial\"]. Server pages are thin RSCs marked dynamic = \"force-dynamic\" that auth via Supabase, fetch via Prisma (often Promise.all of lib helper functions), serialize Dates to ISO strings, and pass plain props into the \"use client\" component. The digest page shows the canonical fetch shape: latest published DigestEdition (admins can ?preview=draft), staleness computed server-side as Date.now() - generatedAt \u003e 8 days and passed as a boolean, the archive route /digest/[week] resolving a published edition by weekOf date slug, and a hairline-list of past editions rendered as baseline-aligned Link rows separated by 1px var(--color-border-subtle) top borders.",
+                              "keyFiles":  [
+                                               {
+                                                   "path":  "aisa-atlas/components/digest-client.tsx",
+                                                   "role":  "The closest template for /benchmarks: full editorial read surface. Exports DigestClient + PastEditionRef. Sets data-surface=\"editorial\" root, eyebrow meta line, clamp() hero h1, \u0027Last updated {date}\u0027 line (formatUpdated, fontSize 14, var(--color-text-3)), amber staleness Banner (tone=\"warning\" -\u003e backgroundColor var(--color-gold-soft), border var(--color-gold), rendered when `stale` prop true), numbered DigestItemRow articles (56px/1fr grid, 1px var(--color-border-subtle) top borders between rows), PastEditionsSection hairline list (Link rows: 110px uppercase date column + headline, borderTop on i\u003e0), BigPictureSection, DigestQuizSection, EmptyState, and local HairRule + Banner primitives + the inline .editorial-link \u003cstyle\u003e block"
+                                               },
+                                               {
+                                                   "path":  "aisa-atlas/app/(main)/digest/page.tsx",
+                                                   "role":  "Server component for latest edition: force-dynamic, viewerIsAdmin() Supabase+Prisma check for ?preview=draft, prisma.digestEdition.findFirst({where:{status:\"published\"},orderBy:{weekOf:\"desc\"}}), STALE_AFTER_MS = 8*24h staleness boolean, pastEditions list (weekOf+headline only), passes everything serialized to DigestClient"
+                                               },
+                                               {
+                                                   "path":  "aisa-atlas/app/(main)/digest/[week]/page.tsx",
+                                                   "role":  "Archive route: validates /^\\d{4}-\\d{2}-\\d{2}$/ slug, builds UTC Date `${week}T00:00:00.000Z`, findUnique({where:{weekOf}}), redirects to /digest for non-published or invalid, passes archiveView + stale={false} + other published editions; clone this for any /benchmarks/[slug] archive"
+                                               },
+                                               {
+                                                   "path":  "aisa-atlas/components/home-client.tsx",
+                                                   "role":  "Editorial home surface. Exports HomeClient. Same data-surface root + 1080px container; local HairRule({top,bottom}) (1px var(--color-border) div), SectionEyebrow (11px/600/0.18em uppercase var(--color-text-3)), ArrowRight svg, the canonical inline .editorial-link \u003cstyle\u003e block (hover underline scaleX + arrow translateX(3px)), two-column grid with 1px vertical divider, WorkshopPrepRow shared-edge bordered cards"
+                                               },
+                                               {
+                                                   "path":  "aisa-atlas/app/(main)/home/page.tsx",
+                                                   "role":  "Canonical editorial server page: force-dynamic, Supabase auth -\u003e AuthGate fallback, Prisma user lookup, Promise.all of six lib/home-data fetchers, passes todayISO (ISO string, never Date) into HomeClient"
+                                               },
+                                               {
+                                                   "path":  "aisa-atlas/lib/digest-view.ts",
+                                                   "role":  "Server-side serializer. Exports editionToView(edition): DigestEditionView plus DigestEditionView, DigestItemView, RelatedConceptRef types; converts Prisma Dates to ISO strings and resolves relatedConceptSlugs to live concept names at render time"
+                                               },
+                                               {
+                                                   "path":  "aisa-atlas/lib/home-data.ts",
+                                                   "role":  "Per-section fetch helpers pattern: exports getWeekEvents, getContinueLearning, getDueItems, getWeakestConcept, getUpcomingWorkshops, getDigestTeaser and their return types (HomeWeekEvent, ContinuePick, DueItem, WeakConcept, UpcomingWorkshop, DigestTeaser); each returns plain serializable objects"
+                                               },
+                                               {
+                                                   "path":  "aisa-atlas/app/globals.css",
+                                                   "role":  "The styling hookup: [data-surface=\"editorial\"] block (~line 190) overrides --color-accent to #4255FF (+hover #3545E0, dim, soft, on-soft) and sets --font-sans/font-family to var(--font-hanken); also defines --color-gold/--color-gold-soft used by the amber banner, --color-border / --color-border-subtle hairlines, and [data-theme=\"light\"] base palette"
+                                               },
+                                               {
+                                                   "path":  "aisa-atlas/app/layout.tsx",
+                                                   "role":  "Loads Hanken_Grotesk from next/font/google as CSS variable --font-hanken (weights 400/500/600/700, display swap) alongside Inter/Geist"
+                                               },
+                                               {
+                                                   "path":  "aisa-atlas/components/main-shell.tsx",
+                                                   "role":  "App shell for the (main) route group; wraps subtree in data-theme=\"light\" so the editorial overrides have the light palette underneath"
+                                               },
+                                               {
+                                                   "path":  "aisa-atlas/components/dashboard-client.tsx",
+                                                   "role":  "Second confirmation of the pattern (editorial progress page): same data-surface root, HairRule/SectionEyebrow copies, same inline .editorial-link style block; shows how to do editorial section stacking (Mastery / Activity / Knowledge map / Review / Upcoming)"
+                                               },
+                                               {
+                                                   "path":  "aisa-atlas/lib/digest-sync.ts",
+                                                   "role":  "Source of DigestItem and DigestQuizQuestion types imported by digest-view.ts and digest-client.tsx"
+                                               }
+                                           ],
+                              "exports":  [
+                                              "DigestClient (components/digest-client.tsx) â€” full editorial read page: hero headline, last-updated line, staleness banner, numbered item rows, past-editions hairline list; props {edition, stale, previewingDraft, archiveView?, pastEditions?}",
+                                              "PastEditionRef (components/digest-client.tsx) â€” {weekOf: ISO string, headline} shape for the archive hairline list",
+                                              "HomeClient (components/home-client.tsx) â€” editorial home surface; the reference copy of HairRule/SectionEyebrow/ArrowRight and the .editorial-link style block to clone",
+                                              "DashboardClient (components/dashboard-client.tsx) â€” editorial progress surface, third instance of the pattern",
+                                              "editionToView (lib/digest-view.ts) â€” async serializer: Prisma DigestEdition -\u003e DigestEditionView with ISO dates and resolved concept names",
+                                              "DigestEditionView, DigestItemView, RelatedConceptRef (lib/digest-view.ts) â€” serialized view types passed to the client",
+                                              "DigestQuizQuestion, DigestItem (lib/digest-sync.ts) â€” JSON-column item/quiz shapes",
+                                              "getDigestTeaser, DigestTeaser (lib/home-data.ts) â€” latest-published-edition teaser fetcher used on home",
+                                              "AuthGate (components/ui/auth-gate.tsx) â€” unauthenticated fallback rendered by editorial server pages",
+                                              "createClient (lib/supabase/server.ts) â€” server Supabase client for auth in page.tsx",
+                                              "prisma (lib/prisma.ts) â€” Prisma client singleton",
+                                              "getActiveTrackSlug (lib/track.ts) â€” active track scoping used by home/dashboard fetchers",
+                                              "TypeTag (components/ui/type-tag.tsx) â€” small event-type tag used inside editorial week list"
+                                          ],
+                              "gotchas":  [
+                                              "HairRule, SectionEyebrow, ArrowRight, Banner are NOT shared exports â€” each editorial client file declares its own private copies with identical signatures (HairRule({top=32,bottom=32}), SectionEyebrow uppercase 11px eyebrow). A /benchmarks client should clone them locally, matching the existing convention, not import from another client.",
+                                              "The .editorial-link hover CSS is an inline \u003cstyle\u003e block at the bottom of each editorial client, scoped under [data-surface=\"editorial\"]; without copying that block, editorial-link classNames do nothing on the new page.",
+                                              "data-surface=\"editorial\" must be on the root div of the client component (with backgroundColor var(--color-bg), minHeight \"100%\") so the #4255FF accent and Hanken font cascade; it layers on top of data-theme=\"light\" which main-shell.tsx already provides for all (main) routes.",
+                                              "Standard container: maxWidth 1080, margin \"0 auto\", padding \"56px 48px 96px\" â€” all three editorial pages use exactly this.",
+                                              "All styling is inline style objects referencing CSS variables (var(--color-text), var(--color-border-subtle), etc.) â€” no Tailwind classes, no card components on editorial surfaces; hairlines and typography do the structure.",
+                                              "Server pages must pass only serializable props: Dates are converted with .toISOString() (todayISO, weekOf, generatedAt) and the client re-parses with new Date(); editionToView is the model for this.",
+                                              "Staleness is computed server-side (Date.now() - edition.generatedAt.getTime() \u003e 8*24*60*60*1000 in digest/page.tsx) and passed as a boolean; the client just renders \u003cBanner tone=\"warning\"\u003e with var(--color-gold-soft) background and var(--color-gold) border. Archive pages hardcode stale={false}.",
+                                              "weekOf is a UTC Monday; formatting must pass timeZone: \"UTC\" to toLocaleDateString or the date renders as Sunday locally (see formatWeekOf comment). Archive links are built with e.weekOf.slice(0, 10).",
+                                              "The [week] route validates the slug with /^\\d{4}-\\d{2}-\\d{2}$/ and redirects to the index for drafts/missing editions â€” drafts are never URL-guessable; only status \"published\" resolves.",
+                                              "Editorial server pages set export const dynamic = \"force-dynamic\" and follow the auth pattern: Supabase getUser -\u003e AuthGate if anonymous (home/dashboard) or anonymous-allowed with admin-only draft preview (digest).",
+                                              "Hairline list rows use borderTop: i === 0 ? \"none\" : \"1px solid var(--color-border-subtle)\" (subtle token inside sections; full var(--color-border) for HairRule section dividers).",
+                                              "No em dashes or en dashes in any UI copy or LLM-generated content (project-wide rule; digest pipeline strips them).",
+                                              "This repo runs a breaking-changes Next.js build â€” AGENTS.md says to read node_modules/next/dist/docs/ before writing route code; note params/searchParams are Promises that must be awaited (visible in both digest pages).",
+                                              "Dev server must run on port 3100 (port 3000 belongs to a different project)."
+                                          ]
+                          },
+    "card surface + visuals":  {
+                                   "summary":  "The card surface pattern lives in two sibling client components under aisa-atlas/components: browse-client.tsx (the original Brilliant-style list) and build-client.tsx (an explicit clone of it, per its own header comment). Both render inside `\u003cdiv style={{ padding: \"32px 32px 80px\" }}\u003e\u003cdiv style={{ maxWidth: 1040, margin: \"0 auto\" }}\u003e`, with a page header (h1 at var(--text-2xl)/600/-0.02em plus a max-680px subtitle), then a vertical stack of rows. Each row is flex with an IconTile (components/ui/icon-tile.tsx, pastel rounded square driven by --tile-{color}-bg/-fg CSS vars from globals.css lines 132-163) on the left, an 18px-equivalent title (var(--text-lg), weight 600, hover-tints to the rail/accent color), a 2-line WebkitLineClamp preview paragraph at var(--text-sm), a meta/chip row, and a chevron-right on the right. Build Board rows are bordered cards (border var(--color-border-subtle) -\u003e var(--color-border) on hover, var(--radius-2), stretched-Link overlay for whole-card navigation); Browse rows are borderless with a 3px left color rail instead. Icon+color mapping comes from lib/section-icons.ts (SECTION_VISUALS slug map, getSectionVisual/getConceptVisual fallback chain, getTrackTileColor for track-tinted tiles); track accent hex colors come from the Prisma Track.accentColor column surfaced via lib/track.ts getTracks() as TrackSummary. Switchers exist in two flavors: the Browse TrackSwitcher (local, unexported pill row filled with t.accentColor, posts to /api/track then router.refresh()) and the reusable underline-style FilterTabs in components/ui/filter-tabs.tsx (Build Board itself has no tabs). For a packed-bubble chart nothing exists: package.json has zero visualization or animation libraries (no d3, framer-motion, recharts, visx, gsap; node_modules confirms none transitively), so it must be hand-rolled SVG/CSS or a new dep like d3-hierarchy must be added.",
+                                   "keyFiles":  [
+                                                    {
+                                                        "path":  "components/build-client.tsx",
+                                                        "role":  "Closest clone target for a /trends list: bordered card rows (22px/24px padding, radius-2, surface-\u003esurface-2 hover, stretched Link overlay, IconTile md, text-lg title, 2-line clamped blurb, chip meta row, chevron). Exports reusable chips: StageChip, DraftChip, LookingForTag, ContributorStack, initialsFor."
+                                                    },
+                                                    {
+                                                        "path":  "components/browse-client.tsx",
+                                                        "role":  "Original Brilliant-style surface: 1040px container + page-header pattern, SectionRow (3px left color rail, IconTile md, text-lg title + count, ellipsized one-line concept preview), ConceptRow (hair-rule borderTop rows, IconTile sm), TrackSwitcher pill row (accentColor-filled active pill, POST /api/track + router.refresh()), EmptyState/TrackEmptyState blocks."
+                                                    },
+                                                    {
+                                                        "path":  "components/ui/icon-tile.tsx",
+                                                        "role":  "IconTile primitive: rounded square, sizes sm 32 / md 44 / lg 56, colored via var(--tile-{color}-bg) and var(--tile-{color}-fg)."
+                                                    },
+                                                    {
+                                                        "path":  "components/ui/icon.tsx",
+                                                        "role":  "Icon wrapper over @phosphor-icons/react: typed IconName union + REGISTRY map; props name/size/weight (strokeWidth accepted but deprecated/ignored). New icons must be added to both the union and the registry."
+                                                    },
+                                                    {
+                                                        "path":  "components/ui/filter-tabs.tsx",
+                                                        "role":  "Reusable underline-active tab switcher: FilterTabs\u003cT\u003e + FilterTabItem\u003cT\u003e (key, label, count?, icon?); borderBottom track, accent underline on active, optional CountBadge. Used by admin-feedback.tsx; the stated replacement for pill filter groups."
+                                                    },
+                                                    {
+                                                        "path":  "lib/section-icons.ts",
+                                                        "role":  "Slug-to-visual maps: SECTION_VISUALS (section slug -\u003e {icon, color} where color is the --tile-* var suffix), CONCEPT_VISUALS (concept slug -\u003e icon, inherits section color), getSectionVisual/getConceptVisual with {icon:\u0027book-open\u0027, color:\u0027stone\u0027} fallback, getTrackTileColor (ai-\u003eindigo, capital-markets-\u003esage, field-guides-\u003esteel, else stone)."
+                                                    },
+                                                    {
+                                                        "path":  "lib/track.ts",
+                                                        "role":  "TrackSummary type ({id, slug, name, shortName, accentColor, isPrimary}), getTracks() (Prisma Track.findMany ordered by sortOrder), getActiveTrackSlug() (reads \u0027tco-track\u0027 cookie, default \u0027ai\u0027), TRACK_COOKIE/DEFAULT_TRACK_SLUG."
+                                                    },
+                                                    {
+                                                        "path":  "lib/project-stages.ts",
+                                                        "role":  "Pure-module chip metadata pattern: PROJECT_STAGES const tuple, STAGE_META mapping stage -\u003e {label, tileColor}, stageMeta() with fallback. Template for any trends-status -\u003e tile-color map usable from both client and seed scripts."
+                                                    },
+                                                    {
+                                                        "path":  "app/(main)/build/page.tsx",
+                                                        "role":  "Server page pattern to clone: force-dynamic, metadata title \u0027X | AISA Atlas\u0027, awaits lib data helpers, renders the client component with plain serializable props."
+                                                    },
+                                                    {
+                                                        "path":  "app/(main)/browse/page.tsx",
+                                                        "role":  "Track-scoped server page: getActiveTrackSlug() + Promise.all([getTracks(), data]) then passes tracks/activeTrackSlug into the client for the TrackSwitcher."
+                                                    },
+                                                    {
+                                                        "path":  "lib/build.ts",
+                                                        "role":  "Data layer shape to mirror: ProjectCardData / ProjectContributor / BuildViewer types, getBuildViewer(), getProjects(viewer) returning card-ready plain objects including track {slug, shortName, accentColor}."
+                                                    },
+                                                    {
+                                                        "path":  "app/globals.css",
+                                                        "role":  "Design tokens: 18 --tile-{color}-bg/-fg pastel pairs (lines 132-163), --text-lg is the \u002718px\u0027 title token, .browse-sections (28px gap column) and .browse-grid classes, mobile padding override at max-width 640px."
+                                                    },
+                                                    {
+                                                        "path":  "package.json",
+                                                        "role":  "Dependency truth: no d3/framer-motion/recharts/visx/gsap/react-spring anywhere (direct or transitive). Available: @phosphor-icons/react, react 19.2.4, next 16.2.1, tailwindcss 4 (though components use inline styles + CSS vars, not Tailwind classes)."
+                                                    }
+                                                ],
+                                   "exports":  [
+                                                   "BuildClient (components/build-client.tsx) â€” Build Board page client; the bordered-card-row list a /trends view would clone",
+                                                   "StageChip (components/build-client.tsx) â€” uppercase pill colored via --tile-{color}-bg/fg from stageMeta",
+                                                   "DraftChip (components/build-client.tsx) â€” gold \u0027Draft\u0027 visibility pill",
+                                                   "LookingForTag (components/build-client.tsx) â€” accent-soft rounded tag chip",
+                                                   "ContributorStack (components/build-client.tsx) â€” overlapping 26px initials circles, +N overflow",
+                                                   "initialsFor (components/build-client.tsx) â€” name -\u003e 2-letter initials helper",
+                                                   "BrowseClient (components/browse-client.tsx) â€” Browse page client; rail-style rows + TrackSwitcher (TrackSwitcher itself is NOT exported, copy it)",
+                                                   "IconTile (components/ui/icon-tile.tsx) â€” pastel rounded-square icon tile, sizes sm/md/lg",
+                                                   "Icon, IconName (components/ui/icon.tsx) â€” Phosphor icon wrapper + typed name union",
+                                                   "FilterTabs, FilterTabItem (components/ui/filter-tabs.tsx) â€” underline-active tab switcher with optional icon + count badge",
+                                                   "SECTION_VISUALS, getSectionVisual, getConceptVisual, getTrackTileColor, SectionVisual (lib/section-icons.ts) â€” slug -\u003e {icon, color} maps with stone/book-open fallback",
+                                                   "getTracks, getActiveTrackSlug, TrackSummary, TRACK_COOKIE, DEFAULT_TRACK_SLUG (lib/track.ts) â€” track list incl. accentColor hex from Prisma Track.accentColor, cookie-based active track",
+                                                   "stageMeta, STAGE_META, PROJECT_STAGES, isProjectStage (lib/project-stages.ts) â€” status -\u003e {label, tileColor} chip metadata pattern",
+                                                   "getProjects, getBuildViewer, ProjectCardData, ProjectContributor (lib/build.ts) â€” server data helpers returning card-ready plain objects"
+                                               ],
+                                   "gotchas":  [
+                                                   "No visualization/animation library exists (no d3, framer-motion, recharts, visx, gsap â€” verified absent from node_modules too). A packed-bubble chart must be hand-rolled (SVG + CSS transitions, as the codebase already animates with inline-style transitions) or requires adding a dep such as d3-hierarchy/d3-force; flag that as a new dependency decision.",
+                                                   "Styling is inline style objects + CSS custom properties (var(--text-lg), var(--space-4), --tile-{color}-bg/fg), NOT Tailwind classes, despite tailwindcss 4 being installed. Follow the inline-style convention; scripts/lint:tokens (npm run lint:tokens) checks token usage in components/**/*.tsx and app/**/*.tsx.",
+                                                   "Icon names are a closed union: any new icon must be added to IconName, the Phosphor import list, and REGISTRY in components/ui/icon.tsx. Icon\u0027s strokeWidth prop is deprecated/ignored â€” Phosphor uses weight.",
+                                                   "Tile colors are CSS-var suffixes (\u0027indigo\u0027, \u0027sage\u0027...), defined only under [data-theme=\"light\"] in app/globals.css; passing an undefined suffix silently renders no color. Track.accentColor by contrast is a raw hex string from the DB (e.g. #4255FF) used directly in style props.",
+                                                   "Whole-card click uses a stretched \u003cLink\u003e with position:absolute inset:0; any independently clickable element inside the card needs position:relative + zIndex:1 plus e.stopPropagation() (see ExternalChip / InlineBookmarkButton).",
+                                                   "Pages are server components with export const dynamic = \"force-dynamic\" and metadata title \"X | AISA Atlas\"; track-scoped pages read getActiveTrackSlug() server-side and switch tracks client-side via POST /api/track then router.refresh().",
+                                                   "Pill filter groups are deprecated in favor of FilterTabs (underline style) per the comment in filter-tabs.tsx; the Browse TrackSwitcher pill row is the exception because the active pill is filled with the track\u0027s own accentColor. Build Board has no tabs at all.",
+                                                   "No em/en dashes in any UI copy or LLM-generated content (project rule).",
+                                                   "CLAUDE.md in the repo warns this Next.js (16.2.1) has breaking changes vs training data: read node_modules/next/dist/docs/ before writing route/page code. React is 19.2.4 (e.g. browse uses the `inert` prop directly).",
+                                                   "Run the dev server on port 3100, not 3000 (3000 belongs to a different project); verify the page title says AISA Atlas.",
+                                                   "After any Prisma schema change + db push/generate, fully restart next dev; HMR cannot reload the generated client and APIs 500 with \u0027Cannot read properties of undefined\u0027."
+                                               ]
+                               },
+    "admin console":  {
+                          "summary":  "The admin console is a server-gated section under app/(main)/admin: the layout calls requireAdmin() from lib/admin.ts (Supabase auth user -\u003e Prisma User lookup -\u003e role must be \"ADMIN\", redirects to /login or /browse otherwise) and wraps children in the AdminShell client tab nav; root middleware (proxy.ts, this Next version\u0027s rename of middleware.ts) only refreshes the Supabase session and does no role checks. The overview page (app/(main)/admin/page.tsx, force-dynamic server component) runs a Promise.all of Prisma stat queries, serializes everything to ISO strings, and renders the AdminOverview client component, which stacks two action cards (AdminCalendarSync \"Sync now\", AdminDigestCard) above stat cards and an activity feed. Action cards follow one pattern: \"use client\" + useState busy/result + fetch(\"/api/admin/...\", {method}) -\u003e on json.ok set an inline success message and router.refresh() to re-run the server queries, on failure show json.error in red. API routes under app/api/admin/ each define their OWN local requireAdmin()/requireModerator() returning null -\u003e 403 JSON (the lib/admin.ts version redirects, so it is page-only); projects/[id] PATCH widens the gate to MODERATOR_ROLES = [\"ADMIN\", \"PROJECT_LEAD\"] from lib/build.ts. The digest card\u0027s Generate now POSTs /api/admin/digest (runs generateDigest(), always writes a draft, outcomes created/updated/cached/skipped_published with itemCount/searchesUsed), Publish/Unpublish PATCHes {id, action} on the same route, and Review draft links to /digest?preview=draft, where the digest page awaits searchParams, re-verifies the viewer is ADMIN via an inline viewerIsAdmin(), and if so loads the latest edition regardless of status, passing previewingDraft to DigestClient which shows an info Banner. The draft \"awaiting review\" amber hint is the DraftAgeHint subcomponent inside admin-digest-card.tsx, rendered only when status===\"draft\" and generatedAt is 2+ days old, colored var(--color-gold).",
+                          "keyFiles":  [
+                                           {
+                                               "path":  "app/(main)/admin/layout.tsx",
+                                               "role":  "Admin section gate: awaits requireAdmin() (redirect-style guard) then renders AdminShell with userName; any new admin page is auto-protected by living under this layout"
+                                           },
+                                           {
+                                               "path":  "lib/admin.ts",
+                                               "role":  "Exports requireAdmin(): Supabase getUser -\u003e prisma.user lookup -\u003e redirect(\u0027/login?redirect=/admin\u0027) if unauthenticated, redirect(\u0027/browse\u0027) if role !== \u0027ADMIN\u0027; returns {id,email,name,role}. PAGE-ONLY (redirects, never returns null)"
+                                           },
+                                           {
+                                               "path":  "proxy.ts",
+                                               "role":  "Root middleware (Next\u0027s middleware.ts renamed to proxy.ts in this version) - only calls updateSession from lib/supabase/middleware for session refresh; NO role gating happens here"
+                                           },
+                                           {
+                                               "path":  "app/(main)/admin/page.tsx",
+                                               "role":  "Admin overview server page: export const dynamic=\u0027force-dynamic\u0027, Promise.all Prisma stat queries (incl. latest digestEdition with status/headline/items/searchesUsed/durationMs), serializes Dates to ISO strings, renders \u003cAdminOverview\u003e"
+                                           },
+                                           {
+                                               "path":  "components/admin-overview.tsx",
+                                               "role":  "Client component composing the overview: \u003cAdminCalendarSync\u003e + \u003cAdminDigestCard edition={...}\u003e action cards, 4-up stat card grid, recent-activity list with StatusTag tones; the template for adding a new admin card to the overview"
+                                           },
+                                           {
+                                               "path":  "components/admin-digest-card.tsx",
+                                               "role":  "THE digest admin card: exports AdminDigestCard + DigestEditionSummary. handleGenerate POSTs /api/admin/digest and maps outcome-\u003emessage; handlePublishToggle PATCHes {id, action}; both router.refresh() on success. Right-side buttons: \u0027Review draft\u0027 Link to /digest?preview=draft (draft only), Publish/Unpublish toggle, \u0027Generate now\u0027. DraftAgeHint = the 48h amber awaiting-review hint (var(--color-gold), shown when draft age \u003e= 2 days)"
+                                           },
+                                           {
+                                               "path":  "components/admin-calendar-sync.tsx",
+                                               "role":  "The canonical \u0027Sync now\u0027 card pattern to clone: useState syncing/result, fetch POST /api/admin/sync-schedule, inline result message in meta line (green --color-correct / red --color-incorrect), router.refresh() on success"
+                                           },
+                                           {
+                                               "path":  "app/api/admin/digest/route.ts",
+                                               "role":  "Digest admin API: local non-redirecting requireAdmin() -\u003e 403; export const maxDuration = 300; POST = \u0027Generate now\u0027 (calls generateDigest(), returns DigestSyncResult, 500 if !ok); PATCH = publish/unpublish ({id, action} body, sets status + publishedAt)"
+                                           },
+                                           {
+                                               "path":  "app/api/admin/projects/[id]/route.ts",
+                                               "role":  "Moderation flow example: local requireModerator() checks MODERATOR_ROLES.includes(user.role); PATCH body {status: \u0027draft\u0027|\u0027approved\u0027}; params is a Promise that must be awaited; first approval stamps approvedAt, reverting to draft keeps it"
+                                           },
+                                           {
+                                               "path":  "app/api/admin/sync-schedule/route.ts",
+                                               "role":  "Simplest admin action route: local requireAdmin() -\u003e 403, POST runs syncCalendar(), returns {ok:true, ...result} or {ok:false, error} with 500"
+                                           },
+                                           {
+                                               "path":  "lib/build.ts",
+                                               "role":  "Exports MODERATOR_ROLES = [\u0027ADMIN\u0027, \u0027PROJECT_LEAD\u0027] (line 12), used for the wider Build Board moderation gate"
+                                           },
+                                           {
+                                               "path":  "app/(main)/digest/page.tsx",
+                                               "role":  "Preview flow: awaits searchParams Promise, previewingDraft = preview===\u0027draft\u0027 \u0026\u0026 viewerIsAdmin() (inline role check); if previewing loads latest edition regardless of status, else latest published; passes previewingDraft to DigestClient"
+                                           },
+                                           {
+                                               "path":  "components/digest-client.tsx",
+                                               "role":  "Renders the digest; when previewingDraft \u0026\u0026 edition shows a \u003cBanner tone=\u0027info\u0027\u003e \u0027Draft preview. Members can\u0027t see this edition until it\u0027s published from the admin console.\u0027"
+                                           },
+                                           {
+                                               "path":  "lib/digest-sync.ts",
+                                               "role":  "Exports generateDigest(opts?: {now?: Date}): Promise\u003cDigestSyncResult\u003e (the minutes-long web_search pipeline, always writes drafts) plus DigestSyncResult/DigestItem/DigestQuizQuestion types, getDigestWeekOf, cleanDigestText"
+                                           },
+                                           {
+                                               "path":  "lib/digest-view.ts",
+                                               "role":  "Exports editionToView(edition): serializes a DigestEdition for the client (ISO dates, resolves relatedConceptSlugs to live concept names, drops deleted concepts)"
+                                           },
+                                           {
+                                               "path":  "app/api/cron/sync-digest/route.ts",
+                                               "role":  "Cron twin of \u0027Generate now\u0027: auth via Authorization: Bearer CRON_SECRET (not role-gated), maxDuration=300, returns 500 on pipeline failure so Vercel marks the run failed"
+                                           },
+                                           {
+                                               "path":  "components/admin-shell.tsx",
+                                               "role":  "Exports AdminShell: \u0027Admin / Console\u0027 header + NAV_ITEMS tab array (Overview, Members, Assessments, Homework, Feedback) with usePathname active state; new admin sections register here"
+                                           },
+                                           {
+                                               "path":  "prisma/schema.prisma",
+                                               "role":  "User.role is a plain String @default(\"MEMBER\") with comment \u0027MEMBER | MENTOR | ADMIN | CURRICULUM_LEAD | PROJECT_LEAD\u0027 (line 15) - NOT a Prisma enum"
+                                           }
+                                       ],
+                          "exports":  [
+                                          "requireAdmin (lib/admin.ts) - page-only ADMIN guard that redirects; returns {id,email,name,role}",
+                                          "AdminShell (components/admin-shell.tsx) - admin header + tab nav wrapper with NAV_ITEMS array",
+                                          "AdminOverview (components/admin-overview.tsx) - overview client composition: action cards + stat grid + activity feed",
+                                          "AdminDigestCard, DigestEditionSummary (components/admin-digest-card.tsx) - digest action card and its prop interface; DraftAgeHint is its private 48h amber hint",
+                                          "AdminCalendarSync (components/admin-calendar-sync.tsx) - canonical \u0027Sync now\u0027 fetch+router.refresh card to clone for new admin actions",
+                                          "MODERATOR_ROLES (lib/build.ts) - [\u0027ADMIN\u0027,\u0027PROJECT_LEAD\u0027] role allowlist for moderation routes",
+                                          "generateDigest, DigestSyncResult, DigestItem, DigestQuizQuestion, getDigestWeekOf, cleanDigestText (lib/digest-sync.ts) - digest pipeline entry point and types",
+                                          "editionToView, DigestEditionView, DigestItemView (lib/digest-view.ts) - server-side serializer for /digest pages",
+                                          "syncCalendar (lib/schedule-sync.ts) - calendar sync pipeline called by the sync-schedule route",
+                                          "DigestClient (components/digest-client.tsx) - digest renderer taking edition/stale/previewingDraft/pastEditions",
+                                          "POST, PATCH (app/api/admin/digest/route.ts) - generate-draft and publish/unpublish handlers; PATCH (app/api/admin/projects/[id]/route.ts) - moderation status flip",
+                                          "Icon, IconTile, StatusTag, StatusTagTone (components/ui/icon.tsx, icon-tile.tsx, status-tag.tsx) - UI primitives every admin card uses"
+                                      ],
+                          "gotchas":  [
+                                          "lib/admin.ts requireAdmin() REDIRECTS and is page/layout-only. API routes must NOT import it; convention is each route file defines its own small local requireAdmin()/requireModerator() that returns null, and the handler returns NextResponse.json({error:\u0027Forbidden\u0027},{status:403}) - this guard is intentionally duplicated per route file, not shared",
+                                          "Role gating is per-layout and per-route, never in middleware. proxy.ts (this Next version renamed middleware.ts to proxy.ts, exporting `proxy` not `middleware`) only refreshes the Supabase session",
+                                          "User.role is a plain String, not a Prisma enum: \u0027MEMBER | MENTOR | ADMIN | CURRICULUM_LEAD | PROJECT_LEAD\u0027. Compare with string equality or MODERATOR_ROLES.includes(role)",
+                                          "This is a newer Next.js than training data (see AGENTS.md): searchParams and route params are Promises that must be awaited (see digest page and projects/[id] route); read node_modules/next/dist/docs before writing Next-specific code",
+                                          "Admin action card refresh pattern: client component keeps useState busy + result, fetch()es the API, sets an inline message appended to the card meta line (green var(--color-correct) / red var(--color-incorrect)), then router.refresh() so the force-dynamic server page re-queries Prisma. No SWR/react-query anywhere",
+                                          "Route naming under app/api/admin/: collection = \u003cresource\u003e/route.ts, per-item = \u003cresource\u003e/[id]/route.ts (PATCH for state flips), action routes are kebab-case verbs (sync-schedule, POST only). Digest is a singleton resource: POST = generate, PATCH = {id, action:\u0027publish\u0027|\u0027unpublish\u0027}",
+                                          "Long-running routes must export const maxDuration = 300 (digest generate, cron sync-digest); admin pages and dynamic routes export const dynamic = \u0027force-dynamic\u0027",
+                                          "Server-\u003eclient boundary: all Dates serialized to ISO strings in the server page before passing props; relative-time spans need suppressHydrationWarning because SSR/client clock drift",
+                                          "Digest editions are ALWAYS written as drafts (both cron and Generate now); publishing is a human action via PATCH. generateDigest outcomes the card maps to messages: created, updated, cached, skipped_published. Preview URL /digest?preview=draft only works for ADMIN (re-checked server-side in the digest page, not trusted from the link)",
+                                          "The 48h hint threshold is actually days \u003e= 2 computed from generatedAt (Math.floor(diff/86400000) \u003c 2 returns null), styled with var(--color-gold), and only rendered when edition.status === \u0027draft\u0027",
+                                          "Buttons disable on busy !== null (both buttons share one busy state so generate and publish cannot run concurrently); Link-styled buttons reuse the same inline buttonStyle(disabled) helper - all styling is inline style objects with CSS custom properties, no Tailwind/CSS modules in admin components",
+                                          "New admin section pages need a NAV_ITEMS entry in components/admin-shell.tsx; new overview cards are added inside components/admin-overview.tsx above the stat grid",
+                                          "Cron routes auth with Authorization: Bearer CRON_SECRET (401 otherwise) and return 500 on pipeline failure so Vercel cron marks the run failed - do not role-gate cron routes",
+                                          "Project memory rules: no em/en dashes in UI copy or LLM content; run dev server on port 3100 (3000 is a different project); after any Prisma schema change, db push/generate then fully restart next dev"
+                                      ]
+                      },
+    "infra + nav":  {
+                        "summary":  "aisa-atlas is a Next.js 16.2.1 (App Router, React 19.2.4, Tailwind v4, Prisma 7 + Supabase) app deployed on Vercel. vercel.json defines exactly two crons and nothing else (no functions block): /api/cron/sync-schedule daily at 06:00 UTC and /api/cron/sync-digest Mondays at 13:00 UTC; per-function config lives in the route files themselves (sync-digest exports `maxDuration = 300`, sync-schedule has none). Cron routes auth by comparing the Authorization header to `Bearer ${process.env.CRON_SECRET}` and delegate to lib pipelines (lib/digest-sync.ts, lib/schedule-sync.ts) which read ANTHROPIC_API_KEY directly from process.env and throw if unset. The left nav is a single client component, components/sidebar.tsx, where each link is a hard-coded SidebarNavItem (href, label, iconName, active) in named groups; gating is `user?.role === \"ADMIN\"` for the Admin group and `activeTrackSlug === \"ai\"` for the tier links, with a track switcher that POSTs to /api/track and router.refresh()es. lib/digest-view.ts is the server-side view-model layer: editionToView() converts a Prisma DigestEdition row into a serializable DigestEditionView, resolving relatedConceptSlugs to live concept names at render time. docs/research/ currently holds one research pack, capital-markets-vocab-research.json, produced by the deep-research skill.",
+                        "keyFiles":  [
+                                         {
+                                             "path":  "vercel.json",
+                                             "role":  "Cron definitions only: {\"crons\":[{\"path\":\"/api/cron/sync-schedule\",\"schedule\":\"0 6 * * *\"},{\"path\":\"/api/cron/sync-digest\",\"schedule\":\"0 13 * * 1\"}]}. No functions/regions config; a new cron job means adding an entry here plus a route file."
+                                         },
+                                         {
+                                             "path":  "package.json",
+                                             "role":  "Versions/scripts. Deps: next 16.2.1, react/react-dom 19.2.4, @anthropic-ai/sdk ^0.80.0, @prisma/client + prisma + @prisma/adapter-pg ^7.5.0, pg ^8.20.0, @supabase/ssr ^0.9.0, @supabase/supabase-js ^2.100.1, @phosphor-icons/react ^2.1.10, react-markdown ^10.1.0, remark-gfm ^4.0.1, exceljs ^4.4.0, xlsx ^0.18.5. Dev: @playwright/test ^1.59.1, @axe-core/playwright ^4.11.2, tailwindcss + @tailwindcss/postcss ^4, tsx ^4.21.0, typescript ^5, dotenv ^17.3.1, @types/*. Scripts: dev, build, start, postinstall (prisma generate), seed (tsx prisma/seed.ts), import-resources, lint:tokens (token codemod check over components/app tsx)."
+                                         },
+                                         {
+                                             "path":  "node_modules/next/dist/docs/",
+                                             "role":  "Local Next.js 16 docs the repo\u0027s AGENTS.md mandates reading before writing Next code. Top level: 01-app, 02-pages, 03-architecture, 04-community, index.md; 01-app contains 01-getting-started, 02-guides, 03-api-reference, 04-glossary.md, index.md."
+                                         },
+                                         {
+                                             "path":  "components/sidebar.tsx",
+                                             "role":  "The sidebar. All nav links are hard-coded \u003cSidebarNavItem href label iconName active={isActive(href)} /\u003e rows inside groups: unlabeled primary group (Home /home, Browse /browse, Bookmarked, Progress /dashboard, This Week /digest iconName=\"newspaper\", Build Board /build iconName=\"hammer\"), Tracks switcher (rendered when tracks.length \u003e 1; TrackNavButton POSTs {slug} to /api/track then router.refresh()), Learn (tier links only when activeTrackSlug === \"ai\", plus /quiz, /flashcards), Prepare (/assessments, /calendar, /homework), and Admin (/admin, only when user?.role === \"ADMIN\"). A new link = one more SidebarNavItem in the right group with an IconName that exists in the icon registry."
+                                         },
+                                         {
+                                             "path":  "components/ui/sidebar-nav-item.tsx",
+                                             "role":  "Single nav row primitive: props { href, label, iconName?: IconName, iconNode?, active?, rightSlot?, defaultIconColor? }; handles hover/active styling via CSS vars."
+                                         },
+                                         {
+                                             "path":  "components/ui/icon.tsx",
+                                             "role":  "Phosphor icon registry. `export type IconName` (around line 109) is a closed string union; a new sidebar link\u0027s icon must be added to this union and mapped to a @phosphor-icons/react import."
+                                         },
+                                         {
+                                             "path":  "lib/digest-view.ts",
+                                             "role":  "Shared view-model helper for /digest pages. Exports RelatedConceptRef, DigestItemView (DigestItem + relatedConcepts: {slug,name}[]), DigestEditionView (headline, weekOf ISO Monday-UTC, generatedAt ISO, status, items, bigPicture, watchFor, quiz), and async editionToView(edition: DigestEdition) which resolves relatedConceptSlugs against prisma.concept and silently drops deleted concepts."
+                                         },
+                                         {
+                                             "path":  "lib/digest-sync.ts",
+                                             "role":  "Digest generation pipeline and the source of digest types. Exports: DigestQuizQuestion, DigestItemResource, DigestCategory (\"ai\"|\"tech\"|\"markets\"), DigestItem, DigestSyncResult, getDigestWeekOf(now?), cleanDigestText(s), generateDigest(opts?). Reads process.env.ANTHROPIC_API_KEY at line 328-329 and throws if missing."
+                                         },
+                                         {
+                                             "path":  "lib/schedule-sync.ts",
+                                             "role":  "Schedule sync pipeline; same ANTHROPIC_API_KEY read-and-throw pattern at lines 257-258."
+                                         },
+                                         {
+                                             "path":  "lib/grading.ts",
+                                             "role":  "Anthropic client construction with `apiKey: process.env.ANTHROPIC_API_KEY!` at line 4 (non-null assertion, no guard)."
+                                         },
+                                         {
+                                             "path":  "app/api/cron/sync-digest/route.ts",
+                                             "role":  "Template for a cron route: `export const maxDuration = 300` for long Anthropic search loops; GET handler checks `request.headers.get(\"authorization\") === \\`Bearer ${process.env.CRON_SECRET}\\`` (401 with no/wrong secret), calls generateDigest(), returns 500 on result.ok === false so Vercel marks the run failed."
+                                         },
+                                         {
+                                             "path":  "app/api/cron/sync-schedule/route.ts",
+                                             "role":  "Second cron route, same CRON_SECRET bearer check (lines 5-8); notably has NO maxDuration export."
+                                         },
+                                         {
+                                             "path":  ".env.example",
+                                             "role":  "Documents DATABASE_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY only. CRON_SECRET and ANTHROPIC_API_KEY are NOT listed here despite being required by cron/digest/grading code; a real .env exists alongside it."
+                                         },
+                                         {
+                                             "path":  "docs/research/capital-markets-vocab-research.json",
+                                             "role":  "Only existing research pack (deep-research skill output). Top-level shape: { summary: string, agentCount: number, logs: string[], result: { question, summary, findings[], caveats, openQuestions: string[], refuted[], sources[], stats } }. findings records: { claim: string, confidence: \"high\"|..., sources: string[] (URLs), evidence: string, vote }. sources records: { url, quality, angle, claimCount }."
+                                         },
+                                         {
+                                             "path":  "lib/track.ts",
+                                             "role":  "TrackSummary type (line 14) and getTracks() (line 28) used by the sidebar\u0027s track switcher; tracks carry slug, name, accentColor."
+                                         },
+                                         {
+                                             "path":  "docs/EXPANSION.md",
+                                             "role":  "TCO expansion plan; documents the Bearer CRON_SECRET cron pattern and the admin \"Sync now\" button convention for manually triggering pipelines."
+                                         }
+                                     ],
+                        "exports":  [
+                                        "Sidebar (components/sidebar.tsx) - the whole left nav; new links are added inline here",
+                                        "SidebarNavItem (components/ui/sidebar-nav-item.tsx) - nav row primitive: href, label, iconName, active, defaultIconColor",
+                                        "Icon / IconName (components/ui/icon.tsx) - Phosphor icon registry; IconName union must include any new icon",
+                                        "editionToView (lib/digest-view.ts) - DigestEdition row -\u003e serializable DigestEditionView with resolved concept names",
+                                        "DigestEditionView / DigestItemView / RelatedConceptRef (lib/digest-view.ts) - view-model types for digest pages",
+                                        "generateDigest (lib/digest-sync.ts) - full weekly digest pipeline, returns DigestSyncResult",
+                                        "getDigestWeekOf (lib/digest-sync.ts) - Monday-00:00-UTC week key derivation",
+                                        "cleanDigestText (lib/digest-sync.ts) - LLM text sanitizer (includes dash stripping convention)",
+                                        "DigestItem / DigestQuizQuestion / DigestItemResource / DigestCategory / DigestSyncResult (lib/digest-sync.ts) - digest record types",
+                                        "TrackSummary / getTracks (lib/track.ts) - track metadata for the sidebar switcher and track gating"
+                                    ],
+                        "gotchas":  [
+                                        "Next.js is 16.2.1 with breaking changes vs training data: AGENTS.md requires reading node_modules/next/dist/docs/ (01-app/01-getting-started, 02-guides, 03-api-reference) before writing any Next code",
+                                        "vercel.json contains ONLY crons; per-route function config (e.g. timeout) is done via `export const maxDuration = N` in the route file itself - sync-digest uses 300, copy that for any long LLM pipeline route",
+                                        "Cron route auth pattern is mandatory: reject unless Authorization === `Bearer ${process.env.CRON_SECRET}` AND CRON_SECRET is set; return 500 when the pipeline result is not ok so Vercel marks the cron run failed",
+                                        "CRON_SECRET and ANTHROPIC_API_KEY are read straight from process.env (lib/digest-sync.ts:328, lib/schedule-sync.ts:257, lib/grading.ts:4, both cron routes) but are NOT documented in .env.example - add them there if you touch env docs",
+                                        "Sidebar links are hard-coded JSX in components/sidebar.tsx, not data-driven; a new link needs a SidebarNavItem in the right group, an isActive(href) call, and an IconName that already exists in (or is added to) the closed union in components/ui/icon.tsx",
+                                        "Sidebar gating conventions: admin-only sections check user?.role === \"ADMIN\" (ShellUser from components/main-shell); track-specific links check activeTrackSlug (e.g. tier links only when slug === \"ai\"); track switching is a POST to /api/track followed by router.refresh()",
+                                        "Digest concept links store slugs, not names: relatedConceptSlugs are resolved to names at render time in editionToView and deleted concepts silently drop - follow this stale-proof pattern for any new content that references concepts",
+                                        "DigestEdition JSON columns are cast `as unknown as DigestItem[]` with Array.isArray guards; replicate the defensive casting for any new Prisma Json field",
+                                        "No em/en dashes in LLM-generated or UI copy (project rule); digest pipeline sanitizes via cleanDigestText - any new LLM content pipeline must do the same",
+                                        "After Prisma schema changes, restart `next dev` (HMR cannot reload the generated client); run the app on port 3100, not 3000 (3000 is a different project)",
+                                        "docs/research/ packs are deep-research skill dumps: { summary, agentCount, logs, result: { question, summary, findings: [{claim, confidence, sources, evidence, vote}], caveats, openQuestions, refuted, sources: [{url, quality, angle, claimCount}], stats } } - new research packs should match this shape",
+                                        "Before committing: lint:tokens script (tsx scripts/tokens/codemod.ts --check) enforces design-token usage in components/ and app/ tsx files"
+                                    ]
+                    }
+}

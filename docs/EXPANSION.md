@@ -435,6 +435,17 @@ math. Source from a16z / Y Combinator / NVCA glossaries and standard term-sheet 
 
 ### Prompt 2 — AI benchmarks + trend map *(run before the Later phase)*
 
+> **Status (2026-06-11): Part A pass 1 DONE** via deep-research workflow (refined 12-benchmark
+> question) — 27 sources, 131 claims extracted, 25 adversarially verified (20 confirmed / 5
+> refuted), 11 cited findings → `docs/research/benchmarks-research.json`. Solid coverage
+> (what-it-measures / scoring / maintainer / watch-outs) for MMLU-Pro, GPQA (+Diamond),
+> SWE-bench (+Verified), HLE, FrontierMath, LiveCodeBench, ARC-AGI-1, MMMU, and arena.ai
+> (LMArena's successor; lmarena.ai 301s there). **Still needed before §7.3 ships:** current
+> top-3 leader tables for everything except the arena.ai text board; all content for HumanEval,
+> AIME, and TAU-bench; ARC-AGI-2 status (initial claim refuted); confirm the reported 2026-02-23
+> SWE-bench Verified deprecation. Part B (trend map) NOT yet run. Reusable-code survey for the
+> build lives at `docs/research/benchmarks-codebase-survey.json`.
+
 ```
 Produce a current (mid-2026) content pack for an AI-literacy education site aimed at university
 students from mixed, non-expert backgrounds. Two parts, returned as structured data (a table/list

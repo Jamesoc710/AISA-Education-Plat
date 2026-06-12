@@ -1,0 +1,331 @@
+﻿{
+    "question":  "Build a current (June 2026) AI benchmarks content pack for an AI-literacy education site aimed at university students from mixed, non-expert backgrounds. Cover these benchmarks: MMLU-Pro, GPQA Diamond, SWE-bench Verified, HumanEval, LiveCodeBench, ARC-AGI (v1 and v2), MMMU, LMArena (Chatbot Arena) Elo, Humanity\u0027s Last Exam, FrontierMath, AIME (used as an LLM eval), and TAU-bench. For EACH benchmark report: (1) what it measures, in one plain sentence with no jargon defined by jargon; (2) why it matters in the AI landscape; (3) how scoring works: the metric and scale, who runs or maintains the leaderboard, and where the official leaderboard or paper lives; (4) watch out for: known criticisms, data contamination concerns, and saturation status (is it effectively solved?); (5) the current top-3 leaders as of mid-2026, with scores, the model and lab, an as-of date, and a source URL for each number; (6) a 1-2 sentence \"why a normal person should care\"; (7) 2-4 related AI concepts a student should learn to understand this benchmark (e.g. reasoning, agents, multimodality, code generation). Every factual claim needs a citation URL, and leader scores especially must come from the official leaderboard or a primary source, with the date the number was observed. Flag any benchmark where the top score is disputed, self-reported only, or moving fast. Style rule: zero em dashes or en dashes anywhere in the prose; use commas, colons, or hyphens instead.",
+    "summary":  "Twenty claims survived adversarial verification and merge into eleven findings covering nine of the thirteen requested benchmarks: MMLU-Pro, GPQA and its Diamond subset, SWE-bench and SWE-bench Verified, Humanity\u0027s Last Exam, FrontierMath, LiveCodeBench, ARC-AGI-1, MMMU, and the LMArena successor arena.ai. For each covered benchmark the verified material pins down what it measures, the metric and scale, the maintainer and official home, and the key watch-outs: MMLU saturation motivated MMLU-Pro, FrontierMath carries an OpenAI funding and privileged-access controversy, LiveCodeBench is contamination-resistant by design, HLE answer quality is contested, and a reported deprecation of SWE-bench Verified needs confirmation. The only verified mid-2026 leader data is arena.ai\u0027s text Elo board, where claude-fable-5 (Anthropic) leads at 1510 plus or minus 11 as of June 10, 2026 with an all-Anthropic top three, flagged as fast-moving and a near-statistical tie at the top. The remaining verified scores are historical anchors (o3\u0027s 75.7% and 87.5% on ARC-AGI-1 in December 2024, and the sub-2% FrontierMath baseline of November 2024), so current top-3 leader tables for most benchmarks, plus all content for HumanEval, AIME as an LLM eval, TAU-bench, and ARC-AGI-2 status, still need sourcing before the pack can ship.",
+    "findings":  [
+                     {
+                         "claim":  "MMLU-Pro exists because the original MMLU is saturated: top-model performance has plateaued, making capability differences hard to discern. MMLU-Pro raises difficulty by expanding each question from 4 to 10 answer options, which blunts guessing and demands discriminative reasoning, and models score 16 to 33 percentage points lower on it than on the original MMLU.",
+                         "confidence":  "high",
+                         "sources":  [
+                                         "https://arxiv.org/abs/2406.01574",
+                                         "https://github.com/TIGER-AI-Lab/MMLU-Pro"
+                                     ],
+                         "evidence":  "Three merged claims each passed verification 1-0 against the primary MMLU-Pro paper (Wang et al., TIGER-Lab, NeurIPS 2024). Abstract quotes: \u0027performance on these benchmarks has begun to plateau, making it increasingly difficult to discern differences in model capabilities\u0027; \u0027expanding the choice set from four to ten options\u0027; \u0027a significant drop in accuracy by 16% to 33% compared to MMLU\u0027. Per-model data confirms the drop is in absolute percentage points (GPT-4o roughly 88% on MMLU to roughly 72% on MMLU-Pro). 2026 secondary sources corroborate frontier saturation of original MMLU (top models clustered at 88 to 92%+), with no dissenting source found.",
+                         "vote":  "3-0 (claims 13, 14, 15 merged; each verified 1-0)"
+                     },
+                     {
+                         "claim":  "GPQA consists of 448 multiple-choice questions written by domain experts in biology, physics, and chemistry, built to be Google-proof: skilled non-experts reached only 34% accuracy despite unrestricted web access. PhD-level experts score about 65%, or 74% after discounting questions the experts themselves identified as flawed. Caution for the pack: the widely cited GPQA Diamond subset is 198 questions, where expert accuracy was about 81% with selection-effect caveats, so the 65% baseline must not be silently mapped onto Diamond.",
+                         "confidence":  "high",
+                         "sources":  [
+                                         "https://arxiv.org/abs/2311.12022"
+                                     ],
+                         "evidence":  "Both merged claims verified 1-0 against the original GPQA paper (Rein et al.), whose abstract states verbatim: 448 questions, \u0027Google-proof\u0027, experts \u0027reach 65% accuracy (74% when discounting clear mistakes the experts identified in retrospect)\u0027, non-expert validators 34% despite spending over 30 minutes with web access. These are fixed dataset-construction facts corroborated by 6+ independent secondary sources, with nothing contradicting.",
+                         "vote":  "2-0 (claims 16, 17 merged; each verified 1-0)"
+                     },
+                     {
+                         "claim":  "SWE-bench tests whether models can resolve real GitHub issues by editing actual codebases: 2,294 problems drawn from 12 popular Python repositories, scored as the percent of issues resolved via fail-to-pass tests. SWE-bench Verified is a human-validated 500-instance subset created in collaboration with OpenAI (93 contracted developers screened samples, filtering out 68.3% of originals) and maintained by the SWE-bench Team at swebench.com.",
+                         "confidence":  "high",
+                         "sources":  [
+                                         "http://www.swebench.com/",
+                                         "https://www.swebench.com/original.html",
+                                         "https://www.swebench.com/verified.html",
+                                         "https://arxiv.org/abs/2310.06770"
+                                     ],
+                         "evidence":  "Both claims verified 1-0 against the official site and original paper, which states verbatim: \u00272,294 software engineering problems drawn from real GitHub issues and corresponding pull requests across 12 popular Python repositories\u0027; verified.html states \u0027A human-validated subset of 500 SWE-bench instances\u0027 \u0027created in collaboration with OpenAI\u0027. Do not conflate the 2,294 full-set count with the 500 Verified count. Watch-out surfaced during verification but never voted on: reports that OpenAI deprecated SWE-bench Verified on 2026-02-23 over test flaws and training-data contamination; source this before publishing it.",
+                         "vote":  "2-0 (claims 1, 2 merged; each verified 1-0)"
+                     },
+                     {
+                         "claim":  "Humanity\u0027s Last Exam contains 2,500 frontier-difficulty questions spanning mathematics, humanities, and the natural sciences, with 14% requiring diagram or figure interpretation and 24% multiple choice, designed to test both depth of reasoning and breadth of knowledge. It is maintained jointly by Scale AI and the Center for AI Safety (CAIS), and its leaderboard ranks models by a Rank (Upper Bound) metric that counts how many models are statistically significantly better at 95% confidence intervals.",
+                         "confidence":  "high",
+                         "sources":  [
+                                         "https://labs.scale.com/leaderboard/humanitys_last_exam",
+                                         "https://arxiv.org/abs/2501.14249",
+                                         "https://en.wikipedia.org/wiki/Humanity\u0027s_Last_Exam",
+                                         "https://agi.safe.ai"
+                                     ],
+                         "evidence":  "Both claims verified 1-0 against the primary Scale Labs leaderboard and the HLE paper. Composition figures (2,500, 14%, 24%) appear verbatim on the leaderboard page and are independently confirmed by the arXiv abstract and Wikipedia; joint maintainership is confirmed via Scale\u0027s acknowledgements (\u0027developed in partnership with the Center for AI Safety\u0027), the cais/hle dataset, and the agi.safe.ai project site. Watch-outs for the pack: an original pool of about 3,000 questions was trimmed to the 2,500 public set partly for contamination control; the FutureHouse criticism that roughly 30% of HLE reference answers may be incorrect targets answer quality and needs its own citation; a separate claim about systematic calibration errors above 80% was refuted at verification and must not be used; HLE leader scores move fast and differ across aggregators.",
+                         "vote":  "2-0 (claims 3, 4 merged; each verified 1-0)"
+                     },
+                     {
+                         "claim":  "FrontierMath, published by Epoch AI on November 8, 2024, is a benchmark of research-grade math problems spanning computational number theory to algebraic geometry that take specialist mathematicians hours or days to solve. Problems are designed to be guessproof, with under a 1% chance of a correct random guess, and answers are auto-verified by exact matching or symbolic computation with SymPy.",
+                         "confidence":  "high",
+                         "sources":  [
+                                         "https://epoch.ai/frontiermath",
+                                         "https://epoch.ai/frontiermath/the-benchmark",
+                                         "https://arxiv.org/abs/2411.04872"
+                                     ],
+                         "evidence":  "Both claims verified 1-0 against Epoch AI\u0027s official pages and the arXiv paper. Verbatim support: \u0027Publication Date: November 8, 2024\u0027; problems \u0027typically require hours or days for specialist mathematicians to solve\u0027; \u0027less than a 1% chance of guessing correctly without the mathematical work\u0027; verification via exact integer match, SymPy evaluation of symbolic answers, or custom scripts. These are stable methodological facts, not moving leaderboard numbers.",
+                         "vote":  "2-0 (claims 6, 7 merged; each verified 1-0)"
+                     },
+                     {
+                         "claim":  "At its November 2024 release, every leading AI model scored below 2% on FrontierMath, even though those same models exceeded 90% on earlier math benchmarks like GSM-8K and MATH, establishing it as the hardest public math eval of its time. Any later high scores must be flagged: Epoch AI subsequently disclosed that OpenAI funded FrontierMath and had privileged access to most problems and solutions, a controversy that clouds OpenAI\u0027s December 2024 self-reported o3 score of 25.2%.",
+                         "confidence":  "high",
+                         "sources":  [
+                                         "https://epoch.ai/frontiermath",
+                                         "https://arxiv.org/abs/2411.04872",
+                                         "https://epoch.ai/blog/openai-and-frontiermath"
+                                     ],
+                         "evidence":  "Verified 1-0 against Epoch AI\u0027s site and paper: \u0027none could solve more than 2% of the problems\u0027 across six leading models tested at launch (including Claude 3.5 Sonnet, o1-preview, GPT-4o, Gemini 1.5 Pro), versus \u0027over 90% accuracy on GSM-8K and MATH\u0027. The funding and access controversy is documented by Epoch AI\u0027s own disclosure post and contemporaneous coverage (TechCrunch, 2025-01-19); the verifier confirmed it targets later scores such as the o3 25.2% claim of December 20, 2024, not the launch baseline. The below-2% figure is a historical November 2024 anchor, not a mid-2026 leader figure.",
+                         "vote":  "1-0 (claim 5)"
+                     },
+                     {
+                         "claim":  "LiveCodeBench is a contamination-resistant coding benchmark that continuously collects problems from LeetCode, AtCoder, and Codeforces, annotates each with its release date so models can be scored only on problems published after their training cutoff, and reports Pass@1 (percent of problems solved on the first attempt) across Easy, Medium, and Hard difficulty tiers. It evaluates beyond HumanEval-style code generation, also covering self-repair, code execution, and test output prediction.",
+                         "confidence":  "high",
+                         "sources":  [
+                                         "https://livecodebench.github.io/leaderboard.html",
+                                         "https://livecodebench.github.io/",
+                                         "https://arxiv.org/abs/2403.07974",
+                                         "https://github.com/LiveCodeBench/LiveCodeBench"
+                                     ],
+                         "evidence":  "Three claims verified 1-0 each against the official leaderboard and the ICLR 2025 paper titled \u0027LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for Code\u0027. Verbatim support: problems collected \u0027from contests across three competition platforms, namely LeetCode, AtCoder, and CodeForces\u0027; \u0027we use the Pass@1 metric\u0027; \u0027broader code-related capabilities, such as self-repair, code execution, and test output prediction, beyond mere code generation\u0027. The temporal-cutoff design detects contamination in evaluated models (a stark DeepSeek performance drop on post-release problems is the canonical example). Precision notes from verifiers: Pass@1 is primary for the default code-generation scenario, and the mechanism detects leakage in models\u0027 training data rather than literally in other benchmarks.",
+                         "vote":  "3-0 (claims 8, 9, 10 merged; each verified 1-0)"
+                     },
+                     {
+                         "claim":  "On ARC-AGI-1\u0027s semi-private evaluation set of 100 tasks, OpenAI\u0027s o3 scored 75.7% at high-efficiency settings and 87.5% at low-efficiency settings using 172 times more compute, a December 2024 result that ARC Prize, the benchmark maintainer, itself titled a breakthrough against prior frontier scores of 0% for GPT-3 (2020) and 5% for GPT-4o (2024).",
+                         "confidence":  "high",
+                         "sources":  [
+                                         "https://arcprize.org/blog/oai-o3-pub-breakthrough",
+                                         "https://arcprize.org/leaderboard"
+                                     ],
+                         "evidence":  "Verified 1-0 against ARC Prize primary sources stating the exact figures (75.7% at the 10k USD compute limit, 87.5% at 172x compute). Watch-outs for the pack: critics including Melanie Mitchell dispute the interpretation (AGI framing, brute-force compute) but not the numbers; o3 was fine-tuned on 75% of the public training set; critics cite roughly 346k USD cost for the low-efficiency run; ARC Prize later noted the publicly released o3 differs from the version tested. This is a December 2024 result, not a mid-2026 leader figure, and the companion ARC-AGI-2 status claim was refuted at verification, so current ARC-AGI-2 standings remain unverified in this evidence base.",
+                         "vote":  "1-0 (claim 0)"
+                     },
+                     {
+                         "claim":  "MMMU evaluates multimodal models, meaning models that process images together with text, on tasks demanding college-level subject knowledge and deliberate reasoning. It spans six core disciplines (Art and Design, Business, Science, Health and Medicine, Humanities and Social Science, Tech and Engineering), 30 subjects, 183 subfields, and 30 highly heterogeneous image types such as charts, diagrams, maps, tables, music sheets, and chemical structures.",
+                         "confidence":  "high",
+                         "sources":  [
+                                         "https://arxiv.org/abs/2311.16502",
+                                         "https://mmmu-benchmark.github.io/"
+                                     ],
+                         "evidence":  "Both claims verified 1-0. The paper abstract (also published at CVPR 2024) matches the claim nearly verbatim, and the official maintainer-run project page independently confirms identical statistics (about 11.5K questions total). These are stable definitional facts re-cited in the 2024 MMMU-Pro paper, with no contradicting source found.",
+                         "vote":  "2-0 (claims 18, 19 merged; each verified 1-0)"
+                     },
+                     {
+                         "claim":  "As of June 10, 2026 (observed June 10 to 11, 2026), the official arena.ai text leaderboard, the successor of LMArena and Chatbot Arena (lmarena.ai now 301-redirects to arena.ai), shows an all-Anthropic top three by Arena score: claude-fable-5 at 1510 plus or minus 11, claude-opus-4-6-thinking at 1504 plus or minus 4, and claude-opus-4-7-thinking at 1502 plus or minus 5, based on 6,820,793 community votes. Flag prominently: this board is moving fast (Claude Fable 5 was released June 9, 2026 and added June 10), the top two confidence intervals overlap so rank 1 versus rank 2 is a near-statistical tie, and third-party mirrors disagree on ranks 2 and 3.",
+                         "confidence":  "medium",
+                         "sources":  [
+                                         "https://arena.ai/leaderboard",
+                                         "https://arena.ai/leaderboard/text"
+                                     ],
+                         "evidence":  "Two overlapping claims merged, each passing 1-0. The rank 1 entry (claude-fable-5 at 1510 plus or minus 11) was confirmed at high confidence across multiple independent fetches of arena.ai, the official vendor-neutral crowdsourced leaderboard, which is exactly the primary source the task requires; GPT-5.5 sat at rank 10 (1481), supporting the all-Anthropic top three at observation time. The complete ordering carries medium confidence: mirrors such as OpenLM.ai and swfte.com show conflicting ranks 2 and 3 from different snapshots, and the rank 1 lower bound (1499) overlaps the rank 2 upper bound (1508). Two related refutations matter for the pack: the Arena pairwise-blind-vote Elo methodology claim failed verification because it cited a stale HuggingFace space URL (the mechanism needs a fresh arena.ai citation), and an Agent Arena win-rate claim was refuted and must not be reused.",
+                         "vote":  "2-0 (claims 11, 12 merged; verifier confidence high for rank 1, medium for the full ordering)"
+                     },
+                     {
+                         "claim":  "HumanEval is characterized in the verified record only indirectly, as the narrow single-scenario baseline that LiveCodeBench broadens beyond: completing a function from a docstring, scored by whether generated code passes unit tests. No dedicated HumanEval claims survived verification, so its maintainer (OpenAI), official home, saturation status, and current leaders remain unsourced in this evidence base and need fresh research.",
+                         "confidence":  "low",
+                         "sources":  [
+                                         "https://arxiv.org/abs/2403.07974"
+                                     ],
+                         "evidence":  "Derived from the verifier\u0027s context on claim 10, which described HumanEval as \u0027a single-scenario, function-completion-from-docstring code-generation benchmark\u0027 while confirming LiveCodeBench\u0027s broader four-scenario design. This characterization is uncontroversial but was never itself a voted claim, so it should be treated as a placeholder until directly cited (the canonical primary source would be the Codex paper, arXiv 2107.03374, not verified here)."
+                     }
+                 ],
+    "caveats":  "Time sensitivity: the arena.ai top three was observed June 10 to 11, 2026, two days after Claude Fable 5\u0027s release; ranks 2 and 3 conflict across third-party mirrors and the top two confidence intervals overlap, so the live board must be re-checked immediately before publication and the pack should print the as-of date next to every Arena number. Coverage gaps: no claims survived for HumanEval, AIME as an LLM eval, TAU-bench, or ARC-AGI-2 (the ARC-AGI-2 status claim was refuted 0-1), and no mid-2026 top-3 leader scores were verified for any benchmark except arena.ai; the o3 ARC-AGI-1 result and the FrontierMath below-2% baseline are December 2024 and November 2024 anchors respectively, so sections 5 (current leaders) for most benchmarks cannot yet be written from this evidence. Unconfirmed leads surfaced by verifiers but never voted on, each needing direct sourcing before use: OpenAI\u0027s reported 2026-02-23 deprecation of SWE-bench Verified over test flaws and contamination, the FutureHouse estimate that roughly 30% of HLE reference answers may be incorrect, and OpenAI\u0027s disputed, initially self-reported 25.2% o3 score on FrontierMath. Citation repairs: the Arena Elo methodology claim and two leaderboard claims were refuted on stale-URL grounds (HuggingFace space), not because the facts are wrong, so re-cite from arena.ai documentation; the refuted HLE calibration and Agent Arena win-rate claims must not be reused at all. Source quality is otherwise strong: every surviving claim rests on primary sources (official leaderboards, maintainer sites, original papers) with unanimous 1-0 votes, and the arena.ai full top-3 ordering is the lone medium-confidence item. Style compliance: all synthesized text here and in the final pack must contain zero em or en dashes; only commas, colons, and hyphens.",
+    "openQuestions":  [
+                          "What are the current (June 2026) top three leaders, with primary-source scores and as-of dates, for MMLU-Pro, GPQA Diamond, SWE-bench Verified, LiveCodeBench, HLE, FrontierMath, MMMU, and both ARC-AGI versions, since only the arena.ai text board was verified?",
+                          "What is the verified mid-2026 status of ARC-AGI-2 (task count, human baseline, best AI scores, prize status), given the initial ARC-AGI-2 claim was refuted at verification?",
+                          "Did OpenAI formally deprecate SWE-bench Verified on 2026-02-23 over test flaws and training-data contamination, and if so what successor benchmark should the pack point students to?",
+                          "What are the definitional facts, maintainers, official leaderboards, scoring metrics, and saturation status for HumanEval, AIME as an LLM eval, and TAU-bench, none of which have any verified claims in this evidence base?"
+                      ],
+    "refuted":  [
+                    {
+                        "claim":  "ARC-AGI-2 is not solved by any AI system as of its release: pure LLMs score 0% and frontier reasoning systems reach only single-digit percentages, while human solvers achieve 100% (minimum 2 solvers) on the 120-task evaluation set.",
+                        "vote":  "0-1",
+                        "source":  "https://arcprize.org/leaderboard"
+                    },
+                    {
+                        "claim":  "Frontier models on HLE show systematic calibration errors greater than 80% paired with low accuracy below 10%, which the benchmark maintainers interpret as strong evidence for confabulation and hallucination across all measured models.",
+                        "vote":  "0-1",
+                        "source":  "https://labs.scale.com/leaderboard/humanitys_last_exam"
+                    },
+                    {
+                        "claim":  "In the Agent Arena, win-rate percentages (not Elo points) are the scoring metric, with Claude Fable 5 leading at 12.94% (plus or minus 2.10%) and GPT 5.5 (xHigh) in second at 10.56% (plus or minus 3.05%).",
+                        "vote":  "0-1",
+                        "source":  "https://arena.ai/leaderboard"
+                    },
+                    {
+                        "claim":  "As of mid-2026, the top-ranked model on the LMArena text leaderboard is Claude Fable 5 by Anthropic with an Arena Score of 1510 (plus or minus 11), followed by Claude Opus 4.6 Thinking at 1504 and Claude Opus 4.7 Thinking at 1502.",
+                        "vote":  "0-1",
+                        "source":  "https://huggingface.co/spaces/lmarena-ai/arena-leaderboard"
+                    },
+                    {
+                        "claim":  "The Arena leaderboard uses an Elo-based rating system derived from pairwise human preference votes, where community members compare two anonymous model responses and pick the better one, and scores include uncertainty margins.",
+                        "vote":  "0-1",
+                        "source":  "https://huggingface.co/spaces/lmarena-ai/arena-leaderboard"
+                    }
+                ],
+    "sources":  [
+                    {
+                        "url":  "https://arcprize.org/leaderboard",
+                        "quality":  "primary",
+                        "angle":  "official leaderboards, current leaders",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "http://www.swebench.com/",
+                        "quality":  "primary",
+                        "angle":  "official leaderboards, current leaders",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://labs.scale.com/leaderboard/humanitys_last_exam",
+                        "quality":  "primary",
+                        "angle":  "official leaderboards, current leaders",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://epoch.ai/frontiermath",
+                        "quality":  "primary",
+                        "angle":  "official leaderboards, current leaders",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://livecodebench.github.io/leaderboard.html",
+                        "quality":  "primary",
+                        "angle":  "official leaderboards, current leaders",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://arena.ai/leaderboard",
+                        "quality":  "primary",
+                        "angle":  "official leaderboards, current leaders",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://arena.ai/leaderboard/text",
+                        "quality":  "primary",
+                        "angle":  "live arena rankings, Elo",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://huggingface.co/spaces/lmarena-ai/arena-leaderboard",
+                        "quality":  "primary",
+                        "angle":  "live arena rankings, Elo",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://presenc.ai/research/lmsys-chatbot-arena-elo-rankings-may-2026",
+                        "quality":  "secondary",
+                        "angle":  "live arena rankings, Elo",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://www.swfte.com/ai/leaderboard",
+                        "quality":  "secondary",
+                        "angle":  "live arena rankings, Elo",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://github.com/oolong-tea-2026/arena-ai-leaderboards",
+                        "quality":  "secondary",
+                        "angle":  "live arena rankings, Elo",
+                        "claimCount":  3
+                    },
+                    {
+                        "url":  "https://benchlm.ai/llm-leaderboard-history",
+                        "quality":  "secondary",
+                        "angle":  "live arena rankings, Elo",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://arxiv.org/abs/2406.01574",
+                        "quality":  "primary",
+                        "angle":  "academic methodology and papers",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://arxiv.org/abs/2311.12022",
+                        "quality":  "primary",
+                        "angle":  "academic methodology and papers",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://arxiv.org/abs/2311.16502",
+                        "quality":  "primary",
+                        "angle":  "academic methodology and papers",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://arxiv.org/abs/2403.07974",
+                        "quality":  "primary",
+                        "angle":  "academic methodology and papers",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://arxiv.org/abs/2406.12045",
+                        "quality":  "primary",
+                        "angle":  "academic methodology and papers",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://arxiv.org/abs/2107.03374",
+                        "quality":  "primary",
+                        "angle":  "academic methodology and papers",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://arxiv.org/abs/2504.20879",
+                        "quality":  "primary",
+                        "angle":  "skeptical: contamination and saturation",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://fortune.com/2025/01/21/eye-on-ai-openai-o3-math-benchmark-frontiermath-epoch-altman-trump-biden/",
+                        "quality":  "secondary",
+                        "angle":  "skeptical: contamination and saturation",
+                        "claimCount":  4
+                    },
+                    {
+                        "url":  "https://www.lesswrong.com/posts/8ZgLYwBmB3vLavjKE/some-lessons-from-the-openai-frontiermath-debacle",
+                        "quality":  "forum",
+                        "angle":  "skeptical: contamination and saturation",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://arxiv.org/pdf/2503.16402",
+                        "quality":  "primary",
+                        "angle":  "skeptical: contamination and saturation",
+                        "claimCount":  4
+                    },
+                    {
+                        "url":  "https://www.searchenginejournal.com/openai-secretly-funded-frontiermath-benchmarking-dataset/537760/",
+                        "quality":  "secondary",
+                        "angle":  "skeptical: contamination and saturation",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://lmcouncil.ai/benchmarks",
+                        "quality":  "secondary",
+                        "angle":  "recent news: frontier model results",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://llm-stats.com/benchmarks/gpqa",
+                        "quality":  "secondary",
+                        "angle":  "recent news: frontier model results",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://kili-technology.com/blog/ai-benchmarks-guide-the-top-evaluations-in-2026-and-why-theyre-not-enough",
+                        "quality":  "blog",
+                        "angle":  "recent news: frontier model results",
+                        "claimCount":  5
+                    },
+                    {
+                        "url":  "https://medium.com/@nairmilind3/llm-evaluation-in-2026-e631a78c67dc",
+                        "quality":  "blog",
+                        "angle":  "recent news: frontier model results",
+                        "claimCount":  5
+                    }
+                ],
+    "stats":  {
+                  "angles":  5,
+                  "sourcesFetched":  27,
+                  "claimsExtracted":  131,
+                  "claimsVerified":  25,
+                  "confirmed":  20,
+                  "killed":  5,
+                  "afterSynthesis":  11,
+                  "urlDupes":  0,
+                  "budgetDropped":  3,
+                  "agentCalls":  59
+              }
+}
