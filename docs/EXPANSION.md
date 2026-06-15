@@ -447,8 +447,20 @@ math. Source from a16z / Y Combinator / NVCA glossaries and standard term-sheet 
 > ~29% HLE chem/bio answer-error finding is confirmed (Scale's follow-up says ~18%; HLE-Rolling
 > is the fix); FrontierMath numbers carry `needsRecheck` (Epoch reviewing fatal errors in ~1/3 of
 > problems); ARC-AGI-2 mid-2026 toplines are all self-reported lab claims. Small remaining
-> rechecks are itemized in the round-2 JSON's `stillMissing` (9 items). **Part B (trend map)
-> NOT yet run.** Reusable-code survey: `docs/research/benchmarks-codebase-survey.json`.
+> rechecks are itemized in the round-2 JSON's `stillMissing` (9 items). Reusable-code survey:
+> `docs/research/benchmarks-codebase-survey.json`.
+>
+> **Status (2026-06-14): Part B (trend map) DONE** → `docs/research/trend-map-research.json`.
+> 22 verified trends (3 Sonnet discovery sweeps → Opus curate → 22 Opus dives + 22 Opus verifiers
+> → Opus synthesis; all 22 passed adversarial verification, 0 refuted). Category balance AI 11 /
+> Tech 7 / Capital 4, momentum-ranked 74-93 for bubble sizing. Schema is shaped to drop into the
+> §7.2 `Trend` + `TrendUpdate` models (name, slug, category, whatItIs, whatsHappeningNow, momentum,
+> momentumLabel, direction, topStories[], relatedConcepts[], sources[]). Each record carries a
+> `synthNote` (a small pre-publish correction to apply) and the JSON's `stillThin` lists 8 trends
+> with a softer fact to recheck before publishing. **Build note:** synthesis must emit lightweight
+> ranking deltas, NOT full records re-emitted in one object, or the StructuredOutput call overflows
+> and retry-loops (hit on first attempt; fixed by merging deltas onto cached records in code).
+> Still open from Part A: the LiveCodeBench leader table.
 
 ```
 Produce a current (mid-2026) content pack for an AI-literacy education site aimed at university
