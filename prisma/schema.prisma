@@ -461,3 +461,52 @@ model DigestEdition {
   @@index([status])
   @@map("digest_editions")
 }
+
+// ─── Trend Tracker ("pulse of tech" bubble field + briefs) ──────────────────
+// Seeded static-first from docs/research/trend-map-research.json as drafts; a
+// daily cron (Phase 4) refreshes them via web search using the inline
+// contentHash skip + curatedAt lock. Nothing student-facing until published.
+// Trends are GLOBAL (categorized AI/Tech/Capital), not Track-scoped.
+
+model Trend {
+  id              String        @id @default(cuid())
+  slug            String        @unique // kebab-case; upsert key + URL
+  name            String
+  category        String        // "AI" | "Tech" | "Capital"
+  whatItIs        String        // plain-language explainer
+  whatsHappening  String        // "what's happening now (mid-2026)"
+  momentum        Int           @default(50) // 0-100, drives bubble size
+  momentumLabel   String        @default("accelerating") // emerging|accelerating|mainstreaming|cooling
+  direction       String        @default("heating") // heating|cooling -> solid|dashed ring
+  relatedConcepts Json?         // [{ label, slug? }] - slug links to /concepts/[slug]
+  sources         Json?         // string[] backing URLs
+  confidence      String        @default("high")
+  status          String        @default("draft") // draft | published (publish gate)
+  contentHash     String?       // SHA-256 for cron skip (inline, like DigestEdition)
+  curatedAt       DateTime?     // set on any admin edit -> cron skips this row
+  syncedAt        DateTime      @default(now()) // staleness banner if > 36h
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  updates         TrendUpdate[]
+
+  @@index([status])
+  @@index([category])
+  @@map("trends")
+}
+
+model TrendUpdate {
+  id           String   @id @default(cuid())
+  trendId      String
+  headline     String
+  whyItMatters String
+  sourceUrl    String?
+  sourceDomain String?
+  date         DateTime
+  createdAt    DateTime @default(now())
+
+  trend Trend @relation(fields: [trendId], references: [id], onDelete: Cascade)
+
+  @@index([trendId])
+  @@index([date])
+  @@map("trend_updates")
+}
