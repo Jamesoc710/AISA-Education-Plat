@@ -67,7 +67,7 @@ export function AdminTrendsCard({ trends }: { trends: TrendTrackerSummary }) {
       if (json.ok) {
         setResult({
           ok: true,
-          message: `Synced ${json.categoriesSynced}/3 categories: ${json.trendsUpdated} updated, ${json.trendsCached} unchanged, ${json.storiesVerified} stories (${json.searchesUsed} searches, ${Math.round((json.durationMs ?? 0) / 1000)}s)`,
+          message: `Synced ${json.categoriesSynced}/3: ${json.trendsUpdated} refreshed to draft (review + publish), ${json.trendsCached} unchanged, ${json.storiesVerified} stories verified (${json.searchesUsed} searches, ${Math.round((json.durationMs ?? 0) / 1000)}s)`,
         });
         router.refresh();
       } else {

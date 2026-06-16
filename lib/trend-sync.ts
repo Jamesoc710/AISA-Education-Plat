@@ -11,9 +11,10 @@ import { MOMENTUM_LABELS, TREND_CATEGORIES, type TrendCategory } from "./trend-c
 // the existing seeded trends rather than discover new items. One bounded
 // web_search call per category (AI / Tech / Capital). Every story URL is
 // verified before persist; content-hash skip avoids no-op writes; a curatedAt
-// lock skips any human-edited row. Updates land IN PLACE (publish status
-// preserved) so the tracker stays live. whatItIs / relatedConcepts / sources
-// are curated and never touched by the cron.
+// lock skips any human-edited row. A changed trend drops to DRAFT for admin
+// review (review-before-publish), and fresh stories MERGE with the existing
+// curated ones (dedup by URL, newest first) so depth is never lost. whatItIs /
+// relatedConcepts / sources are curated and never touched by the cron.
 
 const MODEL = "claude-opus-4-8";
 // 20250305, not 20260209: the newer dynamic-filtering version blew past the
@@ -334,8 +335,41 @@ export async function syncTrends(): Promise<TrendSyncResult> {
         continue; // nothing changed, no write
       }
 
-      // Update content IN PLACE (status preserved). Stories replaced only when
-      // we actually verified new ones, so a story-less update never wipes them.
+      // Merge fresh verified stories with the trend's existing ones so a thin
+      // news week never strips curated depth: dedup by URL, newest first, capped.
+      // Strong seed stories survive alongside new ones.
+      const prior = await prisma.trendUpdate.findMany({
+        where: { trendId: existing.id },
+        orderBy: { date: "desc" },
+        select: { headline: true, whyItMatters: true, sourceUrl: true, sourceDomain: true, date: true },
+      });
+      const combined = [
+        ...finalStories,
+        ...prior.flatMap((p) =>
+          p.sourceUrl
+            ? [{
+                headline: p.headline,
+                whyItMatters: p.whyItMatters,
+                url: p.sourceUrl,
+                sourceDomain: p.sourceDomain ?? "",
+                date: p.date.toISOString().slice(0, 10),
+              }]
+            : [],
+        ),
+      ];
+      const seenUrls = new Set<string>();
+      const merged = combined
+        .filter((s) => {
+          if (seenUrls.has(s.url)) return false;
+          seenUrls.add(s.url);
+          return true;
+        })
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .slice(0, MAX_STORIES_PER_TREND);
+
+      // Draft-gate: a content change drops the trend to draft so an admin reviews
+      // and republishes before it goes live again. Nothing the cron touches
+      // becomes member-visible without a human publish.
       await prisma.trend.update({
         where: { id: existing.id },
         data: {
@@ -345,11 +379,12 @@ export async function syncTrends(): Promise<TrendSyncResult> {
           direction: u.direction,
           contentHash: hash,
           syncedAt: new Date(),
+          status: "draft",
         },
       });
-      if (finalStories.length > 0) {
+      if (merged.length > 0) {
         await prisma.trendUpdate.deleteMany({ where: { trendId: existing.id } });
-        for (const s of finalStories) {
+        for (const s of merged) {
           await prisma.trendUpdate.create({
             data: {
               trendId: existing.id,
