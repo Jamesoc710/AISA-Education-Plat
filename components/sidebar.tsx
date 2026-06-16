@@ -116,6 +116,12 @@ export function Sidebar({
             active={isActive("/digest")}
           />
           <SidebarNavItem
+            href="/trends"
+            label="Trends"
+            iconName="pulse"
+            active={isActive("/trends")}
+          />
+          <SidebarNavItem
             href="/build"
             label="Build Board"
             iconName="hammer"

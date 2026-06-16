@@ -22,6 +22,9 @@ export default async function AdminPage() {
     scheduleEventCount,
     latestScheduleEvent,
     latestDigest,
+    trendTotal,
+    trendPublished,
+    latestTrend,
   ] = await Promise.all([
     prisma.user.count({ where: { role: "MEMBER" } }),
     prisma.quizAttempt
@@ -54,6 +57,9 @@ export default async function AdminPage() {
         durationMs: true,
       },
     }),
+    prisma.trend.count(),
+    prisma.trend.count({ where: { status: "published" } }),
+    prisma.trend.findFirst({ orderBy: { syncedAt: "desc" }, select: { syncedAt: true } }),
   ]);
 
   // ── Recent activity ────────────────────────────────────────────────────────
@@ -135,6 +141,12 @@ export default async function AdminPage() {
             }
           : null
       }
+      trends={{
+        total: trendTotal,
+        published: trendPublished,
+        drafts: trendTotal - trendPublished,
+        lastSyncedAt: latestTrend?.syncedAt.toISOString() ?? null,
+      }}
     />
   );
 }
