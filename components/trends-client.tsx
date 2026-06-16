@@ -26,6 +26,15 @@ export function TrendsClient({
   // desktop-only opt-in (progressive enhancement, see trend-bubble-field).
   const [view, setView] = useState<"list" | "bubble">("list");
   const [isMobile, setIsMobile] = useState(false);
+  const [trackerStale, setTrackerStale] = useState(false);
+
+  // Client-only (avoids a Date.now() hydration mismatch): banner when the whole
+  // tracker has not refreshed in over 36h, i.e. the cron is behind.
+  useEffect(() => {
+    if (trends.length === 0) return;
+    const newest = Math.max(...trends.map((t) => Date.parse(t.syncedAt)));
+    setTrackerStale(Number.isFinite(newest) && Date.now() - newest > 36 * 60 * 60 * 1000);
+  }, [trends]);
 
   useEffect(() => {
     const stored = localStorage.getItem("trends-view");
@@ -93,6 +102,28 @@ export function TrendsClient({
             </p>
           )}
         </div>
+
+        {trackerStale && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2)",
+              padding: "10px 14px",
+              marginBottom: "var(--space-4)",
+              borderRadius: "var(--radius-2)",
+              backgroundColor: "var(--color-gold-soft)",
+              border: "1px solid var(--color-border)",
+              fontSize: "var(--text-sm)",
+              color: "var(--color-text-2)",
+            }}
+          >
+            <span style={{ color: "var(--color-gold)", display: "flex" }}>
+              <Icon name="info" size={16} />
+            </span>
+            These briefs may be behind the latest news. The tracker has not refreshed in over 36 hours.
+          </div>
+        )}
 
         {/* ── Toolbar: category filter + view toggle ──────────── */}
         <div

@@ -37,6 +37,7 @@ export type TrendCardData = {
   whatsHappening: string;
   status: string; // draft | published
   conceptCount: number; // # of related concepts that link to the catalog
+  syncedAt: string; // ISO; drives the list staleness banner
 };
 
 export type TrendDetailData = TrendCardData & {
@@ -95,6 +96,7 @@ type TrendRow = {
   whatsHappening: string;
   status: string;
   relatedConcepts: unknown;
+  syncedAt: Date;
 };
 
 /** All trends the viewer may see, strongest momentum first. */
@@ -112,6 +114,7 @@ export async function getTrends(viewer: TrendViewer): Promise<TrendCardData[]> {
       whatsHappening: true,
       status: true,
       relatedConcepts: true,
+      syncedAt: true,
     },
   });
   return trends.map((t: TrendRow) => ({
@@ -124,6 +127,7 @@ export async function getTrends(viewer: TrendViewer): Promise<TrendCardData[]> {
     whatsHappening: t.whatsHappening,
     status: t.status,
     conceptCount: countLinked(t.relatedConcepts),
+    syncedAt: t.syncedAt.toISOString(),
   }));
 }
 

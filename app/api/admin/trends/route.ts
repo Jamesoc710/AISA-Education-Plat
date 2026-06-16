@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
+import { syncTrends } from "@/lib/trend-sync";
 
 export const dynamic = "force-dynamic";
+// "Sync now" runs the live LLM + web-search pipeline (minutes).
+export const maxDuration = 300;
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -59,12 +62,10 @@ export async function PATCH(req: NextRequest) {
   return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 }
 
-/** POST = sync now. Stubbed until the Phase 4 live cron pipeline ships. */
+/** POST = Sync now: refresh trends from live web search (admin-triggered). */
 export async function POST() {
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  return NextResponse.json(
-    { ok: false, error: "Live trend sync ships in a later phase" },
-    { status: 501 },
-  );
+  const result = await syncTrends();
+  return NextResponse.json(result, { status: result.ok ? 200 : 500 });
 }

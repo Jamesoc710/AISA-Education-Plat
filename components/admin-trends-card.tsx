@@ -32,11 +32,11 @@ function relativeTime(timestamp: string): string {
  */
 export function AdminTrendsCard({ trends }: { trends: TrendTrackerSummary }) {
   const router = useRouter();
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<"publish" | "sync" | null>(null);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
 
   async function publishAll() {
-    setBusy(true);
+    setBusy("publish");
     setResult(null);
     try {
       const res = await fetch("/api/admin/trends", {
@@ -54,7 +54,29 @@ export function AdminTrendsCard({ trends }: { trends: TrendTrackerSummary }) {
     } catch (e) {
       setResult({ ok: false, message: e instanceof Error ? e.message : "Publish failed" });
     } finally {
-      setBusy(false);
+      setBusy(null);
+    }
+  }
+
+  async function syncNow() {
+    setBusy("sync");
+    setResult(null);
+    try {
+      const res = await fetch("/api/admin/trends", { method: "POST" });
+      const json = await res.json();
+      if (json.ok) {
+        setResult({
+          ok: true,
+          message: `Synced ${json.categoriesSynced}/3 categories: ${json.trendsUpdated} updated, ${json.trendsCached} unchanged, ${json.storiesVerified} stories (${json.searchesUsed} searches, ${Math.round((json.durationMs ?? 0) / 1000)}s)`,
+        });
+        router.refresh();
+      } else {
+        setResult({ ok: false, message: json.errors?.[0] ?? json.error ?? "Sync failed" });
+      }
+    } catch (e) {
+      setResult({ ok: false, message: e instanceof Error ? e.message : "Sync failed" });
+    } finally {
+      setBusy(null);
     }
   }
 
@@ -122,10 +144,14 @@ export function AdminTrendsCard({ trends }: { trends: TrendTrackerSummary }) {
         <Icon name="pulse" size={14} />
         Open tracker
       </Link>
+      <button type="button" onClick={syncNow} disabled={busy !== null} style={buttonStyle(busy !== null)}>
+        <Icon name="arrows-clockwise" size={14} />
+        {busy === "sync" ? "Syncing..." : "Sync now"}
+      </button>
       {trends.drafts > 0 && (
-        <button type="button" onClick={publishAll} disabled={busy} style={buttonStyle(busy)}>
+        <button type="button" onClick={publishAll} disabled={busy !== null} style={buttonStyle(busy !== null)}>
           <Icon name="check-circle" size={14} />
-          {busy ? "Publishing..." : `Publish all (${trends.drafts})`}
+          {busy === "publish" ? "Publishing..." : `Publish all (${trends.drafts})`}
         </button>
       )}
     </div>
