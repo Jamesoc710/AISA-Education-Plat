@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { IconTile } from "@/components/ui/icon-tile";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { categoryMeta, momentumLabelMeta, TREND_CATEGORIES } from "@/lib/trend-categories";
+import { TrendBubbleField } from "@/components/trend-bubble-field";
 import type { TrendCardData } from "@/lib/trends";
 
 /**
@@ -21,7 +22,29 @@ export function TrendsClient({
   isAdmin: boolean;
 }) {
   const [category, setCategory] = useState<string | null>(null);
+  // List is the SSR / no-JS / screen-reader default; bubble is a remembered,
+  // desktop-only opt-in (progressive enhancement, see trend-bubble-field).
   const [view, setView] = useState<"list" | "bubble">("list");
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("trends-view");
+    if (stored === "bubble" || stored === "list") setView(stored);
+    const mq = window.matchMedia("(max-width: 720px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  const setViewPersist = (v: "list" | "bubble") => {
+    setView(v);
+    try {
+      localStorage.setItem("trends-view", v);
+    } catch {
+      /* ignore storage failures */
+    }
+  };
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { All: trends.length };
@@ -31,6 +54,7 @@ export function TrendsClient({
 
   const visible = category ? trends.filter((t) => t.category === category) : trends;
   const draftCount = trends.filter((t) => t.status === "draft").length;
+  const effectiveView = isMobile ? "list" : view;
 
   return (
     <div style={{ padding: "32px 32px 80px" }}>
@@ -94,12 +118,14 @@ export function TrendsClient({
               />
             ))}
           </div>
-          <ViewToggle view={view} onChange={setView} />
+          <ViewToggle view={effectiveView} onChange={setViewPersist} bubbleDisabled={isMobile} />
         </div>
 
-        {/* ── Cards / empty state ─────────────────────────────── */}
+        {/* ── Bubble field / cards / empty state ──────────────── */}
         {visible.length === 0 ? (
           <TrackerEmptyState isAdmin={isAdmin} />
+        ) : effectiveView === "bubble" ? (
+          <TrendBubbleField trends={visible} />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
             {visible.map((t) => (
@@ -379,8 +405,16 @@ function FilterPill({
   );
 }
 
-/** List/bubble segmented control. Bubble is disabled until PR #2 ships it. */
-function ViewToggle({ view, onChange }: { view: "list" | "bubble"; onChange: (v: "list" | "bubble") => void }) {
+/** List/bubble segmented control. Bubble is desktop-only (needs a real viewport). */
+function ViewToggle({
+  view,
+  onChange,
+  bubbleDisabled,
+}: {
+  view: "list" | "bubble";
+  onChange: (v: "list" | "bubble") => void;
+  bubbleDisabled: boolean;
+}) {
   return (
     <div
       style={{
@@ -393,7 +427,14 @@ function ViewToggle({ view, onChange }: { view: "list" | "bubble"; onChange: (v:
       }}
     >
       <ToggleButton active={view === "list"} disabled={false} icon="list-checks" label="List" onClick={() => onChange("list")} />
-      <ToggleButton active={view === "bubble"} disabled icon="circles-three-plus" label="Bubble" title="Bubble view is coming soon" />
+      <ToggleButton
+        active={view === "bubble"}
+        disabled={bubbleDisabled}
+        icon="circles-three-plus"
+        label="Bubble"
+        title={bubbleDisabled ? "Bubble view needs a larger screen" : undefined}
+        onClick={() => onChange("bubble")}
+      />
     </div>
   );
 }
