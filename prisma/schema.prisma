@@ -478,6 +478,7 @@ model Trend {
   momentum        Int           @default(50) // 0-100, drives bubble size
   momentumLabel   String        @default("accelerating") // emerging|accelerating|mainstreaming|cooling
   direction       String        @default("heating") // heating|cooling -> solid|dashed ring
+  themes          String[]      @default([]) // plain-language facet tags; display-only, replaces the momentumLabel stage in the UI (see docs/TREND_TRACKER_REDESIGN_PLAN.md section 3)
   relatedConcepts Json?         // [{ label, slug? }] - slug links to /concepts/[slug]
   sources         Json?         // string[] backing URLs
   confidence      String        @default("high")
