@@ -2,6 +2,12 @@ import { createHash } from "crypto";
 import Anthropic from "@anthropic-ai/sdk";
 import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
+import { cleanDigestText } from "./text";
+import { verifyUrl } from "./url";
+import { balancedJsonCandidates } from "./llm-json";
+
+// cleanDigestText was part of this module's public surface; keep it re-exported.
+export { cleanDigestText };
 
 // ─── "This Week in Tech" digest sync ────────────────────────────────────────
 // Clone of the schedule-sync live-data pipeline (docs/EXPANSION.md §6.1):
@@ -23,7 +29,6 @@ const MIN_ITEMS = 3; // fewer verified items than this = failed run, no write
 const MAX_ITEMS = 7;
 const RAW_ITEM_CAP = 10; // accept a few extra pre-verification, trim after
 const MAX_RESOURCES_PER_ITEM = 2;
-const URL_TIMEOUT_MS = 8000;
 
 export interface DigestQuizQuestion {
   question: string;
@@ -108,58 +113,9 @@ Concept catalog (slug: name (section)):
 ${catalogText}`;
 }
 
-// Surrounding prose can contain braces (a live run emitted text after the
-// JSON and broke a naive first-"{"-to-last-"}" slice), so scan for every
-// balanced top-level {...} and keep the last one shaped like a digest.
-function* balancedJsonCandidates(text: string): Generator<string> {
-  let depth = 0;
-  let start = -1;
-  let inString = false;
-  let escaped = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (inString) {
-      if (escaped) escaped = false;
-      else if (ch === "\\") escaped = true;
-      else if (ch === '"') inString = false;
-      continue;
-    }
-    if (ch === '"') {
-      if (depth > 0) inString = true;
-    } else if (ch === "{") {
-      if (depth === 0) start = i;
-      depth++;
-    } else if (ch === "}" && depth > 0) {
-      depth--;
-      if (depth === 0 && start !== -1) {
-        yield text.slice(start, i + 1);
-        start = -1;
-      }
-    }
-  }
-}
-
-// Backstop for the prompt's no-dash style rule: em/en dashes between digits
-// become hyphens (5-7), every other em/en dash becomes a comma pause.
-function stripDashes(s: string): string {
-  return s
-    .replace(/(\d)\s*[–—]\s*(\d)/g, "$1-$2")
-    .replace(/\s*[–—]\s*/g, ", ")
-    .replace(/,\s*,/g, ", ")
-    .replace(/^,\s*/, "")
-    .replace(/[,\s]+$/, "");
-}
-
-// With the web_search tool active the model writes internal citation markup
-// (<cite index="...">...</cite>). Inside JSON strings the API can't lift it
-// into citation metadata, so it leaks through as literal text. Strip it, then
-// apply the dash rule. Newlines are preserved (paragraph breaks are real).
-export function cleanDigestText(s: string): string {
-  // ">?" because a length cap can slice a tag in half, leaving it unclosed
-  return stripDashes(
-    s.replace(/<\/?cite\b[^>]*>?/gi, "").replace(/[ \t]{2,}/g, " "),
-  );
-}
+// JSON extraction (balancedJsonCandidates), the dash sanitizer (cleanDigestText /
+// stripDashes), and URL verification (verifyUrl) now live in shared modules
+// (lib/llm-json, lib/text, lib/url) so the trend cron reuses the same code.
 
 interface ParsedResource {
   title: string;
@@ -273,34 +229,9 @@ function parseDigest(text: string): ParsedDigest {
   return parsed;
 }
 
-// ─── URL verification ──────────────────────────────────────────────────────
-// Only persist items whose URL actually fetches OK, and derive sourceDomain
-// from the URL the fetch RESOLVED to — never from model output. This is the
-// guard against hallucinated headlines (EXPANSION.md §6.1).
-
-async function verifyUrl(url: string): Promise<{ ok: boolean; finalUrl: string }> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), URL_TIMEOUT_MS);
-  try {
-    const res = await fetch(url, {
-      method: "GET",
-      redirect: "follow",
-      signal: controller.signal,
-      headers: {
-        // Browser-ish UA: plenty of news sites 403 obvious bot agents
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml,*/*;q=0.8",
-      },
-    });
-    void res.body?.cancel().catch(() => {}); // status is all we need
-    return { ok: res.ok, finalUrl: res.url || url };
-  } catch {
-    return { ok: false, finalUrl: url };
-  } finally {
-    clearTimeout(timer);
-  }
-}
+// URL verification (verifyUrl, imported from lib/url): only persist a URL that
+// fetches OK, and derive sourceDomain from the RESOLVED url, never model output.
+// This is the guard against hallucinated headlines (EXPANSION.md §6.1).
 
 function contentHashOf(
   headline: string,
