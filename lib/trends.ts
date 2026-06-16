@@ -35,6 +35,7 @@ export type TrendCardData = {
   momentumLabel: string;
   direction: string;
   whatsHappening: string;
+  themes: string[]; // plain-language facet tags (display-only); see seed-data/trend-themes.ts
   status: string; // draft | published
   conceptCount: number; // # of related concepts that link to the catalog
   syncedAt: string; // ISO; drives the list staleness banner
@@ -94,6 +95,7 @@ type TrendRow = {
   momentumLabel: string;
   direction: string;
   whatsHappening: string;
+  themes: string[];
   status: string;
   relatedConcepts: unknown;
   syncedAt: Date;
@@ -112,6 +114,7 @@ export async function getTrends(viewer: TrendViewer): Promise<TrendCardData[]> {
       momentumLabel: true,
       direction: true,
       whatsHappening: true,
+      themes: true,
       status: true,
       relatedConcepts: true,
       syncedAt: true,
@@ -125,6 +128,7 @@ export async function getTrends(viewer: TrendViewer): Promise<TrendCardData[]> {
     momentumLabel: t.momentumLabel,
     direction: t.direction,
     whatsHappening: t.whatsHappening,
+    themes: t.themes,
     status: t.status,
     conceptCount: countLinked(t.relatedConcepts),
     syncedAt: t.syncedAt.toISOString(),
@@ -156,6 +160,7 @@ export async function getTrendDetail(
     momentumLabel: trend.momentumLabel,
     direction: trend.direction,
     whatsHappening: trend.whatsHappening,
+    themes: trend.themes,
     status: trend.status,
     conceptCount: countLinked(trend.relatedConcepts),
     whatItIs: trend.whatItIs,

@@ -450,3 +450,21 @@ input:focus:not(:focus-visible) {
   border-radius: 6px;
   animation: pulse 1.8s ease-in-out infinite;
 }
+
+/* ── Trend Tracker — responsive ────────────────────────────────────
+   The two-up index and the detail split are inline-grid; these class
+   hooks are the only place a breakpoint can live. !important overrides
+   the inline grid-template-columns at narrow widths, so a single
+   readable column in source order is the mobile / no-JS / screen-reader
+   backbone. */
+@media (max-width: 720px) {
+  .trend-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .trend-detail-split {
+    grid-template-columns: 1fr !important;
+  }
+  .trend-detail-split > .trend-detail-rule {
+    display: none !important;
+  }
+}
