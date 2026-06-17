@@ -452,22 +452,26 @@ function MomentumGauge({ value, reduced }: { value: number; reduced: boolean }) 
 
 // ── Shared facet + utilities (re-used by the detail page) ────────────────────
 
-/** The THEMES line: a grey micro-label then one or two colored, uppercase tags. */
-export function ThemeTags({ themes }: { themes: string[] }) {
+/** The THEMES line: one or two colored, uppercase tags. With showLabel (the grid,
+ *  Typewolf's "FONTS" slot) a grey "THEMES" micro-label precedes them; the detail
+ *  rail sets showLabel={false} and supplies its own block eyebrow instead. */
+export function ThemeTags({ themes, showLabel = true }: { themes: string[]; showLabel?: boolean }) {
   if (themes.length === 0) return null;
   return (
     <span style={{ display: "inline-flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
-      <span
-        style={{
-          fontSize: 11,
-          fontWeight: 600,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "var(--color-text-3)",
-        }}
-      >
-        Themes
-      </span>
+      {showLabel && (
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "var(--color-text-3)",
+          }}
+        >
+          Themes
+        </span>
+      )}
       <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
         {themes.map((t, i) => (
           <span key={t}>
