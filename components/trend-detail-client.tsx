@@ -13,7 +13,7 @@ import {
   normalize,
   usePrefersReducedMotion,
 } from "@/components/trends-client";
-import type { TrendDetailData, TrendRelatedConcept, TrendStory } from "@/lib/trends";
+import type { TrendDetailData, TrendPerspectives, TrendRelatedConcept, TrendStory } from "@/lib/trends";
 
 /**
  * Trend brief detail page, "The Pulse Index" detail. One flowing editorial brief
@@ -193,6 +193,9 @@ export function TrendDetailClient({
           </div>
         </div>
 
+        {/* ── Perspectives (full-width click-to-expand accordion) ── */}
+        {trend.perspectives && <PerspectivesSection perspectives={trend.perspectives} />}
+
         {/* ── Recent signals (full width, borderless dated log) ── */}
         {trend.topStories.length > 0 && (
           <div style={{ marginTop: 56 }}>
@@ -230,10 +233,47 @@ export function TrendDetailClient({
           animation: trendHeadlineIn 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
           transform-origin: left top;
         }
+        /* Perspectives accordion (native <details>; works with zero JS) */
+        @keyframes perspPanelIn {
+          from { opacity: 0; transform: translateY(-4px); }
+          to   { opacity: 1; transform: none; }
+        }
+        [data-surface="editorial"] .persp {
+          border: 1px solid var(--color-border);
+          border-radius: var(--radius-2);
+          padding: 16px 18px;
+          transition: border-color 160ms ease;
+        }
+        [data-surface="editorial"] .persp:hover { border-color: var(--color-text-3); }
+        [data-surface="editorial"] .persp[open] { border-color: var(--color-accent); }
+        [data-surface="editorial"] .persp > summary { cursor: pointer; list-style: none; }
+        [data-surface="editorial"] .persp > summary::-webkit-details-marker { display: none; }
+        [data-surface="editorial"] .persp > summary:focus-visible {
+          outline: 2px solid var(--color-accent); outline-offset: 4px; border-radius: 4px;
+        }
+        [data-surface="editorial"] .persp-head {
+          display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        [data-surface="editorial"] .persp-label {
+          font-size: 16px; font-weight: 600; letter-spacing: -0.01em; color: var(--color-text);
+        }
+        [data-surface="editorial"] .persp-caret {
+          display: flex; flex-shrink: 0; color: var(--color-text-3);
+          transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1), color 200ms ease;
+        }
+        [data-surface="editorial"] .persp[open] .persp-caret { transform: rotate(180deg); color: var(--color-accent); }
+        [data-surface="editorial"] .persp-summary {
+          display: block; margin-top: 6px; font-size: 14px; line-height: 1.5; color: var(--color-text-2);
+        }
+        [data-surface="editorial"] .persp[open] .persp-summary { display: none; }
+        [data-surface="editorial"] .persp-panel {
+          margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--color-border-subtle);
+          animation: perspPanelIn 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
         @media (prefers-reduced-motion: reduce) {
-          [data-surface="editorial"] .trend-detail-headline {
-            animation-name: none;
-          }
+          [data-surface="editorial"] .trend-detail-headline { animation-name: none; }
+          [data-surface="editorial"] .persp-caret { transition: none; }
+          [data-surface="editorial"] .persp-panel { animation: none; }
         }
       `}</style>
     </div>
@@ -267,6 +307,90 @@ function ArticleSection({ title, body }: { title: string; body: string }) {
       </h2>
       <p style={{ margin: 0, fontSize: 15, lineHeight: 1.7, color: "var(--color-text-2)" }}>{body}</p>
     </section>
+  );
+}
+
+/** The Perspectives accordion: stacked native <details> boxes (collapsed shows the
+ *  stance label + one-line summary; expands to the full body, attribution, and
+ *  sources), framed by an intro and a "where the evidence leans" synthesis. Native
+ *  <details> means it works with zero JS and is keyboard-accessible by default. */
+function PerspectivesSection({ perspectives }: { perspectives: TrendPerspectives }) {
+  const { intro, stances, leans } = perspectives;
+  return (
+    <div style={{ marginTop: 56 }}>
+      <SectionEyebrow>Perspectives</SectionEyebrow>
+      {intro && (
+        <p style={{ margin: "0 0 20px", fontSize: 16, lineHeight: 1.5, color: "var(--color-text-2)", maxWidth: 720 }}>
+          {intro}
+        </p>
+      )}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {stances.map((s, i) => (
+          <details key={i} className="persp">
+            <summary>
+              <span className="persp-head">
+                <span className="persp-label">{s.label}</span>
+                <span className="persp-caret" aria-hidden>
+                  <Icon name="chevron-down" size={16} />
+                </span>
+              </span>
+              {s.summary && <span className="persp-summary">{s.summary}</span>}
+            </summary>
+            <div className="persp-panel">
+              <p style={{ margin: 0, fontSize: 15, lineHeight: 1.7, color: "var(--color-text-2)" }}>{s.body}</p>
+              {s.who && (
+                <p style={{ margin: "12px 0 0", fontSize: 12, fontStyle: "italic", color: "var(--color-text-3)" }}>
+                  {s.who}
+                </p>
+              )}
+              {s.sources.length > 0 && (
+                <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 14 }}>
+                  {s.sources.map((src, j) => (
+                    <a
+                      key={j}
+                      href={src.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 5,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: "var(--color-accent)",
+                        textDecoration: "none",
+                      }}
+                    >
+                      <Icon name="arrow-square-out" size={12} />
+                      {src.title}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </details>
+        ))}
+      </div>
+      {leans && (
+        <div style={{ marginTop: 24 }}>
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--color-text-3)",
+              marginBottom: 8,
+            }}
+          >
+            Where the evidence leans
+          </div>
+          <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: "var(--color-text-2)", maxWidth: 720 }}>
+            {leans}
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
 

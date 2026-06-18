@@ -481,6 +481,7 @@ model Trend {
   themes          String[]      @default([]) // plain-language facet tags; display-only, replaces the momentumLabel stage in the UI (see docs/TREND_TRACKER_REDESIGN_PLAN.md section 3)
   relatedConcepts Json?         // [{ label, slug? }] - slug links to /concepts/[slug]
   sources         Json?         // string[] backing URLs
+  perspectives    Json?         // { shape, intro, stances:[{label,who,summary,body,sources}], leans } - detail-page accordion; null = no section (see docs/PERSPECTIVES_PLAN.md)
   confidence      String        @default("high")
   status          String        @default("draft") // draft | published (publish gate)
   contentHash     String?       // SHA-256 for cron skip (inline, like DigestEdition)
