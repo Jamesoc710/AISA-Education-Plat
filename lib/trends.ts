@@ -27,6 +27,23 @@ export type TrendStory = {
   date: string; // ISO
 };
 
+export type TrendPerspectiveSource = { title: string; url: string };
+
+export type TrendPerspectiveStance = {
+  label: string;
+  who: string;
+  summary: string; // one sentence, shown collapsed
+  body: string; // fuller reasoning, shown when expanded
+  sources: TrendPerspectiveSource[];
+};
+
+export type TrendPerspectives = {
+  shape: string; // binary | multiple | tradeoff
+  intro: string;
+  stances: TrendPerspectiveStance[];
+  leans: string;
+};
+
 export type TrendCardData = {
   slug: string;
   name: string;
@@ -35,6 +52,7 @@ export type TrendCardData = {
   momentumLabel: string;
   direction: string;
   whatsHappening: string;
+  themes: string[]; // plain-language facet tags (display-only); see seed-data/trend-themes.ts
   status: string; // draft | published
   conceptCount: number; // # of related concepts that link to the catalog
   syncedAt: string; // ISO; drives the list staleness banner
@@ -47,6 +65,7 @@ export type TrendDetailData = TrendCardData & {
   isStale: boolean;
   relatedConcepts: TrendRelatedConcept[];
   topStories: TrendStory[];
+  perspectives: TrendPerspectives | null; // detail-page accordion; null = no section
 };
 
 /** Parse the relatedConcepts Json column ([{ label, slug? }]) defensively. */
@@ -69,6 +88,46 @@ function asRelatedConcepts(value: unknown): TrendRelatedConcept[] {
 
 function countLinked(value: unknown): number {
   return asRelatedConcepts(value).filter((c) => c.slug).length;
+}
+
+/** Parse the perspectives Json column defensively. Returns null when absent or
+ *  malformed; drops stances missing a label/body and sources without an http(s) url. */
+function asPerspectives(value: unknown): TrendPerspectives | null {
+  if (!value || typeof value !== "object") return null;
+  const rec = value as { shape?: unknown; intro?: unknown; stances?: unknown; leans?: unknown };
+  if (!Array.isArray(rec.stances)) return null;
+  const stances: TrendPerspectiveStance[] = [];
+  for (const s of rec.stances) {
+    if (!s || typeof s !== "object") continue;
+    const r = s as { label?: unknown; who?: unknown; summary?: unknown; body?: unknown; sources?: unknown };
+    if (typeof r.label !== "string" || !r.label.trim()) continue;
+    if (typeof r.body !== "string" || !r.body.trim()) continue;
+    const sources: TrendPerspectiveSource[] = Array.isArray(r.sources)
+      ? r.sources.flatMap((x) => {
+          if (x && typeof x === "object") {
+            const sx = x as { title?: unknown; url?: unknown };
+            if (typeof sx.title === "string" && sx.title.trim() && typeof sx.url === "string" && /^https?:\/\//.test(sx.url)) {
+              return [{ title: sx.title, url: sx.url }];
+            }
+          }
+          return [];
+        })
+      : [];
+    stances.push({
+      label: r.label,
+      who: typeof r.who === "string" ? r.who : "",
+      summary: typeof r.summary === "string" ? r.summary : "",
+      body: r.body,
+      sources,
+    });
+  }
+  if (stances.length === 0) return null;
+  return {
+    shape: typeof rec.shape === "string" ? rec.shape : "multiple",
+    intro: typeof rec.intro === "string" ? rec.intro : "",
+    stances,
+    leans: typeof rec.leans === "string" ? rec.leans : "",
+  };
 }
 
 /** Resolve whether the signed-in user is an ADMIN (false when logged out). */
@@ -94,6 +153,7 @@ type TrendRow = {
   momentumLabel: string;
   direction: string;
   whatsHappening: string;
+  themes: string[];
   status: string;
   relatedConcepts: unknown;
   syncedAt: Date;
@@ -112,6 +172,7 @@ export async function getTrends(viewer: TrendViewer): Promise<TrendCardData[]> {
       momentumLabel: true,
       direction: true,
       whatsHappening: true,
+      themes: true,
       status: true,
       relatedConcepts: true,
       syncedAt: true,
@@ -125,6 +186,7 @@ export async function getTrends(viewer: TrendViewer): Promise<TrendCardData[]> {
     momentumLabel: t.momentumLabel,
     direction: t.direction,
     whatsHappening: t.whatsHappening,
+    themes: t.themes,
     status: t.status,
     conceptCount: countLinked(t.relatedConcepts),
     syncedAt: t.syncedAt.toISOString(),
@@ -156,6 +218,7 @@ export async function getTrendDetail(
     momentumLabel: trend.momentumLabel,
     direction: trend.direction,
     whatsHappening: trend.whatsHappening,
+    themes: trend.themes,
     status: trend.status,
     conceptCount: countLinked(trend.relatedConcepts),
     whatItIs: trend.whatItIs,
@@ -163,6 +226,7 @@ export async function getTrendDetail(
     syncedAt: syncedAt.toISOString(),
     isStale: Date.now() - syncedAt.getTime() > STALE_AFTER_MS,
     relatedConcepts: asRelatedConcepts(trend.relatedConcepts),
+    perspectives: asPerspectives(trend.perspectives),
     topStories: trend.updates.map((u: UpdateRow) => ({
       headline: u.headline,
       whyItMatters: u.whyItMatters,

@@ -52,3 +52,7 @@ next-env.d.ts
 /dev.db
 /backups
 /.playwright-mcp
+
+# Perspectives workflow runners with embedded trend data (large, regenerable from
+# docs/research/perspectives-checkpoint.json via scripts/workflows/build-*.ts).
+scripts/workflows/*.generated.js
