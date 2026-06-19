@@ -235,8 +235,8 @@ export function TrendDetailClient({
         }
         /* Perspectives accordion (native <details>; works with zero JS) */
         @keyframes perspPanelIn {
-          from { opacity: 0; transform: translateY(-4px); }
-          to   { opacity: 1; transform: none; }
+          from { opacity: 0; }
+          to   { opacity: 1; }
         }
         [data-surface="editorial"] .persp {
           border: 1px solid var(--color-border);
@@ -266,14 +266,28 @@ export function TrendDetailClient({
           display: block; margin-top: 6px; font-size: 14px; line-height: 1.5; color: var(--color-text-2);
         }
         [data-surface="editorial"] .persp[open] .persp-summary { display: none; }
+        /* Smooth open/close: animate the panel's natural height via ::details-content.
+           Progressive enhancement, so browsers without interpolate-size /
+           ::details-content support simply keep the native instant snap. The inner
+           panel fades in as the box grows. */
+        [data-surface="editorial"] { interpolate-size: allow-keywords; }
+        [data-surface="editorial"] .persp::details-content {
+          block-size: 0;
+          overflow: clip;
+          transition: block-size 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                      content-visibility 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+          transition-behavior: allow-discrete;
+        }
+        [data-surface="editorial"] .persp[open]::details-content { block-size: auto; }
         [data-surface="editorial"] .persp-panel {
           margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--color-border-subtle);
-          animation: perspPanelIn 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+          animation: perspPanelIn 240ms ease-out;
         }
         @media (prefers-reduced-motion: reduce) {
           [data-surface="editorial"] .trend-detail-headline { animation-name: none; }
           [data-surface="editorial"] .persp-caret { transition: none; }
           [data-surface="editorial"] .persp-panel { animation: none; }
+          [data-surface="editorial"] .persp::details-content { transition: none; }
         }
       `}</style>
     </div>
