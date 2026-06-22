@@ -3,7 +3,7 @@
 //
 // Trend "Perspectives" generation workflow (run by the Workflow tool, NOT the app build).
 // The globals `agent`, `pipeline`, `parallel`, `log`, and `args` are injected by the
-// workflow runtime. Validated on a 2-trend prototype; see docs/PERSPECTIVES_PLAN.md.
+// workflow runtime. Validated on a 2-trend prototype; see docs/plans/complete/PERSPECTIVES_PLAN.md.
 //
 // INPUT (args): an array of trends to process, each:
 //   { slug, name, category, whatItIs, whatsHappening }

@@ -1,5 +1,5 @@
 /**
- * Seed the Trend "Perspectives" accordion content (docs/PERSPECTIVES_PLAN.md).
+ * Seed the Trend "Perspectives" accordion content (docs/plans/complete/PERSPECTIVES_PLAN.md).
  *
  * Surgical + idempotent: writes ONLY the `perspectives` column on each mapped
  * trend, matched by slug. Never touches status, curatedAt, contentHash, themes,

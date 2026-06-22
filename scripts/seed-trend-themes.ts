@@ -1,5 +1,5 @@
 /**
- * Seed the Trend Tracker Themes facet (TREND_TRACKER_REDESIGN_PLAN.md step 0).
+ * Seed the Trend Tracker Themes facet (docs/plans/complete/TREND_TRACKER_REDESIGN_PLAN.md step 0).
  *
  * Surgical + idempotent: writes ONLY the `themes` column on each of the 22
  * trends, matched by slug. It never touches status, curatedAt, contentHash,

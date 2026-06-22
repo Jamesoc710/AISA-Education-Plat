@@ -10,7 +10,7 @@ import { balancedJsonCandidates } from "./llm-json";
 export { cleanDigestText };
 
 // ─── "This Week in Tech" digest sync ────────────────────────────────────────
-// Clone of the schedule-sync live-data pipeline (docs/EXPANSION.md §6.1):
+// Clone of the schedule-sync live-data pipeline (docs/plans/ongoing/EXPANSION.md §6.1):
 // one Claude call with web search → strict JSON → URL-verify every item →
 // content-hash skip → upsert by weekOf as a DRAFT. Publishing is a separate,
 // human admin action — this module never sets status to "published".
@@ -231,7 +231,7 @@ function parseDigest(text: string): ParsedDigest {
 
 // URL verification (verifyUrl, imported from lib/url): only persist a URL that
 // fetches OK, and derive sourceDomain from the RESOLVED url, never model output.
-// This is the guard against hallucinated headlines (EXPANSION.md §6.1).
+// This is the guard against hallucinated headlines (docs/plans/ongoing/EXPANSION.md §6.1).
 
 function contentHashOf(
   headline: string,

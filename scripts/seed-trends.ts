@@ -1,5 +1,5 @@
 /**
- * Seed the Trend Tracker trends (EXPANSION.md 7.2).
+ * Seed the Trend Tracker trends (docs/plans/ongoing/EXPANSION.md §7.2).
  *
  * Surgical + idempotent: upserts prisma/seed-data/trends.ts by slug.
  * New trends are ALWAYS created as drafts (member-invisible); updates never

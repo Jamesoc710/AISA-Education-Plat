@@ -8,7 +8,7 @@
 > **Status:** Executing. Phase 1 ("Now") **shipped**; "This Week in Tech" digest **shipped, merged
 > to master, and live in production** (complete for now — follow-up ideas parked in §8 LATER).
 > Next up: Build Board + Opportunities. Last updated 2026-06-09.
-> **Owner:** @etownjames7 · **Doc home:** `docs/EXPANSION.md`
+> **Owner:** @etownjames7 · **Doc home:** `docs/plans/ongoing/EXPANSION.md`
 
 ---
 

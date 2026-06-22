@@ -1,5 +1,5 @@
 // Curated Themes facet for the Trend Tracker (LOCKED).
-// Source of truth: docs/TREND_TRACKER_REDESIGN_PLAN.md section 3.
+// Source of truth: docs/plans/complete/TREND_TRACKER_REDESIGN_PLAN.md section 3.
 //
 // Themes are a plain-language, display-only facet (one or two tags per trend)
 // that replaces the momentumLabel lifecycle stage in the UI. They say what a

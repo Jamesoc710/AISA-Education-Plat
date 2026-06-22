@@ -21,7 +21,7 @@ education hook is the per-trend "Related in the catalog" links back to concept p
   `stillThin[]` (8 soft facts to recheck), and `caveats`.
 - **`docs/research/benchmarks-codebase-survey.json`** - reusable-code survey (digest pipeline,
   schema, surfaces, admin, infra).
-- **`docs/EXPANSION.md` section 7.2** - the feature spec (bubble field, detail page, pipeline, data models).
+- **`docs/plans/ongoing/EXPANSION.md` section 7.2** - the feature spec (bubble field, detail page, pipeline, data models).
 - Project memory: `[[deep-research-model-mix]]`, `[[feedback_editorial_surface]]`,
   `[[feedback_browse_card_aesthetic]]`, `[[feedback_dialog_portal_theme]]`,
   `[[feedback_prisma_restart_dev]]`, `[[feedback_no_em_dashes]]`, `[[project_dev_server_port]]`.
