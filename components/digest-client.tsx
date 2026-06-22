@@ -28,13 +28,12 @@ function formatWeekOf(iso: string): string {
   });
 }
 
-function formatUpdated(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+const topNavLinkStyle: React.CSSProperties = {
+  fontSize: 13.5,
+  fontWeight: 500,
+  color: "var(--color-text-2)",
+  textDecoration: "none",
+};
 
 /**
  * "This Week in Tech" — editorial read surface (the §6.3 language: Hanken,
@@ -53,21 +52,24 @@ export function DigestClient({
       style={{ backgroundColor: "var(--color-bg)", minHeight: "100%" }}
     >
       <div style={{ maxWidth: 1080, margin: "0 auto", padding: "56px 48px 96px" }}>
-        {archiveView && (
+        {archiveView ? (
           <div style={{ marginBottom: 22 }}>
-            <Link
-              href="/digest"
-              className="editorial-link"
-              style={{
-                fontSize: 13.5,
-                fontWeight: 500,
-                color: "var(--color-text-2)",
-                textDecoration: "none",
-              }}
-            >
+            <Link href="/digest" className="editorial-link" style={topNavLinkStyle}>
               ← Latest edition
             </Link>
           </div>
+        ) : (
+          pastEditions.length > 0 && (
+            <div style={{ marginBottom: 22 }}>
+              <Link
+                href={`/digest/${pastEditions[0].weekOf.slice(0, 10)}`}
+                className="editorial-link"
+                style={topNavLinkStyle}
+              >
+                ← Past editions
+              </Link>
+            </div>
+          )
         )}
         {previewingDraft && edition && (
           <Banner tone="info">
@@ -108,16 +110,6 @@ export function DigestClient({
             >
               {edition.headline}
             </h1>
-
-            <div
-              style={{
-                marginTop: 18,
-                fontSize: 14,
-                color: "var(--color-text-3)",
-              }}
-            >
-              Last updated {formatUpdated(edition.generatedAt)}
-            </div>
 
             {stale && (
               <Banner tone="warning">
