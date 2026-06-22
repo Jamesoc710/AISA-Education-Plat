@@ -28,12 +28,43 @@ function formatWeekOf(iso: string): string {
   });
 }
 
-const topNavLinkStyle: React.CSSProperties = {
-  fontSize: 13.5,
-  fontWeight: 500,
-  color: "var(--color-text-2)",
-  textDecoration: "none",
-};
+/** Top-of-page back nav. Arrow slides left + color shifts to accent on hover/focus. */
+function BackLink({ href, label }: { href: string; label: string }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <Link
+        href={href}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onFocus={() => setHover(true)}
+        onBlur={() => setHover(false)}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 7,
+          fontSize: 13.5,
+          fontWeight: 500,
+          color: hover ? "var(--color-accent)" : "var(--color-text-2)",
+          textDecoration: "none",
+          transition: "color 160ms ease",
+        }}
+      >
+        <span
+          aria-hidden
+          style={{
+            display: "inline-block",
+            transition: "transform 160ms ease",
+            transform: hover ? "translateX(-3px)" : "translateX(0)",
+          }}
+        >
+          ←
+        </span>
+        {label}
+      </Link>
+    </div>
+  );
+}
 
 /**
  * "This Week in Tech" — editorial read surface (the §6.3 language: Hanken,
@@ -53,22 +84,13 @@ export function DigestClient({
     >
       <div style={{ maxWidth: 1080, margin: "0 auto", padding: "56px 48px 96px" }}>
         {archiveView ? (
-          <div style={{ marginBottom: 22 }}>
-            <Link href="/digest" className="editorial-link" style={topNavLinkStyle}>
-              ← Latest edition
-            </Link>
-          </div>
+          <BackLink href="/digest" label="Latest edition" />
         ) : (
           pastEditions.length > 0 && (
-            <div style={{ marginBottom: 22 }}>
-              <Link
-                href={`/digest/${pastEditions[0].weekOf.slice(0, 10)}`}
-                className="editorial-link"
-                style={topNavLinkStyle}
-              >
-                ← Past editions
-              </Link>
-            </div>
+            <BackLink
+              href={`/digest/${pastEditions[0].weekOf.slice(0, 10)}`}
+              label="Past editions"
+            />
           )
         )}
         {previewingDraft && edition && (
