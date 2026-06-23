@@ -1,0 +1,841 @@
+{
+  "benchmarks": [
+    {
+      "slug": "mmlu-pro",
+      "name": "MMLU-Pro",
+      "verified": true,
+      "gotCurrentBoard": true,
+      "honestEmpty": false,
+      "hardToRead": true,
+      "nearTie": false,
+      "boardUrl": "https://huggingface.co/spaces/TIGER-Lab/MMLU-Pro",
+      "boardLastUpdated": "2026-03-11",
+      "baselineAnchor": "MMLU-Pro asks 12,000+ exam-grade questions across 14 fields with 10 answer choices each (not the original MMLU's 4), so random guessing scores about 10%. It was built to de-saturate MMLU, where top models had already piled up near 90%. On this board the leaders cluster around 89 to 91%, so a 1 to 2 point gap is the whole spread at the top.",
+      "datedAnchor": "Official TIGER-Lab board (last updated MAR 2026): Gemini-3.1-Pro at 91.16% overall accuracy, the only top entry independently evaluated by TIGER-Lab.",
+      "confidence": "high",
+      "leaders": [
+        {
+          "rank": 1,
+          "model": "Gemini-3.1-Pro",
+          "lab": "Google DeepMind",
+          "score": "91.16% overall accuracy",
+          "asOfDate": "2026-03-11",
+          "sourceUrl": "https://huggingface.co/datasets/TIGER-Lab/mmlu_pro_leaderboard_submission/resolve/main/results.csv",
+          "selfReported": false,
+          "disputed": false
+        },
+        {
+          "rank": 2,
+          "model": "Gemini-3-Pro(11/25)",
+          "lab": "Google DeepMind",
+          "score": "90.1% overall accuracy",
+          "asOfDate": "2026-03-11",
+          "sourceUrl": "https://huggingface.co/datasets/TIGER-Lab/mmlu_pro_leaderboard_submission/resolve/main/results.csv",
+          "selfReported": true,
+          "disputed": false
+        },
+        {
+          "rank": 3,
+          "model": "GPT-o1",
+          "lab": "OpenAI",
+          "score": "89.3% overall accuracy",
+          "asOfDate": "2026-03-11",
+          "sourceUrl": "https://huggingface.co/datasets/TIGER-Lab/mmlu_pro_leaderboard_submission/resolve/main/results.csv",
+          "selfReported": true,
+          "disputed": false
+        }
+      ],
+      "notes": "VERIFIED via direct CSV fetch (2026-06-23). All three verbatim scores confirmed: Gemini-3.1-Pro 0.9116, Gemini-3-Pro(11/25) 0.901, GPT-o1 0.893. Rank 1 submitter in CSV is \"TIGER-Lab\" (independently evaluated, all subject columns populated); ranks 2 and 3 submitter is \"Self-Reported\" (all subject columns show literal \"-\"). Last commit confirmed March 11 by author ubowang (\"Update results.csv\"), three commits that day, no newer commits as of 2026-06-23. The boardUrl Space is JavaScript-rendered and returns no table data in a plain fetch; the raw CSV is the authoritative source. One label correction applied: model name normalized to \"Gemini-3-Pro(11/25)\" (no space before parenthesis) to match CSV verbatim. The \"GPT-o1\" label is the CSV's non-standard string and most likely refers to OpenAI's o1 series. NOT a near-tie: gaps are clear (91.16 over 90.1 over 89.3). NOT disputed.",
+      "corrections": "One minor label fix: \"Gemini-3-Pro (11/25)\" corrected to \"Gemini-3-Pro(11/25)\" (removed space before parenthesis) to match the verbatim CSV string. All scores, dates, selfReported flags, and disputed flags confirmed correct.",
+      "judgment": {
+        "slug": "mmlu-pro",
+        "trustTier": "near_ceiling",
+        "nearTie": false,
+        "honestEmpty": false,
+        "rightBoard": true,
+        "approved": true,
+        "issues": [
+          "Minor: selfReported flags differ across the three rows (rank 1 Gemini-3.1-Pro is TIGER-Lab independently evaluated; ranks 2 and 3 are Self-Reported). This is correct per the CSV and is an important integrity signal, but the detail copy must surface it so a reader does not read all three as equally trustworthy.",
+          "Label GPT-o1 is the CSV's non-standard string (most likely OpenAI o1). Keep verbatim but note the model identity is the board's wording, not a normalized OpenAI product name."
+        ]
+      }
+    },
+    {
+      "slug": "gpqa-diamond",
+      "verified": true,
+      "honestEmpty": false,
+      "nearTie": true,
+      "leaders": [
+        {
+          "rank": 1,
+          "model": "Gemini 3.1 Pro Preview",
+          "lab": "Google DeepMind",
+          "score": "94.1%",
+          "asOfDate": "2026-06-11",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://artificialanalysis.ai/evaluations/gpqa-diamond"
+        },
+        {
+          "rank": 2,
+          "model": "GPT-5.5 (xhigh)",
+          "lab": "OpenAI",
+          "score": "93.5%",
+          "asOfDate": "2026-06-11",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://artificialanalysis.ai/evaluations/gpqa-diamond"
+        },
+        {
+          "rank": 3,
+          "model": "GPT-5.5 (high)",
+          "lab": "OpenAI",
+          "score": "93.2%",
+          "asOfDate": "2026-06-11",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://artificialanalysis.ai/evaluations/gpqa-diamond"
+        }
+      ],
+      "baselineAnchor": "Random chance is 25% (4-choice multiple choice); PhD domain experts score roughly 65-70%; prior SOTA before mid-2025 frontier models was around 78-80%.",
+      "boardLastUpdated": "2026-06-11",
+      "boardUrl": "https://artificialanalysis.ai/evaluations/gpqa-diamond",
+      "datedAnchor": "Gemini 3.1 Pro Preview at 94.1% (Artificial Analysis independent evaluation, cited by multiple sources through June 16, 2026) is the most-cited independent anchor for this board; Google self-reports 94.3% on the same model via the official Gemini 3.1 Pro model card (February 2026).",
+      "confidence": "medium",
+      "notes": "The Artificial Analysis leaderboard is JavaScript-rendered and its scores were confirmed via a direct WebFetch of the page (which stated verbatim: \"Gemini 3.1 Pro Preview scores the highest on GPQA with a score of 94.1%, followed by GPT-5.5 (xhigh) with a score of 93.5%, and GPT-5.5 (high) with a score of 93.2%\") and corroborated by multiple secondary sources citing Artificial Analysis (including smartchunks.com published April 19, 2026 and pricepertoken.com as of June 16, 2026). The asOfDate 2026-06-11 is cited from the original record and is consistent with the secondary source dates; no explicit timestamp was visible in the page render. All three Artificial Analysis scores are independently conducted, not self-reported. The \"xhigh\" and \"high\" designations for GPT-5.5 refer to reasoning effort levels, confirmed by multiple sources. Important cross-board discrepancies: BenchLM (updated June 18, 2026) shows Gemini 3.1 Pro at 94.3% / Claude Opus 4.7 (Adaptive) at 94.2% / Claude Opus 4.8 at 93.6% as top-3, but these appear to be provider-reported scores. LM Council (sourcing from Epoch AI independent evaluations, updated June 14, 2026) shows GPT-5.4 Pro (xhigh) at 94.6% plus or minus 1.6 / Gemini 3.1 Pro Preview at 94.1% plus or minus 1.7 / GPT-5.5 (xhigh) at 94.0% plus or minus 1.5. Vals.ai (independent) shows Gemini 3.1 Pro Preview (02/26) at 95.45%. llm-stats.com shows Claude Mythos Preview at 0.946 at top but flags all 224 scores as self-reported with zero independently verified results. The Epoch AI data-insights article confirmed that self-reported GPQA Diamond scores from labs are generally accurate (within confidence intervals) for the models examined. Anthropic self-reports Claude Mythos Preview (restricted-access research preview, April 7, 2026) at 94.6%, excluded here because the model is not publicly accessible and does not appear in independent public leaderboards. The top-3 on the Artificial Analysis board spans 0.9 percentage points on a 198-question test, equivalent to roughly 2 questions, a clear statistical near-tie. The benchmark is widely described as approaching saturation at the frontier as of mid-2026. Confidence is medium because the board's explicit last-updated timestamp could not be read directly and because a competing independent board (LM Council / Epoch AI, June 14) shows a different top-3.",
+      "name": "GPQA Diamond",
+      "gotCurrentBoard": true,
+      "hardToRead": true,
+      "corrections": "Scores and model names for the Artificial Analysis top-3 confirmed verbatim from the page and corroborated by multiple secondary sources; hardToRead set to true because the board is JavaScript-rendered with no visible timestamp; notes expanded to document competing independent leaderboards (LM Council / Epoch AI June 14 shows GPT-5.4 Pro xhigh at 94.6% on top; vals.ai shows Gemini 3.1 Pro Preview at 95.45%) which use different methodologies and produce different orderings, reinforcing the near-tie characterization and medium confidence; no scores, model names, or selfReported / disputed flags required correction.",
+      "judgment": {
+        "slug": "gpqa-diamond",
+        "trustTier": "near_ceiling",
+        "nearTie": true,
+        "honestEmpty": false,
+        "rightBoard": true,
+        "approved": true,
+        "issues": [
+          "Dominant trust tier is near_ceiling: every independent board (Artificial Analysis 94.1%, vals.ai 95.45% updated 6/17/26, LM Council/Epoch 94.6% +/- 1.6 updated 6/14/26, BenchLM 94.3%) clusters within roughly 1.4 points at the very top, and all sources describe GPQA Diamond as saturated/asymptotic. This is ceiling-crowding, not a live race.",
+          "nearTie is correctly true and is a genuine statistical tie (not a methodology dispute): the chosen board's top-3 spans 0.9 points on a 198-question test, about 2 questions. Confirmed verbatim on Artificial Analysis (Gemini 3.1 Pro Preview 94.1%, GPT-5.5 xhigh 93.5%, GPT-5.5 high 93.2%).",
+          "rightBoard is acceptable but not uniquely canonical: Artificial Analysis is a legitimate independent evaluator, however three other independent boards (Epoch via LM Council, vals.ai, BenchLM) produce different orderings and different #1 models. Because no single board is canonical for GPQA and the orderings disagree at the noise floor, the near-ceiling framing is the right hero, not the specific ranking.",
+          "Board is JS-rendered with no readable last-updated timestamp (hardToRead true); asOfDate 2026-06-11 is inferred from secondary-source dates, not read off the page. Acceptable given corroboration, but the date is soft.",
+          "Anthropic Claude Mythos Preview (self-reported 94.6%) correctly excluded as a restricted-access preview not on public independent boards; good guard against an inflated leader."
+        ]
+      }
+    },
+    {
+      "slug": "swe-bench-verified",
+      "verified": false,
+      "honestEmpty": false,
+      "nearTie": false,
+      "leaders": [
+        {
+          "rank": 1,
+          "model": "Claude Fable 5",
+          "lab": "Anthropic",
+          "score": "95.00%",
+          "asOfDate": "2026-06-17",
+          "selfReported": false,
+          "disputed": true,
+          "sourceUrl": "https://www.vals.ai/benchmarks/swebench"
+        },
+        {
+          "rank": 2,
+          "model": "Claude Opus 4.8",
+          "lab": "Anthropic",
+          "score": "88.60%",
+          "asOfDate": "2026-06-17",
+          "selfReported": true,
+          "disputed": false,
+          "sourceUrl": "https://www.vals.ai/benchmarks/swebench"
+        },
+        {
+          "rank": 3,
+          "model": "GPT 5.5",
+          "lab": "OpenAI",
+          "score": "82.60%",
+          "asOfDate": "2026-06-17",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://www.vals.ai/benchmarks/swebench"
+        }
+      ],
+      "confidence": "medium",
+      "baselineAnchor": "Prior SOTA before Fable 5 launch (June 9, 2026) was Claude Mythos (Preview) at 93.9% on SWE-bench Verified (Anthropic self-reported, April 2026), itself far above the roughly 1-3% baseline for early GPT-4 agents on the 500-instance human-verified split in 2023.",
+      "boardLastUpdated": "2026-06-17",
+      "boardUrl": "https://www.vals.ai/benchmarks/swebench",
+      "notes": "Ranks 2 and 3 corrected: the original record's rank-2 entry (\"Claude Mythos Preview\" at 93.9%, sourced from steel.dev) came from a board last updated June 12, 2026, three days after Fable 5 launched, meaning that board had not yet incorporated the Fable 5 submission and did not yet reflect the post-launch ordering. On the current vals.ai board (updated 6/17/2026), rank 2 is Claude Opus 4.8 at 88.60% and rank 3 is GPT 5.5 at 82.60%. Claude Mythos (steel.dev uses that name, not \"Claude Mythos Preview\") at 93.9% from April 2026 is real and self-reported by Anthropic but has been displaced by at least one model (Claude Opus 4.8 at 88.60% from May 2026 also displaced it, but the real displacement is by Fable 5 pushing all others down one). A benchlm.ai board dated June 18, 2026 shows a \"Claude Mythos 5\" entry at 95.5%, but this is not corroborated by vals.ai, llm-stats.com, or steel.dev, and the benchlm.ai model page for Claude Mythos 5 shows no individual sourced SWE-bench figure (only a composite score); that entry is treated as unverified and excluded. Claude Fable 5 at 95.00% is independently confirmed by vals.ai (one of only two entries with independent verification on a board of roughly 100). GPT 5.5 at 82.60% is also independently confirmed by vals.ai (June 13, 2026). Claude Opus 4.8 at 88.60% is self-reported. Disputed flag for Fable 5 is retained: (a) Fable 5 and Mythos 5 were suspended June 12, 2026 under a US government export-control directive, making the score unverifiable by most users post-submission; (b) Digital Applied (June 2026) documented gaps of up to 17.3 percentage points between vendor-reported Verified scores and standardized SEAL-harness runs for identical model families; (c) Epoch AI independent evaluation was still pending as of June 10, 2026. Verified is set to false because ranks 2 and 3 required substantive correction from the original record (model identity at rank 2 changed entirely, model identity and score at rank 3 changed).\"",
+      "corrections": "Ranks 2 and 3 replaced: the steel.dev board used for the original ranks 2-3 was last updated June 12, 2026 (predating Fable 5 submission), so \"Claude Mythos Preview\" at 93.9% and \"Claude Opus 4.8\" at 88.6% were not the current top-3. On the vals.ai board (6/17/2026), the current rank 2 is Claude Opus 4.8 at 88.60% (self-reported) and rank 3 is GPT 5.5 at 82.60% (vals.ai independently verified); a benchlm.ai-only \"Claude Mythos 5 at 95.5%\" entry is excluded as unverified across all other boards.",
+      "judgment": {
+        "slug": "swe-bench-verified",
+        "trustTier": "contested",
+        "nearTie": false,
+        "honestEmpty": false,
+        "rightBoard": true,
+        "approved": true,
+        "issues": [
+          "Top-3 scores confirmed VERBATIM on vals.ai (last updated 6/17/2026): Claude Fable 5 95.00%, Claude Opus 4.8 88.60%, GPT 5.5 82.60%. All three match the record exactly.",
+          "REAL TOP-OF-BOARD TENSION (the central adversarial check): benchlm.ai (last updated 6/18/2026, one day NEWER than vals.ai) ranks a different model #1: Claude Mythos 5 at 95.5%, above Fable 5. The record excludes this entry. Verified the exclusion is defensible: (a) vals.ai, the chosen canonical board, contains NO Claude Mythos 5 entry at all, so Fable 5 is genuinely rank 1 there, not merely above an omitted row; (b) the benchlm.ai Claude Mythos 5 MODEL page shows only a composite/aggregate, NO individually-sourced SWE-bench figure, and benchlm explicitly states it hides 'source-unverified manual rows' from model pages, so the 95.5% leaderboard row is internally uncorroborated even on benchlm's own site; (c) not corroborated by llm-stats or steel.dev. Excluding it as unverified is the right call, but publish must note a newer board disputes the #1.",
+          "trustTier set to CONTESTED (not live, not near_ceiling): the #1 is genuinely disputed. Confirmed via Digital Applied (June 2026): 17.3pp gap between vendor-reported and Scale SEAL standardized scores for the Claude family; 10-20 point harness swings; Fable 5 suspended June 12 2026 under US export control (verified independently), making the score unverifiable for most users post-submission; Epoch AI independent eval still pending. disputed=true on Fable 5 is correct and justified.",
+          "nearTie=false is correct: 95.00% vs 88.60% is a 6.4pp gap, far outside any margin. This is a methodology dispute (contested), NOT a statistical tie. The two are correctly distinguished.",
+          "selfReported flags spot-checked: Opus 4.8 88.60% self-reported (correct), Fable 5 95.00% and GPT 5.5 82.60% independently confirmed by vals.ai (correct).",
+          "rightBoard=true: vals.ai is a defensible canonical choice because it independently evaluates rather than aggregating vendor claims; the official swebench.com/verified.html board is not machine-readable. Acceptable, though it is an aggregator, not the first-party board, so confidence:medium is appropriate.",
+          "verified=false in the record is honest (ranks 2-3 were corrected from the original steel.dev-based record). The correction reasoning checks out."
+        ]
+      }
+    },
+    {
+      "slug": "humanitys-last-exam",
+      "verified": true,
+      "honestEmpty": false,
+      "nearTie": true,
+      "leaders": [
+        {
+          "rank": 1,
+          "model": "gemini-3.1-pro-preview (thinking high)",
+          "lab": "Google DeepMind",
+          "score": "46.44 +/- 1.96",
+          "asOfDate": "2026-05-01",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://labs.scale.com/leaderboard/humanitys_last_exam"
+        },
+        {
+          "rank": 1,
+          "model": "gpt-5.4-pro-2026-03-05",
+          "lab": "OpenAI",
+          "score": "44.32 +/- 1.95",
+          "asOfDate": "2026-05-01",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://labs.scale.com/leaderboard/humanitys_last_exam"
+        },
+        {
+          "rank": 3,
+          "model": "Muse Spark",
+          "lab": "Meta Superintelligence Labs",
+          "score": "40.56 +/- 1.92",
+          "asOfDate": "2026-05-01",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://labs.scale.com/leaderboard/humanitys_last_exam"
+        }
+      ],
+      "baselineAnchor": "Random chance is near 0% (open-ended answers); human expert performance is implicitly near 100% by design; prior SOTA before mid-2025 frontier models was below 10%.",
+      "boardLastUpdated": "2026-05-01",
+      "boardUrl": "https://labs.scale.com/leaderboard/humanitys_last_exam",
+      "confidence": "high",
+      "datedAnchor": "Scale AI independently evaluated the full 2,500-question HLE set; as of May 1, 2026, gemini-3.1-pro-preview (thinking high) leads at 46.44 +/- 1.96, per the Scale AI leaderboard fetched on 2026-06-23. A separate independent evaluation by Artificial Analysis on the 2,158-question text-only subset (excluding multimodal questions) found Claude Fable 5 (Adaptive Reasoning, Max Effort, Opus 4.8 Fallback) at 53.3%, but this is a different evaluation context using a different subset and Artificial Analysis noted pre-release access from Anthropic. The agi.safe.ai official site shows an older April 2025 dataset snapshot with lower scores across all models. Self-reported aggregators (llm-stats.com, benchlm.ai) show higher numbers (up to 64.5%) but all entries are marked self-reported and are not used here. The Scale AI leaderboard is the authoritative independent source for this benchmark on the full 2,500-question set.",
+      "notes": "nearTie is true because the confidence intervals of ranks 1 and 2 overlap: gemini-3.1-pro-preview at 46.44 +/- 1.96 and gpt-5.4-pro at 44.32 +/- 1.95 share overlapping ranges, making them statistically tied at the top. Rank 3 Muse Spark at 40.56 +/- 1.92 also ties with gemini-3-pro-preview at 37.52 +/- 1.90 on the board (which assigns both rank 3). The board uses a methodology where a model's rank equals 1 plus the count of models whose lower confidence bound exceeds its upper bound. The Scale AI board was directly fetched on 2026-06-23 and all three leader entries (model names, scores, labs) were confirmed verbatim. The \"2026-05-01\" date is the Wikipedia-cited attribution date for this snapshot; the live board does not show a prominent last-updated timestamp in the fetched content.",
+      "corrections": "All three leader entries confirmed verbatim on the live Scale AI board (fetched 2026-06-23); no model names, scores, or labs required correction. Context notes updated to clarify that Artificial Analysis used a different 2,158-question text-only subset (not the full 2,500-question set), and the agi.safe.ai site shows an older April 2025 dataset, making Scale AI the only source covering the full current leaderboard independently.",
+      "judgment": {
+        "slug": "humanitys-last-exam",
+        "trustTier": "live",
+        "nearTie": true,
+        "honestEmpty": false,
+        "rightBoard": true,
+        "approved": true,
+        "issues": [
+          "Adversarial flag resolved: a fetch returned Muse Spark's lab as Alibaba, which is a hallucination. The Scale board shows no org label inline, and external sources confirm Muse Spark is Meta Superintelligence Labs (Meta). The record's lab attribution (Meta Superintelligence Labs) is correct; do not change it to Alibaba.",
+          "Meta self-reports Muse Spark much higher (about 50.2% no-tools / 58% with tools) than the 40.56 on Scale's independent board. The record correctly uses Scale's independent number; keep the self-reported figures out of the leader rail.",
+          "The 2026-05-01 board date is a Wikipedia-cited attribution, not a timestamp visible on the live board. Acceptable, but label it as the snapshot/attribution date, not a board last-updated stamp."
+        ]
+      }
+    },
+    {
+      "slug": "frontiermath",
+      "verified": true,
+      "honestEmpty": false,
+      "nearTie": false,
+      "name": "FrontierMath",
+      "gotCurrentBoard": true,
+      "hardToRead": false,
+      "boardLastUpdated": "2026-06-14",
+      "boardUrl": "https://lmcouncil.ai/benchmarks",
+      "leaders": [
+        {
+          "rank": 1,
+          "model": "Claude Fable 5 (max)",
+          "lab": "Anthropic",
+          "score": "87.8% +/- 5.2 (FrontierMath Tier 4 v2)",
+          "asOfDate": "2026-06-14",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://lmcouncil.ai/benchmarks"
+        },
+        {
+          "rank": 2,
+          "model": "GPT-5.5 Pro (xhigh)",
+          "lab": "OpenAI",
+          "score": "78.0% +/- 6.5 (FrontierMath Tier 4 v2)",
+          "asOfDate": "2026-06-14",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://lmcouncil.ai/benchmarks"
+        },
+        {
+          "rank": 3,
+          "model": "AI co-mathematician",
+          "lab": "Google",
+          "score": "75.6% +/- 6.7 (FrontierMath Tier 4 v2)",
+          "asOfDate": "2026-06-14",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://lmcouncil.ai/benchmarks"
+        }
+      ],
+      "baselineAnchor": "All frontier models scored below 2% at the benchmark's November 2024 launch; expert mathematicians (MIT competition participants) averaged 19% on sampled Tier 1-3 problems.",
+      "datedAnchor": "GPT-5.5 Pro: 52% Tiers 1-3 and 40% Tier 4 (Epoch AI independent eval, 2026-04-29); all models below 2% at November 2024 launch.",
+      "confidence": "medium",
+      "corrections": "No corrections required. All three rank-1 and rank-2 verbatim scores (87.8% +/- 5.2 and 78.0% +/- 6.5), the boardUrl, and the boardLastUpdated date of 2026-06-14 are confirmed at lmcouncil.ai and corroborated by digitalapplied.com (which cites LM Council and Epoch AI as sources). The rank-3 AI co-mathematician score (75.6% +/- 6.7) appears on the LM Council Tier 4 v2 board; digitalapplied.com adds a \"(uncapped on v1)\" annotation that cannot be independently confirmed as a full v2 re-evaluation, so confidence on that slot remains slightly lower. selfReported=false is confirmed: Epoch AI runs all evaluations independently. The datedAnchor (GPT-5.5 Pro 52%/40%, April 29, 2026) is confirmed by Epoch AI Substack. No near-tie at the top: the 9.8-point gap between rank-1 and rank-2 is well outside the combined error margins.",
+      "notes": "Scores are from FrontierMath v2, released June 12, 2026 after Epoch AI corrected errors found in 42% of original problems (338 problems remain: 295 in Tiers 1-3 and 43 in Tier 4). Primary source is LM Council (June 14, 2026), a secondary aggregator that draws from Epoch AI evaluations -- these are independently run by Epoch AI, not self-reported by labs. The Tier 4 leaderboard is the most discriminating tier. On Tiers 1-3 v2, the standings differ: GPT-5.5 Pro (xhigh) leads at 87.7% +/- 1.9, Fable 5 is second at 87.0% +/- 2.0 (statistical tie with overlapping confidence intervals), and GPT-5.5 (xhigh) is third at 85.3% +/- 2.1. The Tier 4 top-3 is NOT a near-tie: Fable 5 leads by roughly 10 points. The AI co-mathematician (Google) entry on LM Council at 75.6% may differ from the 48% figure in the May 2026 arxiv paper (2605.06651), which evaluated on v1 (48 problems, scoring 23/48); the LM Council figure presumably reflects a re-evaluation on v2 (43 problems), but this could not be independently confirmed -- treat the #3 slot with slightly lower confidence. Epoch AI confirmed Fable 5 holds the top position on both tiers in its June 12, 2026 newsletter (epochai.substack.com/p/the-epoch-brief-june-12-2026). The digitalapplied.com analysis (https://www.digitalapplied.com/blog/epoch-frontiermath-v2-error-corrected-ai-benchmark-analysis) corroborates all Tier 4 figures citing LM Council plus the Epoch Brief. No near-tie at the top of Tier 4 -- Fable 5 leads by 9.8 points, well outside the combined error margins. Pre-v2 context: GPT-5.5 Pro scored 52% on Tiers 1-3 and 40% on Tier 4 in Epoch AI independent eval dated April 29, 2026 (epochai.substack.com/p/gpt-55-pro-achieves-a-new-high-score).",
+      "judgment": {
+        "slug": "frontiermath",
+        "trustTier": "contested",
+        "nearTie": false,
+        "honestEmpty": false,
+        "rightBoard": false,
+        "approved": true,
+        "issues": [
+          "Dominant trust tier is contested: FrontierMath v2 exists only because Epoch found errors in 42% of original problems (forced re-release June 12, 2026). That methodology rupture, not a score tie, is the headline a non-expert needs. Per the plan's own note (section 11) FrontierMath is contested AND near-saturating, and contested is the dominant displayed state.",
+          "nearTie correctly false on Tier 4: Fable 5 leads by 9.8 points (87.8% +/- 5.2 vs 78.0% +/- 6.5), well outside combined error bars. Confirmed independently (the-decoder June 13 2026 ~88% vs ~75%; Epoch Brief June 12 confirms Fable 5 holds the top spot). Note the Tiers 1-3 standings ARE a near-tie (GPT-5.5 Pro 87.7 vs Fable 5 87.0 with overlapping CIs) but the record correctly chose the more discriminating Tier 4 board, where there is no tie.",
+          "rightBoard is false: the canonical board for FrontierMath is Epoch AI's own (epoch.ai/benchmarks/frontiermath-tier-4-v2), not LM Council. The record uses LM Council, a secondary aggregator. This is defensible because Epoch's board is JS-only and unreadable by fetch, LM Council draws directly from Epoch independent evals, and the verbatim scores (87.8% +/- 5.2, 78.0% +/- 6.5, 75.6% +/- 6.7, updated June 14 2026) were confirmed at lmcouncil.ai. But boardUrl should ideally point at or at least name Epoch as the source of record.",
+          "Rank-3 (Google AI co-mathematician, 75.6% +/- 6.7) is the weakest slot: it appears on LM Council Tier 4 v2, but the May 2026 arxiv paper (2605.06651) evaluated this system on v1 at 48% (23/48). The v2 re-evaluation is plausible but not independently re-confirmed; the record already flags this with lower confidence, which is honest.",
+          "selfReported=false is correct: Epoch AI runs all evaluations independently on its own scaffold (confirmed by the-decoder and the Epoch Brief)."
+        ]
+      }
+    },
+    {
+      "slug": "livecodebench",
+      "name": "LiveCodeBench",
+      "verified": true,
+      "honestEmpty": true,
+      "nearTie": false,
+      "leaders": [],
+      "confidence": "high",
+      "boardUrl": "https://livecodebench.github.io/leaderboard.html",
+      "boardLastUpdated": "2025-08-01",
+      "gotCurrentBoard": false,
+      "hardToRead": true,
+      "datedAnchor": "Official LiveCodeBench v5 code-generation board (GitHub Pages repo, last pushed 2025-08-01, data embedded in a JS bundle): on the full v5 problem set (n=880 questions, problem dates 2023-05-01 to 2025-02-01) the top pass@1 scores are Kimi-k1.6-IOI-high 86.02, Gemini-2.5-Pro 84.66, O1-2024-12-17 High 83.18. On the recent-only window (problems from 2024-08-01 onward) the order shifts: Kimi-k1.6-IOI-high 73.84, O1-2024-12-17 High 70.97, O3-Mini High 69.53, Gemini-2.5-Pro 69.18. The newest model in the official dataset is O3-Mini-2025-01-31. No 2026 frontier model appears anywhere in the official data.",
+      "baselineAnchor": "pass@1 is the fraction of competition-programming problems (from LeetCode, AtCoder, and Codeforces) solved on the first attempt. Weak open models sit near 20-40 pass@1; the strongest models on the official frozen v5 board reach the mid-80s on the full set and low-70s on the recent-only window. The benchmark is designed to use only problems released after a model's training cutoff, so a frozen board cannot fairly rank models released after it stopped collecting problems.",
+      "notes": "honestEmpty is true because the official board is frozen in early 2025 and no single authoritative current leaderboard exists for June 2026. The board is a React app (JS-rendered) and cannot be read by a static fetcher; the data is embedded in a JS bundle (public/static_v5/js/main.2488308f.js) covering 81 models and 76,118 per-question records, with no problem or model newer than early 2025. Three third-party aggregators disagree on the current top-3: (1) Artificial Analysis (https://artificialanalysis.ai/evaluations/livecodebench), labeled independently benchmarked by Artificial Analysis, shows Gemini 3 Pro Preview (high) 91.7%, Gemini 3 Flash Preview (Reasoning) 90.8%, DeepSeek V3.2 Speciale 89.6%, no update timestamp visible on page, confirmed by direct fetch June 2026. (2) vals.ai v6 (https://www.vals.ai/benchmarks/lcb), labeled their own implementation, updated 6/17/2026, shows Claude Fable 5 89.78%, Gemini 3.1 Pro Preview (02/26) 88.48%, GPT 5.2 Codex 87.99%. (3) llm-stats.com (https://llm-stats.com/benchmarks/livecodebench), updated June 23 2026, 73 models all explicitly self-reported, shows DeepSeek-V4-Pro-Max 0.935, DeepSeek-V4-Flash-Max 0.916, DeepSeek-V3.2 0.833. The DeepSeek V4-Pro-Max 93.5 figure is confirmed as a vendor self-reported number from the April 2026 release, not independently verified. Three aggregators, three different top-3s, none of them the official frozen board. nearTie is false: no contemporaneous statistical tie at the top of a single board exists; score spread across aggregators is an artifact of different problem sets and harnesses, not a tie. No em or en dashes used. Sources: https://livecodebench.github.io/leaderboard.html ; https://github.com/LiveCodeBench/livecodebench.github.io ; https://artificialanalysis.ai/evaluations/livecodebench ; https://www.vals.ai/benchmarks/lcb ; https://llm-stats.com/benchmarks/livecodebench",
+      "corrections": "Core honestEmpty conclusion and all cited scores confirmed verbatim via direct fetch. One addition: a fourth aggregator (llm-stats.com, all self-reported, DeepSeek-V4-Pro-Max 93.5% top) further strengthens the conclusion that no single authoritative 2026 board exists. The Artificial Analysis page has no explicit on-page update timestamp (search snippets suggested June 6 2026 but this could not be confirmed on the page itself). No figures were dropped or invented; the datedAnchor frozen-board scores were computed in the prior research session from the embedded JS bundle and remain the best available official anchor.",
+      "judgment": {
+        "slug": "livecodebench",
+        "trustTier": "dated",
+        "nearTie": false,
+        "honestEmpty": true,
+        "rightBoard": true,
+        "approved": true,
+        "issues": [
+          "honestEmpty=true is the honest call and is correct. Confirmed: the official LiveCodeBench board (livecodebench.github.io) is frozen at 2025-08-01, JS-rendered, contains no 2026 frontier model. No single authoritative current board exists.",
+          "Verified the three-aggregator divergence VERBATIM, which is the whole point of the honest-empty verdict: Artificial Analysis shows Gemini 3 Pro Preview (high) 91.7%, Gemini 3 Flash Preview (Reasoning) 90.8%, DeepSeek V3.2 Speciale 89.6% (independently benchmarked, no on-page timestamp). vals.ai v6 (6/17/2026, note record says 6/17 not 6/23) shows Claude Fable 5 89.78%, Gemini 3.1 Pro Preview 88.48%, GPT 5.2 Codex 87.99%. llm-stats.com (6/23/2026) shows DeepSeek-V4-Pro-Max 0.935, DeepSeek-V4-Flash-Max 0.916, DeepSeek-V3.2 0.833, all 73 results self-reported (0 verified). Three boards, three different top-3s, none the official frozen board. Conclusion holds.",
+          "Minor: record cites vals.ai LCB as 'updated 6/17/2026'; fetch confirms 6/17/2026 (consistent). No correction needed.",
+          "datedAnchor correctly points to the frozen official v5 board as the single most-cited dated anchor rather than guessing a current top-3. Right move.",
+          "nearTie=false is correct: the score spread is across DIFFERENT problem sets/harnesses, not a tie at the top of one board. Correctly not labeled a near-tie.",
+          "trustTier=dated: the only trustworthy anchor is a board frozen in early 2025. Correct dominant tier.",
+          "rightBoard=true: the canonical board IS the (frozen) official livecodebench.github.io, which the record correctly names as the anchor while refusing to crown any aggregator. Honest."
+        ]
+      }
+    },
+    {
+      "slug": "arc-agi-1",
+      "verified": true,
+      "honestEmpty": false,
+      "nearTie": true,
+      "name": "ARC-AGI v1",
+      "gotCurrentBoard": true,
+      "hardToRead": true,
+      "boardUrl": "https://arcprize.org/leaderboard",
+      "boardLastUpdated": "2026-06-16",
+      "baselineAnchor": "On the ARC-AGI-1 Semi-Private eval, random chance is near 0% (open-ended grid output, not multiple choice). The ARC Prize human references on the same board are Avg. Mturker 77%, Human Panel 98%, and STEM Grad 98%. The original 2024 frontier breakthrough was OpenAI o3 at 75.7% within the $10k compute budget; by mid-2026 the top models sit at 96-98%, so ARC-AGI-1 is effectively saturated (which is why ARC-AGI-2 and ARC-AGI-3 now exist).",
+      "datedAnchor": "OpenAI o3 (high-efficiency, semi-private eval) at 75.7% within the $10k compute budget (actual cost $2,680), December 20 2024 (a high-compute o3 config scored 87.5% but is not leaderboard-eligible under the cost rules). Source: https://arcprize.org/blog/oai-o3-pub-breakthrough",
+      "confidence": "high",
+      "leaders": [
+        {
+          "rank": 1,
+          "model": "Gemini 3.1 Pro (Preview)",
+          "lab": "Google",
+          "score": "98% (ARC-AGI-1 Semi-Private eval, $0.52/task)",
+          "asOfDate": "2026-06-16",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://arcprize.org/media/data/leaderboard/v1.json"
+        },
+        {
+          "rank": 2,
+          "model": "GPT-5.5 Pro (High)",
+          "lab": "OpenAI",
+          "score": "96.5% (ARC-AGI-1 Semi-Private eval, $4.53/task)",
+          "asOfDate": "2026-06-16",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://arcprize.org/media/data/leaderboard/v1.json"
+        },
+        {
+          "rank": 3,
+          "model": "Gemini 3 Deep Think (2/26)",
+          "lab": "Google",
+          "score": "96% (ARC-AGI-1 Semi-Private eval, $7.17/task)",
+          "asOfDate": "2026-06-16",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://arcprize.org/media/data/leaderboard/v1.json"
+        }
+      ],
+      "notes": "VERIFICATION CONFIRMED. All three leaders match the raw arcprize.org JSON (generatedAt 2026-06-16T22:18:23.525Z, 154 evaluations on the Semi-Private eval). Verbatim score fractions from the file: Gemini 3.1 Pro (Preview) = 0.98, GPT-5.5 Pro (High) = 0.965, Gemini 3 Deep Think (2/26) = 0.96. Costs: $0.5223 (displayed as $0.52), $4.53, $7.171 (displayed as $7.17). These rank unambiguously 1-2-3 by score fraction. The file also contains a separate earlier entry \"Gemini 3 Deep Think (Preview)\" at 0.875 / $44.259 per task, which is a distinct, older configuration. Human reference rows (Human Panel 0.98, Stem Grad 0.98, Avg. Mturker 0.77) are in the same file and excluded from the model top-3. The datedAnchor (o3 at 75.7%, December 20 2024) is verified against the arcprize.org blog post; actual evaluation cost was $2,680 within the $10k leaderboard budget cap. Rank 1 (Gemini 3.1 Pro, 98%) corroborated by third-party reporting at officechai.com. nearTie is correct: a statistical cluster at the ceiling of a saturated benchmark, not a methodology dispute. selfReported = false is correct for all three: ARC Prize runs the Semi-Private eval independently. No disputed entries. No em dashes or en dashes used.",
+      "corrections": "All three leaders confirmed verbatim from the arcprize.org v1.json source file (generatedAt 2026-06-16); no score, model name, cost, or date required correction. The original record is accurate.",
+      "judgment": {
+        "slug": "arc-agi-1",
+        "trustTier": "near_ceiling",
+        "nearTie": true,
+        "honestEmpty": false,
+        "rightBoard": true,
+        "approved": true,
+        "issues": [
+          "Benchmark is saturated (top models 96 to 98%, human panel and STEM grad both 98%). near_ceiling is the dominant tier and nearTie true is correct. Detail copy should make clear this is a ceiling cluster, not a leadership claim.",
+          "Costs vary widely across the top 3 ($0.52, $4.53, $7.17 per task); preserve the cost-in-score string verbatim so the ranking is not read as pure capability."
+        ]
+      }
+    },
+    {
+      "slug": "arc-agi-2",
+      "verified": false,
+      "honestEmpty": false,
+      "nearTie": true,
+      "leaders": [
+        {
+          "rank": 1,
+          "model": "GPT-5.5",
+          "lab": "OpenAI",
+          "score": "85.0%",
+          "asOfDate": "2026-04-24",
+          "selfReported": true,
+          "disputed": false,
+          "sourceUrl": "https://officechai.com/ai/gpt-5-5-tops-arc-agi-2-with-85-score/"
+        },
+        {
+          "rank": 2,
+          "model": "Gemini 3 Deep Think",
+          "lab": "Google",
+          "score": "84.6% on ARC-AGI-2 (verified by ARC Prize Foundation)",
+          "asOfDate": "2026-02-12",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-deep-think/"
+        },
+        {
+          "rank": 3,
+          "model": "GPT-5.4 Pro",
+          "lab": "OpenAI",
+          "score": "83.3%",
+          "asOfDate": "2026-03-05",
+          "selfReported": true,
+          "disputed": false,
+          "sourceUrl": "https://the-decoder.com/openai-launches-gpt-5-4-thinking-and-pro-combining-coding-reasoning-and-computer-use-in-one-model/"
+        }
+      ],
+      "boardLastUpdated": "2026-06-18",
+      "boardUrl": "https://benchlm.ai/benchmarks/arcAgi2",
+      "baselineAnchor": "Average individual human performance is approximately 60-66%; random chance is near 0%; prior SOTA before 2026 (o3 with test-time compute, $10k budget) was roughly 75.7% on ARC-AGI-1 semi-private, and Gemini 3 Pro with Poetiq refinement held the ARC-Prize-verified ARC-AGI-2 record at 54% at $30/task as of December 2025.",
+      "datedAnchor": "Gemini 3 Deep Think: 84.6% on ARC-AGI-2, verified by ARC Prize Foundation, semi-private eval, February 12, 2026 (https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-deep-think/).",
+      "confidence": "medium",
+      "notes": "The top two entries are a statistical near-tie: GPT-5.5 at 85.0% (OpenAI vendor-reported per system card, April 24, 2026; Vellum explicitly labels these scores vendor-reported; the ARC Prize scorecard URL at arcprize.org/scorecards/472f1a32-c7cb-477f-a1b6-8e21e92f5d8b is JavaScript-rendered and could not be independently confirmed via fetch) versus Gemini 3 Deep Think at 84.6% (independently verified by the ARC Prize Foundation, semi-private eval at $13.62/task, February 12, 2026; confirmed by Google official blog and Google X post). The 0.4-point gap is within plausible noise on the semi-private eval set. GPT-5.4 Pro at 83.3% is sourced from OpenAI's March 5, 2026 announcement (vendor-reported); the score appears in The Decoder's coverage and the BenchLM aggregator. The prior record asOfDate of 2026-06-18 for GPT-5.4 Pro reflected the BenchLM aggregator last-updated date, not the score announcement date; corrected to 2026-03-05. The boardUrl has been corrected to BenchLM.ai (benchlm.ai/benchmarks/arcAgi2, last updated June 18, 2026) which shows GPT-5.5 at 85%, GPT-5.4 Pro at 83.3%, and Gemini 3.1 Pro at 77.1% in its current top 3; the llm-stats.com board (last updated June 23, 2026) likewise does not list Gemini 3 Deep Think in its current top 3, instead showing GPT-5.4 (without Pro suffix) at 73.3% at rank 3. The Gemini 3 Deep Think 84.6% figure is real and ARC-Prize-verified but reflects a high-compute semi-private run that aggregator boards may not track consistently. The ARC Prize grand prize threshold is 85% or greater on the hidden private eval; GPT-5.5's 85.0% on the semi-private eval meets the threshold numerically but the private-set grand prize had not been awarded as of June 2026. No model has claimed the private-set grand prize as of June 2026. Record marked verified=false because the boardUrl top-3 does not match the leader list (the board now shows different rank-2 and rank-3 models), and the rank-1 score selfReported status was incorrectly listed as false in the original.",
+      "corrections": "Three corrections applied: (1) GPT-5.5 score updated from \"85%\" to \"85.0%\" to match verbatim primary source wording, and selfReported corrected from false to true (Vellum and secondary analysis confirm these are vendor-reported figures; ARC Prize scorecard is JS-gated and unconfirmed); (2) GPT-5.4 Pro asOfDate corrected from 2026-06-18 (aggregator update date) to 2026-03-05 (actual OpenAI announcement date), selfReported corrected to true, and sourceUrl updated to The Decoder primary coverage rather than the BenchLM aggregator; (3) boardUrl updated from llm-stats.com to benchlm.ai/benchmarks/arcAgi2 as the aggregator whose June 18, 2026 data best matches the record period, with a note that neither current aggregator board shows Gemini 3 Deep Think in its live top 3 (the 84.6% was a high-compute semi-private run not uniformly tracked).",
+      "judgment": {
+        "slug": "arc-agi-2",
+        "trustTier": "contested",
+        "nearTie": false,
+        "honestEmpty": false,
+        "rightBoard": false,
+        "approved": false,
+        "issues": [
+          "BLOCKING: the published leader list does not match its own boardUrl. The record lists rank-2 Gemini 3 Deep Think (84.6%) and rank-3 GPT-5.4 Pro (83.3%), but BenchLM (benchlm.ai/benchmarks/arcAgi2, the cited boardUrl, updated June 18 2026) shows rank-2 GPT-5.4 Pro 83.3% and rank-3 Gemini 3.1 Pro 77.1%, with Gemini 3 Deep Think down at RANK 8 (45.1%). The leader list and the board are inconsistent. The record itself set verified=false for exactly this reason; it is not safe to publish as a current top-3.",
+          "BLOCKING the near-tie claim: nearTie should be FALSE for the publishable board. The 0.4-point near-tie (85.0% vs 84.6%) is manufactured by inserting Gemini 3 Deep Think, a one-off high-compute semi-private run ($13.62/task) that the live aggregator boards do not rank in the top-3. On the actual board the rank-1 to rank-2 gap is 85.0% vs 83.3% (1.7 points, different models), and rank-3 is 77.1% (a 6+ point drop). There is no statistical tie at the top of the canonical board. The near-tie as written is not real.",
+          "Trust tier should be contested, not live: two of the three listed leaders are vendor self-reported (GPT-5.5 85.0% from OpenAI's April 24 2026 announcement; GPT-5.4 Pro 83.3% from OpenAI March 5 2026), the ARC Prize scorecard for GPT-5.5 is JS-gated and could not be independently confirmed, and aggregator boards (BenchLM vs llm-stats) disagree on the rank-2/rank-3 models. The officechai source calls GPT-5.5 'verified' but never names the ARC Prize Foundation as verifier, so 'verified' is unsubstantiated marketing language. selfReported=true on the OpenAI entries is the correct, honest call.",
+          "honestEmpty is reasonably false (a real aggregator board exists at BenchLM), but to publish, the leader list MUST be rebuilt to match a single board: e.g. BenchLM June 18 (GPT-5.5 85.0% self-reported, GPT-5.4 Pro 83.3% self-reported, Gemini 3.1 Pro 77.1%), with nearTie set false and Gemini 3 Deep Think's 84.6% demoted to a dated/context anchor rather than a live rank-2.",
+          "Baseline anchor and the grand-prize nuance (85% threshold is on the hidden PRIVATE eval; no private-set prize awarded as of June 2026) are accurate and well-sourced; keep them. The fix is the leader list and the nearTie flag, not the context."
+        ]
+      }
+    },
+    {
+      "slug": "mmmu",
+      "verified": true,
+      "honestEmpty": false,
+      "nearTie": true,
+      "leaders": [
+        {
+          "rank": 1,
+          "model": "Qwen3.6 Plus",
+          "lab": "Alibaba (Qwen)",
+          "score": "86%",
+          "asOfDate": "2026-04-02",
+          "selfReported": true,
+          "disputed": false,
+          "sourceUrl": "https://llm-stats.com/benchmarks/mmmu"
+        },
+        {
+          "rank": 2,
+          "model": "GPT-5.1 / GPT-5.1 Thinking / GPT-5.1 Instant",
+          "lab": "OpenAI",
+          "score": "85.4%",
+          "asOfDate": "2025-11-13",
+          "selfReported": true,
+          "disputed": false,
+          "sourceUrl": "https://www.codesota.com/benchmark/mmmu"
+        },
+        {
+          "rank": 3,
+          "model": "GPT-5",
+          "lab": "OpenAI",
+          "score": "84.2%",
+          "asOfDate": "2025-08-07",
+          "selfReported": true,
+          "disputed": false,
+          "sourceUrl": "https://llm-stats.com/benchmarks/mmmu"
+        }
+      ],
+      "baselineAnchor": "Random chance on the multiple-choice format is approximately 25%; Human Expert (High) reference performance is 88.6% (excluded from leaderboard ranking).",
+      "boardLastUpdated": "2026-06-23",
+      "boardUrl": "https://llm-stats.com/benchmarks/mmmu",
+      "confidence": "medium",
+      "notes": "All three leaders confirmed on fetch of both llm-stats.com and codesota.com. Qwen3.6 Plus at 86% (shown as 0.860 on llm-stats, 86 on codesota) is rank 1 on both boards. All three GPT-5.1 variants (base, Thinking, Instant) score identically at 85.4% and appear as a cluster at rank 2 on both boards. GPT-5 at 84.2% is confirmed on llm-stats and is consistent with its August 7, 2025 launch date. selfReported=true is correct for all entries: llm-stats explicitly shows 0 independently verified results and 61 self-reported results; codesota's \"verified\" label means sourced from official vendor reports or published papers, not independent third-party evaluation. BenchLM shows only 9 models and omits GPT-5.1 variants entirely, but this reflects narrower coverage rather than a contradiction. nearTie stands: the 0.6pp gap between rank 1 and rank 2 is within the approximately 1.5pp margin of error for the 900-question validation set. The official mmmu-benchmark.github.io leaderboard is JavaScript-rendered and still unreadable by fetch; the three-aggregator convergence provides adequate confidence for a medium rating.",
+      "corrections": "All three leaders, scores, and dates confirmed verbatim on live board fetches; selfReported clarified (codesota \"verified\" means vendor-sourced, not independent); no data dropped or changed.",
+      "name": "MMMU",
+      "gotCurrentBoard": true,
+      "hardToRead": false,
+      "datedAnchor": "",
+      "judgment": {
+        "slug": "mmmu",
+        "trustTier": "near_ceiling",
+        "nearTie": true,
+        "honestEmpty": false,
+        "rightBoard": true,
+        "approved": true,
+        "issues": [
+          "All three leaders confirmed VERBATIM. llm-stats.com (last updated 6/23/2026): Qwen3.6 Plus 0.860 (rank 1), GPT-5.1 variants 0.854 (rank 2 cluster), GPT-5 0.842. codesota.com confirms Qwen3.6 Plus 86, GPT-5.1 / Instant / Thinking all 85.4. Scores match the record exactly.",
+          "selfReported=true correct for all: llm-stats explicitly shows 0 verified / 61 self-reported; codesota 'verified' means vendor-sourced/primary-source, NOT independent third-party. The record's clarification of codesota's label is accurate and important.",
+          "nearTie=true is correct and well-justified: rank1 0.860 vs rank2 0.854 is a 0.6pp gap, inside the ~1.5pp margin for the ~900-question validation set. A genuine statistical tie at the top, correctly distinguished from a methodology dispute.",
+          "Rank-3 sourcing nuance (acceptable): GPT-5 84.2% comes from llm-stats, not codesota (codesota's top-5 does not list GPT-5; its rank 5 is Qwen3.5-122B-A10B 83.9). The record sources GPT-5 to llm-stats, which is consistent. No error, but note the third place is board-dependent.",
+          "trustTier=near_ceiling is right: leaders cluster in the mid-80s just under the Human Expert (High) 88.6% reference. confidence:medium is appropriate because the official mmmu-benchmark.github.io board is JS-only and unread, so this rests on two converging aggregators.",
+          "rightBoard=true with a caveat: the canonical first-party board (mmmu-benchmark.github.io) could not be read; llm-stats + codesota convergence is a reasonable proxy. Honest about the limitation."
+        ]
+      }
+    },
+    {
+      "slug": "lmarena-chatbot-arena",
+      "verified": true,
+      "honestEmpty": false,
+      "nearTie": true,
+      "leaders": [
+        {
+          "rank": 1,
+          "model": "claude-fable-5",
+          "lab": "Anthropic",
+          "score": "1508 +/- 9",
+          "asOfDate": "2026-06-16",
+          "selfReported": false,
+          "disputed": true,
+          "sourceUrl": "https://arena.ai/leaderboard/text"
+        },
+        {
+          "rank": 2,
+          "model": "claude-opus-4-6-thinking",
+          "lab": "Anthropic",
+          "score": "1504 +/- 4",
+          "asOfDate": "2026-06-16",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://arena.ai/leaderboard/text"
+        },
+        {
+          "rank": 3,
+          "model": "claude-opus-4-7-thinking",
+          "lab": "Anthropic",
+          "score": "1502 +/- 5",
+          "asOfDate": "2026-06-16",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://arena.ai/leaderboard/text"
+        }
+      ],
+      "confidence": "high",
+      "corrections": "All three scores and ranks confirmed verbatim against arena.ai/leaderboard/text (two independent fetches, Jun 16 2026 last-updated date) and corroborated by the wulong.dev independent snapshot API (dated Jun 23 2026) and benchlm.ai (1508 +/- 9 for fable-5). The Arena.ai X post saying \"removed Claude Fable 5 from Arena\" refers to removal from active sampling (no new votes accepted), not removal from the leaderboard display; the board still shows fable-5 at rank 1 with no removal label as of the Jun 23 fetch. Third-party summaries (localaimaster.com, swfte.com) that showed different top-3 or different scores reflect either an active-models-only filter or an earlier pre-suspension peak; the primary source is authoritative. The export control suspension (Jun 12-13 2026, US Commerce Department directive) is confirmed by Anthropic statement, Fortune, and Time reporting; disputed flag is correct because fable-5 can no longer accumulate new votes. No score, rank, or date required correction.",
+      "name": "LMArena (Chatbot Arena)",
+      "gotCurrentBoard": true,
+      "hardToRead": false,
+      "boardLastUpdated": "2026-06-16",
+      "boardUrl": "https://arena.ai/leaderboard/text",
+      "baselineAnchor": "Elo starts at 1000 (random baseline); GPT-4 at launch was roughly 1350; prior SOTA before 2025 frontier models was around 1250-1300.",
+      "datedAnchor": "As of June 16, 2026, arena.ai/leaderboard/text showed claude-fable-5 at 1508 +/- 9 (rank 1, 4,297 votes) across 6,917,183 total community votes and 367 models.",
+      "notes": "All three leaders are independently evaluated via blind pairwise community votes (not self-reported). The top 3 span only 6 Elo points (1502-1508) and all fall within each other's confidence intervals, making this a statistical near-tie. Claude Fable 5 is marked disputed because it was suspended from public access under a US Commerce Department export-control directive on approximately June 12-13, 2026 and remains offline globally; it stays listed on the leaderboard as a frozen historical entry with votes accumulated before suspension, and Arena.ai confirmed it was removed from active sampling (no new votes) per their June 2026 X post and changelog (no removal entry, only addition entries on Jun 10 and Jun 15). The score shifted slightly from the June 10-11 round-1 observation (1510 +/- 11) to 1508 +/- 9 as the confidence interval tightened with additional votes (4,297 total) before suspension. The arena.ai domain is the current home of the LMArena leaderboard following the January 2026 rebrand from lmarena.ai. Confidence is high: the verbatim table data was confirmed by two independent fetches of arena.ai/leaderboard/text (Jun 16 last-updated), the wulong.dev API independent snapshot (dated Jun 23 2026), and benchlm.ai (1508 +/- 9 for fable-5). Export control suspension corroborated by Anthropic statement (anthropic.com/news/fable-mythos-access), Fortune (Jun 13 2026), and Time reporting.",
+      "judgment": {
+        "slug": "lmarena-chatbot-arena",
+        "trustTier": "contested",
+        "nearTie": true,
+        "honestEmpty": false,
+        "rightBoard": true,
+        "approved": true,
+        "issues": [
+          "This is a genuine BOTH case: nearTie true (top 3 span 6 Elo points, 1502 to 1508, overlapping confidence intervals) AND contested (rank 1 claude-fable-5 is disputed, suspended from active sampling under a US export-control directive, frozen entry that cannot gain new votes). Dominant trust tier is contested because the disputed #1 is the headline integrity issue; keep nearTie as a separate quiet note so the two ideas are not conflated.",
+          "All top 3 are Anthropic models. The detail copy should note the leaderboard top is currently an all-Anthropic cluster so it is not mistaken for a broad field comparison.",
+          "Confirm at render that the board has not added a visible removal label for fable-5 (none present as of the Jun 16 to Jun 23 fetches); if a removal label appears later, the disputed framing must be updated."
+        ]
+      }
+    },
+    {
+      "slug": "humaneval",
+      "name": "HumanEval",
+      "verified": true,
+      "gotCurrentBoard": false,
+      "honestEmpty": true,
+      "hardToRead": true,
+      "nearTie": false,
+      "leaders": [],
+      "confidence": "high",
+      "boardUrl": "https://evalplus.github.io/leaderboard.html",
+      "boardLastUpdated": "2024-12-26",
+      "datedAnchor": "O1 Preview and O1 Mini (OpenAI) tied at the top of the EvalPlus board with 96.3% HumanEval pass@1 and 89.0% HumanEval+ pass@1, captured on the EvalPlus leaderboard on December 26, 2024 (Sept 2024 model results). Independently evaluated by the EvalPlus harness, not self-reported.",
+      "baselineAnchor": "Pass@1 is the percent of problems where the model's first generated Python function passes all unit tests, scored 0 to 100. Calibration: the original 2021 Codex baseline was 28.8%; by 2025-2026 nearly every frontier model clears 90% and the benchmark is saturated (a great coding model and a mediocre one both score in the mid-90s, so the score no longer separates them).",
+      "corrections": "All claims verified against primary sources. The results.json from raw.githubusercontent.com/evalplus/evalplus.github.io/main/results.json directly confirms O1 Preview and O1 Mini at 96.3% HumanEval / 89.0% HumanEval+. The GitHub API (api.github.com/repos/evalplus/evalplus.github.io/commits) confirms the most recent commit is SHA 87418456 dated 2024-12-26T17:12:10Z (message: \"feat: add dpsk v3 for evalperf\"), with the second-most-recent being the 4ebfa0d commit the original record cited (message: \"update dpsk v3 results\", 2024-12-26T17:02:22Z). Both are same-day, same session; board-last-updated date of 2024-12-26 is correct. The llm-stats.com board confirmed at fetch time as \"65 self-reported, 0 independently verified.\" No 2025 or 2026 entries exist on EvalPlus. Minor correction: the latest commit SHA is 87418456, not 4ebfa0d, but the date and interpretation are unchanged. Record stands as honestEmpty with a verified independent datedAnchor.",
+      "notes": "HONEST-EMPTY VERDICT (high confidence). There is no trustworthy current top-3 board for HumanEval. The authoritative independent source, the EvalPlus leaderboard at evalplus.github.io/leaderboard.html, renders via JavaScript only (hardToRead confirmed -- the page returned no table data on direct fetch). The raw data was verified at https://raw.githubusercontent.com/evalplus/evalplus.github.io/main/results.json, which shows O1 Preview and O1 Mini at 96.3% HumanEval / 89.0% HumanEval+ as the top entries. The GitHub REST API at https://api.github.com/repos/evalplus/evalplus.github.io/commits confirms the most recent commit is dated 2024-12-26T17:12:10Z (SHA 87418456, \"feat: add dpsk v3 for evalperf\"). No 2025 or 2026 models appear on the board; it is approximately 18 months stale as of this verification. The llm-stats.com HumanEval board (fetched 2026-06-23) shows MiniCPM-SALA at 0.951 topping GPT-5 at 0.934, but explicitly states 65 self-reported and 0 verified results -- a clear self-report artifact, not usable as a current board. pricepertoken and other 2026 aggregators propagate vendor technical-report numbers with no independent run. Per the project rule against a hallucinated or outdated current board, honestEmpty remains true. DATED ANCHOR: EvalPlus top entry, O1 Preview and O1 Mini at 96.3% HumanEval pass@1 (89.0% HumanEval+ pass@1), captured 2024-12-26 on the EvalPlus board. Independently evaluated by the EvalPlus harness, not self-reported. SATURATION CONTEXT: HumanEval is effectively retired at the frontier. Frontier models cluster in the 95-97% pass@1 range (vendor self-reported figures circulating in 2026 include o3 at 97.0%, Grok 4.1 Fast at 97.0%, Claude Opus 4.6 at 96.0% -- all vendor self-reported, none on an independent board), so the score no longer differentiates models. Trackers and labs now recommend SWE-bench Verified and LiveCodeBench instead. nearTie is false because there is no live board on which a statistical tie at the top is currently observable.",
+      "judgment": {
+        "slug": "humaneval",
+        "trustTier": "dated",
+        "nearTie": false,
+        "honestEmpty": true,
+        "rightBoard": true,
+        "approved": true,
+        "issues": [
+          "Dominant trust tier is dated: confirmed via raw EvalPlus results.json that the board tops out at O1 Preview / O1 Mini 96.3% HumanEval (89.0% HumanEval+) with no 2025 or 2026 models present; latest entries are November 2024. The board is roughly 18 months stale. (It is also near-ceiling/saturated, but dated is the dominant, more honest displayed state for a board no one updates.)",
+          "honestEmpty is the honest call, not a usable dated board: the canonical independent source (EvalPlus) is JS-only and frozen at Dec 2024, and every 2026 aggregator (llm-stats explicitly 65 self-reported / 0 verified; pricepertoken propagating vendor technical-report numbers) is self-report contaminated. There is no trustworthy CURRENT top-3, so leaders=[] plus a single dated independent anchor is correct.",
+          "rightBoard is true: EvalPlus (evalplus.github.io) is the canonical independent harness for HumanEval, and the dated anchor (O1 Preview/O1 Mini 96.3% / 89.0%, captured 2024-12-26, independently evaluated) is verified against raw results.json and the GitHub commit history. The single-anchor-instead-of-a-guess approach is exactly the guard the brief asks for.",
+          "nearTie correctly false: there is no live board on which a top tie is currently observable, so the flag is moot/false by construction.",
+          "Saturation context (frontier clusters at 95-97% pass@1, all vendor self-reported; trackers recommend SWE-bench Verified and LiveCodeBench instead) is accurate and appropriately labels every circulating 2026 figure as vendor self-reported rather than presenting one as current."
+        ]
+      }
+    },
+    {
+      "slug": "aime",
+      "verified": true,
+      "name": "AIME (used as an LLM eval)",
+      "gotCurrentBoard": true,
+      "honestEmpty": false,
+      "hardToRead": true,
+      "nearTie": true,
+      "leaders": [
+        {
+          "rank": 1,
+          "model": "Step-3.5-Flash",
+          "lab": "StepFun AI",
+          "score": "96.67% +/- 3.21%",
+          "asOfDate": "2026-05-01",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://matharena.ai/models/stepfun_3_5_flash"
+        },
+        {
+          "rank": 2,
+          "model": "Kimi-K2.6",
+          "lab": "Moonshot AI",
+          "score": "96.4%",
+          "asOfDate": "2026-05-01",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://huggingface.co/datasets/MathArena/aime_2026"
+        },
+        {
+          "rank": 3,
+          "model": "Kimi-K2.5",
+          "lab": "Moonshot AI",
+          "score": "95.83% +/- 3.58%",
+          "asOfDate": "2026-05-01",
+          "selfReported": false,
+          "disputed": false,
+          "sourceUrl": "https://matharena.ai/models/moonshot_k25"
+        }
+      ],
+      "baselineAnchor": "Top human competitors (AIME qualifiers) solve roughly 7-10 of 15 problems per exam (46-67%); random guessing on integer-answer problems is near 0%. Prior 2025 SOTA (GPT-4o era) was roughly 50-60%. The benchmark is now approaching ceiling for frontier models, with multiple labs scoring above 95% on AIME 2026.",
+      "boardLastUpdated": "2026-06-21",
+      "boardUrl": "https://matharena.ai/?comp=aime--aime_2026",
+      "confidence": "high",
+      "datedAnchor": "Step-3.5-Flash (StepFun AI) at 96.67% +/- 3.21% on AIME 2026, independently evaluated by MathArena (ETH Zurich/INSAIT), confirmed on MathArena model page and HuggingFace mirror dataset.",
+      "notes": "The MathArena board (matharena.ai) is JS-rendered and cannot be read directly by fetch tools; scores for ranks 1 and 3 are confirmed verbatim via the MathArena model pages (stepfun_3_5_flash and moonshot_k25), and all three top scores are confirmed via the Hugging Face mirror dataset (https://huggingface.co/datasets/MathArena/aime_2026). MathArena independently runs all models via API and does not accept self-reported results. Rank 3 is a three-way tie: Kimi-K2.5, GLM-5 (Z.AI), and Ring-2.6-1T (InclusionAI) all at 95.83%; Kimi-K2.5 is listed as the representative. The gap between rank 1 (96.67%) and rank 2 (96.4%) is 0.27 percentage points, well within both models' confidence intervals, making this a statistical tie. The Kimi-K2.6 confidence interval was not displayed on the HuggingFace mirror page; only the point score 96.4% is shown, so the interval is omitted from the score field. GLM-5.2 (Z.AI) self-reported 99.2% on AIME 2026 at launch (June 2026); however, GLM-5.2 does not appear in the publicly accessible HuggingFace mirror of the MathArena AIME 2026 dataset as of June 23, 2026 (it was reportedly added to the live leaderboard on June 21, 2026, but the specific independent evaluation score for GLM-5.2 on AIME 2026 could not be confirmed from available sources). The 99.2% figure appears only in Z.AI release materials. The specific claim that MathArena independently evaluated GLM-5.2 at 90.00% on AIME 2026 could not be verified from accessible sources and has been removed from this notes field pending confirmation. Contamination note: models score 10-20 points higher on AIME 2024 than AIME 2025, confirming memorization on older editions. The benchmark is near-saturated at the frontier, with multiple labs above 95% on AIME 2026.",
+      "corrections": "Rank 3 score updated to verbatim \"95.83% +/- 3.58%\" (confidence interval confirmed on MathArena model page for moonshot_k25); rank 1 sourceUrl updated to direct MathArena model page where the +/- 3.21% interval is explicitly stated; rank 3 sourceUrl updated to direct MathArena model page; the GLM-5.2 \"90.00% rank 26\" claim in the notes was removed as it could not be confirmed from any accessible source (GLM-5.2 is absent from the HuggingFace mirror dataset as of June 23, 2026); all other top-3 data (model names, lab names, scores, independent evaluation status, near-tie) confirmed accurate.",
+      "judgment": {
+        "slug": "aime",
+        "trustTier": "near_ceiling",
+        "nearTie": true,
+        "honestEmpty": false,
+        "rightBoard": true,
+        "approved": true,
+        "issues": [
+          "All three leaders confirmed VERBATIM on direct MathArena model pages and the HF mirror: Step-3.5-Flash 96.67% +/- 3.21% (stepfun_3_5_flash page), Kimi-K2.6 96.4% (HF mirror, no CI shown, correctly omitted), Kimi-K2.5 95.83% +/- 3.58% (moonshot_k25 page, confirmed as 'Kimi K2.5 (Think)'). Intervals preserved exactly.",
+          "Independently evaluated by MathArena (SRI Lab ETH Zurich + INSAIT), which runs all models via API and does not accept self-reported results. selfReported=false on all three is correct.",
+          "nearTie=true is correct: rank1 96.67% vs rank2 96.4% is a 0.27pp gap, well inside both CIs. A real statistical tie at the top, correctly flagged.",
+          "Rank-3 three-way tie verified: Kimi-K2.5, GLM-5, and Ring-2.6-1T all at 95.83% on the HF mirror (Ring-2.6-1T carries a footnote asterisk). Record names Kimi-K2.5 as representative and discloses the tie. Accurate.",
+          "GLM-5.2 99.2% correctly EXCLUDED: confirmed it is Z.ai self-reported only, not on the MathArena HF mirror, not independently verified (Artificial Analysis Intelligence Index placed GLM-5.2 first among open-weights on June 16 but did NOT independently verify the AIME 2026 figure; Epoch pending). The record's removal of the unconfirmed 'GLM-5.2 at 90.00%' claim is the right adversarial call. Good catch by the prior pass.",
+          "trustTier=near_ceiling is right: multiple labs above 95% on AIME 2026, benchmark near saturation; human qualifiers ~46-67%. Contamination note (10-20pt higher on AIME 2024 vs 2025) is sound.",
+          "rightBoard=true: MathArena is the canonical independent AIME-as-eval board. confidence:high justified because numbers are confirmed on first-party model pages, not just an aggregator."
+        ]
+      }
+    },
+    {
+      "slug": "tau-bench",
+      "verified": false,
+      "honestEmpty": true,
+      "nearTie": false,
+      "leaders": [],
+      "confidence": "low",
+      "name": "TAU-bench",
+      "gotCurrentBoard": false,
+      "hardToRead": true,
+      "boardUrl": "https://taubench.com",
+      "boardLastUpdated": "2026-06-13",
+      "baselineAnchor": "Random chance is near 0%. Human customer-service agents in the original paper scored around 70-80% pass^1 on the airline split. Prior SOTA before 2025 frontier models was below 40% pass^1 on the HAL-verified airline split. Note: the tau3 task fixes (27 airline tasks corrected) raised scores by roughly 14-20 points on airline pass^1 vs the original task set, so HAL-era figures and tau3-era figures are not directly comparable.",
+      "datedAnchor": "HAL (Princeton), independently verified, airline 500-instance Verified split, pass^1 metric, original task set: o4-mini High (OpenAI, April 2025) and Claude 3.7 Sonnet (Anthropic, February 2025) tied at 56.00%; o3 Medium (OpenAI, April 2025) and Claude Opus 4.1 (Anthropic, August 2025, HAL Generalist Agent) both at 54.00%. HAL paused new submissions; its last entries are from August 2025. Source: https://hal.cs.princeton.edu/taubench_airline",
+      "notes": "The HAL Princeton leaderboard (hal.cs.princeton.edu/taubench_airline) was successfully fetched and confirms the datedAnchor figures verbatim. HAL has explicitly paused accepting new model submissions and its most recent entries date to August 2025. The official Sierra Research leaderboard at taubench.com remains JavaScript-rendered and returns only a bare page title on WebFetch, blocking direct score extraction. The live leaderboard now uses tau3 tasks (27 airline tasks corrected), which raised airline pass^1 scores by 14-20 points vs the original task set, making HAL figures stale by benchmark version. Three current mirrors exist but none provide independently verified data: BenchLM.ai (June 13, 2026 snapshot, 38 rows) shows Claude Mythos 5 and Claude Fable 5 tied at 89.2% and Claude Sonnet 4.6 at 87.5%, sourced from taubench.com but explicitly flagged as display-only reference rows not yet source-verified; llm-stats.com (June 23, 2026) shows Claude Sonnet 4.5 at 0.700 on the airline split with 0 verified results out of 23 rows; steel.dev (last updated April 16, 2026) shows Step-3.5-Flash at 88.2% overall, all team-reported. Claude Mythos 5 and Claude Fable 5 are real models (Anthropic, released June 9, 2026), but no TAU-bench scores for them appear on any independently verified source or on Anthropic's own benchmark pages for these models. A Playwright browser agent is still needed to extract the live taubench.com leaderboard directly. Until that is possible, no trustworthy current top-3 can be stated.",
+      "corrections": "Datedanchor confirmed real and verbatim on HAL Princeton (fetched successfully); HAL leaderboard extended: Claude Opus 4.1 (August 2025) also at 54.00% verified, added to anchor. BenchLM scores for Mythos 5 and Fable 5 are unverifiable (display-only, no direct source access). honestEmpty confirmed true. No leaders promoted.",
+      "judgment": {
+        "slug": "tau-bench",
+        "trustTier": "dated",
+        "nearTie": false,
+        "honestEmpty": true,
+        "rightBoard": true,
+        "approved": true,
+        "issues": [
+          "honestEmpty true is the honest call. The HAL Princeton dated anchor is confirmed verbatim (o4-mini High and Claude 3.7 Sonnet tied 56.00%, o3 Medium and Claude Opus 4.1 at 54.00%, submissions paused, last entries Aug 2025).",
+          "Live mirrors conflict badly and are not independently verified (tau2 board shows GLM-4.7-Flash 98.8%; BenchLM shows Claude Mythos 5 and Fable 5 at 89.2%; steel.dev shows Step-3.5-Flash 88.2%). They also measure tau2/tau3 task sets not comparable to the HAL original-task figures, so promoting any of them would be a false current board. Correctly excluded.",
+          "The canonical Sierra board (taubench.com / tau2-bench) is JS plus S3 and unreadable by fetch, and its submission process is team-reported, not Sierra-verified. The dated anchor must clearly state it predates the current tau2/tau3 task fixes (about 14 to 20 points higher on airline pass^1) so the old 56% is not read as today's ceiling."
+        ]
+      }
+    }
+  ],
+  "roster": [
+    {
+      "slug": "mmlu-pro",
+      "name": "MMLU-Pro",
+      "domain": "Reasoning",
+      "scoreType": "Accuracy",
+      "contested": true,
+      "reason": "Board is stale (last data update 2026-03-11, observed 2026-06-11), so newest frontier models may be absent. Ranks 2 and 3 are self-reported by the submitting labs with no subject-level breakdowns. Cross-board divergence exists (at least one third-party aggregator shows a different leader).",
+      "existingLeaderNote": "Gemini-3.1-Pro at 91.16% (Google DeepMind, independently evaluated, 2026-03-11); Gemini-3-Pro (11/25) at 90.1% (self-reported); GPT-o1 at 89.3% (self-reported, non-standard CSV label)."
+    },
+    {
+      "slug": "gpqa-diamond",
+      "name": "GPQA Diamond",
+      "domain": "Reasoning",
+      "scoreType": "Accuracy",
+      "contested": true,
+      "reason": "No official maintainer-run leaderboard exists; the existing table relies on a single independent third-party evaluator (Artificial Analysis). A competing aggregator ranks a gated model (Claude Mythos, approximately 94.6%) above the current leader but Artificial Analysis does not evaluate gated models. The benchmark is widely described as saturated, with top models clustered within 1-2 percentage points inside typical inter-run variance.",
+      "existingLeaderNote": "Gemini 3.1 Pro Preview at 94.1% (Artificial Analysis independent eval, 2026-06-11); GPT-5.5 xhigh at 93.5%; GPT-5.5 high at 93.2%."
+    },
+    {
+      "slug": "swe-bench-verified",
+      "name": "SWE-bench Verified",
+      "domain": "Coding",
+      "scoreType": "Pass rate",
+      "contested": true,
+      "reason": "All top three entries are self-submitted and unchecked by board operators (checked: false in the official JSON). Board data is stale (last commit 2026-02-27). OpenAI publicly stopped reporting this benchmark in February 2026, citing at least 59.4% of audited tasks having flawed test cases and confirmed training-data contamination, though the maintainers (Princeton NLP) have not retired it.",
+      "existingLeaderNote": "live-SWE-agent + Claude 4.5 Opus medium tied with Sonar Foundation Agent + Claude 4.5 Opus, both at 79.2% resolved (500-instance Verified split, self-reported). TRAE + Doubao-Seed-Code at 78.8% (self-reported). The top operator-verified standardized entry is mini-SWE-agent + Claude 4.5 Opus at 76.8%."
+    },
+    {
+      "slug": "humanitys-last-exam",
+      "name": "Humanity's Last Exam (HLE)",
+      "domain": "Reasoning",
+      "scoreType": "Accuracy",
+      "contested": true,
+      "reason": "Independent analyses estimate 18 to 29 percent of chemistry and biology reference answers are wrong (FutureHouse found 29%, Scale AI follow-up found 18%), and a separate HLE-Verified paper found 1,170 items requiring revision across all subjects. All scores are on the uncorrected question set. The board is live and fast-moving.",
+      "existingLeaderNote": "gemini-3.1-pro-preview (thinking high) at 46.44% (+/-1.96) sharing rank 1 with gpt-5.4-pro-2026-03-05 at 44.32% (+/-1.95) (confidence intervals overlap); Muse Spark (Meta) at 40.56% (+/-1.92). All independently evaluated by Scale AI as of 2026-06-11."
+    },
+    {
+      "slug": "frontiermath",
+      "name": "FrontierMath",
+      "domain": "Math",
+      "scoreType": "Accuracy",
+      "contested": true,
+      "reason": "Marked needsRecheck. Epoch AI flagged fatal errors in approximately one third of FrontierMath problems (announced 2026-05-11); corrected scores are pending human review, making every existing figure pre-correction. OpenAI funded the benchmark and had privileged access to most problems, a disclosed conflict. The live board is JavaScript-rendered and could not be directly confirmed. The o3 25.2% figure is self-reported and disputed.",
+      "existingLeaderNote": "GPT-5.5 Pro at 52% Tiers 1-3 and 40% Tier 4 (Epoch AI independent eval, 2026-04-29); GPT-5.4 Pro at 50% Tiers 1-3 and 38% Tier 4 (2026-03-05); GPT-5.2 Pro at 31% Tier 4 (2026-01-23). All pre-correction. Historical anchor: all models below 2% at November 2024 launch."
+    },
+    {
+      "slug": "livecodebench",
+      "name": "LiveCodeBench",
+      "domain": "Coding",
+      "scoreType": "Pass rate",
+      "contested": true,
+      "reason": "No trustworthy current leader table was obtained in either research round. The official board is JavaScript-rendered, the backing JSON (6.63 MB) was too large to retrieve fully, and every readable aggregator showed mutually inconsistent data. Leader table is a known gap.",
+      "existingLeaderNote": "No verified current top-3 exists in the research files. The benchmark design and methodology are well documented but leader numbers could not be sourced to a trustworthy primary or independent board."
+    },
+    {
+      "slug": "arc-agi-1",
+      "name": "ARC-AGI v1",
+      "domain": "Reasoning",
+      "scoreType": "Accuracy",
+      "contested": false,
+      "reason": "The top result (o3 at 75.7% on the semi-private eval, December 2024) was independently verified by ARC Prize, not self-reported. Critics dispute the AGI framing and note the brute-force compute cost, but the numbers themselves are not disputed. This is a December 2024 historical anchor, not a mid-2026 current leader.",
+      "existingLeaderNote": "o3 (OpenAI) at 75.7% within the $10k compute budget on the semi-private 100-task eval (ARC Prize verified, 2024-12-20); a high-compute config scored 87.5% but is not leaderboard-eligible under cost rules."
+    },
+    {
+      "slug": "arc-agi-2",
+      "name": "ARC-AGI v2",
+      "domain": "Reasoning",
+      "scoreType": "Accuracy",
+      "contested": true,
+      "reason": "All 2026 topline scores on the public leaderboard are self-reported lab claims; llm-stats.com explicitly shows 0 verified results out of 13 self-reported entries. The official arcprize.org board is JavaScript-rendered and was never directly read. The gap between public leaderboard scores (GPT-5.5 at 85%) and the 2025 Kaggle competition best (24%) under resource constraints is dramatic.",
+      "existingLeaderNote": "Self-reported aggregator figures (not ARC Prize verified): GPT-5.5 at 85% (2026-04-24), GPT-5.4 Pro at 83.3% (2026-06-09), Gemini 3.1 Pro at 77.1% (2026-06-09). ARC Prize-verified competition baseline: Gemini 3 Pro with Poetiq refinement at 54% at $30/task (2025-12-05)."
+    },
+    {
+      "slug": "mmmu",
+      "name": "MMMU",
+      "domain": "Multimodal",
+      "scoreType": "Accuracy",
+      "contested": true,
+      "reason": "All leaderboard entries are self-reported; the MMMU board accepts self-submitted results rather than running independent evaluations. The board data file is dated 2026-04-08 (observed 2026-06-11) so newest frontier releases may be absent. The static HTML shows a stale update string of 09/05/2025. Test-split submissions have effectively halted after operators reportedly released test-set answers in early 2026, so validation-split scores are the primary comparison surface.",
+      "existingLeaderNote": "GPT-5.1 (OpenAI) at 85.4% MMMU Validation accuracy (self-reported, 2025-11-13); DreamPRM-1.5 at 84.6% (third-party research, self-reported); GPT-5 with thinking at 84.2% (self-reported, 2025-08-07). Human Expert (High) scores 88.6% and is excluded as a reference point."
+    },
+    {
+      "slug": "lmarena-chatbot-arena",
+      "name": "LMArena (Chatbot Arena)",
+      "domain": "Human preference",
+      "scoreType": "Elo",
+      "contested": true,
+      "reason": "Board is fast-moving (Claude Fable 5 was released June 9, 2026 and added June 10); the top two confidence intervals overlap (rank 1 lower bound 1499 overlaps rank 2 upper bound 1508), making rank 1 versus rank 2 a near-statistical tie. Third-party mirrors show conflicting ranks 2 and 3 from different snapshots. The round-2 research produced no fresh arena.ai snapshot, leaving the pack without a current leaderboard screenshot.",
+      "existingLeaderNote": "As of June 10-11, 2026 (round-1 observation): claude-fable-5 at 1510 +/- 11 (rank 1); claude-opus-4-6-thinking at 1504 +/- 4 (rank 2, near-tie); claude-opus-4-7-thinking at 1502 +/- 5 (rank 3). All-Anthropic top three, 6,820,793 community votes. Needs re-check before publication."
+    },
+    {
+      "slug": "humaneval",
+      "name": "HumanEval",
+      "domain": "Coding",
+      "scoreType": "Pass rate",
+      "contested": true,
+      "reason": "All three listed leaders are self-reported by labs via the CodeSOTA aggregator; no official OpenAI leaderboard exists and the original GitHub repo is dormant. The EvalPlus leaderboard (closest to an authoritative third-party tracker for HumanEval+) could not be extracted due to JavaScript rendering. The benchmark is widely considered saturated (frontier models cluster at 92-97%) and superseded by SWE-bench and LiveCodeBench for frontier comparisons.",
+      "existingLeaderNote": "Claude Opus 4.6 (Anthropic) at 96.3% Pass@1 (self-reported, January 2026); GPT-5 (OpenAI) at 95.1% (self-reported, December 2025); o3 (OpenAI) at 94.8% (self-reported, April 2025). All via CodeSOTA aggregator."
+    },
+    {
+      "slug": "aime",
+      "name": "AIME (used as an LLM eval)",
+      "domain": "Math",
+      "scoreType": "Accuracy",
+      "contested": false,
+      "reason": "Leaders come from MathArena (ETH Zurich SRI lab), an independent academic evaluator running standardized protocols, not lab self-reports. The AIME 2026 edition is used specifically because earlier editions have aged into training corpora. MathArena's verification confirmed the top three exactly.",
+      "existingLeaderNote": "Step-3.5-Flash (StepFun AI) at 96.67% on AIME 2026 (MathArena independent eval, 2026-05-01); Kimi-K2.6 (Moonshot AI) at 96.4%; Kimi-K2.5 (Moonshot AI) at 95.83%. Contamination watch: models score 10-20 points higher on AIME 2024 than AIME 2025, confirming memorization on older editions."
+    },
+    {
+      "slug": "tau-bench",
+      "name": "TAU-bench",
+      "domain": "Reasoning",
+      "scoreType": "Pass rate",
+      "contested": true,
+      "reason": "All scores on third-party leaderboards (llm-stats.com, steel.dev) are self-reported by labs with obvious conflict of interest. The only independently verified scores are on the HAL leaderboard at Princeton, which covers only the airline split; no independently verified retail leaderboard exists. A data leakage incident (Few-Shot scaffold contained actual test-set examples) caused HAL to remove all Few-Shot results. Leaders are from April 2025, making them over a year stale as of mid-2026.",
+      "existingLeaderNote": "HAL-verified airline split only: o4-mini High and Claude 3.7 Sonnet tied at 56.00% Pass^1 (2025-04-01 and 2025-02-01 respectively); o3 Medium at 54.00% Pass^1 (2025-04-01). No verified retail leaders exist. Self-reported retail scores (not usable) reach up to 0.862."
+    }
+  ],
+  "qa": null,
+  "meta": {
+    "count": 13,
+    "contested": 13,
+    "hardCracked": 4,
+    "judgeBatches": 3
+  }
+}

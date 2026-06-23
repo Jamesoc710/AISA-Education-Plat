@@ -255,6 +255,16 @@ canonical machine-readable board, so for those the "refresh" is hand-curation, n
 
 ## 9. Phase 0 deep-research prompt (run in a separate deep-research chat)
 
+> **DONE 2026-06-23** via `scripts/workflows/benchmarks-leaders-refresh.workflow.js` (Opus-budgeted:
+> 4 hard-crack + 3 judge). Output: `docs/research/benchmarks-leaders-refresh.json` (13 benchmarks,
+> 0 dashes, every record Opus-judged with a `trustTier` + `approved` flag). NEEDS A HUMAN EYE when
+> authoring the seed: `arc-agi-2` (judge approved=false, top-3 are self-reported lab claims, near
+> tie) should likely ship honest-empty or as clearly-labeled self-reported; `swe-bench-verified` and
+> `tau-bench` had unconfirmed leaders gutted by verify; honest-empty (no trustworthy current board):
+> `livecodebench`, `humaneval`, `tau-bench`. The Fable QA pass was skipped (Fable 5 unavailable);
+> a code scan + the per-record Opus judgment cover it. The prompt below is preserved for reference
+> and re-runs.
+
 > Goal: refresh and complete the LEADER data for the 13 benchmarks so the static seed ships
 > with the most current, trustworthy, DATED top-3 we can get, and an honest-empty verdict where
 > we cannot. This is content, not engineering. Use the model mix from the deep-research memory
