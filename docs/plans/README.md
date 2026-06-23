@@ -25,10 +25,11 @@ glance you can see what is done, what is live work, and what is queued.
 | Doc | What it is |
 | --- | --- |
 | `EXPANSION.md` | The TCO expansion master plan. Source of truth for vision, architecture, every feature, and the phased roadmap. |
+| `BENCHMARKS_PLAN.md` | "The Standings" build plan for the `/benchmarks` surface. Design locked by a design panel (`../../research/benchmarks-design-research.json`); ready to build in a fresh chat. |
 
 ### future/
-See `future/README.md`. Current queue: build board polish, digest catch-up,
-Benchmarks tab, and a "build with AI" tab.
+See `future/README.md`. Current queue: build board polish and a "build with AI"
+tab. (Digest catch-up shipped; the Benchmarks tab is now in `ongoing/`.)
 
 ## Conventions
 

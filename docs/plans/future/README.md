@@ -26,10 +26,11 @@ cadence (daily vs weekly) before enabling unattended runs.
   costs roughly $0.30 to $0.60 (Opus plus web search).
 - Open decision: cron cadence + confirm `maxDuration` / Fluid Compute on the route.
 
-## 3. Benchmarks tab
+## 3. Benchmarks tab  (MOVED to ../ongoing/BENCHMARKS_PLAN.md, 2026-06-23)
 
-A `/benchmarks` surface tracking model and capability benchmarks over time.
-Research is already done and committed:
+Now in planning/build: design locked by a design panel, plan written. See
+`../ongoing/BENCHMARKS_PLAN.md` and `../../research/benchmarks-design-research.json`.
+The research backing is still here for reference:
 
 - `docs/research/benchmarks-research.json` (methodology)
 - `docs/research/benchmarks-research-round2.json` (7 leader tables, records)
