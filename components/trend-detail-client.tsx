@@ -79,9 +79,6 @@ export function TrendDetailClient({
           </Link>
         </nav>
 
-        {/* ── Staleness banner (Phase 4 cron; fresh seeds never trip it) ── */}
-        {trend.isStale && <StaleBanner syncedAt={trend.syncedAt} />}
-
         {/* ── Kicker ─────────────────────────────────────────── */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
           <span
@@ -545,31 +542,6 @@ function ConceptChip({ concept }: { concept: TrendRelatedConcept }) {
       {concept.label}
       <Icon name="arrow-right" size={13} />
     </Link>
-  );
-}
-
-function StaleBanner({ syncedAt }: { syncedAt: string }) {
-  const when = syncedAt.slice(0, 10);
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        padding: "10px 14px",
-        marginBottom: 28,
-        borderRadius: "var(--radius-2)",
-        backgroundColor: "var(--color-gold-soft)",
-        border: "1px solid var(--color-border)",
-        fontSize: 13,
-        color: "var(--color-text-2)",
-      }}
-    >
-      <span style={{ color: "var(--color-gold)", display: "flex" }}>
-        <Icon name="info" size={16} />
-      </span>
-      This brief was last refreshed {when} and may be behind the latest news.
-    </div>
   );
 }
 

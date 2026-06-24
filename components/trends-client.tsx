@@ -48,15 +48,6 @@ export function TrendsClient({
 }) {
   const [category, setCategory] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
-  const [trackerStale, setTrackerStale] = useState(false);
-
-  // Client-only (avoids a Date.now() hydration mismatch): banner when the whole
-  // tracker has not refreshed in over 36h, i.e. the cron is behind.
-  useEffect(() => {
-    if (trends.length === 0) return;
-    const newest = Math.max(...trends.map((t) => Date.parse(t.syncedAt)));
-    setTrackerStale(Number.isFinite(newest) && Date.now() - newest > 36 * 60 * 60 * 1000);
-  }, [trends]);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { All: trends.length };
@@ -107,28 +98,6 @@ export function TrendsClient({
             Admin view: {draftCount} draft{draftCount === 1 ? "" : "s"} below are hidden from members
             until published.
           </p>
-        )}
-
-        {trackerStale && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "10px 14px",
-              marginTop: 24,
-              borderRadius: "var(--radius-2)",
-              backgroundColor: "var(--color-gold-soft)",
-              border: "1px solid var(--color-border)",
-              fontSize: 13,
-              color: "var(--color-text-2)",
-            }}
-          >
-            <span style={{ color: "var(--color-gold)", display: "flex" }}>
-              <Icon name="info" size={16} />
-            </span>
-            These briefs may be behind the latest news. The tracker has not refreshed in over 36 hours.
-          </div>
         )}
 
         {/* ── Category tabs (ghost text, no theme filters) ─────── */}
