@@ -922,8 +922,8 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
   // MMMU-Pro is near_ceiling (Artificial Analysis, independent). BFCL is DATED:
   // its only readable board is the April 2026 CSV, which predates three model
   // generations, so the tier carries the past-tense pick verb (see the use-case
-  // layer). OmniDocBench and Design2Code are clearly-labeled self-reported;
-  // LongBench v2 and Global-MMLU ship honest-empty. All on-thesis for the surface.
+  // layer). OmniDocBench is clearly-labeled self-reported; LongBench v2,
+  // Global-MMLU, and Design2Code ship honest-empty. All on-thesis for the surface.
 
   {
     slug: "eq-bench-creative-writing",
@@ -1428,9 +1428,12 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
     name: "Design2Code",
     domain: "Frontend",
     scoreType: "Similarity",
-    trust: "contested",
+    // Flipped to honest-empty 2026-06-24 (James): no trustworthy independent board
+    // exists for screenshot-to-code; the circulating figures are self-reported via
+    // aggregators, so we ship a dated paper anchor rather than name leaders.
+    trust: "dated",
     nearTie: false,
-    caveat: "scores self-reported via aggregator",
+    caveat: "no independent current board",
     whatItMeasures:
       "Design2Code tests whether a model can look at a picture of a webpage and reproduce it as working front-end code (HTML and CSS), so the output renders to look like the original. The hard part is not writing valid code but matching the visual design faithfully, layout, spacing, colors, and content, from an image alone.",
     exampleTask:
@@ -1442,43 +1445,13 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
     calibration:
       "Scores are a similarity percentage, not a pass or fail, so a high number means close to the original, not perfect. Current leaders sit in the 90s while many capable models trail in the 70s, but because the metric rewards rough visual closeness, small differences near the top are not very meaningful.",
     watchOut:
-      "The leaders here are self-reported figures gathered by aggregators, not independent re-evaluations, so treat the ranking as claims rather than verified results. The similarity metric is also a proxy: a page can score well while being subtly wrong in ways the metric misses, and the underlying benchmark dates to 2024, so it may not reflect how current models handle modern, interactive front-ends.",
+      "There is no trustworthy current leaderboard for screenshot-to-code, which is why this panel shows a dated anchor instead of a live ranking. The figures that circulate come from aggregators republishing self-reported results, not independent re-evaluations, so treat any Design2Code number you see as a claim. The similarity metric is also a proxy: a page can score well while being subtly wrong in ways the metric misses, and the underlying benchmark dates to 2024, so it may not reflect how current models handle modern, interactive front-ends.",
     watchOutUrl: "https://llm-stats.com/benchmarks/design2code",
-    leaders: [
-      {
-        rank: 1,
-        model: "GLM-5V-Turbo",
-        lab: "Zhipu AI (Z.AI)",
-        score: "94.8%",
-        baselineGloss: "self-reported via aggregator",
-        asOfDate: "2026-06-02",
-        sourceUrl: "https://llm-stats.com/benchmarks/design2code",
-        selfReported: true,
-      },
-      {
-        rank: 2,
-        model: "Kimi K2.5",
-        lab: "Moonshot AI",
-        score: "91.3%",
-        baselineGloss: "self-reported via aggregator",
-        asOfDate: "2026-06-02",
-        sourceUrl: "https://llm-stats.com/benchmarks/design2code",
-        selfReported: true,
-      },
-      {
-        rank: 3,
-        model: "Claude Opus 4.6",
-        lab: "Anthropic",
-        score: "77.3%",
-        baselineGloss: "self-reported; clear gap below the top two",
-        asOfDate: "2026-06-02",
-        sourceUrl: "https://llm-stats.com/benchmarks/design2code",
-        selfReported: true,
-      },
-    ],
+    leaders: [],
+    honestEmpty: true,
+    datedAnchor:
+      "No current public leaderboard exists for screenshot-to-code. The original Design2Code benchmark (Stanford, 2024) introduced automatic visual-similarity and element-matching metrics over a set of real webpage screenshots; in that study the strongest system was GPT-4V. Every figure circulating since is self-reported through aggregators with no independent referee, so there is no trustworthy current ranking.",
     leaderboardUrl: "https://llm-stats.com/benchmarks/design2code",
-    boardLastUpdated: "2026-06-02",
-    honestEmpty: false,
     needsRecheck: false,
     relatedConcepts: [
       { label: "Multimodality", slug: "multimodality" },

@@ -139,7 +139,7 @@ export const USE_CASE_SEEDS: UseCaseSeed[] = [
       {
         benchmarkSlug: "design2code",
         trustGloss:
-          "Screenshot-to-code similarity, but the only figures are self-reported through an aggregator.",
+          "Screenshot-to-code similarity, but no trustworthy current board exists, only self-reported aggregator figures.",
       },
     ],
     picks: [
