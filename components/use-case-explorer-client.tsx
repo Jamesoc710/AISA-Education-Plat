@@ -6,7 +6,6 @@ import {
   DraftChip,
   HairRule,
   SectionEyebrow,
-  StatusChip,
   usePrefersReducedMotion,
 } from "@/components/benchmarks-client";
 import type { UseCaseCardData } from "@/lib/use-cases";
@@ -17,10 +16,11 @@ import type { UseCaseCardData } from "@/lib/use-cases";
  * so it inherits the <=600px collapse and the capped benchCellIn stagger for free.
  *
  * Honest-picks-only is enforced at the architecture level here: a row shows only
- * the task name, a one-line audienceLine, and an EVIDENCE STRIP of each backing
- * board's OWN StatusChip (never a verdict synthesized across the set). No model
- * name and no score ever appears on this surface. Column three is a NEUTRAL "See
- * the boards" affordance, never a count-derived "most boards live" verdict. Rows
+ * the task name, a one-line audienceLine, and an EVIDENCE STRIP naming the backing
+ * boards (their trust tags are omitted on the index to keep it uncongested; the
+ * per-board trust lives one click in). No model name and no score ever appears on
+ * this surface. Column three is a NEUTRAL "See the boards" affordance, never a
+ * count-derived "most boards live" verdict. Rows
  * split into two groups by the AUTHORED honestEmpty flag (never a computed live
  * tally): honest-empty tasks sit last under a hairline and an 11px label.
  *
@@ -282,31 +282,16 @@ function UseCaseRow({ useCase, index }: { useCase: UseCaseCardData; index: numbe
           {useCase.audienceLine}
         </p>
 
-        {/* EVIDENCE STRIP: each backing board's short name + its OWN status chip.
-            This replaces PR1's "DOMAIN . scoreType" line. Never a model or a score. */}
+        {/* EVIDENCE STRIP: the backing tests that measure this task, named with
+            hairline separators. Trust tags are deliberately omitted here (they
+            congest the index); the per-board trust lives one click in. Never a
+            model or a score. */}
         {useCase.backing.length > 0 && (
-          <div
-            style={{
-              marginTop: 12,
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              gap: "8px 16px",
-            }}
-          >
-            {useCase.backing.map((b) => (
-              <span key={b.slug} style={{ display: "inline-flex", alignItems: "center", gap: 7, minWidth: 0 }}>
-                <span
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: "var(--color-text-2)",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {shortName(b.name)}
-                </span>
-                <StatusChip trust={b.trust} size="sm" />
+          <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600, color: "var(--color-text-2)", lineHeight: 1.5 }}>
+            {useCase.backing.map((b, i) => (
+              <span key={b.slug}>
+                {i > 0 && <span style={{ margin: "0 8px", color: "var(--color-border)" }}>·</span>}
+                {shortName(b.name)}
               </span>
             ))}
           </div>

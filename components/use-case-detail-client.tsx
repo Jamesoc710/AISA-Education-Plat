@@ -9,7 +9,6 @@ import {
   ArrowRight,
   DraftChip,
   HairRule,
-  StatusChip,
   usePrefersReducedMotion,
 } from "@/components/benchmarks-client";
 import {
@@ -228,42 +227,32 @@ function YardstickList({ yardsticks }: { yardsticks: UseCaseYardstickView[] }) {
       {yardsticks.map((y) => (
         <div
           key={y.benchmarkSlug}
-          style={{
-            display: "flex",
-            gap: 12,
-            padding: "14px 0",
-            borderBottom: "1px solid var(--color-border-subtle)",
-          }}
+          style={{ padding: "14px 0", borderBottom: "1px solid var(--color-border-subtle)" }}
         >
-          <div style={{ flexShrink: 0, marginTop: 2 }}>
-            <StatusChip trust={y.trust} size="sm" />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <Link
-              href={`/benchmarks/${y.benchmarkSlug}`}
-              className="editorial-link"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 5,
-                fontSize: 15,
-                fontWeight: 600,
-                color: "var(--color-text)",
-                textDecoration: "none",
-              }}
-            >
-              {y.name}
-              <ArrowRight />
-            </Link>
-            <p style={{ margin: "6px 0 0", fontSize: 14, lineHeight: 1.55, color: "var(--color-text-2)" }}>
-              {y.trustGloss}
+          <Link
+            href={`/benchmarks/${y.benchmarkSlug}`}
+            className="editorial-link"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              fontSize: 15,
+              fontWeight: 600,
+              color: "var(--color-text)",
+              textDecoration: "none",
+            }}
+          >
+            {y.name}
+            <ArrowRight />
+          </Link>
+          <p style={{ margin: "6px 0 0", fontSize: 14, lineHeight: 1.55, color: "var(--color-text-2)" }}>
+            {y.trustGloss}
+          </p>
+          {y.crossTags.length > 0 && (
+            <p style={{ margin: "5px 0 0", fontSize: 12, color: "var(--color-text-3)", fontStyle: "italic" }}>
+              Also central to {y.crossTags.join(", ")}.
             </p>
-            {y.crossTags.length > 0 && (
-              <p style={{ margin: "5px 0 0", fontSize: 12, color: "var(--color-text-3)", fontStyle: "italic" }}>
-                Also central to {y.crossTags.join(", ")}.
-              </p>
-            )}
-          </div>
+          )}
         </div>
       ))}
     </div>
@@ -365,23 +354,21 @@ function PicksRail({ useCase }: { useCase: UseCaseDetailData }) {
 function RailAnchorHeader({ anchor }: { anchor: UseCaseRailAnchor }) {
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-        <Link
-          href={`/benchmarks/${anchor.slug}`}
-          className="editorial-link"
-          style={{
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: "var(--color-text-2)",
-            textDecoration: "none",
-          }}
-        >
-          {anchor.name}
-        </Link>
-        <StatusChip trust={anchor.trust} size="sm" />
-      </div>
+      <Link
+        href={`/benchmarks/${anchor.slug}`}
+        className="editorial-link"
+        style={{
+          display: "inline-block",
+          fontSize: 11,
+          fontWeight: 600,
+          letterSpacing: "0.14em",
+          textTransform: "uppercase",
+          color: "var(--color-text-2)",
+          textDecoration: "none",
+        }}
+      >
+        {anchor.name}
+      </Link>
       <div
         style={{
           margin: "8px 0 0",
@@ -406,12 +393,9 @@ function RailAnchorHeader({ anchor }: { anchor: UseCaseRailAnchor }) {
 function PickStamp({ pick }: { pick: UseCasePickView }) {
   return (
     <div style={{ padding: "20px 0", borderBottom: "1px solid var(--color-border-subtle)" }}>
-      {/* Line A: trust-gated chip + the claim */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        <StatusChip trust={pick.trust} size="sm" />
-        <span style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text)", lineHeight: 1.35 }}>
-          {pick.label}
-        </span>
+      {/* Line A: the claim. Trust is carried by the verb bridge below, not a chip. */}
+      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text)", lineHeight: 1.35 }}>
+        {pick.label}
       </div>
 
       {/* Honest-empty pick: no model name, ever. */}
@@ -539,9 +523,6 @@ function RailFooter({
                 href={`/benchmarks/${b.slug}`}
                 className="editorial-link"
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
                   fontSize: 12,
                   fontWeight: 600,
                   color: "var(--color-text-2)",
@@ -549,7 +530,6 @@ function RailFooter({
                 }}
               >
                 {shortName(b.name)}
-                <StatusChip trust={b.trust} size="sm" />
               </Link>
             ))}
           </div>
