@@ -512,3 +512,52 @@ model TrendUpdate {
   @@index([date])
   @@map("trend_updates")
 }
+
+// ─── Benchmarks ("The Standings" / State of the Models) ─────────────────────
+// An editorial literacy surface for the AI benchmarks people argue about. STATUS
+// (a trust tier), not the score, is the hero: per our own verified research almost
+// every benchmark number is contested, dated, self-reported, or saturated. Leaders
+// are stored inline as Json (mirroring DigestEdition/Trend, not a second table) so
+// the future weekly cron (PR2) can reuse the inline contentHash + draft-gate shape.
+// Seeded as drafts from docs/research/benchmarks-*.json; nothing student-facing
+// until published. See docs/plans/ongoing/BENCHMARKS_PLAN.md.
+
+model Benchmark {
+  id               String   @id @default(cuid())
+  slug             String   @unique          // kebab-case; upsert key + /benchmarks/[slug]
+  name             String                     // "GPQA Diamond"
+  domain           String                     // Reasoning | Coding | Math | Multimodal | Human preference | Agents
+  scoreType        String                     // Accuracy | Elo | Pass rate (never compare an Elo to a %)
+  trust            String                     // REQUIRED trust tier: live | near_ceiling | contested | dated
+  nearTie          Boolean  @default(false)   // author-set; orthogonal to trust (drives the "ranks tied" note)
+  caveat           String                     // the four-word list-row caveat ("dropped by OpenAI 2026")
+
+  whatItMeasures   String                     // first sentence is the bus-stop lead; the rest fills the WHAT IT MEASURES beat
+  exampleTask      String?
+  whyCare          String
+  scoring          String
+  calibration      String?                    // "chance 25%, experts ~81%, prior SOTA X"
+  watchOut         String
+  watchOutUrl      String?
+
+  leaders          Json                       // [{ rank, model, lab, score(verbatim), baselineGloss, asOfDate, sourceUrl, selfReported, disputed }]
+  leaderboardUrl   String?
+  boardLastUpdated DateTime?
+  honestEmpty      Boolean  @default(false)   // true => "no reliable current leaderboard" + single dated anchor
+  datedAnchor      String?                    // the single dated anchor shown in the honest-empty state
+  needsRecheck     Boolean  @default(false)
+
+  relatedConcepts  Json?                       // [{ label, slug? }] -> /concepts/[slug]
+  sources          Json?                       // string[]
+
+  status           String   @default("draft")  // publish gate: draft | published (mirrors Trend.status)
+  contentHash      String?                       // SHA-256 for the PR2 cron skip (inline, like Trend)
+  curatedAt        DateTime?                      // set on admin edit -> PR2 cron skips this row
+  syncedAt         DateTime @default(now())       // PR2 staleness banner
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([status])
+  @@index([trust])
+  @@map("benchmarks")
+}
