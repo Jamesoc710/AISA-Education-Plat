@@ -176,6 +176,10 @@ export function BenchmarksClient({
         [data-surface="editorial"] .bench-name {
           color: var(--color-text);
           transition: color 180ms ease;
+          /* The whole row is the link; let clicks on the title fall through to
+             the absolute overlay instead of being swallowed by editorial-link's
+             position:relative. Hover effects are row-triggered, so unaffected. */
+          pointer-events: none;
         }
         [data-surface="editorial"] .bench-row:hover .bench-name {
           color: var(--color-accent);

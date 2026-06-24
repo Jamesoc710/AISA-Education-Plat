@@ -241,6 +241,10 @@ export function TrendsClient({
         [data-surface="editorial"] .trend-cell-name {
           color: var(--color-text);
           transition: color 180ms ease;
+          /* The whole cell is the link; let clicks on the title fall through to
+             the absolute overlay instead of being swallowed by editorial-link's
+             position:relative. Hover effects are cell-triggered, so unaffected. */
+          pointer-events: none;
         }
         [data-surface="editorial"] .trend-cell:hover .trend-cell-name {
           color: var(--color-accent);
