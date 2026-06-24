@@ -6,6 +6,7 @@ import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 import { AdminCalendarSync } from "@/components/admin-calendar-sync";
 import { AdminDigestCard, type DigestEditionSummary } from "@/components/admin-digest-card";
 import { AdminTrendsCard, type TrendTrackerSummary } from "@/components/admin-trends-card";
+import { AdminBenchmarksCard, type BenchmarkAdminSummary } from "@/components/admin-benchmarks-card";
 
 interface Stats {
   totalRecruits: number;
@@ -33,6 +34,7 @@ interface AdminOverviewProps {
   calendarSync: CalendarSyncInfo;
   digest: DigestEditionSummary | null;
   trends: TrendTrackerSummary;
+  benchmarks: BenchmarkAdminSummary;
 }
 
 function relativeTime(timestamp: string): string {
@@ -63,7 +65,7 @@ function statusTone(status: ActivityItem["status"]): StatusTagTone {
   }
 }
 
-export function AdminOverview({ stats, activity, calendarSync, digest, trends }: AdminOverviewProps) {
+export function AdminOverview({ stats, activity, calendarSync, digest, trends, benchmarks }: AdminOverviewProps) {
   const statCards: { value: number; label: string; tile: "indigo" | "sky" | "honey" | "mint" }[] = [
     { value: stats.totalRecruits, label: "Total members", tile: "indigo" },
     { value: stats.activeThisWeek, label: "Active this week", tile: "sky" },
@@ -79,6 +81,7 @@ export function AdminOverview({ stats, activity, calendarSync, digest, trends }:
       />
       <AdminDigestCard edition={digest} />
       <AdminTrendsCard trends={trends} />
+      <AdminBenchmarksCard benchmarks={benchmarks} />
       <div
         style={{
           display: "grid",
