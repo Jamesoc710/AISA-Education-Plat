@@ -25,8 +25,12 @@ import { BENCHMARK_SEEDS, type BenchmarkSeed } from "../prisma/seed-data/benchma
 const BANNED_DASHES = /[‒–—―]/;
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const DOMAINS = new Set(["Reasoning", "Coding", "Math", "Multimodal", "Human preference", "Agents"]);
-const SCORE_TYPES = new Set(["Accuracy", "Elo", "Pass rate"]);
+const DOMAINS = new Set([
+  "Reasoning", "Coding", "Math", "Multimodal", "Human preference", "Agents",
+  // v2 use-case roster additions
+  "Writing", "Long context", "Multilingual", "Document AI", "Factuality", "Frontend",
+]);
+const SCORE_TYPES = new Set(["Accuracy", "Elo", "Pass rate", "Composite", "Similarity"]);
 const TRUSTS = new Set(["live", "near_ceiling", "contested", "dated"]);
 
 /** All member-facing strings, for the no-dash check (URLs excluded; hyphens are fine). */

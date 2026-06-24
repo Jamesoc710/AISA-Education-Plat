@@ -28,9 +28,16 @@ export type BenchmarkDomain =
   | "Math"
   | "Multimodal"
   | "Human preference"
-  | "Agents";
+  | "Agents"
+  // v2 use-case roster additions
+  | "Writing"
+  | "Long context"
+  | "Multilingual"
+  | "Document AI"
+  | "Factuality"
+  | "Frontend";
 
-export type BenchmarkScoreType = "Accuracy" | "Elo" | "Pass rate";
+export type BenchmarkScoreType = "Accuracy" | "Elo" | "Pass rate" | "Composite" | "Similarity";
 
 export type BenchmarkLeader = {
   rank: number;
@@ -889,6 +896,532 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
       "https://hal.cs.princeton.edu/taubench_airline",
       "https://arxiv.org/abs/2406.12045",
       "https://github.com/sierra-research/tau-bench",
+    ],
+  },
+
+  // ── v2 use-case roster expansion (BENCHMARKS_USE_CASES_PLAN.md) ─────────────
+  // Authored from docs/research/benchmarks-usecases-research.json + the verified
+  // leader extractions in benchmarks-usecases-leaders-extracted.md. Three have a
+  // verified live top-3 (EQ-Bench, BFCL, OSWorld); the rest are honest-empty or
+  // clearly-labeled self-reported, which is on-thesis for this surface.
+
+  {
+    slug: "eq-bench-creative-writing",
+    name: "EQ-Bench (Creative Writing)",
+    domain: "Writing",
+    scoreType: "Elo",
+    trust: "live",
+    nearTie: true,
+    caveat: "top two nearly tied",
+    whatItMeasures:
+      "EQ-Bench Creative Writing scores how good a model is at actual creative writing, where the hard part is not producing grammatical sentences but avoiding cliche, repetition, and the bland AI slop that creeps in over a longer piece. An independent judge model reads each sample and rates it. It is one of the few writing-quality signals not run by the labs themselves.",
+    exampleTask:
+      "A model is given a creative prompt, say a short story in a specific voice, and its output is scored on craft: originality, style, how much stock phrasing or slop it leans on, and whether it repeats itself or degrades as it goes.",
+    whyCare:
+      "For the single most common student use of AI, writing and editing, this is the closest thing to a trustworthy quality score, because it is judged by a neutral third party (Sam Paech's EQ-Bench) rather than reported by the model's maker. It is a better guide than a vendor's marketing claim when you are choosing a model to help you write.",
+    scoring:
+      "Models are ranked by an Elo Score from head-to-head comparisons (higher is better, like a chess rating), with a separate 0 to 100 Rubric Score also reported. Samples are graded by an LLM judge. Maintained independently at eqbench.com.",
+    calibration:
+      "Elo is relative, so the number only means something next to other models: the current top sits around 2190, third place around 2020, and weaker models fall well below. There is no fixed ceiling; the score says who beats whom, not an absolute quality percentage.",
+    watchOut:
+      "Two cautions. The top two are a near-tie (about 12 Elo points apart), so do not read number one as a clear winner. And the two metrics disagree: GPT-5.5 has the highest Rubric Score of the top three yet ranks only third on Elo, so which model wins depends on which column you read. An LLM judge can also share blind spots with the models it grades, which is an open question for any LLM-judged board.",
+    watchOutUrl: "https://eqbench.com/about.html",
+    leaders: [
+      {
+        rank: 1,
+        model: "claude-fable-5",
+        lab: "Anthropic",
+        score: "Elo 2191.8",
+        baselineGloss: "Rubric 84.05 of 100; LLM-judged",
+        asOfDate: "2026-06-23",
+        sourceUrl: "https://eqbench.com/creative_writing.html",
+        selfReported: false,
+      },
+      {
+        rank: 2,
+        model: "claude-opus-4-7",
+        lab: "Anthropic",
+        score: "Elo 2179.3",
+        baselineGloss: "12.5 Elo behind the leader",
+        asOfDate: "2026-06-23",
+        sourceUrl: "https://eqbench.com/creative_writing.html",
+        selfReported: false,
+      },
+      {
+        rank: 3,
+        model: "gpt-5.5",
+        lab: "OpenAI",
+        score: "Elo 2019.0",
+        baselineGloss: "highest Rubric (85.05) yet third on Elo",
+        asOfDate: "2026-06-23",
+        sourceUrl: "https://eqbench.com/creative_writing.html",
+        selfReported: false,
+      },
+    ],
+    leaderboardUrl: "https://eqbench.com/creative_writing.html",
+    boardLastUpdated: "2026-06-23",
+    honestEmpty: false,
+    needsRecheck: false,
+    relatedConcepts: [
+      { label: "Benchmarking LLMs", slug: "benchmarking-llms" },
+      { label: "Choosing a model", slug: "model-selection" },
+      { label: "Filtering AI hype", slug: "filtering-ai-hype" },
+    ],
+    sources: ["https://eqbench.com/creative_writing.html", "https://eqbench.com/about.html"],
+  },
+
+  {
+    slug: "bfcl",
+    name: "BFCL (Berkeley Function Calling)",
+    domain: "Agents",
+    scoreType: "Accuracy",
+    trust: "live",
+    nearTie: false,
+    caveat: "board predates newest models",
+    whatItMeasures:
+      "BFCL, the Berkeley Function Calling Leaderboard, tests whether a model can correctly call software tools: pick the right function and fill in its arguments when asked to actually do something, not just chat about it. Version 4 extends this to full agent tasks like web search and memory. It is the standard scoreboard for the tool-calling that underpins AI agents.",
+    exampleTask:
+      "Given a request like 'book a table for four at 7pm' and a set of available functions, the model must emit the correct function call with the right arguments (date, time, party size). BFCL checks the call against the expected one, so a plausible-looking but wrong argument fails.",
+    whyCare:
+      "If you are building anything that takes actions (querying an API, running code, browsing the web), tool-calling accuracy is the signal that matters most, and BFCL is the most-cited independent measure of it. It is run by a university lab, not the model makers, so the comparison is apples to apples.",
+    scoring:
+      "Overall accuracy across function-calling categories, evaluated independently by UC Berkeley's Gorilla team against a pinned, reproducible code commit (all model responses are published). Higher is better. Maintained at gorilla.cs.berkeley.edu; the board was last updated in April 2026.",
+    calibration:
+      "Scores average across many call types; the current leaders sit in the low-to-mid 70s, strong open models trail a few points back, and weak models drop into the 50s and below. There is no single human baseline because the task is machine-checkable correctness, not human judgment.",
+    watchOut:
+      "The main caveat is freshness: the official board was last updated in April 2026, so the newest frontier models (Claude Opus 4.7 and 4.8, Gemini 3.1, GPT-5.5) are not yet ranked on it, and the current top reflects the prior generation. The headline page is also JavaScript-rendered; the real data lives in a companion CSV at the same site. Tool-calling accuracy on a fixed test can also overstate reliability in messy real-world use.",
+    watchOutUrl: "https://gorilla.cs.berkeley.edu/leaderboard.html",
+    leaders: [
+      {
+        rank: 1,
+        model: "Claude-Opus-4-5-20251101 (FC)",
+        lab: "Anthropic",
+        score: "77.47% Overall Acc",
+        baselineGloss: "Berkeley-evaluated, reproducible",
+        asOfDate: "2026-04-12",
+        sourceUrl: "https://gorilla.cs.berkeley.edu/data_overall.csv",
+        selfReported: false,
+      },
+      {
+        rank: 2,
+        model: "Claude-Sonnet-4-5-20250929 (FC)",
+        lab: "Anthropic",
+        score: "73.24% Overall Acc",
+        baselineGloss: "about 4 points behind the leader",
+        asOfDate: "2026-04-12",
+        sourceUrl: "https://gorilla.cs.berkeley.edu/data_overall.csv",
+        selfReported: false,
+      },
+      {
+        rank: 3,
+        model: "Gemini-3-Pro-Preview (Prompt)",
+        lab: "Google",
+        score: "72.51% Overall Acc",
+        baselineGloss: "near-tie with second place",
+        asOfDate: "2026-04-12",
+        sourceUrl: "https://gorilla.cs.berkeley.edu/data_overall.csv",
+        selfReported: false,
+      },
+    ],
+    leaderboardUrl: "https://gorilla.cs.berkeley.edu/leaderboard.html",
+    boardLastUpdated: "2026-04-12",
+    honestEmpty: false,
+    needsRecheck: false,
+    relatedConcepts: [
+      { label: "Agents and tool use", slug: "agentic-capabilities" },
+      { label: "Tool use", slug: "tool-use" },
+      { label: "Benchmarking LLMs", slug: "benchmarking-llms" },
+    ],
+    sources: [
+      "https://gorilla.cs.berkeley.edu/leaderboard.html",
+      "https://gorilla.cs.berkeley.edu/blogs/8_berkeley_function_calling_leaderboard.html",
+    ],
+  },
+
+  {
+    slug: "osworld",
+    name: "OSWorld",
+    domain: "Agents",
+    scoreType: "Pass rate",
+    trust: "live",
+    nearTie: true,
+    caveat: "leaders are agent scaffolds",
+    whatItMeasures:
+      "OSWorld tests whether an AI agent can actually operate a real computer: open real apps, click around, edit files, and chain steps across programs to finish a task, versus just describing how to do it. Tasks run on a real operating system and are graded by checking the end state, so the agent has to genuinely get the job done.",
+    exampleTask:
+      "An agent is given a real desktop task, for example 'in this spreadsheet, sort the rows by date and save it', and must drive the actual application to completion. A script then checks the resulting file, so a near-miss that leaves the file wrong scores zero.",
+    whyCare:
+      "This is the closest thing to a can-it-use-my-laptop-for-me test, so it is the key signal for anyone weighing an agent for real desktop or web automation. It is also a striking progress story: at the 2024 launch the best AI finished only about 12 percent of tasks versus 72 percent for humans, and by mid-2026 the top agents have passed the human number.",
+    scoring:
+      "Success rate on real computer tasks (the 361-task verified split), scored by per-task execution checks, higher is better. Maintained by the OSWorld team; the verified board is current as of mid-2026.",
+    calibration:
+      "Humans complete about 72 percent of these tasks. At the November 2024 launch the best AI managed only 12.24 percent; by mid-2026 the leaders reach the low-to-mid 80s, so the field has gone from far below human to above the human reference in under two years.",
+    watchOut:
+      "The biggest catch is what a model means here: the top entries are full agent scaffolds (for example Pointer Agent with Opus 4.7), not the bare model you would call from an API, and the same scaffold appears twice with different base models, so the ranking partly measures the harness, not the model. The top three are also a near-tie (within about two points). The official page is JavaScript-rendered; the verified data lives in a downloadable spreadsheet.",
+    watchOutUrl: "https://os-world.github.io/",
+    leaders: [
+      {
+        rank: 1,
+        model: "Pointer Agent w/ Opus 4.7",
+        lab: "Pointer",
+        score: "83.6% (301.94/361 tasks)",
+        baselineGloss: "an agent scaffold, not a bare model",
+        asOfDate: "2026-05-21",
+        sourceUrl: "https://os-world.github.io/",
+        selfReported: false,
+      },
+      {
+        rank: 2,
+        model: "Holo3-35B-A3B",
+        lab: "H Company",
+        score: "82.6% (296.41/359 tasks)",
+        baselineGloss: "1 point behind the leader",
+        asOfDate: "2026-04-20",
+        sourceUrl: "https://os-world.github.io/",
+        selfReported: false,
+      },
+      {
+        rank: 3,
+        model: "Pointer Agent w/ Sonnet 4.6",
+        lab: "Pointer",
+        score: "81.5% (293.22/360 tasks)",
+        baselineGloss: "same scaffold, smaller base model",
+        asOfDate: "2026-05-21",
+        sourceUrl: "https://os-world.github.io/",
+        selfReported: false,
+      },
+    ],
+    leaderboardUrl: "https://os-world.github.io/",
+    boardLastUpdated: "2026-06-08",
+    honestEmpty: false,
+    needsRecheck: false,
+    relatedConcepts: [
+      { label: "Agents and tool use", slug: "agentic-capabilities" },
+      { label: "Tool use", slug: "tool-use" },
+      { label: "Multimodality", slug: "multimodality" },
+    ],
+    sources: ["https://os-world.github.io/", "https://arxiv.org/abs/2404.07972"],
+  },
+
+  {
+    slug: "longbench-v2",
+    name: "LongBench v2",
+    domain: "Long context",
+    scoreType: "Accuracy",
+    trust: "dated",
+    nearTie: false,
+    caveat: "no trustworthy current board",
+    whatItMeasures:
+      "LongBench v2 tests whether a model can truly understand and reason over very long inputs, not just find one fact buried in them, using 503 hard multiple-choice questions over contexts from a few thousand up to two million words. The trick is that answers require connecting information across the whole document, so a model cannot win by keyword-matching.",
+    exampleTask:
+      "A model is given a long source, a multi-document set, a long dialogue history, or an entire code repository, and a four-option question whose answer depends on combining details from across it, under conditions where even human experts working under time pressure get only about half right.",
+    whyCare:
+      "Huge context-window numbers are a top marketing claim, and LongBench v2 tests whether a model actually uses that context to reason, which is what matters if you feed it long readings, contracts, or codebases. It is one of the benchmarks that is genuinely not solved yet, so it still separates models.",
+    scoring:
+      "Accuracy on the four-option multiple-choice set (higher is better). Built by a Tsinghua-led team, released December 2024 and published at ACL 2025. The public board exists but is JavaScript-rendered and has not been kept current.",
+    calibration:
+      "Blind guessing scores about 25 percent on the four-option format. Human experts reached only 53.7 percent under a 15-minute limit; the best plain model managed 50.1 percent, and o1-preview, using extended reasoning, reached 57.7 percent, just above the human number. That narrow spread is why this benchmark is considered unsaturated and hard.",
+    watchOut:
+      "There is no trustworthy current public top-3 for LongBench v2: the official board is JavaScript-rendered and its readable figures are a stale early-2025 snapshot, so this panel shows a dated anchor rather than a live ranking. Long-context scores are also sensitive to exactly how the context is fed in, so cross-model comparisons can be apples to oranges. Treat any single current number with caution.",
+    watchOutUrl: "https://longbench2.github.io/",
+    leaders: [],
+    honestEmpty: true,
+    datedAnchor:
+      "No reliable current public leaderboard: the official board is JavaScript-rendered and its readable scores are a stale early-2025 snapshot. The most-cited dated anchors are from the original paper (DEC 2024): human experts 53.7 percent under a 15-minute limit, the best directly-answering model 50.1 percent, and o1-preview 57.7 percent using extended reasoning; blind guessing is about 25 percent.",
+    leaderboardUrl: "https://longbench2.github.io/",
+    boardLastUpdated: "2025-03-25",
+    needsRecheck: false,
+    relatedConcepts: [
+      { label: "Context windows", slug: "context-windows" },
+      { label: "Benchmarking LLMs", slug: "benchmarking-llms" },
+      { label: "Reasoning models", slug: "reasoning-models" },
+    ],
+    sources: [
+      "https://arxiv.org/abs/2412.15204",
+      "https://longbench2.github.io/",
+      "https://aclanthology.org/2025.acl-long.183",
+    ],
+  },
+
+  {
+    slug: "global-mmlu",
+    name: "Global-MMLU",
+    domain: "Multilingual",
+    scoreType: "Accuracy",
+    trust: "dated",
+    nearTie: false,
+    caveat: "no public leaderboard exists",
+    whatItMeasures:
+      "Global-MMLU asks MMLU-style exam questions, general knowledge and reasoning, but across 42 languages, and it separates questions that need culture-specific knowledge from ones that do not. The hard part it exposes is that a model can ace a topic in English yet fail the same question in a lower-resourced language or when local cultural knowledge is required.",
+    exampleTask:
+      "The same multiple-choice exam question is posed in many languages, from high-resource ones like Spanish and Chinese to lower-resourced ones like Yoruba or Sinhala, and the model is scored per language, so an English-only strength is revealed as a weakness elsewhere.",
+    whyCare:
+      "For anyone studying or working outside English, a single headline MMLU score hides large per-language gaps, and this benchmark is built to surface them. If you need a model for coursework, translation, or research in another language, the average tells you little; the per-language picture is what matters.",
+    scoring:
+      "Accuracy on multilingual multiple-choice questions, reported per language and split into culturally sensitive versus culturally agnostic subsets. Built by Cohere Labs (Cohere For AI); published at ACL 2025. It is a dataset for running your own evaluation, not a maintained public leaderboard.",
+    calibration:
+      "About 28 percent of the questions require culturally sensitive knowledge, and a model's ranking can change depending on whether you score the full set or only those questions. Frontier models tend to score high on high-resource languages and drop sharply on low-resource ones; there is no single headline number that captures both.",
+    watchOut:
+      "There is no public Global-MMLU leaderboard at all: the primary sources (the dataset card and the paper) ship the data for you to run yourself but publish no ranking, so any Global-MMLU top model you see online is a third-party aggregator's self-reported figure. The benchmark's own authors also flag a geographic skew in the source material (heavily North-American and European), which is part of the bias story it was built to expose.",
+    watchOutUrl: "https://arxiv.org/abs/2412.03304",
+    leaders: [],
+    honestEmpty: true,
+    datedAnchor:
+      "No public leaderboard exists: Global-MMLU is a 42-language dataset meant for running your own evaluation, and its primary sources publish no ranking or top-model scores. The durable finding (ACL 2025) is structural, not a single number: about 28 percent of questions need culturally sensitive knowledge, and model rankings shift depending on whether you score the full set or only the culturally sensitive subset.",
+    leaderboardUrl: "https://huggingface.co/datasets/CohereForAI/Global-MMLU",
+    needsRecheck: false,
+    relatedConcepts: [
+      { label: "Benchmarking LLMs", slug: "benchmarking-llms" },
+      { label: "Bias in training data", slug: "bias-training-data" },
+      { label: "Filtering AI hype", slug: "filtering-ai-hype" },
+    ],
+    sources: [
+      "https://huggingface.co/datasets/CohereForAI/Global-MMLU",
+      "https://arxiv.org/abs/2412.03304",
+      "https://aclanthology.org/2025.acl-long.919",
+    ],
+  },
+
+  {
+    slug: "omnidocbench",
+    name: "OmniDocBench",
+    domain: "Document AI",
+    scoreType: "Composite",
+    trust: "contested",
+    nearTie: false,
+    caveat: "self-reported; maintainer conflict",
+    whatItMeasures:
+      "OmniDocBench tests how well a system turns a real PDF page into clean structured output, getting the text, tables, formulas, layout, and reading order all right at once, versus just running plain OCR on tidy text. It spans 1,651 real pages across many document types, so it measures the messy real-world version of document parsing.",
+    exampleTask:
+      "A system is handed a real PDF page, a scanned form, a paper with equations, or a multi-column report with tables, and must reproduce its full content as structured data; the score combines how well it recovered the text, the tables, and the formulas.",
+    whyCare:
+      "Turning PDFs and scans into usable data is one of the most common practical AI tasks, for research, finance, and paperwork, and OmniDocBench is the most comprehensive public test of it. The catch, below, is that its leaderboard cannot be taken at face value.",
+    scoring:
+      "A composite Overall score (0 to 100, higher is better) that averages a text edit-distance metric, a table-structure metric (TEDS), and a formula metric (CDM). Maintained by OpenDataLab; published at CVPR 2025. Text scoring currently covers only Chinese and English.",
+    calibration:
+      "The Overall score blends three different sub-metrics, so it is a rough composite rather than a single accuracy number; the leaders cluster in the mid-90s, which sounds near-perfect but reflects the metric's generosity more than solved document parsing.",
+    watchOut:
+      "Treat the ranking with care for two reasons. The top scores are self-reported in the project's own repository rather than independently re-run, and the number-one system is maintained by OpenDataLab, the same organization that maintains the benchmark, a direct conflict of interest. Text evaluation also covers only Chinese and English, even though the dataset spans more languages. There is no independent third-party board to check these numbers against.",
+    watchOutUrl: "https://github.com/opendatalab/OmniDocBench",
+    leaders: [
+      {
+        rank: 1,
+        model: "MinerU2.5-Pro",
+        lab: "OpenDataLab",
+        score: "95.75 Overall",
+        baselineGloss: "self-reported; same org as the benchmark",
+        asOfDate: "2026-06-23",
+        sourceUrl: "https://github.com/opendatalab/OmniDocBench",
+        selfReported: true,
+        disputed: true,
+      },
+      {
+        rank: 2,
+        model: "GLM-OCR",
+        lab: "Zhipu AI (Z.AI)",
+        score: "95.22 Overall",
+        baselineGloss: "self-reported in the repo",
+        asOfDate: "2026-06-23",
+        sourceUrl: "https://github.com/opendatalab/OmniDocBench",
+        selfReported: true,
+      },
+      {
+        rank: 3,
+        model: "PaddleOCR-VL-1.5",
+        lab: "Baidu (PaddlePaddle)",
+        score: "94.93 Overall",
+        baselineGloss: "self-reported in the repo",
+        asOfDate: "2026-06-23",
+        sourceUrl: "https://github.com/opendatalab/OmniDocBench",
+        selfReported: true,
+      },
+    ],
+    leaderboardUrl: "https://github.com/opendatalab/OmniDocBench",
+    honestEmpty: false,
+    needsRecheck: false,
+    relatedConcepts: [
+      { label: "Multimodality", slug: "multimodality" },
+      { label: "Benchmarking LLMs", slug: "benchmarking-llms" },
+      { label: "Filtering AI hype", slug: "filtering-ai-hype" },
+    ],
+    sources: [
+      "https://github.com/opendatalab/OmniDocBench",
+      "https://huggingface.co/datasets/opendatalab/OmniDocBench",
+    ],
+  },
+
+  {
+    slug: "simpleqa",
+    name: "SimpleQA",
+    domain: "Factuality",
+    scoreType: "Accuracy",
+    trust: "contested",
+    nearTie: false,
+    caveat: "published numbers wildly disagree",
+    whatItMeasures:
+      "SimpleQA tests whether a model knows short, checkable facts without making things up, using 4,326 deliberately hard fact-seeking questions with single, indisputable answers. The point is not difficulty of reasoning but honesty about knowledge: a good model answers what it knows and declines what it does not, instead of confidently inventing an answer.",
+    exampleTask:
+      "A question has one correct short answer, a specific date, name, or number, chosen to be obscure enough that models often get it wrong. The reply is graded correct, incorrect, or not attempted, so confidently wrong answers are penalized and an honest I do not know beats a fabrication.",
+    whyCare:
+      "Hallucination, confidently stating false facts, is the failure mode that most often burns students using AI for research or coursework, and SimpleQA is the best-known test of it. But it is also a cautionary tale about benchmark numbers: the scores published for it disagree so wildly that no single figure can be trusted.",
+    scoring:
+      "Built by OpenAI (October 2024). Models are graded correct, incorrect, or not attempted, and reported as percent correct (some sources report an F-score that rewards declining over guessing wrong). There is no single authoritative live leaderboard; figures circulate through third-party aggregators.",
+    calibration:
+      "SimpleQA is designed to be hard: across roughly 45 models tracked by one aggregator the average is only about 21 percent correct, and the benchmark was built so even strong models score low. That makes the very high figures some boards report a red flag rather than a reassurance.",
+    watchOut:
+      "This is the clearest do-not-trust-a-single-number case on the page. As of mid-2026 published SimpleQA leaders range from about 53 percent on one board to 97 percent on another, on a test whose multi-model average is around 21 percent, so the high numbers almost certainly reflect tool use (web search) or self-reporting rather than the model's own knowledge. A cleaned-up SimpleQA Verified has since been proposed to fix the reliability problems. Trust the method, not any single leaderboard figure.",
+    watchOutUrl: "https://arxiv.org/abs/2509.07968",
+    leaders: [],
+    honestEmpty: true,
+    datedAnchor:
+      "No reliable current leaderboard: as of mid-2026 published SimpleQA figures range from about 53 percent (pricepertoken, MAY 2026) to 97 percent (llm-stats, MAY 2026) on a test whose multi-model average is about 21 percent, so no single number is trustworthy. The high figures likely reflect web search or self-reporting, not the model's own knowledge. SimpleQA was built by OpenAI (OCT 2024) specifically so that even strong models score low.",
+    needsRecheck: false,
+    relatedConcepts: [
+      { label: "Hallucinations", slug: "hallucinations" },
+      { label: "Benchmarking LLMs", slug: "benchmarking-llms" },
+      { label: "Filtering AI hype", slug: "filtering-ai-hype" },
+    ],
+    sources: [
+      "https://cdn.openai.com/papers/simpleqa.pdf",
+      "https://arxiv.org/abs/2509.07968",
+      "https://llm-stats.com/benchmarks/simpleqa",
+    ],
+  },
+
+  {
+    slug: "mmmu-pro",
+    name: "MMMU-Pro",
+    domain: "Multimodal",
+    scoreType: "Accuracy",
+    trust: "near_ceiling",
+    nearTie: true,
+    caveat: "top scores nearly tied",
+    whatItMeasures:
+      "MMMU-Pro is the harder, de-saturated version of MMMU: the same college-level questions that mix images with text, but with more answer choices and a vision-only mode, so a model cannot lean on the text alone or guess its way through. It is built to keep separating top multimodal models after they maxed out the original MMMU.",
+    exampleTask:
+      "A question shows a chart, diagram, or figure and asks a college-exam-level question with up to ten answer options, sometimes with the question embedded in the image itself, so the model must actually read and reason about the visual, not just the surrounding words.",
+    whyCare:
+      "As AI assistants increasingly handle screenshots, documents, and photos, MMMU-Pro is the sterner test of whether a model truly understands images at a college level. Usefully, unlike the original MMMU (whose board is self-reported), this one has an independent evaluator, so the numbers are more trustworthy.",
+    scoring:
+      "Accuracy on the harder multiple-choice set (higher is better). The figures here come from Artificial Analysis, an independent group that runs its own evaluations rather than taking lab submissions. The underlying benchmark is from 2024.",
+    calibration:
+      "MMMU-Pro runs roughly 10 to 20 points lower than the original MMMU because it is deliberately harder; the current leaders cluster in the low-to-mid 80s, close enough that the ordering at the very top is within normal measurement noise.",
+    watchOut:
+      "The top is a near-tie: the same model at two effort settings holds the first two spots within a couple of points, and the independent board's current top three are all Google Gemini variants, so it reads as a single-lab cluster rather than a broad field. Independent boards and self-reported aggregators also disagree on the leader and even the scale (one lists a 94 percent self-reported figure versus the mid-80s on independent runs), so prefer the independently-evaluated number.",
+    watchOutUrl: "https://artificialanalysis.ai/evaluations/mmmu-pro",
+    leaders: [
+      {
+        rank: 1,
+        model: "Gemini 3.5 Flash (high)",
+        lab: "Google",
+        score: "84%",
+        baselineGloss: "Artificial Analysis, independent",
+        asOfDate: "2026-06-23",
+        sourceUrl: "https://artificialanalysis.ai/evaluations/mmmu-pro",
+        selfReported: false,
+      },
+      {
+        rank: 2,
+        model: "Gemini 3.5 Flash (medium)",
+        lab: "Google",
+        score: "84%",
+        baselineGloss: "same model, lower effort; tied",
+        asOfDate: "2026-06-23",
+        sourceUrl: "https://artificialanalysis.ai/evaluations/mmmu-pro",
+        selfReported: false,
+      },
+      {
+        rank: 3,
+        model: "Gemini 3.1 Pro Preview",
+        lab: "Google",
+        score: "82%",
+        baselineGloss: "within measurement noise",
+        asOfDate: "2026-06-23",
+        sourceUrl: "https://artificialanalysis.ai/evaluations/mmmu-pro",
+        selfReported: false,
+      },
+    ],
+    leaderboardUrl: "https://artificialanalysis.ai/evaluations/mmmu-pro",
+    honestEmpty: false,
+    needsRecheck: false,
+    relatedConcepts: [
+      { label: "Multimodality", slug: "multimodality" },
+      { label: "Benchmarking LLMs", slug: "benchmarking-llms" },
+      { label: "Reasoning models", slug: "reasoning-models" },
+    ],
+    sources: [
+      "https://artificialanalysis.ai/evaluations/mmmu-pro",
+      "https://arxiv.org/abs/2409.02813",
+      "https://mmmu-benchmark.github.io/",
+    ],
+  },
+
+  {
+    slug: "design2code",
+    name: "Design2Code",
+    domain: "Frontend",
+    scoreType: "Similarity",
+    trust: "contested",
+    nearTie: false,
+    caveat: "scores self-reported via aggregator",
+    whatItMeasures:
+      "Design2Code tests whether a model can look at a picture of a webpage and reproduce it as working front-end code (HTML and CSS), so the output renders to look like the original. The hard part is not writing valid code but matching the visual design faithfully, layout, spacing, colors, and content, from an image alone.",
+    exampleTask:
+      "A model is shown a screenshot of a real webpage and must generate the HTML and CSS that recreates it; the result is scored on how closely the rendered page matches the original, both overall visual similarity and whether individual elements (text, images, blocks) are present and placed correctly.",
+    whyCare:
+      "Turning a design mockup into working front-end code is a concrete, fast-growing use of AI for anyone building apps or sites, and Design2Code is the named benchmark for it. But its public numbers come from aggregators and labs, not an independent referee, so read them as claims.",
+    scoring:
+      "A visual-and-structural similarity score (higher is better) over a set of real webpage screenshots; the original benchmark is from a 2024 Stanford-led paper. There is no single maintainer-run live leaderboard; current figures are collected by third-party aggregators from self-reported results.",
+    calibration:
+      "Scores are a similarity percentage, not a pass or fail, so a high number means close to the original, not perfect. Current leaders sit in the 90s while many capable models trail in the 70s, but because the metric rewards rough visual closeness, small differences near the top are not very meaningful.",
+    watchOut:
+      "The leaders here are self-reported figures gathered by aggregators, not independent re-evaluations, so treat the ranking as claims rather than verified results. The similarity metric is also a proxy: a page can score well while being subtly wrong in ways the metric misses, and the underlying benchmark dates to 2024, so it may not reflect how current models handle modern, interactive front-ends.",
+    watchOutUrl: "https://llm-stats.com/benchmarks/design2code",
+    leaders: [
+      {
+        rank: 1,
+        model: "GLM-5V-Turbo",
+        lab: "Zhipu AI (Z.AI)",
+        score: "94.8%",
+        baselineGloss: "self-reported via aggregator",
+        asOfDate: "2026-06-02",
+        sourceUrl: "https://llm-stats.com/benchmarks/design2code",
+        selfReported: true,
+      },
+      {
+        rank: 2,
+        model: "Kimi K2.5",
+        lab: "Moonshot AI",
+        score: "91.3%",
+        baselineGloss: "self-reported via aggregator",
+        asOfDate: "2026-06-02",
+        sourceUrl: "https://llm-stats.com/benchmarks/design2code",
+        selfReported: true,
+      },
+      {
+        rank: 3,
+        model: "Claude Opus 4.6",
+        lab: "Anthropic",
+        score: "77.3%",
+        baselineGloss: "self-reported; clear gap below the top two",
+        asOfDate: "2026-06-02",
+        sourceUrl: "https://llm-stats.com/benchmarks/design2code",
+        selfReported: true,
+      },
+    ],
+    leaderboardUrl: "https://llm-stats.com/benchmarks/design2code",
+    boardLastUpdated: "2026-06-02",
+    honestEmpty: false,
+    needsRecheck: false,
+    relatedConcepts: [
+      { label: "Multimodality", slug: "multimodality" },
+      { label: "Benchmarking LLMs", slug: "benchmarking-llms" },
+      { label: "Filtering AI hype", slug: "filtering-ai-hype" },
+    ],
+    sources: [
+      "https://arxiv.org/abs/2403.03163",
+      "https://llm-stats.com/benchmarks/design2code",
+      "https://benchlm.ai/benchmarks/design2Code",
     ],
   },
 ];
