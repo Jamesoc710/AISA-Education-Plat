@@ -1,0 +1,299 @@
+{
+  "summary": "Deep research harness — fan-out web searches, fetch sources, adversarially verify claims, synthesize a cited report.",
+  "agentCount": 101,
+  "logs": [
+    "Q: Build a current (June 2026) content pack for 9 AI benchmarks for an AI-literacy …",
+    "Decomposed into 5 angles: broad/primary — official leaderboards and maintainers, current leaders — verbatim top-3 scores June 2026, academic/technical — papers, metrics, and scales, contrarian/skeptical — contamination, criticism, saturation, practitioner/verification — independent eval vs self-report and ties",
+    "broad/primary — official leaderboards and maintainers: 6 results",
+    "contrarian/skeptical — contamination, criticism, saturation: 6 results",
+    "academic/technical — papers, metrics, and scales: 6 results",
+    "academic/technical — papers, metrics, and scales: 3 novel (3 filtered)",
+    "practitioner/verification — independent eval vs self-report and ties: 6 results",
+    "practitioner/verification — independent eval vs self-report and ties: 2 novel (4 filtered)",
+    "current leaders — verbatim top-3 scores June 2026: 6 results",
+    "current leaders — verbatim top-3 scores June 2026: 2 novel (4 filtered)",
+    "Fetched 19 sources → 91 claims → verifying top 25",
+    "\"The BFCL leaderboard is maintained by UC Berkeley'…\": 3-0 ✓",
+    "\"BFCL is currently at version V4, which adds holist…\": 3-0 ✓",
+    "\"BFCL scores are independently evaluated by the Gor…\": 3-0 ✓",
+    "\"OSWorld is a benchmark that evaluates multimodal A…\": 2-1 ✓",
+    "\"The actual top-ranked model names and accuracy sco…\": 3-0 ✓",
+    "\"OSWorld contains 369 computer tasks (361 when the …\": 3-0 ✓",
+    "\"The human baseline on OSWorld is roughly 72.36% ta…\": 3-0 ✓",
+    "\"LongBench v2 measures long-context understanding a…\": 3-0 ✓",
+    "\"The live OSWorld leaderboard with ranked models an…\": 2-1 ✓",
+    "\"The current top-3 leaders on LongBench v2 (sorted …\": 0-3 ✗",
+    "\"The EQ-Bench Longform Creative Writing leaderboard…\": 3-0 ✓",
+    "\"Global-MMLU is a multilingual MMLU benchmark cover…\": 3-0 ✓",
+    "\"The dataset distinguishes Culturally Sensitive (CS…\": 3-0 ✓",
+    "\"The human expert baseline is 53.7% overall accurac…\": 0-3 ✗",
+    "\"OmniDocBench measures end-to-end document parsing …\": 3-0 ✓",
+    "\"The benchmark's headline 'Overall' score is a comp…\": 3-0 ✓",
+    "\"The official dataset card and arXiv paper (2412.03…\": 3-0 ✓",
+    "\"LongBench v2 measures LLMs' ability to handle long…\": 3-0 ✓",
+    "\"LongBench v2 consists of 503 challenging multiple-…\": 3-0 ✓",
+    "\"On the EQ-Bench Creative Writing v3 leaderboard (a…\": 3-0 ✓",
+    "\"On the OmniDocBench v1.6_full end-to-end leaderboa…\": 1-2 ✗",
+    "\"Baseline anchors: human experts reached only 53.7%…\": 3-0 ✓",
+    "\"OSWorld is a benchmark of 369 real computer tasks …\": 2-1 ✓",
+    "\"The board ranks by Elo Score and also reports a se…\": 2-1 ✓",
+    "\"On OSWorld, humans achieve a 72.36% success rate w…\": 0-3 ✗",
+    "Verify done: 25 claims → 21 confirmed, 4 killed"
+  ],
+  "result": {
+    "question": "Build a current (June 2026) content pack for 9 AI benchmarks for an AI-literacy education site aimed at university students from mixed, non-expert backgrounds. The benchmarks: SimpleQA, LongBench v2, BFCL (Berkeley Function Calling Leaderboard), OSWorld, OmniDocBench, MMMU-Pro, Design2Code, EQ-Bench (Creative Writing), Global-MMLU.\n\nFor EACH benchmark return, with a source URL for every factual claim and especially for every leader number:\n(1) what it measures, in one plain sentence with no jargon-defined-by-jargon, ideally framed through a difficulty contrast;\n(2) why it matters in the AI landscape and for a student trying to pick a model for a task;\n(3) how scoring works: the metric and scale, who maintains the leaderboard, and the official leaderboard or paper URL plus the date it was last updated;\n(4) watch out for: known criticisms, data contamination concerns, and saturation status (is it effectively solved?);\n(5) the current (June 2026) top-3 leaders, each with the model and lab, the score COPIED VERBATIM as the board states it (keep intervals like \"x +/- y\" and any split-name caveats), an as-of date, a source URL, and whether each score is self-reported or independently evaluated, and whether it is disputed;\n(6) whether the top ranks are a statistical tie (a near-tie), stated plainly;\n(7) a one-line baseline anchor a non-expert needs to read the top score (random chance, expert human level, prior state of the art);\n(8) if NO trustworthy current board exists (for example a JavaScript-only board that cannot be read, or one where every entry is self-reported), say so explicitly and give the single most-cited DATED anchor figure instead of guessing.\n\nAdversarially verify every top-3 before returning it. Flag any benchmark where the top score is disputed, self-reported only, or moving fast. Style rule: zero em dashes or en dashes anywhere in the prose; use commas, colons, or hyphens instead.",
+    "summary": "This pack covers 6 of the 9 requested benchmarks with verified, source-backed content; SimpleQA, MMMU-Pro, and Design2Code produced no claims that survived 3-vote adversarial verification and are not represented here. For the benchmarks that ARE covered: only ONE benchmark yielded a trustworthy, primary-source, current top-3 leaderboard read, EQ-Bench Creative Writing v3, where claude-fable-5 (Anthropic, Elo 2191.8), claude-opus-4-7 (Anthropic, Elo 2179.3), and gpt-5.5 (OpenAI, Elo 2019.0) lead an independent LLM-judged board. The other five benchmarks could NOT supply a verifiable current top-3 from their primary source: BFCL, OSWorld, and the EQ-Bench longform board are all JavaScript-rendered so their static pages show empty tables (though BFCL and OSWorld scores are recoverable from companion CSV/XLSX files at the same origin), and Global-MMLU's primary sources (HuggingFace card plus the arXiv paper) contain no leaderboard at all. What is rock-solid across all six is the definitional layer: what each benchmark measures, its scoring metric, its maintainer, and its difficulty/baseline anchors, all confirmed against primary and peer-reviewed sources. Time-sensitivity is the dominant caveat: every leaderboard date cited (BFCL 2026-04-12, OSWorld ~June 2026, EQ-Bench Feb 2026) will go stale, and the one live top-3 (EQ-Bench) shows a near-tie at ranks 1-2 plus an Elo-vs-Rubric metric disagreement that a non-expert must be warned about.",
+    "findings": [
+      {
+        "claim": "EQ-Bench Creative Writing v3 is the only benchmark in this pack with a verifiable, current, primary-source top-3, and it is an independent (LLM-judged, not lab-self-reported) board. Top 3 by Elo Score as of the June 2026 read: #1 claude-fable-5 (Anthropic) Elo 2191.8; #2 claude-opus-4-7 (Anthropic) Elo 2179.3; #3 gpt-5.5 (OpenAI) Elo 2019.0. WHAT IT MEASURES: creative-writing quality, where the hard part is not producing grammatical text but avoiding cliche ('slop'), repetition, and degradation over a piece. WHY IT MATTERS: it is one of the few model-quality signals run by a neutral third party (Sam Paech) rather than the labs themselves, so a student choosing a model for writing tasks can trust it more than a vendor's own marketing number. SCORING: ranks by an Elo Score (head-to-head style rating, higher is better) and separately reports a 0-100 Rubric Score; judged by an LLM (Claude Sonnet 4.6 on the longform variant). WATCH OUT: the two metrics disagree at the top, gpt-5.5 has the HIGHEST Rubric of the three (85.05) yet ranks only #3 on Elo, so which model 'wins' depends on the metric you read. EVALUATION TYPE: independently/automatically evaluated by eqbench's own judge, NOT self-reported, NOT disputed. NEAR-TIE: yes at the top, #1 and #2 are separated by only 12.5 Elo points (2191.8 vs 2179.3), which a non-expert should read as a statistical near-tie, while #3 is a clear ~160-point gap below.",
+        "confidence": "high",
+        "sources": [
+          "https://eqbench.com/creative_writing.html"
+        ],
+        "evidence": "Verified against the live primary source rendered in-browser (WebFetch fails because the table is JS-rendered; extracted via DOM/Playwright on 2026-06-23). Page title confirms 'EQ-Bench Creative Writing v3 Leaderboard', self-described on-page as 'A LLM-judged creative writing benchmark'. Columns: Model | Abilities | Style | Slop | Repetition | Length | Rubric Score | Elo Score, default-sorted descending by Elo. Top-3 rows read VERBATIM: claude-fable-5 Rubric 84.05 / Elo 2191.8; claude-opus-4-7 Rubric 82.85 / Elo 2179.3; gpt-5.5 Rubric 85.05 / Elo 2019.0. Lab attributions correct (fable-5, opus-4-7 = Anthropic; gpt-5.5 = OpenAI). A secondary aggregator reported slightly different rounded Elo (2189/2184/2028) but the same ordering; the primary board matches the claim verbatim. Two watch-outs noted by verifiers (not refutations): the 12.5-Elo gap at #1/#2 is plausibly a near-tie, and gpt-5.5 leads on Rubric yet trails on Elo. Per-model report pages show different normalized numbers (e.g. fable-5 'Rubric 82.6 / ELO Normalized 2069.4'), a different snapshot/normalization that does not match (and so does not refute) the headline leaderboard table the claim cites.",
+        "vote": "3-0 (claims [15], [16])"
+      },
+      {
+        "claim": "BFCL (Berkeley Function Calling Leaderboard), currently at version V4, measures how accurately an LLM can call functions/tools, and V4 adds holistic agentic evaluation including web search, memory, and format sensitivity. WHAT IT MEASURES: whether a model picks the right tool and fills in the arguments correctly when asked to act, not just chat; the contrast is plain Q&A versus actually invoking software to get something done. WHY IT MATTERS: tool-calling is the backbone of AI agents, so for a student building anything that takes actions (querying an API, running code, browsing), this is the most relevant accuracy signal. SCORING: it is INDEPENDENTLY evaluated by the Berkeley Gorilla team (not self-reported), run against a pinned code commit (f7cf735) with all raw model responses published on GitHub for reproducibility; maintained by UC Berkeley's Gorilla team (Shishir Patil et al.). LEADERBOARD: gorilla.cs.berkeley.edu/leaderboard.html, last updated 2026-04-12. WATCH OUT for the read problem below: the actual ranked models and scores are loaded by JavaScript and are NOT in the static HTML, so you cannot read the top-3 from a plain fetch of the page.",
+        "confidence": "high",
+        "sources": [
+          "https://gorilla.cs.berkeley.edu/leaderboard.html",
+          "https://gorilla.cs.berkeley.edu/blogs/15_bfcl_v4_web_search.html",
+          "https://gorilla.cs.berkeley.edu/blogs/8_berkeley_function_calling_leaderboard.html"
+        ],
+        "evidence": "Official board title is 'Berkeley Function Calling Leaderboard (BFCL) V4'; a search for a 'V5' found none and llm-stats confirms a May 2026 update, so V4 is current. The Berkeley blog (dated 2025-07-17) states verbatim 'the Berkeley Function-Calling Leaderboard (BFCL) V4 presents a holistic agentic evaluation for LLMs' and that 'BFCL V4 Agentic includes web search ... memory ... and format sensitivity', corroborated by a peer-reviewed MLR proceedings paper (v267/patil25a) and a GitHub inspect_evals issue. Maintainer and date verified on the primary page: hosted at gorilla.cs.berkeley.edu, blog says it 'was created by the Gorilla team at UC Berkeley', lead author Shishir G. Patil et al.; page displays 'Last Updated: 2026-04-12' with 'Models are evaluated using commit f7cf735'. Independence verified: the board states all responses are published (github.com/HuanzhiMao/BFCL-Result) and reproducible via the pinned commit/PyPI package bfcl-eval==2025.12.17; the team obtains responses itself (open models via vLLM on 8 V100s, proprietary via direct endpoint calls) then scores with an AST-based pipeline. Caveat: outside contributors can add a model's calling code via PR, after which the team's standardized eval still produces the score (materially different from a lab self-reporting a headline number); a third-party re-host (llm-stats) tags its OWN rows 'Self-reported', which is an aggregator artifact, not a statement about the official board.",
+        "vote": "3-0 (claims [0], [1], [2])"
+      },
+      {
+        "claim": "NO trustworthy current top-3 can be read from the BFCL official page via plain HTTP: the model names and accuracy scores are NOT in the static HTML and are loaded dynamically via JavaScript. (Recoverable workaround, not from the static page: the same-origin companion file data_overall.csv holds the data.)",
+        "confidence": "high",
+        "sources": [
+          "https://gorilla.cs.berkeley.edu/leaderboard.html",
+          "https://gorilla.cs.berkeley.edu/data_overall.csv"
+        ],
+        "evidence": "Primary-source inspection: a curl of the leaderboard HTML returns only 16KB with an EMPTY table (one each of <table>/<thead>/<tbody>, ZERO <tr> data rows); the only 'GPT-4' strings are in commented-out dropdown options. The page's index_main.js fetches './data_${datasetName}.csv' at runtime; the resolved https://gorilla.cs.berkeley.edu/data_overall.csv returns HTTP 200 with header 'Rank,Overall Acc,Model,...'. A Playwright render confirms 109 populated rows after JS executes versus none in static HTML. NUANCE (does not refute the read-problem claim): because the CSV is machine-readable at the same origin, a researcher CAN obtain current scores from the site, just not from the static HTML of leaderboard.html. The CSV top-3 observed during verification (Claude-Opus-4-5 77.47 / Claude-Sonnet-4-5 73.24 / Gemini-3-Pro-Preview 72.51) was surfaced incidentally by a verifier and is NOT a separately vote-verified leader claim, so treat it as indicative only, not as a confirmed top-3.",
+        "vote": "3-0 (claim [3])"
+      },
+      {
+        "claim": "OSWorld evaluates multimodal AI agents on open-ended REAL computer tasks across actual operating systems (Ubuntu, Windows, macOS) using arbitrary applications, scored by execution. WHAT IT MEASURES: can an AI agent actually operate a computer, click around real apps, do file I/O, and chain steps across multiple programs, versus just answering a question about how to do it. WHY IT MATTERS: this is the closest thing to a 'can it use my laptop for me' test, so for a student evaluating an agent for real desktop/web automation, it is the key difficulty signal. SCORING: success rate via execution-based per-task checking scripts (each task ships an initial-state setup plus a custom verification script; ~134 evaluation functions reused across the tasks); higher is better. SIZE: 369 computer tasks total (361 when the 8 Google Drive tasks are excluded, the version most evaluations and the official leaderboard permit). DIFFICULTY/BASELINE ANCHORS (historical, from the original paper): humans accomplished over 72.36% of tasks while the best AI in the paper hit only 12.24%, a roughly 60-point gap that defines how hard this was at release. WATCH OUT: the field has moved fast since (a verifier noted Agent S reached ~72.6% in Dec 2025 and the current OSWorld-Verified top is ~85%), so the 12.24%/72.36% figures are PRIOR-state-of-the-art anchors, not current scores.",
+        "confidence": "high",
+        "sources": [
+          "https://os-world.github.io/",
+          "https://arxiv.org/abs/2404.07972",
+          "https://epoch.ai/blog/what-does-osworld-tell-us-about-ais-ability-to-use-computers"
+        ],
+        "evidence": "Primary site and the NeurIPS 2024 paper (arXiv 2404.07972) both state verbatim 'a scalable, real computer environment for multimodal agents, supporting task setup, execution-based evaluation, and interactive learning across various operating systems such as Ubuntu, Windows, and macOS' and 'a benchmark of 369 computer tasks'. The abstract states verbatim 'While humans can accomplish over 72.36% of the tasks, the best model achieves only 12.24% success'. Each task 'includes a detailed initial state setup configuration and a custom execution-based evaluation script'. The 361-task figure (8 Google Drive tasks excluded due to auth/regional setup) is independently confirmed by Epoch AI, which notes this version is officially permitted for leaderboard submission. Minor scoping nuance accepted by verifiers: the 369 tasks are predominantly hand-annotated on Ubuntu with ~43 additional Windows tasks and macOS supported by the environment, so 'across Ubuntu/Windows/macOS' describes environment capability, not an even task split. os-world.github.io now carries a 2025-07-28 'Major Upgrade' notice that the original results are superseded, which is exactly why the 12.24%/72.36% numbers are framed as historical anchors.",
+        "vote": "3-0 / 2-1 (claims [4], [5], [6], [20]; the framing of [4]/[20] as multi-OS got one dissent each on the Ubuntu-primary nuance, resolved as capability-not-split)"
+      },
+      {
+        "claim": "NO trustworthy current top-3 can be read from the OSWorld official site via plain HTTP: the live leaderboard is JavaScript-loaded and a static fetch shows only a 'Loading verified benchmark data...' placeholder with no ranked models or scores. (Recoverable workaround, not from the rendered page: the data lives in same-origin .xlsx files the page fetches.)",
+        "confidence": "high",
+        "sources": [
+          "https://os-world.github.io/"
+        ],
+        "evidence": "Fetched https://os-world.github.io/ twice via plain HTTP; both returns showed only 'Loading verified benchmark data...' with no ranked models or scores. Raw-HTML inspection shows the leaderboard is populated entirely client-side via fetch('static/data/osworld_verified_results.xlsx') and fetch('static/data/self_reported_results.xlsx'), parsed with the XLSX library; no model names or numeric scores are hardcoded in the HTML. Adversarial checks: web search returns leader numbers (e.g. a verifier saw 'Claude Opus 4.6 72.7%') but ONLY from third-party aggregators (llm-stats.com, benchlm.ai, coasty.ai), not from a static read of the official site, so they do not contradict (and do NOT independently confirm to vote standard) the narrow claim. Minor over-reach nuance: the numbers could be obtained by downloading and parsing the .xlsx files directly, but that is not 'reading the page via plain HTTP', so the core assertion stands. Because no third-party leader figure here passed 3-vote verification, this pack does NOT assert an OSWorld current top-3.",
+        "vote": "2-1 (claim [7]; dissent was on the precision of 'cannot be read', resolved by the .xlsx nuance)"
+      },
+      {
+        "claim": "LongBench v2 measures long-context understanding and reasoning, and it is NOT saturated. WHAT IT MEASURES: whether a model can deeply understand and reason over very long inputs, not just retrieve a fact buried in them; 503 multiple-choice questions over contexts from 8k to 2M words (majority under 128k) across six task types (single-document QA, multi-document QA, long in-context learning, long-dialogue history, code repository understanding, long structured data). WHY IT MATTERS: long-context claims (huge token windows) are a major marketing axis, and this benchmark tests whether a model actually USES that context to reason, which is what a student feeding in long documents or codebases cares about. SCORING: accuracy on the 4-option multiple-choice format (higher is better); released Dec 2024, published at ACL 2025. DIFFICULTY/BASELINE ANCHORS: human experts reached only 53.7% accuracy under a 15-minute time limit; the best directly-answering model reached only 50.1%; o1-preview, using extended reasoning/test-time compute, reached 57.7%, surpassing the human baseline by 4 points. A non-expert anchor: because it is 4-option multiple choice, blind guessing scores ~25%, so even the human-expert 53.7% shows how genuinely hard these questions are.",
+        "confidence": "high",
+        "sources": [
+          "https://arxiv.org/abs/2412.15204",
+          "https://longbench2.github.io/",
+          "https://aclanthology.org/2025.acl-long.183",
+          "https://huggingface.co/datasets/zai-org/LongBench-v2"
+        ],
+        "evidence": "Primary arXiv 2412.15204 (also ACL 2025 long paper) abstract confirms verbatim: 'designed to assess the ability of LLMs to handle long-context problems requiring deep understanding and reasoning'; '503 challenging multiple-choice questions, with contexts ranging from 8k to 2M words'; the exact six category names in order. The official site adds 'the majority under 128k'. Per-category counts (175 single-doc + 125 multi-doc + 81 long ICL + 39 long-dialogue + 50 code repo + 33 long structured = 503) sum exactly, an internal consistency check that passes. Baseline figures match the abstract verbatim: 'human experts achieving only 53.7% accuracy under a 15-minute time constraint'; best direct model 'achieves only 50.1% accuracy'; 'the o1-preview model, which includes longer reasoning, achieves 57.7%, surpassing the human baseline by 4%'. The HuggingFace card (zai-org/LongBench-v2) confirms 503 MCQs with fields choice_A/B/C/D and single ground-truth, making accuracy the natural metric. NOTE: a proposed current top-3 (Gemini-2.5-Pro 63.3% etc.) was REFUTED 0-3 and is excluded; for context a verifier noted the live board tops out around Gemini-2.5-Pro 63.3% CoT (as of 2025-03-25), which confirms the benchmark is unsaturated but is NOT asserted here as a verified top-3.",
+        "vote": "3-0 (claims [8], [17], [18], [19]; [8] and [17] are semantic duplicates of the definition, merged)"
+      },
+      {
+        "claim": "Global-MMLU is a multilingual MMLU covering 42 languages, maintained by Cohere Labs (Cohere For AI), built to address cultural and linguistic biases in multilingual evaluation, and it distinguishes Culturally Sensitive (CS) from Culturally Agnostic (CA) questions. WHAT IT MEASURES: general knowledge and reasoning (MMLU-style exam questions) but across 42 languages, with explicit care for whether a question needs culture-specific knowledge; the hard part is that a model can ace English yet fail the same task in lower-resourced languages or on culturally grounded items. WHY IT MATTERS: for any student working outside English, a single 'MMLU score' hides large per-language gaps, and this benchmark surfaces them; about 28% of questions require culturally sensitive knowledge, and model rankings change depending on whether you score the full set or just the culturally sensitive subset. SCORING/SOURCE NOTE: the primary sources (the HuggingFace dataset card and the ACL 2025 paper, arXiv 2412.03304, submitted Dec 4 2024) contain NO leaderboard, NO scoring metric section, and NO top-model scores, so there is NO trustworthy current top-3 obtainable from the primary source. WATCH OUT: the paper itself flags a geographic skew (heavy North-American/European focus in the source data), which is part of the bias story this benchmark was built to expose.",
+        "confidence": "high",
+        "sources": [
+          "https://huggingface.co/datasets/CohereForAI/Global-MMLU",
+          "https://arxiv.org/abs/2412.03304",
+          "https://aclanthology.org/2025.acl-long.919"
+        ],
+        "evidence": "The HF dataset card lists exactly 42 language subsets (am,ar,bn,cs,de,el,en,es,fa,fil,fr,ha,he,hi,id,ig,it,ja,ko,ky,lt,mg,ms,ne,nl,ny,pl,pt,ro,ru,si,sn,so,sr,sv,sw,te,tr,uk,vi,yo,zh); org is 'CohereLabs' (Cohere For AI renamed to Cohere Labs April 2025, same org). The ACL 2025 paper title is verbatim 'Global MMLU: Understanding and Addressing Cultural and Linguistic Biases in Multilingual Evaluation'. Abstract states verbatim '28% of all questions requiring culturally sensitive knowledge' and 'Rankings of model evaluations change depending on whether they are evaluated on the full portion or the subset of questions annotated as culturally sensitive', and notes the geographic skew. No-leaderboard finding verified by WebFetch of both live primary sources today: the card shows only dataset metadata (languages/formats/size/license) with '(10) Leaderboard URLs: None mentioned' and '(11) Top-performing models/scores: No model performance data', and a WebSearch for current rankings explicitly returned no primary-source board, redirecting to third-party aggregators (llm-stats.com). Caveat: the PDF body could not be parsed (7.4MB binary), so the paper's experiments section may hold late-2024 accuracy figures, but those would be a 2024 snapshot, not a current top-3 board.",
+        "vote": "3-0 (claims [10], [11], [12])"
+      },
+      {
+        "claim": "OmniDocBench measures end-to-end document parsing and uses a composite 'Overall' score. WHAT IT MEASURES: how well a system turns a real PDF page into structured output, getting the text (OCR), tables, formulas, layout boxes, and reading order all correct at once, versus just doing plain OCR on clean text. WHY IT MATTERS: document AI (turning PDFs/scans into usable data) is a huge practical use case, and this benchmark tests the messy real-world version across 10 document types, 5 layout types, and 5 language types over 1651 PDF pages; for a student picking a tool to parse documents, the composite score is the headline signal. SCORING: the headline 'Overall' is a composite, Overall = ((1 - Text Edit Distance) x 100 + Table TEDS + Formula CDM) / 3, scaled roughly 0-100 where higher is better, combining a normalized edit-distance text metric, the TEDS tree-edit-distance table metric, and the CDM formula metric. WATCH OUT: text EVALUATION currently covers only Chinese and English (even though the dataset's language COVERAGE is broader), AND a proposed current top-3 from the README was REFUTED because those numbers are self-reported aggregations in the README rather than independent re-evaluations, with the #1 model maintained by OpenDataLab, the same org that maintains the benchmark, so no trustworthy independent top-3 is asserted here.",
+        "confidence": "high",
+        "sources": [
+          "https://github.com/opendatalab/OmniDocBench",
+          "https://huggingface.co/datasets/opendatalab/OmniDocBench",
+          "https://deepwiki.com/opendatalab/OmniDocBench/6-results-and-visualization"
+        ],
+        "evidence": "The GitHub README and the maintainer's HuggingFace card both state verbatim '1651 PDF pages, covering 10 document types, 5 layout types, and 5 language types' (paper: 'A Comprehensive Benchmark for Document Parsing and Evaluation', CVPR 2025). The README states verbatim the formula 'Overall = ((1 - text Edit distance) x 100 + table TEDS + formula CDM) / 3'; DeepWiki independently confirms the formula and states 'Higher Overall scores are better. The Overall score ranges from 0 to 100.' The Zh/En text-eval constraint is documented verbatim: 'Currently, only Chinese and English text are included in text evaluation. A Unicode mapping table will be added later.' One discrepancy examined and dismissed: the arXiv v1.0 abstract cites 'nine document sources'/'19 layout categories', but those are an earlier version and a different element-level taxonomy versus the current GitHub page-level 1651/10/5/5 figures. CONTAMINATION/INDEPENDENCE WATCH-OUT: the proposed top-3 (MinerU2.5-Pro 95.75 / GLM-OCR 95.22 / PaddleOCR-VL-1.5 94.93) was REFUTED 1-2 on the grounds that README scores are self-reported aggregations not independent re-evaluations, and the #1 model and the benchmark share a maintainer (OpenDataLab), a conflict-of-interest flag; therefore no current top-3 is asserted.",
+        "vote": "3-0 (claims [13], [14]); REFUTED 1-2 for the top-3 leader numbers"
+      },
+      {
+        "claim": "NO trustworthy current top-3 can be read from the EQ-Bench LONGFORM creative-writing board via plain HTTP: it is JavaScript-rendered, and a static fetch returns the column headers (Model, Length, Slop, Repetition, Degradation, Score, Samples) plus 'Loading...' placeholders but ZERO model names and ZERO scores. (This is the LONGFORM variant; the standard Creative Writing v3 board IS readable and is reported above.) (Recoverable workaround, not from the .html page: the leaders are hardcoded in the sibling file creative_writing_longform.js.)",
+        "confidence": "high",
+        "sources": [
+          "https://eqbench.com/creative_writing_longform.html"
+        ],
+        "evidence": "Raw HTTP fetch (22,497 bytes) of the longform page: <table id='leaderboard'> has a <thead> with exactly the claimed headers, and <tbody id='leaderboardBody'> is EMPTY except for the site's own comment '<!-- Data rows injected by JS -->'. The page loads creative_writing_longform.js plus DataTables. A grep for <td> decimal scores returned nothing; the only 'Claude'/'Sonnet' strings are methodology prose describing the JUDGE model ('Evaluation now uses Claude Sonnet 4.6'), not ranked entries. 'Loading...' confirmed in the Slop Profile modal. Currency confirmed (page shows 'v1.11 2026-02-19'). Precision caveat (does not refute): the data is hardcoded inline in the 976KB sibling creative_writing_longform.js as a CSV string variable 'leaderboardDataLongformV3' (model ids include claude-opus-4-6, gpt-5.2, gemini-3-pro-preview, GLM-5, Kimi-K2.5, DeepSeek-V3.2), so a determined fetch of that .js URL can recover the leaders; but the claim is scoped to a static fetch of the .html page, under which zero table data is readable. Because the standard Creative Writing v3 board (separate URL) WAS verified, this longform read-failure is reported only to prevent confusion between the two EQ-Bench boards.",
+        "vote": "3-0 (claim [9])"
+      }
+    ],
+    "caveats": "SCOPE GAP: Only 6 of the 9 requested benchmarks are covered. SimpleQA, MMMU-Pro, and Design2Code produced NO claims that survived 3-vote adversarial verification, so this pack contains nothing on them; that is a coverage hole, not evidence those benchmarks lack data. ONE VERIFIED LIVE TOP-3 ONLY: across all six covered benchmarks, only EQ-Bench Creative Writing v3 yielded a primary-source, 3-vote-verified current top-3. For BFCL, OSWorld, the EQ-Bench longform board, and Global-MMLU, no current top-3 passed verification, in three cases because the boards are JavaScript-only (static reads return empty tables) and in Global-MMLU's case because the primary source has no board at all. For OmniDocBench the only available top-3 was REFUTED as self-reported with a maintainer conflict of interest. INCIDENTAL NUMBERS ARE NOT VERIFIED: figures surfaced by verifiers from companion CSV/XLSX/JS files (e.g. BFCL CSV showing Claude-Opus-4-5 77.47, OSWorld aggregators showing Claude Opus 4.6 72.7%) are indicative only and did NOT pass 3-vote verification; do not present them as confirmed leaders. TIME-SENSITIVITY: every leaderboard date will go stale fast, BFCL last updated 2026-04-12, OSWorld carries a superseding 'Major Upgrade' notice, EQ-Bench longform dated 2026-02-19, and the OSWorld field moved from 12% to ~85% in roughly two years. The one live EQ-Bench top-3 is a snapshot whose absolute Elo numbers shift over time. NEAR-TIE / METRIC-DISAGREEMENT FLAGS: the EQ-Bench top-3 has a near-tie at ranks 1-2 (12.5 Elo apart) and an Elo-vs-Rubric disagreement (gpt-5.5 leads on Rubric, trails on Elo); both must be surfaced to non-experts. SOURCE-QUALITY NOTE: definitional and baseline claims rest on strong primary/peer-reviewed sources (arXiv, ACL, CVPR, official sites); a few corroborations lean on third-party aggregators (llm-stats.com, Epoch AI, DeepWiki) which are credible but secondary. The Global-MMLU paper PDF body could not be parsed, so its internal late-2024 accuracy figures were not inspected.",
+    "openQuestions": [
+      "What are the verified current top-3 leaders for the five benchmarks that produced no live top-3 (BFCL, OSWorld, OmniDocBench, Global-MMLU, and EQ-Bench longform)? This requires either rendering the JS boards in a browser and re-verifying, or parsing the companion CSV/XLSX/JS data files and treating those as primary.",
+      "What is the content for the three uncovered benchmarks, SimpleQA, MMMU-Pro, and Design2Code (what each measures, scoring, maintainer, baselines, and current top-3)? None survived this verification round.",
+      "For OmniDocBench, is there ANY independent (non-OpenDataLab) re-evaluation or third-party board, given that the README top-3 is self-reported and the #1 model shares a maintainer with the benchmark, which is a conflict-of-interest concern for a student relying on it?",
+      "What are the saturation/contamination statuses for BFCL V4, OmniDocBench, Global-MMLU, and the EQ-Bench boards? This pack confirms LongBench v2 is unsaturated and notes OSWorld has moved fast, but explicit data-contamination and saturation findings for the other benchmarks were not established."
+    ],
+    "refuted": [
+      {
+        "claim": "The current top-3 leaders on LongBench v2 (sorted by overall accuracy with CoT) are Gemini-2.5-Pro (Google) at 63.3%, Gemini-2.5-Flash (Google) at 62.1%, and Qwen3-235B-A22B-Thinking (Alibaba) at 60.6%.",
+        "vote": "0-3",
+        "source": "https://longbench2.github.io/"
+      },
+      {
+        "claim": "The human expert baseline is 53.7% overall accuracy under a 15-minute time constraint (with search tools allowed), and the random chance baseline is 25.0%, indicating a 4-option multiple-choice format; the top model exceeds the human baseline by 9.6 points.",
+        "vote": "0-3",
+        "source": "https://longbench2.github.io/"
+      },
+      {
+        "claim": "On the OmniDocBench v1.6_full end-to-end leaderboard, the top three are MinerU2.5-Pro (OpenDataLab) at Overall 95.75, GLM-OCR (ZAI-Org) at Overall 95.22, and PaddleOCR-VL-1.5 (PaddlePaddle) at Overall 94.93; all scores are self-reported aggregations in the README, not independent re-evaluations, and the #1 model is maintained by OpenDataLab, the same org that maintains the benchmark.",
+        "vote": "1-2",
+        "source": "https://github.com/opendatalab/OmniDocBench"
+      },
+      {
+        "claim": "On OSWorld, humans achieve a 72.36% success rate while the best AI model in the paper achieves only 12.24%, showing the benchmark is far from solved and is very hard for AI agents.",
+        "vote": "0-3",
+        "source": "https://arxiv.org/abs/2404.07972"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://gorilla.cs.berkeley.edu/leaderboard.html",
+        "quality": "primary",
+        "angle": "broad/primary — official leaderboards and maintainers",
+        "claimCount": 5
+      },
+      {
+        "url": "https://os-world.github.io/",
+        "quality": "primary",
+        "angle": "broad/primary — official leaderboards and maintainers",
+        "claimCount": 5
+      },
+      {
+        "url": "https://longbench2.github.io/",
+        "quality": "primary",
+        "angle": "broad/primary — official leaderboards and maintainers",
+        "claimCount": 5
+      },
+      {
+        "url": "https://eqbench.com/creative_writing_longform.html",
+        "quality": "primary",
+        "angle": "broad/primary — official leaderboards and maintainers",
+        "claimCount": 5
+      },
+      {
+        "url": "https://huggingface.co/datasets/CohereForAI/Global-MMLU",
+        "quality": "primary",
+        "angle": "broad/primary — official leaderboards and maintainers",
+        "claimCount": 5
+      },
+      {
+        "url": "https://github.com/opendatalab/OmniDocBench",
+        "quality": "primary",
+        "angle": "broad/primary — official leaderboards and maintainers",
+        "claimCount": 5
+      },
+      {
+        "url": "https://llm-stats.com/benchmarks",
+        "quality": "secondary",
+        "angle": "current leaders — verbatim top-3 scores June 2026",
+        "claimCount": 5
+      },
+      {
+        "url": "https://eqbench.com/creative_writing.html",
+        "quality": "primary",
+        "angle": "current leaders — verbatim top-3 scores June 2026",
+        "claimCount": 5
+      },
+      {
+        "url": "https://arxiv.org/abs/2412.15204",
+        "quality": "primary",
+        "angle": "academic/technical — papers, metrics, and scales",
+        "claimCount": 4
+      },
+      {
+        "url": "https://arxiv.org/abs/2404.07972",
+        "quality": "primary",
+        "angle": "academic/technical — papers, metrics, and scales",
+        "claimCount": 5
+      },
+      {
+        "url": "https://cdn.openai.com/papers/simpleqa.pdf",
+        "quality": "primary",
+        "angle": "academic/technical — papers, metrics, and scales",
+        "claimCount": 5
+      },
+      {
+        "url": "https://arxiv.org/abs/2504.20879",
+        "quality": "primary",
+        "angle": "contrarian/skeptical — contamination, criticism, saturation",
+        "claimCount": 4
+      },
+      {
+        "url": "https://arxiv.org/abs/2509.07968",
+        "quality": "primary",
+        "angle": "contrarian/skeptical — contamination, criticism, saturation",
+        "claimCount": 5
+      },
+      {
+        "url": "https://eqbench.com/about.html",
+        "quality": "primary",
+        "angle": "contrarian/skeptical — contamination, criticism, saturation",
+        "claimCount": 5
+      },
+      {
+        "url": "https://llm-stats.com/benchmarks/bfcl",
+        "quality": "secondary",
+        "angle": "contrarian/skeptical — contamination, criticism, saturation",
+        "claimCount": 5
+      },
+      {
+        "url": "https://arxiv.org/abs/2409.02813",
+        "quality": "primary",
+        "angle": "contrarian/skeptical — contamination, criticism, saturation",
+        "claimCount": 4
+      },
+      {
+        "url": "https://medium.com/@wasowski.jarek/mmlu-85-simpleqa-3-how-to-actually-evaluate-ai-models-in-2026-9dff2fba494f",
+        "quality": "blog",
+        "angle": "contrarian/skeptical — contamination, criticism, saturation",
+        "claimCount": 5
+      },
+      {
+        "url": "https://artificialanalysis.ai/methodology/intelligence-benchmarking",
+        "quality": "primary",
+        "angle": "practitioner/verification — independent eval vs self-report and ties",
+        "claimCount": 5
+      },
+      {
+        "url": "https://www.aimon.ai/posts/the-llm-unleaderboard-self-reported-hallucination-accuracy-top-models/",
+        "quality": "blog",
+        "angle": "practitioner/verification — independent eval vs self-report and ties",
+        "claimCount": 4
+      }
+    ],
+    "stats": {
+      "angles": 5,
+      "sourcesFetched": 19,
+      "claimsExtracted": 91,
+      "claimsVerified": 25,
+      "confirmed": 21,
+      "killed": 4,
+      "afterSynthesis": 9,
+      "urlDupes": 10,
+      "budgetDropped": 1,
+      "agentCalls": 101
+    }
+  }
+}
