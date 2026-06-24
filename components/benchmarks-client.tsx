@@ -199,14 +199,16 @@ export function BenchmarksClient({
           [data-surface="editorial"] .bench-row { animation-name: none; }
         }
 
-        /* Mobile: drop the fixed STATUS column under the text, no overflow. */
+        /* Mobile: drop the fixed STATUS column under the text. !important is
+           required to beat the inline grid-template-columns (same reason
+           .trend-detail-split uses it). */
         @media (max-width: 600px) {
           [data-surface="editorial"] .bench-row {
-            grid-template-columns: 36px minmax(0, 1fr);
+            grid-template-columns: 36px minmax(0, 1fr) !important;
             row-gap: 12px;
           }
           [data-surface="editorial"] .bench-status {
-            grid-column: 2 / -1;
+            grid-column: 2 / -1 !important;
             align-items: flex-start;
           }
         }
