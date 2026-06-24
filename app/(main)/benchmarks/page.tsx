@@ -1,5 +1,6 @@
 import { getBenchmarkViewer, getBenchmarks } from "@/lib/benchmarks";
-import { BenchmarksClient } from "@/components/benchmarks-client";
+import { getUseCases } from "@/lib/use-cases";
+import { BenchmarksHubClient } from "@/components/benchmarks-hub-client";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +10,12 @@ export const metadata = {
 
 export default async function BenchmarksPage() {
   const viewer = await getBenchmarkViewer();
-  const benchmarks = await getBenchmarks(viewer);
+  const [benchmarks, useCases] = await Promise.all([
+    getBenchmarks(viewer),
+    getUseCases(viewer),
+  ]);
 
-  return <BenchmarksClient benchmarks={benchmarks} isAdmin={viewer.isAdmin} />;
+  return (
+    <BenchmarksHubClient benchmarks={benchmarks} useCases={useCases} isAdmin={viewer.isAdmin} />
+  );
 }

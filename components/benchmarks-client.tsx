@@ -450,8 +450,10 @@ export function DraftChip() {
 }
 
 // ── Category tab (ghost text, 2px accent sweep when active or hovered) ────────
+// Exported so the v2 hub reuses the exact visual for its [By task] | The
+// Standings mode toggle (no signature change).
 
-function CategoryTab({
+export function CategoryTab({
   label,
   count,
   active,
