@@ -20,6 +20,7 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { BENCHMARK_SEEDS, type BenchmarkSeed } from "../prisma/seed-data/benchmarks";
+import { USE_CASE_SLUGS } from "../prisma/seed-data/use-cases";
 
 // Em dash, en dash, figure dash, horizontal bar: banned in member-facing text.
 const BANNED_DASHES = /[‒–—―]/;
@@ -116,6 +117,13 @@ function validateStatic(): string[] {
       if (!c.label.trim()) errors.push(`${label}: relatedConcept ${j + 1} has empty label`);
       if (c.slug !== undefined && !SLUG_RE.test(c.slug)) {
         errors.push(`${label}: relatedConcept ${c.slug} is not a kebab-case slug`);
+      }
+    });
+
+    // Every useCases tag must name a known use case (single source: USE_CASE_SLUGS).
+    (b.useCases ?? []).forEach((uc) => {
+      if (!USE_CASE_SLUGS.has(uc)) {
+        errors.push(`${label}: useCases tag "${uc}" is not a known use-case slug`);
       }
     });
 
@@ -296,6 +304,7 @@ async function main() {
         needsRecheck: b.needsRecheck,
         relatedConcepts: relatedConceptsJson(b),
         sources: b.sources,
+        useCases: b.useCases ?? [],
         syncedAt: new Date(),
       };
       const row = await prisma.benchmark.upsert({

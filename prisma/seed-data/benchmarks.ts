@@ -85,11 +85,14 @@ export type BenchmarkSeed = {
   needsRecheck: boolean;
   relatedConcepts: BenchmarkRelatedConcept[];
   sources: string[];
+  /** string[] of UseCase slugs this benchmark backs (validated against USE_CASE_SLUGS) */
+  useCases?: string[];
 };
 
 export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
   {
     slug: "mmlu-pro",
+    useCases: ["science-and-expert-knowledge"],
     name: "MMLU-Pro",
     domain: "Reasoning",
     scoreType: "Accuracy",
@@ -162,6 +165,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "gpqa-diamond",
+    useCases: ["science-and-expert-knowledge"],
     name: "GPQA Diamond",
     domain: "Reasoning",
     scoreType: "Accuracy",
@@ -229,6 +233,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "swe-bench-verified",
+    useCases: ["coding-and-building-apps"],
     name: "SWE-bench Verified",
     domain: "Coding",
     scoreType: "Pass rate",
@@ -300,6 +305,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "humanitys-last-exam",
+    useCases: ["science-and-expert-knowledge", "factual-accuracy"],
     name: "Humanity's Last Exam",
     domain: "Reasoning",
     scoreType: "Accuracy",
@@ -370,6 +376,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "frontiermath",
+    useCases: ["math-and-reasoning"],
     name: "FrontierMath",
     domain: "Math",
     scoreType: "Accuracy",
@@ -441,6 +448,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "livecodebench",
+    useCases: ["coding-and-building-apps"],
     name: "LiveCodeBench",
     domain: "Coding",
     scoreType: "Pass rate",
@@ -481,6 +489,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "arc-agi-1",
+    useCases: ["novel-problem-reasoning"],
     name: "ARC-AGI v1",
     domain: "Reasoning",
     scoreType: "Accuracy",
@@ -549,6 +558,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "arc-agi-2",
+    useCases: ["novel-problem-reasoning"],
     name: "ARC-AGI v2",
     domain: "Reasoning",
     scoreType: "Accuracy",
@@ -618,6 +628,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "mmmu",
+    useCases: ["images-charts-and-documents"],
     name: "MMMU",
     domain: "Multimodal",
     scoreType: "Accuracy",
@@ -687,6 +698,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "lmarena-chatbot-arena",
+    useCases: ["what-people-prefer", "writing-and-communication"],
     name: "LMArena (Chatbot Arena)",
     domain: "Human preference",
     scoreType: "Elo",
@@ -753,6 +765,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "humaneval",
+    useCases: ["coding-and-building-apps"],
     name: "HumanEval",
     domain: "Coding",
     scoreType: "Pass rate",
@@ -793,6 +806,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "aime",
+    useCases: ["math-and-reasoning"],
     name: "AIME",
     domain: "Math",
     scoreType: "Accuracy",
@@ -862,6 +876,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "tau-bench",
+    useCases: ["agents-tools-and-automation"],
     name: "TAU-bench",
     domain: "Agents",
     scoreType: "Pass rate",
@@ -901,12 +916,18 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   // ── v2 use-case roster expansion (BENCHMARKS_USE_CASES_PLAN.md) ─────────────
   // Authored from docs/research/benchmarks-usecases-research.json + the verified
-  // leader extractions in benchmarks-usecases-leaders-extracted.md. Three have a
-  // verified live top-3 (EQ-Bench, BFCL, OSWorld); the rest are honest-empty or
-  // clearly-labeled self-reported, which is on-thesis for this surface.
+  // leader extractions in benchmarks-usecases-leaders-extracted.md. Live boards:
+  // EQ-Bench (writing), OSWorld (computer use, agent scaffolds), and SimpleQA
+  // (factuality, Kaggle OpenAI board, flipped from honest-empty 2026-06-24).
+  // MMMU-Pro is near_ceiling (Artificial Analysis, independent). BFCL is DATED:
+  // its only readable board is the April 2026 CSV, which predates three model
+  // generations, so the tier carries the past-tense pick verb (see the use-case
+  // layer). OmniDocBench and Design2Code are clearly-labeled self-reported;
+  // LongBench v2 and Global-MMLU ship honest-empty. All on-thesis for the surface.
 
   {
     slug: "eq-bench-creative-writing",
+    useCases: ["writing-and-communication"],
     name: "EQ-Bench (Creative Writing)",
     domain: "Writing",
     scoreType: "Elo",
@@ -972,10 +993,14 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "bfcl",
+    useCases: ["agents-tools-and-automation"],
     name: "BFCL (Berkeley Function Calling)",
     domain: "Agents",
     scoreType: "Accuracy",
-    trust: "live",
+    // DATED, not live: the only readable board is the April 2026 CSV, which
+    // predates Opus 4.7/4.8, Gemini 3.1, and GPT-5.5. The tier drives the
+    // past-tense "led as of APR 2026" pick verb in the use-case layer.
+    trust: "dated",
     nearTie: false,
     caveat: "board predates newest models",
     whatItMeasures:
@@ -1040,6 +1065,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "osworld",
+    useCases: ["agents-tools-and-automation"],
     name: "OSWorld",
     domain: "Agents",
     scoreType: "Pass rate",
@@ -1105,6 +1131,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "longbench-v2",
+    useCases: ["long-documents-and-context"],
     name: "LongBench v2",
     domain: "Long context",
     scoreType: "Accuracy",
@@ -1145,6 +1172,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "global-mmlu",
+    useCases: ["languages-and-translation"],
     name: "Global-MMLU",
     domain: "Multilingual",
     scoreType: "Accuracy",
@@ -1184,6 +1212,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "omnidocbench",
+    useCases: ["images-charts-and-documents"],
     name: "OmniDocBench",
     domain: "Document AI",
     scoreType: "Composite",
@@ -1255,26 +1284,61 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
     name: "SimpleQA",
     domain: "Factuality",
     scoreType: "Accuracy",
-    trust: "contested",
+    // Flipped from honest-empty to populated 2026-06-24: the Kaggle SimpleQA
+    // board (OpenAI) is a current, regularly-updated source. trust=live, but the
+    // disputed rank 3 and the overloaded "SimpleQA" name carry the caveat.
+    trust: "live",
     nearTie: false,
-    caveat: "published numbers wildly disagree",
+    caveat: "mixed provenance, name the board",
     whatItMeasures:
       "SimpleQA tests whether a model knows short, checkable facts without making things up, using 4,326 deliberately hard fact-seeking questions with single, indisputable answers. The point is not difficulty of reasoning but honesty about knowledge: a good model answers what it knows and declines what it does not, instead of confidently inventing an answer.",
     exampleTask:
       "A question has one correct short answer, a specific date, name, or number, chosen to be obscure enough that models often get it wrong. The reply is graded correct, incorrect, or not attempted, so confidently wrong answers are penalized and an honest I do not know beats a fabrication.",
     whyCare:
-      "Hallucination, confidently stating false facts, is the failure mode that most often burns students using AI for research or coursework, and SimpleQA is the best-known test of it. But it is also a cautionary tale about benchmark numbers: the scores published for it disagree so wildly that no single figure can be trusted.",
+      "Hallucination, confidently stating false facts, is the failure mode that most often burns students using AI for research or coursework, and SimpleQA is the best-known test of it. The Gemini 3.x generation recently jumped into the 70s on the Kaggle board shown here, a real step-change from the high-40s a year earlier; the catch is that the name SimpleQA is overloaded across several different boards, so a number only means something once you say which board it came from.",
     scoring:
-      "Built by OpenAI (October 2024). Models are graded correct, incorrect, or not attempted, and reported as percent correct (some sources report an F-score that rewards declining over guessing wrong). There is no single authoritative live leaderboard; figures circulate through third-party aggregators.",
+      "Models are graded correct, incorrect, or not attempted; the figure here is the Correct column, the percent of all 4,326 questions answered correctly, not the F-score SimpleQA also reports. Built by OpenAI (October 2024). The board shown is the Kaggle SimpleQA Leaderboard run by OpenAI, last updated June 2026. Provenance is mixed: Kaggle reproduces scores where it can and captures auditable outputs, but some entries can be publisher-reported, so do not read the top number as fully independent.",
     calibration:
-      "SimpleQA is designed to be hard: across roughly 45 models tracked by one aggregator the average is only about 21 percent correct, and the benchmark was built so even strong models score low. That makes the very high figures some boards report a red flag rather than a reassurance.",
+      "SimpleQA was built to be hard. Across the 2024 to 2025 frontier, models scored in the high-40s to about 50 percent (o3 about 50.5, Claude and Grok 4 about 48 to 49). The Gemini 3.x generation jumped to the 70s on this board, a recent step-change; a separate aggregator tracking roughly 45 models still shows an average near 21 percent, so a very high figure from any single board deserves a second look.",
     watchOut:
-      "This is the clearest do-not-trust-a-single-number case on the page. As of mid-2026 published SimpleQA leaders range from about 53 percent on one board to 97 percent on another, on a test whose multi-model average is around 21 percent, so the high numbers almost certainly reflect tool use (web search) or self-reporting rather than the model's own knowledge. A cleaned-up SimpleQA Verified has since been proposed to fix the reliability problems. Trust the method, not any single leaderboard figure.",
-    watchOutUrl: "https://arxiv.org/abs/2509.07968",
-    leaders: [],
-    honestEmpty: true,
-    datedAnchor:
-      "No reliable current leaderboard: as of mid-2026 published SimpleQA figures range from about 53 percent (pricepertoken, MAY 2026) to 97 percent (llm-stats, MAY 2026) on a test whose multi-model average is about 21 percent, so no single number is trustworthy. The high figures likely reflect web search or self-reporting, not the model's own knowledge. SimpleQA was built by OpenAI (OCT 2024) specifically so that even strong models score low.",
+      "Read the board name carefully. The bars here are the Correct column, not the F-score, and the name SimpleQA is overloaded: this Kaggle OpenAI board (74.8 and 70.5 at the top) is a different board from the DeepMind SimpleQA Verified board (figures around 77, 72, and 70) and from llm-stats.com (which uses a different 0 to 1 metric). The top three are all Google Gemini variants, so the lead rests on one vendor's standing on a single board, and the third-place score could not be independently confirmed. Always name this specific board when you quote a SimpleQA number.",
+    watchOutUrl: "https://www.kaggle.com/benchmarks/openai/simpleqa",
+    leaders: [
+      {
+        rank: 1,
+        model: "Gemini 3.1 Pro Preview",
+        lab: "Google",
+        score: "74.8% plus or minus 1.4%",
+        baselineGloss: "Correct column; 2024 frontier was high-40s",
+        asOfDate: "2026-06-01",
+        sourceUrl: "https://www.kaggle.com/benchmarks/openai/simpleqa",
+        selfReported: false,
+      },
+      {
+        rank: 2,
+        model: "Gemini 3 Pro Preview",
+        lab: "Google",
+        score: "70.5% plus or minus 1.4%",
+        baselineGloss: "clear of rank 1 beyond the intervals",
+        asOfDate: "2026-06-01",
+        sourceUrl: "https://www.kaggle.com/benchmarks/openai/simpleqa",
+        selfReported: false,
+      },
+      {
+        rank: 3,
+        model: "Gemini 2.5 Flash",
+        lab: "Google",
+        score: "66.9%",
+        baselineGloss: "rank 3 could not be independently confirmed",
+        asOfDate: "2026-06-01",
+        sourceUrl: "https://www.kaggle.com/benchmarks/openai/simpleqa",
+        selfReported: false,
+        disputed: true,
+      },
+    ],
+    leaderboardUrl: "https://www.kaggle.com/benchmarks/openai/simpleqa",
+    boardLastUpdated: "2026-06-01",
+    honestEmpty: false,
     needsRecheck: false,
     relatedConcepts: [
       { label: "Hallucinations", slug: "hallucinations" },
@@ -1282,14 +1346,16 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
       { label: "Filtering AI hype", slug: "filtering-ai-hype" },
     ],
     sources: [
+      "https://www.kaggle.com/benchmarks/openai/simpleqa",
       "https://cdn.openai.com/papers/simpleqa.pdf",
       "https://arxiv.org/abs/2509.07968",
-      "https://llm-stats.com/benchmarks/simpleqa",
     ],
+    useCases: ["factual-accuracy"],
   },
 
   {
     slug: "mmmu-pro",
+    useCases: ["images-charts-and-documents"],
     name: "MMMU-Pro",
     domain: "Multimodal",
     scoreType: "Accuracy",
@@ -1358,6 +1424,7 @@ export const BENCHMARK_SEEDS: BenchmarkSeed[] = [
 
   {
     slug: "design2code",
+    useCases: ["coding-and-building-apps"],
     name: "Design2Code",
     domain: "Frontend",
     scoreType: "Similarity",

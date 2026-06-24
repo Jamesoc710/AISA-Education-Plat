@@ -60,6 +60,7 @@ export type BenchmarkCardData = {
   whatItMeasures: string; // full text; the list row shows the first sentence
   honestEmpty: boolean;
   status: string; // draft | published
+  useCases: string[]; // UseCase slugs this board backs (evidence strip + "also central to X")
 };
 
 export type BenchmarkDetailData = BenchmarkCardData & {
@@ -151,6 +152,7 @@ type BenchmarkCardRow = {
   whatItMeasures: string;
   honestEmpty: boolean;
   status: string;
+  useCases: unknown;
 };
 
 /** All benchmarks the viewer may see, ordered down the trust axis then by name. */
@@ -168,6 +170,7 @@ export async function getBenchmarks(viewer: BenchmarkViewer): Promise<BenchmarkC
       whatItMeasures: true,
       honestEmpty: true,
       status: true,
+      useCases: true,
     },
   });
   return rows
@@ -182,6 +185,7 @@ export async function getBenchmarks(viewer: BenchmarkViewer): Promise<BenchmarkC
       whatItMeasures: b.whatItMeasures,
       honestEmpty: b.honestEmpty,
       status: b.status,
+      useCases: asStringArray(b.useCases),
     }))
     .sort((a, b) => {
       const ta = TRUST_ORDER[a.trust] ?? 99;
@@ -254,5 +258,6 @@ export async function getBenchmarkDetail(
     datedAnchor: b.datedAnchor,
     relatedConcepts,
     sources: asStringArray(b.sources),
+    useCases: asStringArray(b.useCases),
   };
 }

@@ -227,7 +227,7 @@ export function BenchmarkDetailClient({
 
 // ── Left-column pieces ────────────────────────────────────────────────────────
 
-function BackLink() {
+export function BackLink() {
   return (
     <Link
       href="/benchmarks"
@@ -249,7 +249,7 @@ function BackLink() {
   );
 }
 
-function Beat({ title, children }: { title: string; children: React.ReactNode }) {
+export function Beat({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
       <SectionEyebrow>{title}</SectionEyebrow>
@@ -258,7 +258,7 @@ function Beat({ title, children }: { title: string; children: React.ReactNode })
   );
 }
 
-function Prose({ children }: { children: React.ReactNode }) {
+export function Prose({ children }: { children: React.ReactNode }) {
   return (
     <p style={{ margin: "0 0 0", fontSize: 15, lineHeight: 1.7, color: "var(--color-text-2)", maxWidth: 660 }}>
       {children}
@@ -266,7 +266,7 @@ function Prose({ children }: { children: React.ReactNode }) {
   );
 }
 
-function MicroLabel({ children }: { children: React.ReactNode }) {
+export function MicroLabel({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
@@ -283,7 +283,7 @@ function MicroLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ExampleTask({ text }: { text: string }) {
+export function ExampleTask({ text }: { text: string }) {
   return (
     <div
       style={{
@@ -300,7 +300,7 @@ function ExampleTask({ text }: { text: string }) {
 }
 
 /** The one structural recolor on the surface: gold eyebrow + a 3px gold bar. */
-function WatchOut({ text, url }: { text: string; url: string | null }) {
+export function WatchOut({ text, url }: { text: string; url: string | null }) {
   return (
     <section>
       <div
@@ -343,7 +343,7 @@ function WatchOut({ text, url }: { text: string; url: string | null }) {
   );
 }
 
-function GoDeeper({ concepts }: { concepts: BenchmarkRelatedConcept[] }) {
+export function GoDeeper({ concepts }: { concepts: BenchmarkRelatedConcept[] }) {
   return (
     <section>
       <SectionEyebrow>To go deeper</SectionEyebrow>
@@ -483,7 +483,7 @@ function LeaderRow({ leader, tied }: { leader: BenchmarkLeaderView; tied: boolea
 
 /** The welded ScoreStamp atom: three stacked lines that never separate, plus
  *  inline trust chips. The score is kept verbatim; only the date is normalized. */
-function ScoreStamp({ leader }: { leader: BenchmarkLeaderView }) {
+export function ScoreStamp({ leader }: { leader: BenchmarkLeaderView }) {
   return (
     <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 4 }}>
       {/* line 1: model + lab */}
@@ -535,7 +535,7 @@ function ScoreStamp({ leader }: { leader: BenchmarkLeaderView }) {
   );
 }
 
-function HonestEmpty({ datedAnchor }: { datedAnchor: string | null }) {
+export function HonestEmpty({ datedAnchor }: { datedAnchor: string | null }) {
   return (
     <div style={{ paddingTop: 18 }}>
       <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: "var(--color-text-2)" }}>
@@ -604,7 +604,7 @@ function PanelFooter({ benchmark }: { benchmark: BenchmarkDetailData }) {
   );
 }
 
-function FlagChip({ label, tile }: { label: string; tile: string }) {
+export function FlagChip({ label, tile }: { label: string; tile: string }) {
   return (
     <span
       style={{
@@ -706,7 +706,7 @@ function BenchmarkModeration({ benchmark }: { benchmark: BenchmarkDetailData }) 
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function domainOf(url: string): string {
+export function domainOf(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./, "");
   } catch {
@@ -715,7 +715,7 @@ function domainOf(url: string): string {
 }
 
 /** ISO date -> "MON YYYY" (UTC, uppercased). Empty in, empty out. */
-function monYear(iso: string): string {
+export function monYear(iso: string): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
