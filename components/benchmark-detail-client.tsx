@@ -227,10 +227,13 @@ export function BenchmarkDetailClient({
 
 // ── Left-column pieces ────────────────────────────────────────────────────────
 
-export function BackLink() {
+export function BackLink({
+  href = "/benchmarks",
+  label = "Benchmarks",
+}: { href?: string; label?: string } = {}) {
   return (
     <Link
-      href="/benchmarks"
+      href={href}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -244,7 +247,7 @@ export function BackLink() {
       onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-3)")}
     >
       <Icon name="arrow-left" size={13} />
-      Benchmarks
+      {label}
     </Link>
   );
 }

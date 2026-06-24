@@ -794,7 +794,7 @@ export const USE_CASE_SEEDS: UseCaseSeed[] = [
     ],
     honestEmpty: true,
     datedAnchor:
-      "Human experts scored 53.7 percent under a 15-minute limit, the best directly-answering model 50.1 percent, and o1-preview 57.7 percent with extended reasoning; blind guessing is about 25 percent (LongBench v2 paper, DEC 2024).",
+      "Human experts scored 53.7 percent under a 15-minute limit, the best directly-answering model 50.1 percent, and an extended-reasoning model reached 57.7 percent, just above the human number; blind guessing is about 25 percent (LongBench v2 paper, DEC 2024).",
     gapReason:
       "The only board is JavaScript-rendered and cannot be read from the page, and its readable figures are a stale early-2025 snapshot, so there is no trustworthy current ranking to quote.",
     order: 100,
