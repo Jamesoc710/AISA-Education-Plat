@@ -342,26 +342,80 @@ function BenchmarkRow({ benchmark, index }: { benchmark: BenchmarkCardData; inde
 
 // ── Shared primitives (exported; the detail client reuses these) ──────────────
 
-/** The trust chip: the trust word, tinted by its -bg/-fg tile pair as a unit. */
+/** The trust chip: the trust word, tinted by its -bg/-fg tile pair as a unit. On
+ *  hover or keyboard focus it reveals the plain-language meaning of the tier (the
+ *  TRUST_META gloss), so a new viewer is never left guessing what "Near ceiling"
+ *  means. The chip is lifted above the full-row overlay link so it can receive
+ *  hover, which makes it a small "hover for meaning" spot rather than part of the
+ *  row's click target. */
 export function StatusChip({ trust, size = "md" }: { trust: string; size?: "sm" | "md" }) {
   const meta = TRUST_META[trust] ?? { label: trust, tile: "stone", gloss: "" };
+  const [open, setOpen] = useState(false);
+  const hasTip = Boolean(meta.gloss);
   return (
     <span
+      style={{ position: "relative", display: "inline-flex", zIndex: open ? 30 : 1 }}
+      onMouseEnter={hasTip ? () => setOpen(true) : undefined}
+      onMouseLeave={hasTip ? () => setOpen(false) : undefined}
+    >
+      <span
+        tabIndex={hasTip ? 0 : undefined}
+        aria-label={hasTip ? `${meta.label}. ${meta.gloss}` : undefined}
+        onFocus={hasTip ? () => setOpen(true) : undefined}
+        onBlur={hasTip ? () => setOpen(false) : undefined}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          padding: size === "sm" ? "2px 8px" : "3px 10px",
+          borderRadius: 999,
+          fontSize: 11,
+          fontWeight: 600,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          whiteSpace: "nowrap",
+          color: `var(--tile-${meta.tile}-fg)`,
+          backgroundColor: `var(--tile-${meta.tile}-bg)`,
+          cursor: hasTip ? "help" : "default",
+          outline: "none",
+        }}
+      >
+        {meta.label}
+      </span>
+      {open && hasTip && <TrustTooltip text={meta.gloss} />}
+    </span>
+  );
+}
+
+/** The little explainer that pops above a StatusChip on hover or focus. Anchored
+ *  to the chip's right edge so it opens into the content (chips sit on the right
+ *  of a row); non-interactive so it never eats the pointer. */
+function TrustTooltip({ text }: { text: string }) {
+  return (
+    <span
+      role="tooltip"
       style={{
-        display: "inline-flex",
-        alignItems: "center",
-        padding: size === "sm" ? "2px 8px" : "3px 10px",
-        borderRadius: 999,
-        fontSize: 11,
-        fontWeight: 600,
-        letterSpacing: "0.06em",
-        textTransform: "uppercase",
-        whiteSpace: "nowrap",
-        color: `var(--tile-${meta.tile}-fg)`,
-        backgroundColor: `var(--tile-${meta.tile}-bg)`,
+        position: "absolute",
+        bottom: "calc(100% + 8px)",
+        right: 0,
+        zIndex: 50,
+        width: 232,
+        maxWidth: "72vw",
+        padding: "9px 12px",
+        borderRadius: 8,
+        backgroundColor: "var(--color-surface)",
+        color: "var(--color-text-2)",
+        border: "1px solid var(--color-border)",
+        boxShadow: "0 6px 22px rgba(20, 20, 30, 0.12)",
+        fontSize: 12,
+        fontWeight: 500,
+        lineHeight: 1.5,
+        letterSpacing: "normal",
+        textTransform: "none",
+        whiteSpace: "normal",
+        pointerEvents: "none",
       }}
     >
-      {meta.label}
+      {text}
     </span>
   );
 }
