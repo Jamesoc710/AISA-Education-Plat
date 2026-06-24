@@ -106,6 +106,8 @@ import {
   // Trend Tracker
   Pulse,
   TrendDown,
+  // Benchmarks
+  Ranking,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon, IconWeight } from "@phosphor-icons/react";
 
@@ -142,7 +144,9 @@ export type IconName =
   | "hammer" | "github-logo" | "arrow-square-out" | "paper-plane-tilt"
   | "rocket-launch" | "play-circle"
   // Trend Tracker
-  | "pulse" | "trend-down";
+  | "pulse" | "trend-down"
+  // Benchmarks
+  | "ranking";
 
 const REGISTRY: Record<IconName, PhosphorIcon> = {
   // Section tiles
@@ -259,6 +263,8 @@ const REGISTRY: Record<IconName, PhosphorIcon> = {
   // Trend Tracker
   "pulse": Pulse,
   "trend-down": TrendDown,
+  // Benchmarks
+  "ranking": Ranking,
 };
 
 export function Icon({
