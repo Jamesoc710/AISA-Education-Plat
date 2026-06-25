@@ -4,7 +4,6 @@ import { useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { TopChrome } from "@/components/top-chrome";
-import type { TrackSummary } from "@/lib/track";
 import type { TeamLink } from "@/lib/teams";
 
 /**
@@ -45,13 +44,11 @@ export type ShellUser = {
  */
 export function MainShell({
   user,
-  tracks = [],
   activeTrackSlug = "ai",
   teams = [],
   children,
 }: {
   user: ShellUser | null;
-  tracks?: TrackSummary[];
   activeTrackSlug?: string;
   teams?: TeamLink[];
   children: ReactNode;
@@ -71,12 +68,7 @@ export function MainShell({
         fontFamily: "var(--font-sans)",
       }}
     >
-      <Sidebar
-        user={user}
-        tracks={tracks}
-        activeTrackSlug={activeTrackSlug}
-        teams={teams}
-      />
+      <Sidebar user={user} activeTrackSlug={activeTrackSlug} teams={teams} />
 
       <div
         style={{

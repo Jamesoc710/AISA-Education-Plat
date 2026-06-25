@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { MainShell } from "@/components/main-shell";
-import { getActiveTrackSlug, getTracks } from "@/lib/track";
+import { getActiveTrackSlug } from "@/lib/track";
 import { getDoorTeams } from "@/lib/team-data";
 
 export default async function MainLayout({
@@ -23,19 +23,13 @@ export default async function MainLayout({
     if (dbUser) user = dbUser;
   }
 
-  const [tracks, activeTrackSlug, teams] = await Promise.all([
-    getTracks(),
+  const [activeTrackSlug, teams] = await Promise.all([
     getActiveTrackSlug(),
     getDoorTeams(),
   ]);
 
   return (
-    <MainShell
-      user={user}
-      tracks={tracks}
-      activeTrackSlug={activeTrackSlug}
-      teams={teams}
-    >
+    <MainShell user={user} activeTrackSlug={activeTrackSlug} teams={teams}>
       {children}
     </MainShell>
   );

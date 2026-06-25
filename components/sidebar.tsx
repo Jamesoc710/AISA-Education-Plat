@@ -7,7 +7,6 @@ import { SidebarNavItem } from "@/components/ui/sidebar-nav-item";
 import { Icon } from "@/components/ui/icon";
 import { FeedbackDialog } from "@/components/feedback-dialog";
 import type { ShellUser } from "@/components/main-shell";
-import type { TrackSummary } from "@/lib/track";
 import type { TeamLink } from "@/lib/teams";
 
 /**
@@ -23,9 +22,6 @@ export function Sidebar({
   teams = [],
 }: {
   user: ShellUser | null;
-  // tracks is still accepted (the lens lives on the cookie) but the sidebar no
-  // longer renders a track switcher; the Teams group below replaces it.
-  tracks?: TrackSummary[];
   activeTrackSlug?: string;
   teams?: TeamLink[];
 }) {
