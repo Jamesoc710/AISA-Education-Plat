@@ -3,6 +3,12 @@
 import Link from "next/link";
 import { daysUntil } from "@/lib/week-utils";
 import { TypeTag } from "@/components/ui/type-tag";
+import {
+  HairRule,
+  SectionEyebrow,
+  ArrowRight,
+  EditorialLinkStyles,
+} from "@/components/ui/editorial";
 import type {
   HomeWeekEvent,
   ContinuePick,
@@ -214,33 +220,8 @@ export function HomeClient(props: HomeClientProps) {
         )}
       </div>
 
-      {/* ── Hover underline for all editorial links ───────────────── */}
-      <style>{`
-        [data-surface="editorial"] .editorial-link {
-          position: relative;
-        }
-        [data-surface="editorial"] .editorial-link svg {
-          transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        [data-surface="editorial"] .editorial-link:hover svg {
-          transform: translateX(3px);
-        }
-        [data-surface="editorial"] .editorial-link::after {
-          content: "";
-          position: absolute;
-          left: 0;
-          right: 18px;
-          bottom: -2px;
-          height: 1px;
-          background-color: currentColor;
-          transform: scaleX(0);
-          transform-origin: left;
-          transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        [data-surface="editorial"] .editorial-link:hover::after {
-          transform: scaleX(1);
-        }
-      `}</style>
+      {/* Hover underline + arrow nudge for editorial links */}
+      <EditorialLinkStyles />
     </div>
   );
 }
@@ -300,55 +281,6 @@ function DigestTeaserSection({ teaser }: { teaser: DigestTeaser }) {
         </Link>
       </div>
     </div>
-  );
-}
-
-function HairRule({ top = 32, bottom = 32 }: { top?: number; bottom?: number }) {
-  return (
-    <div
-      aria-hidden
-      style={{
-        height: 1,
-        backgroundColor: "var(--color-border)",
-        margin: `${top}px 0 ${bottom}px`,
-      }}
-    />
-  );
-}
-
-function SectionEyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        fontSize: 11,
-        fontWeight: 600,
-        letterSpacing: "0.18em",
-        textTransform: "uppercase",
-        color: "var(--color-text-3)",
-        marginBottom: 16,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function ArrowRight() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <path d="M5 12h14" />
-      <path d="M13 6l6 6-6 6" />
-    </svg>
   );
 }
 
