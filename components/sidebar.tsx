@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SidebarNavItem } from "@/components/ui/sidebar-nav-item";
 import { Icon } from "@/components/ui/icon";
 import { FeedbackDialog } from "@/components/feedback-dialog";
 import type { ShellUser } from "@/components/main-shell";
 import type { TrackSummary } from "@/lib/track";
+import type { TeamLink } from "@/lib/teams";
 
 /**
  * Fixed left sidebar — Uxcel-style.
@@ -18,15 +19,17 @@ import type { TrackSummary } from "@/lib/track";
  */
 export function Sidebar({
   user,
-  tracks = [],
   activeTrackSlug = "ai",
+  teams = [],
 }: {
   user: ShellUser | null;
+  // tracks is still accepted (the lens lives on the cookie) but the sidebar no
+  // longer renders a track switcher; the Teams group below replaces it.
   tracks?: TrackSummary[];
   activeTrackSlug?: string;
+  teams?: TeamLink[];
 }) {
   const pathname = usePathname() ?? "";
-  const router = useRouter();
   const searchParams = useSearchParams();
   const filter = searchParams?.get("filter") ?? null;
   const tier = searchParams?.get("tier") ?? null;
@@ -34,15 +37,6 @@ export function Sidebar({
   const onBrowse = pathname === "/browse";
   const browseDefault = onBrowse && !filter && !tier;
   const isAiTrack = activeTrackSlug === "ai";
-
-  const switchTrack = (slug: string) => {
-    if (slug === activeTrackSlug) return;
-    void fetch("/api/track", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug }),
-    }).then(() => router.refresh());
-  };
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -135,17 +129,16 @@ export function Sidebar({
           />
         </div>
 
-        {/* TRACKS switcher — sets the active-track cookie + refreshes */}
-        {tracks.length > 1 && (
+        {/* TEAMS switcher — links to each team's HQ (door-clearing teams only) */}
+        {teams.length > 0 && (
           <>
-            <SectionLabel>Tracks</SectionLabel>
+            <SectionLabel>Teams</SectionLabel>
             <div>
-              {tracks.map((t) => (
-                <TrackNavButton
+              {teams.map((t) => (
+                <TeamNavLink
                   key={t.slug}
-                  track={t}
-                  active={t.slug === activeTrackSlug}
-                  onClick={() => switchTrack(t.slug)}
+                  team={t}
+                  active={isActive(`/teams/${t.slug}`)}
                 />
               ))}
             </div>
@@ -289,25 +282,16 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * A track row in the sidebar's Tracks group. Clicking switches the active
- * track (cookie via /api/track) and refreshes so every surface re-scopes.
- * The active track shows its own accent dot + a filled background.
+ * A team row in the sidebar's Teams group. It LINKS to that team's HQ
+ * (/teams/[slug]); the team you are viewing shows its accent dot and a filled
+ * background. This is navigation, not a content-lens switch.
  */
-function TrackNavButton({
-  track,
-  active,
-  onClick,
-}: {
-  track: TrackSummary;
-  active: boolean;
-  onClick: () => void;
-}) {
+function TeamNavLink({ team, active }: { team: TeamLink; active: boolean }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-current={active ? "true" : undefined}
-      title={track.name}
+    <Link
+      href={`/teams/${team.slug}`}
+      aria-current={active ? "page" : undefined}
+      title={team.displayName}
       style={{
         display: "flex",
         alignItems: "center",
@@ -318,10 +302,7 @@ function TrackNavButton({
         fontWeight: active ? 600 : 500,
         color: active ? "var(--color-text)" : "var(--color-text-2)",
         backgroundColor: active ? "var(--color-surface-2)" : "transparent",
-        border: "none",
-        width: "100%",
-        textAlign: "left",
-        cursor: active ? "default" : "pointer",
+        textDecoration: "none",
         transition: "background-color 100ms ease, color 100ms ease",
       }}
       onMouseEnter={(e) => {
@@ -343,13 +324,13 @@ function TrackNavButton({
           width: 9,
           height: 9,
           borderRadius: 999,
-          backgroundColor: track.accentColor,
+          backgroundColor: team.accent,
           flexShrink: 0,
         }}
       />
       <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-        {track.name}
+        {team.displayName}
       </span>
-    </button>
+    </Link>
   );
 }

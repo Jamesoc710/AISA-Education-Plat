@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { TopChrome } from "@/components/top-chrome";
 import type { TrackSummary } from "@/lib/track";
+import type { TeamLink } from "@/lib/teams";
 
 /**
  * Plays either the standard page-enter fade or, once per signin, the larger
@@ -46,11 +47,13 @@ export function MainShell({
   user,
   tracks = [],
   activeTrackSlug = "ai",
+  teams = [],
   children,
 }: {
   user: ShellUser | null;
   tracks?: TrackSummary[];
   activeTrackSlug?: string;
+  teams?: TeamLink[];
   children: ReactNode;
 }) {
   const pathname = usePathname() ?? "/";
@@ -68,7 +71,12 @@ export function MainShell({
         fontFamily: "var(--font-sans)",
       }}
     >
-      <Sidebar user={user} tracks={tracks} activeTrackSlug={activeTrackSlug} />
+      <Sidebar
+        user={user}
+        tracks={tracks}
+        activeTrackSlug={activeTrackSlug}
+        teams={teams}
+      />
 
       <div
         style={{

@@ -674,7 +674,7 @@ function TrackSwitcher({
   return (
     <div
       role="tablist"
-      aria-label="Track"
+      aria-label="Team"
       style={{
         display: "flex",
         gap: "var(--space-2)",
@@ -750,7 +750,7 @@ function TrackEmptyState({ track }: { track: TrackSummary | null }) {
         {track ? `${track.name} is coming soon` : "Coming soon"}
       </p>
       <p style={{ fontSize: "var(--text-sm)", margin: 0, color: "var(--color-text-2)", maxWidth: 400, lineHeight: 1.55 }}>
-        We&apos;re building out this track. Content lands here shortly — switch back to
+        We&apos;re building out this team. Content lands here shortly. Switch back to
         Artificial Intelligence to keep exploring in the meantime.
       </p>
     </div>

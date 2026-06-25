@@ -4,6 +4,7 @@ import { getActiveTrackSlug } from "@/lib/track";
 import { MODERATOR_ROLES } from "@/lib/build";
 import {
   type Team,
+  type TeamLink,
   getMemberFacingTeams,
   isLive,
 } from "@/lib/teams";
@@ -14,9 +15,6 @@ import {
  */
 
 // ─── Shared view shapes ──────────────────────────────────────────────────────
-
-/** A door-clearing team for the sidebar switcher. */
-export type TeamLink = { slug: string; displayName: string; accent: string };
 
 export type MeetingView = {
   title: string;

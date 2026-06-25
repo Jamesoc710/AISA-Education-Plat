@@ -33,6 +33,9 @@ export type Team = {
   flags: TeamFlags;
 };
 
+/** The minimal team shape the sidebar switcher needs (a door-clearing team). */
+export type TeamLink = { slug: string; displayName: string; accent: string };
+
 /**
  * The v1 mapping. Accent swatches live here because the registry IS the identity
  * layer; none is the editorial blue #4255FF. A new team is one entry here plus a

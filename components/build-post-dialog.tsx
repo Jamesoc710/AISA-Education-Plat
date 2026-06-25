@@ -567,7 +567,7 @@ function StepDetails({
       </p>
 
       {tracks.length > 0 && (
-        <Field label="Track">
+        <Field label="Team">
           <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)" }}>
             <TrackChip label="None" selected={trackSlug === ""} onClick={() => setTrackSlug("")} />
             {tracks.map((t) => (
@@ -683,7 +683,7 @@ function StepReview({
         <SummaryRow label="Title" value={title || "(none)"} />
         <SummaryRow label="Blurb" value={blurb || "(none)"} />
         <SummaryRow label="Stage" value={stage ? stageMeta(stage).label : "(none)"} />
-        <SummaryRow label="Track" value={trackName} />
+        <SummaryRow label="Team" value={trackName} />
       </div>
 
       <p style={{ margin: 0, fontSize: "var(--text-xs)", color: "var(--color-text-3)", lineHeight: 1.5 }}>
