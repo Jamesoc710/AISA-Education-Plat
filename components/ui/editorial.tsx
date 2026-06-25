@@ -28,16 +28,26 @@ export function HairRule({
   );
 }
 
-/** The uppercase, wide-tracked label that heads each editorial module. */
-export function SectionEyebrow({ children }: { children: React.ReactNode }) {
+/**
+ * The uppercase, wide-tracked label that heads each editorial module. Defaults
+ * to the muted tone home uses; pass `color` (e.g. var(--color-accent)) to tint
+ * it, as the team HQ does to carry the team accent.
+ */
+export function SectionEyebrow({
+  children,
+  color = "var(--color-text-3)",
+}: {
+  children: React.ReactNode;
+  color?: string;
+}) {
   return (
     <div
       style={{
-        fontSize: 11, // intentional: below the ramp's --text-xs (12px); matches home
+        fontSize: "11px", // intentional: below the ramp's --text-xs (12px); matches home
         fontWeight: 600,
         letterSpacing: "0.18em",
         textTransform: "uppercase",
-        color: "var(--color-text-3)",
+        color,
         marginBottom: "var(--space-4)",
       }}
     >

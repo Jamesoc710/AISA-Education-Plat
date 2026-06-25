@@ -143,3 +143,19 @@ export function isLive(signals: LivenessSignals): boolean {
     signals.rosterCount >= ROSTER_THRESHOLD
   );
 }
+
+/**
+ * The CSS custom properties that scope a team's accent to its page root,
+ * overriding the editorial surface's blue. Soft/dim are derived with color-mix
+ * so reused accent-tinted components stay in the team's color family. Spread
+ * into the page-root style; never produces #4255FF.
+ */
+export function teamAccentVars(accent: string): Record<string, string> {
+  return {
+    "--color-accent": accent,
+    "--color-accent-hover": accent,
+    "--color-accent-soft": `color-mix(in srgb, ${accent} 12%, var(--color-bg))`,
+    "--color-accent-on-soft": accent,
+    "--color-accent-dim": `color-mix(in srgb, ${accent} 16%, transparent)`,
+  };
+}
