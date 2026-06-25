@@ -32,7 +32,9 @@ model User {
   createdFormalQuizzes   FormalQuiz[]          @relation("FormalQuizCreator")
   formalQuizAttempts     FormalQuizAttempt[]
   feedbackSubmitted      Feedback[]
-  trackMemberships       TrackMembership[]
+  teamMemberships        TeamMembership[]
+  teamDrops              TeamDrop[]
+  teamDropReactions      TeamDropReaction[]
   createdProjects        Project[]             @relation("ProjectCreator")
   projectInterests       ProjectInterest[]
 
@@ -54,22 +56,60 @@ model Track {
   sortOrder   Int
 
   tiers       Tier[]
-  memberships TrackMembership[]
   projects    Project[]
 
   @@map("tracks")
 }
 
-model TrackMembership {
+// ─── Team HQ ─────────────────────────────────────────────────────────────────
+// Membership keys on TEAM SLUG (validated against the code registry in lib/teams.ts),
+// not track id, because content-less teams (Media) have rosters too. No FK: teams
+// live in code. This redefines the dormant, empty TrackMembership table.
+
+model TeamMembership {
   userId   String
-  trackId  String
+  teamSlug String // validated against the registry in app code; no FK (teams live in code)
   joinedAt DateTime @default(now())
 
-  user  User  @relation(fields: [userId], references: [id])
-  track Track @relation(fields: [trackId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
-  @@id([userId, trackId])
-  @@map("track_memberships")
+  @@id([userId, teamSlug])
+  @@map("team_memberships")
+}
+
+// The Drop: a team bulletin. Members post a link from the team's world with a
+// one-line take. The "good find" count is reactions.length per drop and is NEVER
+// aggregated across a user (no per-person score, no top-contributor view).
+
+model TeamDrop {
+  id           String    @id @default(cuid())
+  teamSlug     String // validated against the registry
+  userId       String
+  url          String
+  title        String // headline; pasted in v1 (OG auto-fetch is a later nicety)
+  sourceDomain String
+  note         String // the required one-line take
+  conceptSlug  String? // optional soft link to the curriculum
+  trendSlug    String? // optional soft link to a trend
+  createdAt    DateTime  @default(now())
+  removedAt    DateTime? // lead soft-remove; no hard delete
+
+  user      User               @relation(fields: [userId], references: [id])
+  reactions TeamDropReaction[]
+
+  @@index([teamSlug, createdAt])
+  @@map("team_drops")
+}
+
+model TeamDropReaction {
+  dropId String
+  userId String
+
+  drop TeamDrop @relation(fields: [dropId], references: [id], onDelete: Cascade)
+  user User     @relation(fields: [userId], references: [id])
+
+  @@id([dropId, userId])
+  @@map("team_drop_reactions")
 }
 
 model Tier {
