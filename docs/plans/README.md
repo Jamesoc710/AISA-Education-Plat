@@ -26,6 +26,7 @@ glance you can see what is done, what is live work, and what is queued.
 | --- | --- |
 | `EXPANSION.md` | The TCO expansion master plan. Source of truth for vision, architecture, every feature, and the phased roadmap. |
 | `BENCHMARKS_PLAN.md` | "The Standings" build plan for the `/benchmarks` surface. Design locked by a design panel (`../../research/benchmarks-design-research.json`); ready to build in a fresh chat. |
+| `team-hq/` | Tracks become Teams: a per-team HQ page at `/teams/[slug]`. Council-resolved (5 seats), schema-hardened, ready to build. See `team-hq/00-README.md`. |
 
 ### future/
 See `future/README.md`. Current queue: build board polish and a "build with AI"
