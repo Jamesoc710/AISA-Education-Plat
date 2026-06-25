@@ -4,9 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { IconTile } from "@/components/ui/icon-tile";
 import { Icon } from "@/components/ui/icon";
+import { Button } from "@/components/ui/button";
+import { BuildPostDialog } from "@/components/build-post-dialog";
 import { getTrackTileColor } from "@/lib/section-icons";
 import { stageMeta } from "@/lib/project-stages";
-import type { ProjectCardData, ProjectContributor } from "@/lib/build";
+import type { ProjectCardData, ProjectContributor, BuildTrack } from "@/lib/build";
 
 /**
  * Build Board showcase, on the card surface (Brilliant-style bordered rows,
@@ -16,44 +18,66 @@ import type { ProjectCardData, ProjectContributor } from "@/lib/build";
 export function BuildClient({
   projects,
   isModerator,
+  isLoggedIn,
+  tracks,
 }: {
   projects: ProjectCardData[];
   isModerator: boolean;
+  isLoggedIn: boolean;
+  tracks: BuildTrack[];
 }) {
+  const [postOpen, setPostOpen] = useState(false);
+
   return (
     <div style={{ padding: "32px 32px 80px" }}>
       <div style={{ maxWidth: 1040, margin: "0 auto" }}>
         {/* ── Page header ─────────────────────────────────────── */}
-        <div style={{ marginBottom: "var(--space-6)" }}>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "var(--text-2xl)",
-              fontWeight: 600,
-              letterSpacing: "-0.02em",
-              color: "var(--color-text)",
-              lineHeight: 1.15,
-            }}
-          >
-            Build Board
-          </h1>
-          <p
-            style={{
-              margin: "8px 0 0 0",
-              fontSize: "var(--text-base)",
-              color: "var(--color-text-2)",
-              lineHeight: 1.55,
-              maxWidth: 680,
-            }}
-          >
-            What members are building and what they have shipped. Open a project
-            to meet the team, see what help it needs, or request to join.
-          </p>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: "var(--space-4)",
+            flexWrap: "wrap",
+            marginBottom: "var(--space-6)",
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <h1
+              style={{
+                margin: 0,
+                fontSize: "var(--text-2xl)",
+                fontWeight: 600,
+                letterSpacing: "-0.02em",
+                color: "var(--color-text)",
+                lineHeight: 1.15,
+              }}
+            >
+              Build Board
+            </h1>
+            <p
+              style={{
+                margin: "8px 0 0 0",
+                fontSize: "var(--text-base)",
+                color: "var(--color-text-2)",
+                lineHeight: 1.55,
+                maxWidth: 680,
+              }}
+            >
+              What members are building and what they have shipped. Open a project
+              to meet the team, see what help it needs, or request to join.
+            </p>
+          </div>
+          <PostAction isLoggedIn={isLoggedIn} onOpen={() => setPostOpen(true)} />
         </div>
 
         {/* ── Project cards / empty state ─────────────────────── */}
         {projects.length === 0 ? (
-          <BoardEmptyState isModerator={isModerator} />
+          <BoardEmptyState
+            isLoggedIn={isLoggedIn}
+            isModerator={isModerator}
+            onOpen={() => setPostOpen(true)}
+          />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
             {projects.map((p) => (
@@ -62,6 +86,27 @@ export function BuildClient({
           </div>
         )}
       </div>
+
+      <BuildPostDialog open={postOpen} onClose={() => setPostOpen(false)} tracks={tracks} />
+    </div>
+  );
+}
+
+// ── Post-a-project action (opens the modal, or routes to sign-in) ────────────
+
+function PostAction({ isLoggedIn, onOpen }: { isLoggedIn: boolean; onOpen: () => void }) {
+  if (!isLoggedIn) {
+    return (
+      <Link href="/login?redirect=/build" style={{ textDecoration: "none", flexShrink: 0 }}>
+        <Button leftIcon={<Icon name="rocket-launch" size={14} />}>Post a project</Button>
+      </Link>
+    );
+  }
+  return (
+    <div style={{ flexShrink: 0 }}>
+      <Button onClick={onOpen} leftIcon={<Icon name="rocket-launch" size={14} />}>
+        Post a project
+      </Button>
     </div>
   );
 }
@@ -397,7 +442,15 @@ function ExternalChip({
 
 // ── Empty state ──────────────────────────────────────────────────────────────
 
-function BoardEmptyState({ isModerator }: { isModerator: boolean }) {
+function BoardEmptyState({
+  isLoggedIn,
+  isModerator,
+  onOpen,
+}: {
+  isLoggedIn: boolean;
+  isModerator: boolean;
+  onOpen: () => void;
+}) {
   return (
     <div
       style={{
@@ -417,13 +470,21 @@ function BoardEmptyState({ isModerator }: { isModerator: boolean }) {
         <Icon name="rocket-launch" size={28} />
       </span>
       <p style={{ fontSize: "var(--text-base)", margin: 0, fontWeight: 600, color: "var(--color-text)" }}>
-        Nothing on the board yet
+        Be the first to post a project
       </p>
       <p style={{ fontSize: "var(--text-sm)", margin: 0, color: "var(--color-text-2)", maxWidth: 400, lineHeight: 1.55 }}>
-        {isModerator
-          ? "Seed projects with scripts/seed-projects.ts, then approve them here to make them visible to members."
-          : "Member projects will show up here soon. Check back shortly."}
+        The board grows as members add what they are building or have shipped.
+        Post yours to get it started.
       </p>
+      <div style={{ marginTop: "var(--space-2)" }}>
+        <PostAction isLoggedIn={isLoggedIn} onOpen={onOpen} />
+      </div>
+      {isModerator && (
+        <p style={{ fontSize: "var(--text-xs)", margin: 0, color: "var(--color-text-3)", maxWidth: 400, lineHeight: 1.5 }}>
+          New posts arrive as drafts for you to approve. You can also bulk-seed
+          with scripts/seed-projects.ts.
+        </p>
+      )}
     </div>
   );
 }

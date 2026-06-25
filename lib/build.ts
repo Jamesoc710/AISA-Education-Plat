@@ -217,3 +217,17 @@ export async function hasRequestedJoin(projectId: string, userId: string): Promi
   });
   return row !== null;
 }
+
+export type BuildTrack = {
+  slug: string;
+  shortName: string;
+  accentColor: string;
+};
+
+/** Tracks for the posting modal's track select, in display order. */
+export async function getTracks(): Promise<BuildTrack[]> {
+  return prisma.track.findMany({
+    select: { slug: true, shortName: true, accentColor: true },
+    orderBy: { sortOrder: "asc" },
+  });
+}

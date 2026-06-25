@@ -1,4 +1,4 @@
-import { getBuildViewer, getProjects } from "@/lib/build";
+import { getBuildViewer, getProjects, getTracks } from "@/lib/build";
 import { BuildClient } from "@/components/build-client";
 
 export const dynamic = "force-dynamic";
@@ -9,9 +9,14 @@ export const metadata = {
 
 export default async function BuildPage() {
   const viewer = await getBuildViewer();
-  const projects = await getProjects(viewer);
+  const [projects, tracks] = await Promise.all([getProjects(viewer), getTracks()]);
 
   return (
-    <BuildClient projects={projects} isModerator={viewer?.isModerator ?? false} />
+    <BuildClient
+      projects={projects}
+      isModerator={viewer?.isModerator ?? false}
+      isLoggedIn={viewer !== null}
+      tracks={tracks}
+    />
   );
 }
