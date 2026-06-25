@@ -7,6 +7,7 @@ import { AdminCalendarSync } from "@/components/admin-calendar-sync";
 import { AdminDigestCard, type DigestEditionSummary } from "@/components/admin-digest-card";
 import { AdminTrendsCard, type TrendTrackerSummary } from "@/components/admin-trends-card";
 import { AdminBenchmarksCard, type BenchmarkAdminSummary } from "@/components/admin-benchmarks-card";
+import { AdminBuildCard, type BuildDraftSummary } from "@/components/admin-build-card";
 
 interface Stats {
   totalRecruits: number;
@@ -35,6 +36,7 @@ interface AdminOverviewProps {
   digest: DigestEditionSummary | null;
   trends: TrendTrackerSummary;
   benchmarks: BenchmarkAdminSummary;
+  buildDrafts: BuildDraftSummary[];
 }
 
 function relativeTime(timestamp: string): string {
@@ -65,7 +67,7 @@ function statusTone(status: ActivityItem["status"]): StatusTagTone {
   }
 }
 
-export function AdminOverview({ stats, activity, calendarSync, digest, trends, benchmarks }: AdminOverviewProps) {
+export function AdminOverview({ stats, activity, calendarSync, digest, trends, benchmarks, buildDrafts }: AdminOverviewProps) {
   const statCards: { value: number; label: string; tile: "indigo" | "sky" | "honey" | "mint" }[] = [
     { value: stats.totalRecruits, label: "Total members", tile: "indigo" },
     { value: stats.activeThisWeek, label: "Active this week", tile: "sky" },
@@ -82,6 +84,7 @@ export function AdminOverview({ stats, activity, calendarSync, digest, trends, b
       <AdminDigestCard edition={digest} />
       <AdminTrendsCard trends={trends} />
       <AdminBenchmarksCard benchmarks={benchmarks} />
+      <AdminBuildCard drafts={buildDrafts} />
       <div
         style={{
           display: "grid",

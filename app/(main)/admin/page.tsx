@@ -116,6 +116,31 @@ export default async function AdminPage() {
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
     .slice(0, 20);
 
+  // ── Build Board drafts awaiting review ───────────────────────────────────────
+  const draftProjects = await prisma.project.findMany({
+    where: { status: "draft" },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      blurb: true,
+      stage: true,
+      createdAt: true,
+      createdBy: { select: { name: true } },
+    },
+  });
+  type DraftRow = (typeof draftProjects)[number];
+  const buildDrafts = draftProjects.map((d: DraftRow) => ({
+    id: d.id,
+    slug: d.slug,
+    title: d.title,
+    blurb: d.blurb,
+    stage: d.stage,
+    author: d.createdBy?.name ?? null,
+    createdAt: d.createdAt.toISOString(),
+  }));
+
   return (
     <AdminOverview
       stats={{
@@ -156,6 +181,7 @@ export default async function AdminPage() {
         published: benchmarkPublished,
         drafts: benchmarkTotal - benchmarkPublished,
       }}
+      buildDrafts={buildDrafts}
     />
   );
 }

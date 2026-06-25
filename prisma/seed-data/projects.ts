@@ -11,7 +11,7 @@ import type { ProjectStage } from "../../lib/project-stages";
  *  - slugs: kebab-case, unique, stable (they are the public URL)
  *  - team[].email must match an existing users.email exactly; contributors
  *    without an app account go in extraContributors as { name, role? }
- *  - stage: idea | building | polishing | completed | paused
+ *  - stage: idea | building | shipped | paused
  *  - no em or en dashes in any member-facing text
  */
 
@@ -54,7 +54,7 @@ export const PROJECT_SEEDS: ProjectSeed[] = [
       "**Stack:** Next.js, TypeScript, OpenRouter (LLM orchestration with primary/fallback redundancy), ArcGIS REST services, deployed on Vercel.",
     ].join("\n"),
     trackSlug: "ai",
-    stage: "polishing",
+    stage: "building",
     lookingFor: ["front-end dev"],
     repoUrl: "https://github.com/Jamesoc710/LA-Fires-V2",
     demoUrl: "https://rebuildlaagent.com/landing",

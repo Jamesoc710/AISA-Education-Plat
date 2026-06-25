@@ -262,7 +262,7 @@ model Project {
   blurb             String    // one or two sentences shown on the card
   description       String?   // Markdown body for the detail page
   status            String    @default("draft") // draft | approved
-  stage             String    @default("building") // idea | building | polishing | completed | paused
+  stage             String    @default("building") // idea | building | shipped | paused
   trackId           String?   // drives the card's IconTile color
   lookingFor        Json?     // string[] of open-role tags, e.g. ["designer"]
   repoUrl           String?
@@ -283,19 +283,22 @@ model Project {
   @@map("projects")
 }
 
-// One "request to join" per member per project; leads/admins read these in-app.
+// One "request to join" per member per project; leads/admins resolve these in-app.
 model ProjectInterest {
-  id        String   @id @default(cuid())
-  projectId String
-  userId    String
-  note      String?  // optional pitch from the member
-  status    String   @default("new") // new | seen
-  createdAt DateTime @default(now())
+  id            String    @id @default(cuid())
+  projectId     String
+  userId        String
+  note          String?   // optional pitch from the member
+  status        String    @default("pending") // pending | accepted | declined
+  respondedById String?   // moderator who accepted/declined (audit stamp; no FK by design)
+  respondedAt   DateTime? // when it was resolved; null while pending
+  createdAt     DateTime  @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id])
 
   @@unique([projectId, userId])
+  @@index([status])
   @@map("project_interests")
 }
 

@@ -16,6 +16,7 @@ import {
   StageChip,
   initialsFor,
 } from "@/components/build-client";
+import { RequestControls, RequestStatusChip } from "@/components/build-request-controls";
 import type { ProjectDetailData } from "@/lib/build";
 
 export type BuildViewerState = {
@@ -519,8 +520,8 @@ function ModerationPanel({ project }: { project: ProjectDetailData }) {
           </div>
           {project.interests.length === 0 ? (
             <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
-              No requests yet. When a member asks to join, their name and email
-              show up here so the team can follow up.
+              No requests yet. When a member asks to join, you can accept them
+              onto the team or decline right here.
             </p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
@@ -543,6 +544,7 @@ function ModerationPanel({ project }: { project: ProjectDetailData }) {
                     <span style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)" }}>
                       {i.user.name}
                     </span>
+                    <RequestStatusChip status={i.status} />
                     <a
                       href={`mailto:${i.user.email}`}
                       style={{
@@ -571,6 +573,19 @@ function ModerationPanel({ project }: { project: ProjectDetailData }) {
                     >
                       {i.note}
                     </p>
+                  )}
+                  {i.status === "pending" ? (
+                    <RequestControls projectId={project.id} interestId={i.id} />
+                  ) : (
+                    i.respondedAt && (
+                      <p style={{ margin: "6px 0 0", fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
+                        {i.status === "accepted" ? "Added to the team" : "Declined"} on{" "}
+                        {new Date(i.respondedAt).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                    )
                   )}
                 </div>
               ))}

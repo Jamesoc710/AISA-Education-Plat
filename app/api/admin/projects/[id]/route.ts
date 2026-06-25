@@ -39,22 +39,74 @@ export async function PATCH(
 
   const existing = await prisma.project.findUnique({
     where: { id },
-    select: { id: true, approvedAt: true },
+    select: { id: true, approvedAt: true, createdById: true },
   });
   if (!existing) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
 
-  const updated = await prisma.project.update({
-    where: { id },
-    data: {
-      status: body.status,
-      // First approval stamps the time; moving back to draft keeps history
-      approvedAt:
-        body.status === "approved" ? existing.approvedAt ?? new Date() : existing.approvedAt,
-    },
-    select: { id: true, status: true, approvedAt: true },
+  const approving = body.status === "approved";
+
+  // One transaction: flip status, and for a self-serve project (createdById set
+  // at POST) write the creator's Lead assignment at approval so the team is
+  // never empty. Seeded projects have no createdById, so their teams stay owned
+  // by the seed file (the seeder deleteMany-wipes assignments each run, which
+  // would otherwise eat a Lead row written here).
+  const updated = await prisma.$transaction(async (tx) => {
+    const project = await tx.project.update({
+      where: { id },
+      data: {
+        status: body.status,
+        // First approval stamps the time; moving back to draft keeps history
+        approvedAt: approving ? existing.approvedAt ?? new Date() : existing.approvedAt,
+      },
+      select: { id: true, status: true, approvedAt: true },
+    });
+    if (approving && existing.createdById) {
+      await tx.projectAssignment.upsert({
+        where: { userId_projectId: { userId: existing.createdById, projectId: id } },
+        create: { userId: existing.createdById, projectId: id, role: "Lead" },
+        update: {}, // already on the team: keep their existing role
+      });
+    }
+    return project;
   });
 
   return NextResponse.json(updated);
+}
+
+/**
+ * DELETE /api/admin/projects/[id]
+ * Deny a pending post: deletes a DRAFT project (its assignments are removed
+ * explicitly; interests cascade via the schema). Restricted to drafts, so this
+ * can never delete a live, member-visible project by mistake.
+ */
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const moderator = await requireModerator();
+  if (!moderator) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const { id } = await params;
+  const existing = await prisma.project.findUnique({
+    where: { id },
+    select: { id: true, status: true },
+  });
+  if (!existing) {
+    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  }
+  if (existing.status !== "draft") {
+    return NextResponse.json(
+      { error: "Only draft posts can be denied. Move it back to draft first." },
+      { status: 400 },
+    );
+  }
+
+  await prisma.$transaction([
+    prisma.projectAssignment.deleteMany({ where: { projectId: id } }),
+    prisma.project.delete({ where: { id } }),
+  ]);
+
+  return NextResponse.json({ ok: true });
 }
