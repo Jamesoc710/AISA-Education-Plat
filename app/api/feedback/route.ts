@@ -30,6 +30,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // An attached image must live under the caller's own folder — the upload route
+  // writes `<userId>/...`. Reject a forged path so feedback can't reference an
+  // image the caller never uploaded (broken object-level authorization).
+  if (imagePath && !imagePath.startsWith(`${user.id}/`)) {
+    return NextResponse.json(
+      { error: "Invalid image reference" },
+      { status: 400 },
+    );
+  }
+
   const feedback = await prisma.feedback.create({
     data: {
       userId: user.id,

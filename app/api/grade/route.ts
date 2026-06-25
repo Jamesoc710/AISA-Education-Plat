@@ -64,10 +64,12 @@ export async function POST(req: NextRequest) {
     conceptName: question.concept.name,
   });
 
-  // If attemptId provided, update the QuizAttempt record
+  // If attemptId provided, update the QuizAttempt record. Scope the write to the
+  // caller's own attempts (updateMany + userId) so a forged attemptId can't
+  // overwrite another member's grade — broken object-level authorization (IDOR).
   if (attemptId) {
-    await prisma.quizAttempt.update({
-      where: { id: attemptId },
+    await prisma.quizAttempt.updateMany({
+      where: { id: attemptId, userId: user.id },
       data: {
         isCorrect: result.score === "correct",
         llmScore: result.score,
