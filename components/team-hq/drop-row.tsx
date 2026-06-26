@@ -75,6 +75,7 @@ export function DropRow({
 
   return (
     <article
+      className="team-card"
       style={{
         display: "flex",
         gap: "var(--space-4)",
@@ -238,7 +239,7 @@ function Headline({ drop }: { drop: DropView }) {
         href={drop.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="editorial-link"
+        className="team-card-title"
         style={style}
       >
         {drop.title}
@@ -246,7 +247,7 @@ function Headline({ drop }: { drop: DropView }) {
     );
   }
   return (
-    <Link href={drop.url} className="editorial-link" style={style}>
+    <Link href={drop.url} className="team-card-title" style={style}>
       {drop.title}
     </Link>
   );

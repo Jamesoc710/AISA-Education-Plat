@@ -12,6 +12,7 @@ import { TypeTag } from "@/components/ui/type-tag";
 import { WorthARead } from "@/components/team-hq/worth-a-read";
 import { TeamApply } from "@/components/team-hq/team-apply";
 import { SetLensButton } from "@/components/team-hq/set-lens-button";
+import { TeamHoverStyles } from "@/components/team-hq/team-hover-styles";
 
 export const dynamic = "force-dynamic";
 
@@ -199,10 +200,10 @@ export default async function TeamPage({
                   <Link
                     key={p.slug}
                     href={`/build/${p.slug}`}
-                    className="editorial-link-row"
+                    className="team-card"
                     style={{ ...cardStyle, display: "block", textDecoration: "none", color: "inherit" }}
                   >
-                    <h3 style={cardTitleStyle}>{p.title}</h3>
+                    <h3 className="team-card-title" style={cardTitleStyle}>{p.title}</h3>
                     <p
                       style={{
                         margin: "8px 0 0",
@@ -350,6 +351,7 @@ export default async function TeamPage({
       </div>
 
       <EditorialLinkStyles />
+      <TeamHoverStyles />
     </div>
   );
 }

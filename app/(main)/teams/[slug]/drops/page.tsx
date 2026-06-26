@@ -8,6 +8,7 @@ import {
   EditorialLinkStyles,
 } from "@/components/ui/editorial";
 import { DropRow } from "@/components/team-hq/drop-row";
+import { TeamHoverStyles } from "@/components/team-hq/team-hover-styles";
 
 export const dynamic = "force-dynamic";
 
@@ -109,6 +110,7 @@ export default async function TeamDropsPage({
       </div>
 
       <EditorialLinkStyles />
+      <TeamHoverStyles />
     </div>
   );
 }
