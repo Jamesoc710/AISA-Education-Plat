@@ -10,7 +10,6 @@ import {
   DraftChip,
   ThemeTags,
   directionMeta,
-  normalize,
   usePrefersReducedMotion,
 } from "@/components/trends-client";
 import type { TrendDetailData, TrendPerspectives, TrendRelatedConcept, TrendStory } from "@/lib/trends";
@@ -20,8 +19,8 @@ import type { TrendDetailData, TrendPerspectives, TrendRelatedConcept, TrendStor
  * under data-surface="editorial" (Quizlet blue + Hanken): a category kicker, a
  * clamp(40-48px) headline, a lighter deck (the first sentence of whatItIs), then a
  * 2-column split: the article on the left (bold sentence-case subheads + prose
- * divided by HairRule) and a signals rail on the right (oversized momentum hero +
- * ThinBar, the THEMES facet that replaces the old lifecycle stage, the direction
+ * divided by HairRule) and a signals rail on the right (the THEMES facet that
+ * replaces the old lifecycle stage, the direction
  * glyph, and the accent-soft concept chips). Below the split, a borderless dated
  * "Recent signals" log. The admin Moderation box is the only surviving border.
  *
@@ -151,8 +150,6 @@ export function TrendDetailClient({
 
           {/* RIGHT: the signals rail */}
           <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-            <MomentumHero momentum={trend.momentum} />
-
             {trend.themes.length > 0 && (
               <div>
                 <SectionEyebrow>Themes</SectionEyebrow>
@@ -405,35 +402,6 @@ function PerspectivesSection({ perspectives }: { perspectives: TrendPerspectives
   );
 }
 
-/** Oversized momentum hero (StreakStat-style, copy-and-modified) + single-fill
- *  ThinBar. Fill normalizes momentum over the 65-95 band the seed clusters in. */
-function MomentumHero({ momentum }: { momentum: number }) {
-  return (
-    <div>
-      <SectionEyebrow>Momentum</SectionEyebrow>
-      <div
-        style={{
-          fontSize: "clamp(48px, 5.6vw, 64px)",
-          fontWeight: 600,
-          color: "var(--color-accent)",
-          letterSpacing: "-0.02em",
-          lineHeight: 1,
-          fontVariantNumeric: "tabular-nums",
-        }}
-      >
-        {momentum}
-      </div>
-      <ThinBar
-        touchedPct={normalize(momentum, 65, 95)}
-        masteredPct={0}
-        touchedColor="var(--color-accent)"
-        masteredColor="transparent"
-        style={{ marginTop: 16 }}
-      />
-    </div>
-  );
-}
-
 /** Recent-signals entry: ISO date eyebrow, headline, why-it-matters, source chip. */
 function StoryRow({ story }: { story: TrendStory }) {
   return (
@@ -569,54 +537,6 @@ function SectionEyebrow({ children }: { children: React.ReactNode }) {
       }}
     >
       {children}
-    </div>
-  );
-}
-
-/** Single-/double-fill progress bar, copied by value from dashboard-client. */
-function ThinBar({
-  touchedPct,
-  masteredPct,
-  touchedColor,
-  masteredColor,
-  style,
-}: {
-  touchedPct: number;
-  masteredPct: number;
-  touchedColor: string;
-  masteredColor: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <div
-      style={{
-        position: "relative",
-        height: 3,
-        width: "100%",
-        backgroundColor: "var(--color-border-subtle)",
-        ...style,
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          bottom: 0,
-          left: 0,
-          width: `${Math.min(touchedPct * 100, 100)}%`,
-          backgroundColor: touchedColor,
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          bottom: 0,
-          left: 0,
-          width: `${Math.min(masteredPct * 100, 100)}%`,
-          backgroundColor: masteredColor,
-        }}
-      />
     </div>
   );
 }

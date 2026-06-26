@@ -359,19 +359,8 @@ function TrendCell({ trend, index }: { trend: TrendCardData; index: number }) {
         </div>
       )}
 
-      {/* Quiet momentum read: number, dot-on-track gauge, heating glyph, concepts */}
+      {/* Quiet read: direction glyph + concept count */}
       <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 16 }}>
-        <span
-          style={{
-            fontSize: 14,
-            fontWeight: 600,
-            color: "var(--color-text)",
-            fontVariantNumeric: "tabular-nums",
-          }}
-        >
-          {trend.momentum}
-        </span>
-        <MomentumGauge value={trend.momentum} reduced={reduced} />
         <span style={{ display: "inline-flex", color: dir.color }} title={dir.label} aria-label={dir.label}>
           <Icon name={dir.icon} size={14} />
         </span>
@@ -382,44 +371,6 @@ function TrendCell({ trend, index }: { trend: TrendCardData; index: number }) {
         )}
       </div>
     </div>
-  );
-}
-
-/** Dot-on-track momentum gauge. Dot x = normalize(momentum, 65, 95); the value is
- *  always rendered at its true position (no-JS accurate), then eased in on mount. */
-function MomentumGauge({ value, reduced }: { value: number; reduced: boolean }) {
-  const TRACK = 72;
-  const DOT = 7;
-  const leftPx = normalize(value, 65, 95) * (TRACK - DOT);
-  return (
-    <span
-      aria-hidden
-      style={{ position: "relative", display: "inline-block", width: TRACK, height: DOT, flexShrink: 0 }}
-    >
-      <span
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          top: (DOT - 1) / 2,
-          height: 1,
-          backgroundColor: "var(--color-border)",
-        }}
-      />
-      <span
-        className="trend-gauge-dot"
-        style={{
-          position: "absolute",
-          left: leftPx,
-          top: 0,
-          width: DOT,
-          height: DOT,
-          borderRadius: 999,
-          backgroundColor: "var(--color-accent)",
-          animationName: reduced ? "none" : undefined,
-        }}
-      />
-    </span>
   );
 }
 
@@ -457,7 +408,7 @@ export function ThemeTags({ themes, showLabel = true }: { themes: string[]; show
   );
 }
 
-/** Clamp value to [lo, hi] then map to 0..1. Drives the gauge dot + the ThinBar. */
+/** Clamp value to [lo, hi] then map to 0..1. */
 export function normalize(value: number, lo: number, hi: number): number {
   if (hi <= lo) return 0;
   return Math.max(0, Math.min(1, (value - lo) / (hi - lo)));
