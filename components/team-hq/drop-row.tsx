@@ -77,6 +77,7 @@ export function DropRow({
     <article
       className="team-card"
       style={{
+        position: "relative",
         display: "flex",
         gap: "var(--space-4)",
         alignItems: "flex-start",
@@ -86,6 +87,23 @@ export function DropRow({
         backgroundColor: "var(--color-surface)",
       }}
     >
+      {/* Full-card click target; the reaction and remove controls sit above it */}
+      {drop.external ? (
+        <a
+          href={drop.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={drop.title}
+          style={{ position: "absolute", inset: 0, zIndex: 0 }}
+        />
+      ) : (
+        <Link
+          href={drop.url}
+          aria-label={drop.title}
+          style={{ position: "absolute", inset: 0, zIndex: 0 }}
+        />
+      )}
+
       {/* Leading: monogram (member) or a Radar tag (system) */}
       {drop.kind === "member" ? (
         <span
@@ -128,7 +146,9 @@ export function DropRow({
 
       {/* Main: headline link, the take, and the meta line */}
       <div style={{ minWidth: 0, flex: 1 }}>
-        <Headline drop={drop} />
+        <span className="team-card-title" style={titleStyle}>
+          {drop.title}
+        </span>
         <p
           style={{
             margin: "6px 0 0",
@@ -171,6 +191,8 @@ export function DropRow({
                 onClick={remove}
                 disabled={busy}
                 style={{
+                  position: "relative",
+                  zIndex: 1,
                   border: "none",
                   background: "none",
                   padding: 0,
@@ -197,6 +219,8 @@ export function DropRow({
           aria-pressed={reacted}
           title="Good find"
           style={{
+            position: "relative",
+            zIndex: 1,
             flexShrink: 0,
             alignSelf: "flex-start",
             display: "inline-flex",
@@ -222,36 +246,15 @@ export function DropRow({
   );
 }
 
-function Headline({ drop }: { drop: DropView }) {
-  const style = {
-    display: "inline-block",
-    maxWidth: "100%",
-    fontSize: "18px",
-    fontWeight: 600,
-    letterSpacing: "-0.01em",
-    lineHeight: 1.3,
-    color: "var(--color-text)",
-    textDecoration: "none",
-  } as const;
-  if (drop.external) {
-    return (
-      <a
-        href={drop.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="team-card-title"
-        style={style}
-      >
-        {drop.title}
-      </a>
-    );
-  }
-  return (
-    <Link href={drop.url} className="team-card-title" style={style}>
-      {drop.title}
-    </Link>
-  );
-}
+const titleStyle = {
+  display: "inline-block",
+  maxWidth: "100%",
+  fontSize: "18px",
+  fontWeight: 600,
+  letterSpacing: "-0.01em",
+  lineHeight: 1.3,
+  color: "var(--color-text)",
+} as const;
 
 function Sep() {
   return <span aria-hidden style={{ color: "var(--color-text-3)" }}>·</span>;
