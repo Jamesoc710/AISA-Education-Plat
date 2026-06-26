@@ -30,6 +30,9 @@ const TIER_COPY: Record<string, { title: string; subtitle: string }> = {
   },
 };
 
+// Canonical difficulty order for the on-page tier filter.
+const TIER_ORDER = ["fundamentals", "intermediate", "advanced"];
+
 export function BrowseClient({
   sections,
   tracks = [],
@@ -167,6 +170,15 @@ export function BrowseClient({
 
   const isFiltered = filter !== "all" || tierFilter !== null;
 
+  // Difficulty-tier filter: replaces the old sidebar tier rows. Shown only where
+  // the track actually has tiers (AI today) and on the default browse view.
+  const availableTiers = useMemo(
+    () => TIER_ORDER.filter((slug) => sections.some((s) => s.tier.slug === slug)),
+    [sections],
+  );
+  const showTierFilter =
+    activeTrackSlug === "ai" && availableTiers.length > 1 && filter === "all" && !query;
+
   return (
     <div style={{ padding: "32px 32px 80px" }}>
       <div style={{ maxWidth: 1040, margin: "0 auto" }}>
@@ -238,6 +250,10 @@ export function BrowseClient({
             </Link>
           )}
         </div>
+
+        {showTierFilter && (
+          <TierFilter tiers={availableTiers} activeTier={tierFilter} />
+        )}
 
         {/* ── Expand / collapse toolbar ───────────────────────── */}
         {filteredSections.length > 0 && (
@@ -718,6 +734,78 @@ function TrackSwitcher({
           >
             {t.name}
           </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Tier Filter ──────────────────────────────────────────────────────────────
+// Pill row that sets ?tier=… on the Browse page — the on-page replacement for the
+// old sidebar Fundamentals/Intermediate/Advanced rows. "All" clears to /browse.
+
+function TierFilter({
+  tiers,
+  activeTier,
+}: {
+  tiers: string[];
+  activeTier: string | null;
+}) {
+  const options: { slug: string | null; label: string; href: string }[] = [
+    { slug: null, label: "All", href: "/browse" },
+    ...tiers.map((slug) => ({
+      slug,
+      label: TIER_COPY[slug]?.title ?? slug,
+      href: `/browse?tier=${slug}`,
+    })),
+  ];
+  return (
+    <div
+      role="tablist"
+      aria-label="Difficulty"
+      style={{
+        display: "flex",
+        gap: "var(--space-2)",
+        flexWrap: "wrap",
+        marginBottom: "var(--space-5)",
+      }}
+    >
+      {options.map((opt) => {
+        const active = opt.slug === activeTier;
+        return (
+          <Link
+            key={opt.label}
+            href={opt.href}
+            role="tab"
+            aria-selected={active}
+            style={{
+              padding: "6px 14px",
+              borderRadius: 999,
+              fontSize: "var(--text-sm)",
+              fontWeight: 600,
+              textDecoration: "none",
+              cursor: active ? "default" : "pointer",
+              border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border)"}`,
+              backgroundColor: active ? "var(--color-accent)" : "transparent",
+              color: active ? "#fff" : "var(--color-text-2)",
+              transition:
+                "background-color 120ms ease, color 120ms ease, border-color 120ms ease",
+            }}
+            onMouseEnter={(e) => {
+              if (!active) {
+                e.currentTarget.style.backgroundColor = "var(--color-surface-2)";
+                e.currentTarget.style.color = "var(--color-text)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!active) {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = "var(--color-text-2)";
+              }
+            }}
+          >
+            {opt.label}
+          </Link>
         );
       })}
     </div>

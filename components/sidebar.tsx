@@ -11,28 +11,24 @@ import type { TeamLink } from "@/lib/teams";
 
 /**
  * Fixed left sidebar — Uxcel-style.
- * Logo → primary nav → LEARN group → PREPARE group → feedback (pinned bottom).
+ * Logo → Home/Browse → DISCOVER → PRACTICE → ME → COMMUNITY → ADMIN → feedback (pinned bottom).
  *
  * Items routing to pages not yet migrated to the new shell still link normally;
  * those pages will appear dark until their own phase ships.
  */
 export function Sidebar({
   user,
-  activeTrackSlug = "ai",
   teams = [],
 }: {
   user: ShellUser | null;
-  activeTrackSlug?: string;
   teams?: TeamLink[];
 }) {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const filter = searchParams?.get("filter") ?? null;
-  const tier = searchParams?.get("tier") ?? null;
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const onBrowse = pathname === "/browse";
-  const browseDefault = onBrowse && !filter && !tier;
-  const isAiTrack = activeTrackSlug === "ai";
+  const browseDefault = onBrowse && !filter;
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -53,7 +49,7 @@ export function Sidebar({
     >
       {/* ── Logo ─────────────────────────────────────────────── */}
       <Link
-        href="/browse"
+        href="/home"
         aria-label="TCO home"
         style={{
           display: "inline-flex",
@@ -87,21 +83,14 @@ export function Sidebar({
             iconName="grid"
             active={browseDefault}
           />
-          <SidebarNavItem
-            href="/browse?filter=bookmarked"
-            label="Bookmarked"
-            iconName="bookmark"
-            active={onBrowse && filter === "bookmarked"}
-          />
-          <SidebarNavItem
-            href="/dashboard"
-            label="Progress"
-            iconName="bar-chart"
-            active={isActive("/dashboard")}
-          />
+        </div>
+
+        {/* DISCOVER group — editorial + signal surfaces */}
+        <SectionLabel>Discover</SectionLabel>
+        <div>
           <SidebarNavItem
             href="/digest"
-            label="This Week"
+            label="This week"
             iconName="newspaper"
             active={isActive("/digest")}
           />
@@ -117,58 +106,11 @@ export function Sidebar({
             iconName="ranking"
             active={isActive("/benchmarks")}
           />
-          <SidebarNavItem
-            href="/build"
-            label="Build Board"
-            iconName="hammer"
-            active={isActive("/build")}
-          />
         </div>
 
-        {/* TEAMS switcher — links to each team's HQ (door-clearing teams only) */}
-        {teams.length > 0 && (
-          <>
-            <SectionLabel>Teams</SectionLabel>
-            <div>
-              {teams.map((t) => (
-                <TeamNavLink
-                  key={t.slug}
-                  team={t}
-                  active={isActive(`/teams/${t.slug}`)}
-                />
-              ))}
-            </div>
-          </>
-        )}
-
-        {/* LEARN group */}
-        <SectionLabel>Learn</SectionLabel>
+        {/* PRACTICE group — self-study tools */}
+        <SectionLabel>Practice</SectionLabel>
         <div>
-          {isAiTrack && (
-            <>
-              <SidebarNavItem
-                href="/browse?tier=fundamentals"
-                label="Fundamentals"
-                iconName="circle-dashed"
-                defaultIconColor="var(--color-gold)"
-                active={onBrowse && tier === "fundamentals"}
-              />
-              <SidebarNavItem
-                href="/browse?tier=intermediate"
-                label="Intermediate"
-                iconName="circle-half"
-                defaultIconColor="var(--color-blue)"
-                active={onBrowse && tier === "intermediate"}
-              />
-              <SidebarNavItem
-                href="/browse?tier=advanced"
-                label="Advanced"
-                iconName="circles-three-plus"
-                defaultIconColor="var(--color-slate)"
-                active={onBrowse && tier === "advanced"}
-              />
-            </>
-          )}
           <SidebarNavItem
             href="/quiz"
             label="Practice quiz"
@@ -183,26 +125,47 @@ export function Sidebar({
           />
         </div>
 
-        {/* PREPARE group */}
-        <SectionLabel>Prepare</SectionLabel>
+        {/* ME group — personal */}
+        <SectionLabel>Me</SectionLabel>
         <div>
           <SidebarNavItem
-            href="/assessments"
-            label="Assessments"
-            iconName="clipboard-check"
-            active={isActive("/assessments")}
+            href="/dashboard"
+            label="Progress"
+            iconName="bar-chart"
+            active={isActive("/dashboard")}
+          />
+          <SidebarNavItem
+            href="/browse?filter=bookmarked"
+            label="Bookmarked"
+            iconName="bookmark"
+            active={onBrowse && filter === "bookmarked"}
+          />
+        </div>
+
+        {/* COMMUNITY group — teams, build board, and the club calendar.
+            Last among content groups so the variable-height team list grows
+            toward the pinned feedback button instead of reflowing the fixed
+            groups above it. */}
+        <SectionLabel>Community</SectionLabel>
+        <div>
+          {teams.map((t) => (
+            <TeamNavLink
+              key={t.slug}
+              team={t}
+              active={isActive(`/teams/${t.slug}`)}
+            />
+          ))}
+          <SidebarNavItem
+            href="/build"
+            label="Build board"
+            iconName="hammer"
+            active={isActive("/build")}
           />
           <SidebarNavItem
             href="/calendar"
             label="Calendar"
             iconName="calendar"
             active={isActive("/calendar")}
-          />
-          <SidebarNavItem
-            href="/homework"
-            label="Homework"
-            iconName="book-open"
-            active={isActive("/homework")}
           />
         </div>
 

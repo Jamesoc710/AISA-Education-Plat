@@ -44,12 +44,10 @@ export type ShellUser = {
  */
 export function MainShell({
   user,
-  activeTrackSlug = "ai",
   teams = [],
   children,
 }: {
   user: ShellUser | null;
-  activeTrackSlug?: string;
   teams?: TeamLink[];
   children: ReactNode;
 }) {
@@ -68,7 +66,7 @@ export function MainShell({
         fontFamily: "var(--font-sans)",
       }}
     >
-      <Sidebar user={user} activeTrackSlug={activeTrackSlug} teams={teams} />
+      <Sidebar user={user} teams={teams} />
 
       <div
         style={{
