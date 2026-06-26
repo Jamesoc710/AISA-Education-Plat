@@ -37,7 +37,7 @@ export function WorthARead({
           gap: "var(--space-4)",
         }}
       >
-        <SectionEyebrow color="var(--color-accent)">Worth a read</SectionEyebrow>
+        <SectionEyebrow>Worth a read</SectionEyebrow>
         {isLoggedIn ? (
           <button
             type="button"

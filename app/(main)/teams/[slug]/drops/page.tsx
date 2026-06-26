@@ -54,7 +54,7 @@ export default async function TeamDropsPage({
           {team.displayName}
         </Link>
 
-        <SectionEyebrow color="var(--color-accent)">Worth a read</SectionEyebrow>
+        <SectionEyebrow>Worth a read</SectionEyebrow>
         <h1
           style={{
             margin: "0 0 var(--space-6)",

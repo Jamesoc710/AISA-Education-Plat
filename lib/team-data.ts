@@ -63,7 +63,6 @@ export type TeamPageData = {
   memberDropCount: number; // member drops shown (drives the "be the first" nudge)
   projects: TeamProjectView[];
   roster: RosterMember[];
-  refresherTerms: { name: string; slug: string }[]; // a few key concepts to brush up (content teams)
 };
 
 // ─── Small formatters (no em or en dashes anywhere) ──────────────────────────
@@ -345,7 +344,7 @@ export async function getTeamPageData(team: Team): Promise<TeamPageData | null> 
   // The team's concept scope (for the "active this week" quiz signal).
   const memberIds = Array.from(memberName.keys());
 
-  const [meetingEvent, projectRows, dropRows, quizActiveRows, dropActiveRows, refresherRows] =
+  const [meetingEvent, projectRows, dropRows, quizActiveRows, dropActiveRows] =
     await Promise.all([
       team.teamType
         ? prisma.scheduleEvent.findFirst({
@@ -410,18 +409,6 @@ export async function getTeamPageData(team: Team): Promise<TeamPageData | null> 
             distinct: ["userId"],
           })
         : Promise.resolve([] as { userId: string }[]),
-      // a few foundational terms for the Refresher (content teams only)
-      trackSlug
-        ? prisma.concept.findMany({
-            where: {
-              difficulty: "FUNDAMENTALS",
-              section: { tier: { track: { slug: trackSlug } } },
-            },
-            orderBy: { sortOrder: "asc" },
-            take: 4,
-            select: { name: true, slug: true },
-          })
-        : Promise.resolve([] as { name: string; slug: string }[]),
     ]);
 
   // Meeting view (next upcoming only; null shows the recruiting empty state).
@@ -490,7 +477,6 @@ export async function getTeamPageData(team: Team): Promise<TeamPageData | null> 
     memberDropCount: memberDrops.length,
     projects,
     roster,
-    refresherTerms: refresherRows,
   };
 }
 
