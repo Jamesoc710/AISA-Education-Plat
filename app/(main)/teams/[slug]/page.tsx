@@ -47,82 +47,91 @@ export default async function TeamPage({
 
   return (
     <div data-surface="editorial" style={rootStyle}>
-      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "56px 48px 96px" }}>
-        {/* Top hairline in the team accent */}
-        <div
-          aria-hidden
-          style={{ height: 3, width: 64, backgroundColor: "var(--color-accent)", marginBottom: "var(--space-5)" }}
-        />
-
-        {/* ── 1. Masthead ─────────────────────────────────────────── */}
-        <header
-          style={{
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            gap: "var(--space-6)",
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ minWidth: 0 }}>
-            <SectionEyebrow>Team</SectionEyebrow>
-            <h1
-              style={{
-                margin: 0,
-                fontSize: "clamp(40px, 5.5vw, 60px)",
-                fontWeight: 600,
-                letterSpacing: "-0.03em",
-                lineHeight: 1.04,
-                color: "var(--color-text)",
-              }}
-            >
-              {team.wordmark ?? team.displayName}
-            </h1>
-            <p
-              style={{
-                margin: "14px 0 0",
-                fontSize: "var(--text-md)",
-                color: "var(--color-text-2)",
-                lineHeight: 1.5,
-                maxWidth: 640,
-              }}
-            >
-              {team.mandate}
-            </p>
-            <div
-              style={{
-                marginTop: "var(--space-4)",
-                fontSize: "var(--text-sm)",
-                fontWeight: 600,
-                letterSpacing: "0.04em",
-                textTransform: "uppercase",
-                color: "var(--color-text-3)",
-              }}
-            >
-              {memberLabel}
-            </div>
-          </div>
+      {/* ── Masthead band: the team's one concentrated color moment ──── */}
+      <div
+        style={{
+          backgroundColor: "var(--color-accent-wash)",
+          borderBottom: "1px solid var(--color-border)",
+        }}
+      >
+        <div style={{ maxWidth: 1080, margin: "0 auto", padding: "48px 48px 40px" }}>
+          {/* short accent tick */}
           <div
+            aria-hidden
+            style={{ height: 3, width: 64, backgroundColor: "var(--color-accent)", marginBottom: "var(--space-5)" }}
+          />
+
+          {/* ── 1. Masthead ─────────────────────────────────────────── */}
+          <header
             style={{
               display: "flex",
-              flexDirection: "column",
               alignItems: "flex-end",
-              gap: "var(--space-3)",
-              flexShrink: 0,
+              justifyContent: "space-between",
+              gap: "var(--space-6)",
+              flexWrap: "wrap",
             }}
           >
-            <TeamApply teamName={team.displayName} />
-            {team.trackId && (
-              <SetLensButton
-                trackSlug={team.trackId}
-                isActive={data.activeLensSlug === team.trackId}
-              />
-            )}
-          </div>
-        </header>
+            <div style={{ minWidth: 0 }}>
+              <SectionEyebrow>Team</SectionEyebrow>
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: "clamp(40px, 5.5vw, 60px)",
+                  fontWeight: 600,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.04,
+                  color: "var(--color-text)",
+                }}
+              >
+                {team.wordmark ?? team.displayName}
+              </h1>
+              <p
+                style={{
+                  margin: "14px 0 0",
+                  fontSize: "var(--text-md)",
+                  color: "var(--color-text-2)",
+                  lineHeight: 1.5,
+                  maxWidth: 640,
+                }}
+              >
+                {team.mandate}
+              </p>
+              <div
+                style={{
+                  marginTop: "var(--space-4)",
+                  fontSize: "var(--text-sm)",
+                  fontWeight: 600,
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  color: "var(--color-text-3)",
+                }}
+              >
+                {memberLabel}
+              </div>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                gap: "var(--space-3)",
+                flexShrink: 0,
+              }}
+            >
+              <TeamApply teamName={team.displayName} />
+              {team.trackId && (
+                <SetLensButton
+                  trackSlug={team.trackId}
+                  isActive={data.activeLensSlug === team.trackId}
+                />
+              )}
+            </div>
+          </header>
+        </div>
+      </div>
 
-        <HairRule top={48} bottom={40} />
-
+      {/* ── Body ─────────────────────────────────────────────────────── */}
+      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "40px 48px 96px" }}>
         {/* ── 2. Next team meeting ────────────────────────────────── */}
         <section>
           <SectionEyebrow>Next team meeting</SectionEyebrow>

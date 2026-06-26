@@ -160,5 +160,7 @@ export function teamAccentVars(accent: string): Record<string, string> {
     "--color-accent-soft": `color-mix(in srgb, ${accent} 12%, var(--color-bg))`,
     "--color-accent-on-soft": accent,
     "--color-accent-dim": `color-mix(in srgb, ${accent} 16%, transparent)`,
+    // a faint wash for the masthead band: the page's one concentrated color zone
+    "--color-accent-wash": `color-mix(in srgb, ${accent} 8%, var(--color-bg))`,
   };
 }
