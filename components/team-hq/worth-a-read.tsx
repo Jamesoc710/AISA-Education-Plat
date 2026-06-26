@@ -8,11 +8,11 @@ import { DropRow } from "@/components/team-hq/drop-row";
 import type { DropView } from "@/lib/team-data";
 
 /**
- * The Drop: a team bulletin. Members post a link from the team's world with a
- * one-line take; the module blends in a system trend/news auto-floor so it is
+ * Worth a read: a team bulletin. Members post a link from the team's world with
+ * a one-line take; the module blends in a system trend/news auto-floor so it is
  * never blank. The full reverse-chron archive lives at /teams/[slug]/drops.
  */
-export function TheDrop({
+export function WorthARead({
   teamSlug,
   drops,
   hasMore,
@@ -37,18 +37,18 @@ export function TheDrop({
           gap: "var(--space-4)",
         }}
       >
-        <SectionEyebrow color="var(--color-accent)">The Drop</SectionEyebrow>
+        <SectionEyebrow color="var(--color-accent)">Worth a read</SectionEyebrow>
         {isLoggedIn ? (
           <button
             type="button"
             onClick={() => setComposerOpen((v) => !v)}
             style={triggerStyle}
           >
-            {composerOpen ? "Close" : "+ drop something"}
+            {composerOpen ? "Close" : "+ add a link"}
           </button>
         ) : (
           <Link href={`/login?redirect=/teams/${teamSlug}`} style={triggerStyle}>
-            + drop something
+            + add a link
           </Link>
         )}
       </div>
@@ -83,7 +83,7 @@ export function TheDrop({
             lineHeight: 1.5,
           }}
         >
-          Be the first to drop something this week.
+          Be the first to share a link this week.
         </p>
       )}
 
@@ -102,7 +102,7 @@ export function TheDrop({
               textDecoration: "none",
             }}
           >
-            See all drops
+            See all reads
             <ArrowRight />
           </Link>
         </div>
@@ -166,7 +166,7 @@ function Composer({
       });
       const j = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
-        setErr(j.error || "Could not post that drop.");
+        setErr(j.error || "Could not post that.");
         return;
       }
       setUrl("");

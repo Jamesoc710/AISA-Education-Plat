@@ -55,7 +55,6 @@ export type TeamProjectView = {
 
 export type TeamPageData = {
   memberCount: number;
-  isMember: boolean; // viewer has a TeamMembership row (what Join toggles)
   isLoggedIn: boolean;
   activeLensSlug: string; // current content-lens cookie
   meeting: MeetingView | null;
@@ -64,6 +63,7 @@ export type TeamPageData = {
   memberDropCount: number; // member drops shown (drives the "be the first" nudge)
   projects: TeamProjectView[];
   roster: RosterMember[];
+  refresherTerms: { name: string; slug: string }[]; // a few key concepts to brush up (content teams)
 };
 
 // ─── Small formatters (no em or en dashes anywhere) ──────────────────────────
@@ -330,10 +330,8 @@ export async function getTeamPageData(team: Team): Promise<TeamPageData | null> 
 
   // Roster = TeamMembership users UNION ProjectAssignment users (deduped).
   const memberName = new Map<string, string>();
-  const membershipUserIds = new Set<string>();
   for (const r of membershipRows) {
     memberName.set(r.userId, r.user.name);
-    membershipUserIds.add(r.userId);
   }
   for (const r of assignmentRows) {
     if (!memberName.has(r.userId)) memberName.set(r.userId, r.user.name);
@@ -347,7 +345,7 @@ export async function getTeamPageData(team: Team): Promise<TeamPageData | null> 
   // The team's concept scope (for the "active this week" quiz signal).
   const memberIds = Array.from(memberName.keys());
 
-  const [meetingEvent, projectRows, dropRows, quizActiveRows, dropActiveRows] =
+  const [meetingEvent, projectRows, dropRows, quizActiveRows, dropActiveRows, refresherRows] =
     await Promise.all([
       team.teamType
         ? prisma.scheduleEvent.findFirst({
@@ -412,6 +410,18 @@ export async function getTeamPageData(team: Team): Promise<TeamPageData | null> 
             distinct: ["userId"],
           })
         : Promise.resolve([] as { userId: string }[]),
+      // a few foundational terms for the Refresher (content teams only)
+      trackSlug
+        ? prisma.concept.findMany({
+            where: {
+              difficulty: "FUNDAMENTALS",
+              section: { tier: { track: { slug: trackSlug } } },
+            },
+            orderBy: { sortOrder: "asc" },
+            take: 4,
+            select: { name: true, slug: true },
+          })
+        : Promise.resolve([] as { name: string; slug: string }[]),
     ]);
 
   // Meeting view (next upcoming only; null shows the recruiting empty state).
@@ -472,7 +482,6 @@ export async function getTeamPageData(team: Team): Promise<TeamPageData | null> 
 
   return {
     memberCount: rosterCount,
-    isMember: viewer.id ? membershipUserIds.has(viewer.id) : false,
     isLoggedIn: viewer.id !== null,
     activeLensSlug,
     meeting,
@@ -481,6 +490,7 @@ export async function getTeamPageData(team: Team): Promise<TeamPageData | null> 
     memberDropCount: memberDrops.length,
     projects,
     roster,
+    refresherTerms: refresherRows,
   };
 }
 

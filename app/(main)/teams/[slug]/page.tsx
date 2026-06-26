@@ -9,9 +9,10 @@ import {
   EditorialLinkStyles,
 } from "@/components/ui/editorial";
 import { TypeTag } from "@/components/ui/type-tag";
-import { TheDrop } from "@/components/team-hq/the-drop";
-import { TeamJoinButton } from "@/components/team-hq/team-join-button";
+import { WorthARead } from "@/components/team-hq/worth-a-read";
+import { TeamApply } from "@/components/team-hq/team-apply";
 import { SetLensButton } from "@/components/team-hq/set-lens-button";
+import { BrushUpLink } from "@/components/team-hq/brush-up-link";
 
 export const dynamic = "force-dynamic";
 
@@ -111,11 +112,7 @@ export default async function TeamPage({
               flexShrink: 0,
             }}
           >
-            <TeamJoinButton
-              teamSlug={team.slug}
-              isMember={data.isMember}
-              isLoggedIn={data.isLoggedIn}
-            />
+            <TeamApply teamName={team.displayName} />
             {team.trackId && (
               <SetLensButton
                 trackSlug={team.trackId}
@@ -173,8 +170,8 @@ export default async function TeamPage({
 
         <HairRule top={40} bottom={40} />
 
-        {/* ── 3. The Drop ─────────────────────────────────────────── */}
-        <TheDrop
+        {/* ── 3. Worth a read ─────────────────────────────────────── */}
+        <WorthARead
           teamSlug={team.slug}
           drops={data.drops}
           hasMore={data.hasMoreDrops}
@@ -184,7 +181,44 @@ export default async function TeamPage({
 
         <HairRule top={40} bottom={40} />
 
-        {/* ── 4. What we are building ─────────────────────────────── */}
+        {/* ── 4. Refresher (content teams only; brush up the track vocab) ── */}
+        {data.refresherTerms.length > 0 && team.trackId && (
+          <>
+            <section>
+              <SectionEyebrow color="var(--color-accent)">Refresher</SectionEyebrow>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "var(--text-md)",
+                  color: "var(--color-text-2)",
+                  lineHeight: 1.6,
+                  maxWidth: 720,
+                }}
+              >
+                {`Keep the ${team.displayName} essentials sharp: `}
+                {data.refresherTerms.map((t, i) => (
+                  <span key={t.slug}>
+                    <Link
+                      href={`/concepts/${t.slug}`}
+                      className="editorial-link"
+                      style={{ color: "var(--color-text)", fontWeight: 500, textDecoration: "none" }}
+                    >
+                      {t.name}
+                    </Link>
+                    {i < data.refresherTerms.length - 1 ? ", " : "."}
+                  </span>
+                ))}
+              </p>
+              <div style={{ marginTop: "var(--space-4)" }}>
+                <BrushUpLink trackSlug={team.trackId} />
+              </div>
+            </section>
+
+            <HairRule top={40} bottom={40} />
+          </>
+        )}
+
+        {/* ── 5. What we are building ─────────────────────────────── */}
         <section>
           <SectionEyebrow color="var(--color-accent)">What we are building</SectionEyebrow>
           {data.projects.length > 0 ? (
@@ -247,7 +281,7 @@ export default async function TeamPage({
 
         <HairRule top={40} bottom={40} />
 
-        {/* ── 5. Roster ───────────────────────────────────────────── */}
+        {/* ── 6. Roster ───────────────────────────────────────────── */}
         <section>
           <SectionEyebrow color="var(--color-accent)">Roster</SectionEyebrow>
           {data.roster.length > 0 ? (

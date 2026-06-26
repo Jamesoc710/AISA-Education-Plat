@@ -54,7 +54,7 @@ export default async function TeamDropsPage({
           {team.displayName}
         </Link>
 
-        <SectionEyebrow color="var(--color-accent)">The Drop</SectionEyebrow>
+        <SectionEyebrow color="var(--color-accent)">Worth a read</SectionEyebrow>
         <h1
           style={{
             margin: "0 0 var(--space-6)",
@@ -65,7 +65,7 @@ export default async function TeamDropsPage({
             color: "var(--color-text)",
           }}
         >
-          Every drop
+          Everything
         </h1>
 
         {drops.length > 0 ? (
@@ -76,13 +76,13 @@ export default async function TeamDropsPage({
           </div>
         ) : (
           <p style={{ margin: 0, fontSize: "var(--text-base)", color: "var(--color-text-2)", lineHeight: 1.55 }}>
-            No drops yet.{" "}
+            Nothing here yet.{" "}
             <Link
               href={`/teams/${team.slug}`}
               className="editorial-link"
               style={{ color: "var(--color-accent)", fontWeight: 600, textDecoration: "none" }}
             >
-              Be the first to drop something
+              Be the first to share a link
             </Link>
             .
           </p>

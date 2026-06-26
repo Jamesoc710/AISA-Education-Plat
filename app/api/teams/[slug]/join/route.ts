@@ -8,8 +8,12 @@ export const dynamic = "force-dynamic";
 /**
  * POST /api/teams/[slug]/join
  * Writes a TeamMembership row for the authenticated user. Belonging is
- * intentional and decoupled from the content-lens cookie: this is the ONLY way
- * membership is written, never a lens-switch. Idempotent on @@id([userId, teamSlug]).
+ * intentional and decoupled from the content-lens cookie (never written on a
+ * lens-switch). Idempotent on @@id([userId, teamSlug]).
+ *
+ * DORMANT in v1: the masthead shows an Apply popup because applications are not
+ * open yet, so nothing calls this from the UI. Kept ready (with the leave route)
+ * for when applications open.
  */
 export async function POST(
   _req: NextRequest,
