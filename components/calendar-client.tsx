@@ -105,6 +105,15 @@ function formatEventTime(start: string | null, end: string | null): string | nul
   return `${simplifyTime(start)}–${simplifyTime(end)}`;
 }
 
+// Academic term from the middle of the synced range: Jan-Mar Winter, Apr-Jun
+// Spring, Jul-Aug Summer, Sep-Dec Fall.
+function termLabel(start: Date, end: Date): string {
+  const mid = new Date((start.getTime() + end.getTime()) / 2);
+  const m = mid.getUTCMonth();
+  const term = m <= 2 ? "Winter" : m <= 5 ? "Spring" : m <= 7 ? "Summer" : "Fall";
+  return `${term} ${mid.getUTCFullYear()}`;
+}
+
 function relativeTime(timestamp: string): string {
   const diff = Date.now() - new Date(timestamp).getTime();
   const min = Math.floor(diff / 60000);
@@ -156,6 +165,8 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
   }
 
   const currentWeek = weeks[weekIdx];
+  const term = termLabel(weeks[0].start, weeks[weeks.length - 1].end);
+  const termIsOver = todayUtc > weeks[weeks.length - 1].end.getTime();
   const isCurrentWeek = todayUtc >= currentWeek.start.getTime() && todayUtc <= currentWeek.end.getTime();
 
   // Bucket events by day for this week
@@ -210,7 +221,9 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
                 color: "var(--color-text-2)",
               }}
             >
-              Spring 2026 — synced from TCO Master Calendar
+              {termIsOver
+                ? `${term} (past term). This term's schedule is not synced yet.`
+                : `${term}, synced from the TCO Master Calendar`}
             </p>
           </div>
         </div>
