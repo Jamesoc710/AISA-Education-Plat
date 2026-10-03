@@ -76,6 +76,22 @@ export function getDigestWeekOf(now: Date = new Date()): Date {
   return monday;
 }
 
+/**
+ * Monday 00:00 UTC of the last fully completed Mon-Sun week before `now`.
+ *
+ * This is the edition LABEL, and it deliberately trails the run day by a week:
+ * the pipeline researches the past 7 days, so a Monday 13:00 UTC cron run holds
+ * the *previous* week's news. Labelling it with the run's own week would ship
+ * "Week of August 10" full of August 3-9 stories, which is what the archive
+ * shows for the two earliest editions. Every edition from June 22 on uses this
+ * content-week rule, and the rule holds on any run day, not just Monday.
+ */
+export function getDigestContentWeekOf(now: Date = new Date()): Date {
+  const monday = getDigestWeekOf(now);
+  monday.setUTCDate(monday.getUTCDate() - 7);
+  return monday;
+}
+
 // NOTE: deliberately dash-free. Models mirror prompt style, and the digest's
 // style rule bans em and en dashes in output.
 const SYSTEM_PROMPT_BASE = `You are curating "This Week in Tech", a weekly news digest for TCO (Tech Collective Org), a university tech club. Members come from mixed, often non-technical backgrounds: assume no prior knowledge, and gloss any jargon in plain English. No hype, no clickbait.
@@ -362,9 +378,14 @@ async function generateWithClaude(
 
 // ─── Main sync ──────────────────────────────────────────────────────────────
 
-export async function generateDigest(opts?: { now?: Date }): Promise<DigestSyncResult> {
+export async function generateDigest(opts?: {
+  now?: Date;
+  weekOf?: Date; // explicit label override, snapped to its Monday
+}): Promise<DigestSyncResult> {
   const t0 = Date.now();
-  const weekOf = getDigestWeekOf(opts?.now);
+  const weekOf = opts?.weekOf
+    ? getDigestWeekOf(opts.weekOf)
+    : getDigestContentWeekOf(opts?.now);
   const errors: string[] = [];
 
   const fail = (outcome: "failed", searchesUsed = 0, apiCalls = 0): DigestSyncResult => ({
