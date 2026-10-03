@@ -49,9 +49,9 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
         gridTemplateColumns: "1fr auto 1fr",
         alignItems: "center",
         columnGap: "var(--space-4)",
-        height: 68,
+        height: 60,
         flexShrink: 0,
-        padding: "0 28px",
+        padding: "0 24px",
         backgroundColor: "var(--color-bg)",
         borderBottom: "1px solid var(--color-border)",
       }}
@@ -62,8 +62,8 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
         style={{
           justifySelf: "start",
           display: "block",
-          width: 77,
-          height: 28,
+          width: 66,
+          height: 24,
           overflow: "hidden",
         }}
       >
@@ -71,13 +71,13 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
         <img
           src="/assets/tco-logo.png"
           alt="TCO"
-          width={109}
-          height={109}
-          style={{ display: "block", maxWidth: "none", margin: "-36px 0 0 -16px" }}
+          width={93}
+          height={93}
+          style={{ display: "block", maxWidth: "none", margin: "-31px 0 0 -14px" }}
         />
       </Link>
 
-      <nav aria-label="Primary" style={{ display: "flex", alignItems: "center", gap: 4 }}>
+      <nav aria-label="Primary" style={{ display: "flex", alignItems: "center", gap: 2 }}>
         {PRIMARY.map((item) => (
           <NavLink
             key={item.href}
@@ -113,16 +113,16 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
 
 // ── Primary link ─────────────────────────────────────────────────────────────
 
-const pillStyle = (active: boolean, hov: boolean, size: "lg" | "sm" = "lg") =>
+const pillStyle = (active: boolean, hov: boolean) =>
   ({
     display: "inline-flex",
     alignItems: "center",
     gap: 6,
-    height: size === "lg" ? 40 : 34,
-    padding: size === "lg" ? "0 16px" : "0 12px",
-    borderRadius: size === "lg" ? 10 : "var(--radius-2)",
+    height: 34,
+    padding: "0 12px",
+    borderRadius: "var(--radius-2)",
     fontFamily: "inherit",
-    fontSize: size === "lg" ? "var(--text-md)" : "var(--text-sm)",
+    fontSize: "var(--text-sm)",
     fontWeight: active ? 600 : 500,
     letterSpacing: "-0.005em",
     whiteSpace: "nowrap",
@@ -139,7 +139,6 @@ function NavLink({ href, label, active }: { href: string; label: string; active:
   return (
     <Link
       href={href}
-      className="topnav-link"
       aria-current={active ? "page" : undefined}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
@@ -202,7 +201,6 @@ function CommunityMenu({
         onClick={() => setOpen((v) => !v)}
         onMouseEnter={() => setHov(true)}
         onMouseLeave={() => setHov(false)}
-        className="topnav-link"
         style={pillStyle(active, hov || open)}
       >
         Community
@@ -214,7 +212,7 @@ function CommunityMenu({
             transition: "transform 150ms ease",
           }}
         >
-          <Icon name="chevron-down" size={14} strokeWidth={2} />
+          <Icon name="chevron-down" size={13} strokeWidth={2} />
         </span>
       </button>
 
@@ -224,7 +222,7 @@ function CommunityMenu({
           className="animate-fade-in"
           style={{
             position: "absolute",
-            top: "calc(100% + 12px)",
+            top: "calc(100% + 10px)",
             // Centered under the trigger. A margin, not a transform: the
             // fade-in animation owns transform.
             left: "50%",
@@ -408,7 +406,7 @@ function FeedbackButton({ onClick }: { onClick: () => void }) {
       onMouseLeave={() => setHov(false)}
       title="Leave feedback"
       aria-label="Leave feedback"
-      style={{ ...pillStyle(false, hov, "sm"), gap: "var(--space-2)", flexShrink: 0 }}
+      style={{ ...pillStyle(false, hov), gap: "var(--space-2)", flexShrink: 0 }}
     >
       <Icon name="message-square" size={15} strokeWidth={1.85} />
       <span className="topnav-collapsible-label">Feedback</span>
