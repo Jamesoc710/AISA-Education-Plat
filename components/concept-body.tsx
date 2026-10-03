@@ -21,10 +21,10 @@ const RESOURCE_PALETTE: Record<string, string> = {
 
 export function ConceptBody({
   concept,
-  headerAction,
+  actions,
 }: {
   concept: ConceptDetail;
-  headerAction?: React.ReactNode;
+  actions?: React.ReactNode;
 }) {
   const [deeperOpen, setDeeperOpen] = useState(false);
   const [explanationMode, setExplanationMode] = useState<"detailed" | "simple">(
@@ -104,7 +104,6 @@ export function ConceptBody({
           >
             {concept.name}
           </h1>
-          {headerAction}
         </div>
 
         <p
@@ -118,6 +117,7 @@ export function ConceptBody({
         >
           {concept.subtitle}
         </p>
+        {actions}
       </header>
 
       <div style={{ height: 1, backgroundColor: "var(--color-border-subtle)", marginBottom: "var(--space-6)" }} />

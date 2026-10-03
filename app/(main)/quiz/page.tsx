@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveTrackSlug } from "@/lib/track";
-import { QuizClient } from "@/components/quiz-client";
+import { QuizClient, type QuizMode } from "@/components/quiz-client";
+import { getReviewSummary } from "@/lib/review";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -18,14 +19,40 @@ type ResumePick = {
   attemptedAt: string;
 };
 
-export default async function QuizPage() {
+const DEEP_LINK_MODES: QuizMode[] = ["concept", "section", "tier", "mixed", "review"];
+
+export default async function QuizPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string | string[]; id?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const mode = typeof params.mode === "string" ? (params.mode as QuizMode) : null;
+  const id = typeof params.id === "string" ? params.id : null;
+  const needsId = mode === "concept" || mode === "section" || mode === "tier";
+  const initial =
+    mode && DEEP_LINK_MODES.includes(mode) && (!needsId || id) ? { mode, id } : null;
+
   const trackSlug = await getActiveTrackSlug();
-  const [tiers, resume] = await Promise.all([
+  const supabase = await createClient();
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
+
+  const [tiers, resume, review] = await Promise.all([
     loadTiers(trackSlug),
-    loadResumePick(trackSlug),
+    authUser ? loadResumePick(authUser.id, trackSlug) : null,
+    authUser ? getReviewSummary(authUser.id) : null,
   ]);
 
-  return <QuizClient tiers={tiers} resume={resume} />;
+  return (
+    <QuizClient
+      tiers={tiers}
+      resume={resume}
+      reviewDue={review?.dueCount ?? 0}
+      initial={initial}
+    />
+  );
 }
 
 async function loadTiers(trackSlug: string) {
@@ -74,17 +101,10 @@ async function loadTiers(trackSlug: string) {
   }));
 }
 
-async function loadResumePick(trackSlug: string): Promise<ResumePick | null> {
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
-
-  if (!authUser) return null;
-
+async function loadResumePick(userId: string, trackSlug: string): Promise<ResumePick | null> {
   const lastAttempt = await prisma.quizAttempt.findFirst({
     where: {
-      userId: authUser.id,
+      userId,
       question: {
         concept: { section: { tier: { track: { slug: trackSlug } } } },
       },

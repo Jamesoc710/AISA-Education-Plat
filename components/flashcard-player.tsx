@@ -15,7 +15,7 @@ type Card = {
   sectionName: string;
 };
 
-type Deck = "all" | "workshop";
+type Deck = "all" | "due" | "workshop";
 
 type Props = {
   deck: Deck;
@@ -42,6 +42,25 @@ export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
 
   const total = activeCards.length;
   const current = total > 0 ? activeCards[order[index] ?? 0] : null;
+
+  // Self-grading after the flip feeds the review queue. Saving is
+  // fire-and-forget so the next card never waits on the network.
+  const [tally, setTally] = useState({ got: 0, notYet: 0 });
+  const grade = useCallback(
+    (result: "correct" | "incorrect") => {
+      if (!current || !flipped) return;
+      setTally((t) => (result === "correct" ? { ...t, got: t.got + 1 } : { ...t, notYet: t.notYet + 1 }));
+      void fetch("/api/practice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "flashcard", results: [{ conceptId: current.id, result }] }),
+      }).catch(() => {});
+      setFlipped(false);
+      setExpanded(false);
+      setIndex((i) => (i + 1) % total);
+    },
+    [current, flipped, total],
+  );
 
   const goPrev = useCallback(() => {
     if (total === 0) return;
@@ -101,11 +120,15 @@ export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
       } else if (e.key === "e" || e.key === "E") {
         e.preventDefault();
         toggleExpand();
+      } else if (e.key === "1") {
+        grade("incorrect");
+      } else if (e.key === "2") {
+        grade("correct");
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [goPrev, goNext, flip, shuffle, toggleExpand]);
+  }, [goPrev, goNext, flip, shuffle, toggleExpand, grade]);
 
   if (total === 0) {
     return (
@@ -155,7 +178,17 @@ export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
             {deckLabel}
           </div>
         </div>
-        <div />
+        <div
+          style={{
+            textAlign: "right",
+            fontSize: "var(--text-xs)",
+            color: "var(--color-text-3)",
+            fontVariantNumeric: "tabular-nums",
+          }}
+          aria-live="polite"
+        >
+          {tally.got + tally.notYet > 0 && `${tally.got} got it · ${tally.notYet} not yet`}
+        </div>
       </div>
 
       {/* ── Flip card ─────────────────────────────────────────────────────── */}
@@ -169,6 +202,25 @@ export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
           onToggleExpand={toggleExpand}
         />
       )}
+
+      {/* ── Self-grade (after the flip) ──────────────────────────────────── */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "var(--space-3)",
+          marginTop: "var(--space-4)",
+          minHeight: 40,
+          visibility: flipped ? "visible" : "hidden",
+        }}
+      >
+        <GradeButton tone="miss" onClick={() => grade("incorrect")} hint="1">
+          Not yet
+        </GradeButton>
+        <GradeButton tone="hit" onClick={() => grade("correct")} hint="2">
+          Got it
+        </GradeButton>
+      </div>
 
       {/* ── Bottom controls: (spacer) · prev/next · shuffle ──────────────── */}
       <div
@@ -404,6 +456,54 @@ function ExplainPill({ expanded, onClick }: { expanded: boolean; onClick: () => 
   );
 }
 
+// ── Self-grade button ────────────────────────────────────────────────────────
+
+function GradeButton({
+  tone,
+  hint,
+  onClick,
+  children,
+}: {
+  tone: "hit" | "miss";
+  hint: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  const [hov, setHov] = useState(false);
+  const hit = tone === "hit";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      title={`${children} · ${hint}`}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        padding: "9px 18px",
+        borderRadius: 999,
+        border: `1px solid ${hit ? "var(--color-correct-border)" : "var(--color-incorrect-border)"}`,
+        backgroundColor: hov
+          ? hit
+            ? "var(--color-correct-dim)"
+            : "var(--color-incorrect-dim)"
+          : "var(--color-surface)",
+        color: hit ? "var(--color-correct)" : "var(--color-incorrect)",
+        fontFamily: "inherit",
+        fontSize: "var(--text-sm)",
+        fontWeight: 600,
+        cursor: "pointer",
+        transition: "background-color 120ms ease",
+      }}
+    >
+      {children}
+      <span style={{ fontSize: "var(--text-xs)", fontWeight: 500, opacity: 0.7 }}>{hint}</span>
+    </button>
+  );
+}
+
 // ── Circular control button ──────────────────────────────────────────────────
 
 function CircleButton({
@@ -480,11 +580,15 @@ function BackPill() {
 
 function EmptyDeck({ deck }: { deck: Deck }) {
   const title =
-    deck === "workshop"
+    deck === "due"
+      ? "Nothing due right now"
+      : deck === "workshop"
       ? "No concepts tagged for this session"
       : "No cards in this deck";
   const body =
-    deck === "workshop"
+    deck === "due"
+      ? "Concepts you miss, or add from their page, come back here when they're due."
+      : deck === "workshop"
       ? "This session doesn't have any related concepts yet. Check the calendar for others."
       : "Try picking a different deck.";
   const ctaHref = deck === "workshop" ? "/calendar" : "/flashcards";

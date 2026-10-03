@@ -4,19 +4,21 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 
-type GradeResult = {
+export type SAResult = {
+  type: "SHORT_ANSWER";
+  answer: string;
   score: "correct" | "partial" | "incorrect";
   reasoning: string;
+  modelAnswer: string;
+  gradingFailed: boolean;
 };
 
 type ShortAnswerProps = {
   question: {
     id: string;
     questionText: string;
-    answerExplanation: string;
   };
-  onRevealed: () => void;
-  onGraded?: (questionId: string, result: GradeResult) => void;
+  onResult: (result: SAResult) => void;
 };
 
 const SCORE_TOKENS: Record<
@@ -43,60 +45,44 @@ const SCORE_TOKENS: Record<
   },
 };
 
-export function ShortAnswerQuestion({
-  question,
-  onRevealed,
-  onGraded,
-}: ShortAnswerProps) {
+export function ShortAnswerQuestion({ question, onResult }: ShortAnswerProps) {
   const [userAnswer, setUserAnswer] = useState("");
   const [grading, setGrading] = useState(false);
-  const [gradeResult, setGradeResult] = useState<GradeResult | null>(null);
-  const [revealed, setRevealed] = useState(false);
+  const [result, setResult] = useState<SAResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [focused, setFocused] = useState(false);
+  const revealed = result !== null;
 
-  const handleCheckAnswer = async () => {
-    if (!userAnswer.trim()) return;
-
+  // An empty answer reveals the model answer and counts as a miss.
+  const submit = async (answer: string) => {
     setGrading(true);
+    setError(null);
     try {
-      const res = await fetch("/api/grade", {
+      const res = await fetch("/api/quiz/answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          questionId: question.id,
-          studentAnswer: userAnswer,
-        }),
+        body: JSON.stringify({ questionId: question.id, answer }),
       });
-      const result: GradeResult = await res.json();
-      // Guard against 401s / malformed payloads (e.g. {error}) so the result
-      // panel never renders an undefined score token.
-      if (!res.ok || !["correct", "partial", "incorrect"].includes(result?.score)) {
+      if (res.status === 401) {
+        setError("Sign in to answer short-answer questions. They're graded and saved to your account.");
+        return;
+      }
+      const data = await res.json();
+      if (!res.ok || !["correct", "partial", "incorrect"].includes(data?.score)) {
         throw new Error("Invalid grade response");
       }
-      setGradeResult(result);
-      setRevealed(true);
-      onRevealed();
-      onGraded?.(question.id, result);
+      const next: SAResult = { ...data, answer };
+      setResult(next);
+      onResult(next);
     } catch {
-      setGradeResult({
-        score: "partial",
-        reasoning: "Grading failed. Your answer has been saved for review.",
-      });
-      setRevealed(true);
-      onRevealed();
+      setError("Something went wrong checking your answer. Try again.");
     } finally {
       setGrading(false);
     }
   };
 
-  const handleRevealOnly = () => {
-    setRevealed(true);
-    onRevealed();
-    onGraded?.(question.id, {
-      score: "incorrect",
-      reasoning: "No answer submitted, revealed model answer directly.",
-    });
-  };
+  const skipped = revealed && !result.answer.trim();
+  const scored = revealed && !skipped && !result.gradingFailed;
 
   return (
     <div>
@@ -168,7 +154,7 @@ export function ShortAnswerQuestion({
           <Button
             variant="primary"
             size="md"
-            onClick={handleCheckAnswer}
+            onClick={() => submit(userAnswer)}
             disabled={!userAnswer.trim() || grading}
           >
             {grading ? "Grading…" : "Check answer"}
@@ -176,7 +162,7 @@ export function ShortAnswerQuestion({
           <Button
             variant="secondary"
             size="md"
-            onClick={handleRevealOnly}
+            onClick={() => submit("")}
             disabled={grading}
           >
             Skip / reveal answer
@@ -184,21 +170,34 @@ export function ShortAnswerQuestion({
         </div>
       )}
 
+      {error && (
+        <p
+          role="alert"
+          style={{
+            margin: "var(--space-3) 0 0",
+            fontSize: "var(--text-sm)",
+            color: "var(--color-incorrect)",
+          }}
+        >
+          {error}
+        </p>
+      )}
+
       {/* Grade result */}
-      {revealed && gradeResult && (
+      {scored && (
         <div
           className="animate-fade-in"
           style={{
             marginTop: "var(--space-1)",
             padding: "18px 20px",
-            backgroundColor: SCORE_TOKENS[gradeResult.score].bg,
-            border: `1px solid ${SCORE_TOKENS[gradeResult.score].border}`,
+            backgroundColor: SCORE_TOKENS[result.score].bg,
+            border: `1px solid ${SCORE_TOKENS[result.score].border}`,
             borderRadius: "var(--radius-3)",
           }}
         >
           <div style={{ marginBottom: "var(--space-3)" }}>
-            <StatusTag tone={SCORE_TOKENS[gradeResult.score].tone} uppercase>
-              {SCORE_TOKENS[gradeResult.score].label}
+            <StatusTag tone={SCORE_TOKENS[result.score].tone} uppercase>
+              {SCORE_TOKENS[result.score].label}
             </StatusTag>
           </div>
 
@@ -210,7 +209,7 @@ export function ShortAnswerQuestion({
               lineHeight: 1.65,
             }}
           >
-            {gradeResult.reasoning}
+            {result.reasoning}
           </p>
 
           <div
@@ -239,14 +238,14 @@ export function ShortAnswerQuestion({
                 lineHeight: 1.65,
               }}
             >
-              {question.answerExplanation}
+              {result.modelAnswer}
             </p>
           </div>
         </div>
       )}
 
-      {/* Fallback: revealed without grade */}
-      {revealed && !gradeResult && (
+      {/* Skipped, or the grader failed: show the model answer, no score */}
+      {revealed && !scored && (
         <div
           className="animate-fade-in"
           style={{
@@ -277,7 +276,19 @@ export function ShortAnswerQuestion({
               lineHeight: 1.65,
             }}
           >
-            {question.answerExplanation}
+            {result.modelAnswer}
+          </p>
+          <p
+            style={{
+              margin: "var(--space-3) 0 0",
+              fontSize: "var(--text-sm)",
+              color: "var(--color-text-2)",
+              lineHeight: 1.5,
+            }}
+          >
+            {result.gradingFailed
+              ? result.reasoning
+              : "Counted as a miss, so this concept comes back in your review."}
           </p>
         </div>
       )}

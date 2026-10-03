@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { MCQuestion } from "@/components/quiz-mc";
 import { ShortAnswerQuestion } from "@/components/quiz-short-answer";
 import { QuizResults } from "@/components/quiz-results";
-import type { QuizQuestion, MCAnswer } from "@/components/quiz-results";
+import type { QuizQuestion, AnswerResult, ResultMap } from "@/components/quiz-results";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 import { TierBadge } from "@/components/ui/tier-badge";
@@ -33,7 +34,7 @@ type TierOption = {
   sections: SectionOption[];
 };
 
-type QuizMode = "concept" | "section" | "tier" | "mixed";
+export type QuizMode = "concept" | "section" | "tier" | "mixed" | "review";
 type Phase = "select-mode" | "select-target" | "loading" | "quiz" | "summary";
 
 export type QuizResumePick = {
@@ -90,48 +91,73 @@ function BackButton({ onClick }: { onClick: () => void }) {
 export function QuizClient({
   tiers,
   resume,
+  reviewDue,
+  initial,
 }: {
   tiers: TierOption[];
   resume: QuizResumePick | null;
+  reviewDue: number;
+  /** Deep link (/quiz?mode=concept&id=... or /quiz?mode=review) to start right away. */
+  initial: { mode: QuizMode; id: string | null } | null;
 }) {
-  const [phase, setPhase] = useState<Phase>("select-mode");
-  const [mode, setMode] = useState<QuizMode | null>(null);
+  const router = useRouter();
+  const [phase, setPhase] = useState<Phase>(initial ? "loading" : "select-mode");
+  const [mode, setMode] = useState<QuizMode | null>(initial?.mode ?? null);
   const [, setSelectedId] = useState<string>("");
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [mcAnswers, setMcAnswers] = useState<MCAnswer[]>([]);
-  const [saAnswers, setSaAnswers] = useState<
-    { questionId: string; score: string; gotIt: boolean }[]
-  >([]);
+  const [results, setResults] = useState<ResultMap>(() => new Map());
   const [error, setError] = useState<string | null>(null);
 
   const startQuiz = async (quizMode: QuizMode, targetId?: string) => {
+    setMode(quizMode);
     setPhase("loading");
     setError(null);
+    const fallbackPhase: Phase =
+      quizMode === "mixed" || quizMode === "review" ? "select-mode" : "select-target";
 
     try {
       const params = new URLSearchParams({ mode: quizMode });
       if (targetId) params.set("id", targetId);
 
       const res = await fetch(`/api/quiz?${params}`);
+      if (res.status === 401) {
+        setError("Sign in to review. Your review queue is saved to your account.");
+        setPhase("select-mode");
+        return;
+      }
       if (!res.ok) throw new Error("Failed to fetch questions");
 
       const data = await res.json();
       if (!data.questions?.length) {
-        setError("No questions found for this selection.");
-        setPhase(quizMode === "mixed" ? "select-mode" : "select-target");
+        setError(
+          quizMode === "review"
+            ? "Nothing is due for review right now. Nice work."
+            : "No questions found for this selection.",
+        );
+        setPhase(fallbackPhase);
         return;
       }
 
       setQuestions(data.questions);
       setCurrentIndex(0);
-      setMcAnswers([]);
+      setResults(new Map());
       setPhase("quiz");
     } catch {
       setError("Something went wrong loading the quiz. Please try again.");
-      setPhase(quizMode === "mixed" ? "select-mode" : "select-target");
+      setPhase(fallbackPhase);
     }
   };
+
+  // Deep links start the quiz on arrival. The ref keeps React's dev
+  // double-invoke from starting it twice.
+  const started = useRef(false);
+  useEffect(() => {
+    if (!initial || started.current) return;
+    started.current = true;
+    void startQuiz(initial.mode, initial.id ?? undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleModeSelect = (m: QuizMode) => {
     setMode(m);
@@ -145,60 +171,16 @@ export function QuizClient({
     }
   };
 
-  const handleMCAnswer = (
-    questionId: string,
-    correct: boolean,
-    selectedIndex: number,
-  ) => {
-    setMcAnswers((prev) => [...prev, { questionId, correct, selectedIndex }]);
-  };
-
-  const handleGraded = (questionId: string, result: { score: string }) => {
-    setSaAnswers((prev) => [
-      ...prev,
-      { questionId, score: result.score, gotIt: result.score === "correct" },
-    ]);
-  };
-
-  const saveAttempts = (
-    qs: QuizQuestion[],
-    mc: MCAnswer[],
-    sa: { questionId: string; gotIt: boolean }[],
-  ) => {
-    const answers = qs.map((q) => {
-      const mcAnswer = mc.find((a) => a.questionId === q.id);
-      const saAnswer = sa.find((a) => a.questionId === q.id);
-
-      if (mcAnswer) {
-        const selectedText = q.options?.[mcAnswer.selectedIndex]?.text ?? null;
-        return {
-          questionId: q.id,
-          selectedAnswer: selectedText,
-          isCorrect: mcAnswer.correct,
-        };
-      }
-      if (saAnswer) {
-        return {
-          questionId: q.id,
-          selectedAnswer: null,
-          isCorrect: saAnswer.gotIt,
-        };
-      }
-      return { questionId: q.id, selectedAnswer: null, isCorrect: null };
-    });
-
-    fetch("/api/quiz/attempts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers }),
-    }).catch(() => {});
+  // Each answer is graded and saved server-side as it happens; this only
+  // keeps what the results screen needs.
+  const handleResult = (questionId: string, result: AnswerResult) => {
+    setResults((prev) => new Map(prev).set(questionId, result));
   };
 
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((i) => i + 1);
     } else {
-      saveAttempts(questions, mcAnswers, saAnswers);
       setPhase("summary");
     }
   };
@@ -209,8 +191,7 @@ export function QuizClient({
     setSelectedId("");
     setQuestions([]);
     setCurrentIndex(0);
-    setMcAnswers([]);
-    setSaAnswers([]);
+    setResults(new Map());
     setError(null);
   };
 
@@ -222,8 +203,7 @@ export function QuizClient({
     }
     setQuestions(shuffled);
     setCurrentIndex(0);
-    setMcAnswers([]);
-    setSaAnswers([]);
+    setResults(new Map());
     setPhase("quiz");
   };
 
@@ -253,6 +233,8 @@ export function QuizClient({
           onSelect={handleModeSelect}
           error={error}
           resume={resume}
+          reviewDue={reviewDue}
+          onReview={() => startQuiz("review")}
           onResume={(conceptId) => startQuiz("concept", conceptId)}
         />
       )}
@@ -277,8 +259,7 @@ export function QuizClient({
           question={questions[currentIndex]}
           index={currentIndex}
           total={questions.length}
-          onMCAnswer={handleMCAnswer}
-          onGraded={handleGraded}
+          onResult={handleResult}
           onNext={handleNext}
         />
       )}
@@ -286,10 +267,10 @@ export function QuizClient({
       {phase === "summary" && (
         <QuizResults
           questions={questions}
-          mcAnswers={mcAnswers}
+          results={results}
           mode={mode!}
           onRetake={retakeQuiz}
-          onNewQuiz={resetQuiz}
+          onNewQuiz={mode === "review" ? () => router.push("/practice") : resetQuiz}
         />
       )}
     </PageFrame>
@@ -339,11 +320,15 @@ function ModeSelect({
   onSelect,
   error,
   resume,
+  reviewDue,
+  onReview,
   onResume,
 }: {
   onSelect: (m: QuizMode) => void;
   error: string | null;
   resume: QuizResumePick | null;
+  reviewDue: number;
+  onReview: () => void;
   onResume: (conceptId: string) => void;
 }) {
   return (
@@ -372,7 +357,25 @@ function ModeSelect({
         Pick a mode to see where you&rsquo;re at.
       </p>
 
-      {resume && <ResumeStrip resume={resume} onResume={onResume} />}
+      {reviewDue > 0 && (
+        <StripButton
+          icon="arrows-clockwise"
+          eyebrow="Due for review"
+          title={`${reviewDue} concept${reviewDue === 1 ? "" : "s"} ready to review`}
+          cta="Start review →"
+          onClick={onReview}
+        />
+      )}
+      {resume && (
+        <StripButton
+          icon="target"
+          eyebrow="Pick up where you left off"
+          title={resume.conceptName}
+          meta={relativeAttemptedAt(resume.attemptedAt)}
+          cta="Resume →"
+          onClick={() => onResume(resume.conceptId)}
+        />
+      )}
 
       {error && (
         <p
@@ -406,18 +409,26 @@ function ModeSelect({
   );
 }
 
-function ResumeStrip({
-  resume,
-  onResume,
+function StripButton({
+  icon,
+  eyebrow,
+  title,
+  meta,
+  cta,
+  onClick,
 }: {
-  resume: QuizResumePick;
-  onResume: (conceptId: string) => void;
+  icon: IconName;
+  eyebrow: string;
+  title: string;
+  meta?: string;
+  cta: string;
+  onClick: () => void;
 }) {
   const [hov, setHov] = useState(false);
   return (
     <button
       type="button"
-      onClick={() => onResume(resume.conceptId)}
+      onClick={onClick}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
@@ -453,7 +464,7 @@ function ResumeStrip({
           flexShrink: 0,
         }}
       >
-        <Icon name="arrows-clockwise" size={16} strokeWidth={1.85} />
+        <Icon name={icon} size={16} strokeWidth={1.85} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
@@ -465,7 +476,7 @@ function ResumeStrip({
             color: "var(--color-text-3)",
           }}
         >
-          Pick up where you left off
+          {eyebrow}
         </div>
         <div
           style={{
@@ -476,16 +487,18 @@ function ResumeStrip({
             letterSpacing: "-0.005em",
           }}
         >
-          {resume.conceptName}
-          <span
-            style={{
-              marginLeft: 8,
-              fontWeight: 400,
-              color: "var(--color-text-3)",
-            }}
-          >
-            · {relativeAttemptedAt(resume.attemptedAt)}
-          </span>
+          {title}
+          {meta && (
+            <span
+              style={{
+                marginLeft: 8,
+                fontWeight: 400,
+                color: "var(--color-text-3)",
+              }}
+            >
+              · {meta}
+            </span>
+          )}
         </div>
       </div>
       <span
@@ -496,7 +509,7 @@ function ResumeStrip({
           flexShrink: 0,
         }}
       >
-        Resume →
+        {cta}
       </span>
     </button>
   );
@@ -1286,19 +1299,13 @@ function QuizFlow({
   question,
   index,
   total,
-  onMCAnswer,
-  onGraded,
+  onResult,
   onNext,
 }: {
   question: QuizQuestion;
   index: number;
   total: number;
-  onMCAnswer: (
-    questionId: string,
-    correct: boolean,
-    selectedIndex: number,
-  ) => void;
-  onGraded: (questionId: string, result: { score: string }) => void;
+  onResult: (questionId: string, result: AnswerResult) => void;
   onNext: () => void;
 }) {
   const [answered, setAnswered] = useState(false);
@@ -1402,8 +1409,8 @@ function QuizFlow({
         <MCQuestion
           key={question.id}
           question={{ ...question, options: question.options }}
-          onAnswer={(correct, selectedIndex) => {
-            onMCAnswer(question.id, correct, selectedIndex);
+          onResult={(result) => {
+            onResult(question.id, result);
             handleAnswered();
           }}
         />
@@ -1411,8 +1418,10 @@ function QuizFlow({
         <ShortAnswerQuestion
           key={question.id}
           question={question}
-          onRevealed={handleAnswered}
-          onGraded={onGraded}
+          onResult={(result) => {
+            onResult(question.id, result);
+            handleAnswered();
+          }}
         />
       )}
 

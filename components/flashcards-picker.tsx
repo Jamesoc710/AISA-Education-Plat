@@ -7,9 +7,10 @@ import { PageFrame } from "@/components/ui/page-frame";
 
 type Props = {
   totalConcepts: number;
+  dueCount: number;
 };
 
-export function FlashcardsPicker({ totalConcepts }: Props) {
+export function FlashcardsPicker({ totalConcepts, dueCount }: Props) {
   return (
     <PageFrame>
       <header style={{ marginBottom: "var(--space-6)" }}>
@@ -32,11 +33,20 @@ export function FlashcardsPicker({ totalConcepts }: Props) {
             lineHeight: 1.55,
           }}
         >
-          Pick a deck and cycle through at your own pace. Flip each card to reveal the explanation.
+          Flip each card, then mark whether you knew it. Anything you don&rsquo;t know yet comes back in your review queue.
         </p>
       </header>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+        {dueCount > 0 && (
+          <DeckRow
+            href="/flashcards/due"
+            title="Due for review"
+            count={dueCount}
+            blurb="Concepts your review queue says you're about to forget."
+            icon="arrows-clockwise"
+          />
+        )}
         <DeckRow
           href="/flashcards/all"
           title="All Concepts"
@@ -60,7 +70,7 @@ function DeckRow({
   title: string;
   count: number;
   blurb: string;
-  icon: "cards-three";
+  icon: "cards-three" | "arrows-clockwise";
 }) {
   const [hov, setHov] = useState(false);
   return (

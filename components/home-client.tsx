@@ -16,6 +16,7 @@ import type {
   UpcomingWorkshop,
   DigestTeaser,
 } from "@/lib/home-data";
+import type { ReviewSummary } from "@/lib/review";
 
 interface HomeClientProps {
   greeting: string;
@@ -24,6 +25,7 @@ interface HomeClientProps {
   weekEvents: HomeWeekEvent[];
   continuePick: ContinuePick | null;
   weakConcept: WeakConcept | null;
+  review: ReviewSummary;
   upcomingWorkshops: UpcomingWorkshop[];
   digestTeaser: DigestTeaser | null;
 }
@@ -78,6 +80,7 @@ export function HomeClient(props: HomeClientProps) {
     weekEvents,
     continuePick,
     weakConcept,
+    review,
     upcomingWorkshops,
     digestTeaser,
   } = props;
@@ -188,7 +191,7 @@ export function HomeClient(props: HomeClientProps) {
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div>
               <SectionEyebrow>Practice</SectionEyebrow>
-              <PracticeBlock weak={weakConcept} />
+              <PracticeBlock weak={weakConcept} review={review} />
             </div>
           </div>
         </div>
@@ -464,54 +467,67 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
 
 // ─── Practice block ────────────────────────────────────────────────────────
 
-function PracticeBlock({ weak }: { weak: WeakConcept | null }) {
+function PracticeBlock({ weak, review }: { weak: WeakConcept | null; review: ReviewSummary }) {
+  const text = {
+    margin: 0,
+    fontSize: 15,
+    color: "var(--color-text)",
+    lineHeight: 1.5,
+    letterSpacing: "-0.005em",
+  } as const;
+  const cta = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 14,
+    fontSize: 14,
+    fontWeight: 600,
+    color: "var(--color-accent)",
+    textDecoration: "none",
+  } as const;
+
+  // Due reviews come first: they're the highest-value few minutes.
+  if (review.dueCount > 0) {
+    return (
+      <div>
+        <p style={text}>
+          <span style={{ fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{review.dueCount}</span>{" "}
+          concept{review.dueCount === 1 ? " is" : "s are"} due for review. A few minutes now keeps
+          {review.dueCount === 1 ? " it" : " them"} from fading.
+        </p>
+        <Link href="/quiz?mode=review" className="editorial-link" style={cta}>
+          Start review
+          <ArrowRight />
+        </Link>
+      </div>
+    );
+  }
+
+  if (weak) {
+    return (
+      <div>
+        <p style={text}>
+          Your shakiest area is <span style={{ fontWeight: 600 }}>{weak.conceptName}</span> at{" "}
+          <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 500 }}>{weak.accuracyPct}%</span>{" "}
+          across {weak.attempts} attempts.
+        </p>
+        <Link href={`/quiz?mode=concept&id=${weak.conceptId}`} className="editorial-link" style={cta}>
+          Quiz yourself on it
+          <ArrowRight />
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div>
-      {weak ? (
-        <p
-          style={{
-            margin: 0,
-            fontSize: 15,
-            color: "var(--color-text)",
-            lineHeight: 1.5,
-            letterSpacing: "-0.005em",
-          }}
-        >
-          Your shakiest area is{" "}
-          <span style={{ fontWeight: 600 }}>{weak.conceptName}</span>
-          {" "}at{" "}
-          <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 500 }}>
-            {weak.accuracyPct}%
-          </span>
-          {" "}across {weak.attempts} attempts.
-        </p>
-      ) : (
-        <p
-          style={{
-            margin: 0,
-            fontSize: 15,
-            color: "var(--color-text-2)",
-            lineHeight: 1.5,
-          }}
-        >
-          Five random questions to keep you sharp.
-        </p>
-      )}
-      <Link
-        href="/quiz"
-        className="editorial-link"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          marginTop: 14,
-          fontSize: 14,
-          fontWeight: 600,
-          color: "var(--color-accent)",
-          textDecoration: "none",
-        }}
-      >
-        Take a practice quiz
+      <p style={{ ...text, color: "var(--color-text-2)" }}>
+        {review.totalCount > 0
+          ? "You're all caught up on reviews. Try a new way to practice."
+          : "Quiz yourself, match terms, or explain a concept in your own words."}
+      </p>
+      <Link href="/practice" className="editorial-link" style={cta}>
+        Go to Practice
         <ArrowRight />
       </Link>
     </div>

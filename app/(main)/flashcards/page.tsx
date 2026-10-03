@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { getActiveTrackSlug } from "@/lib/track";
+import { getReviewSummary } from "@/lib/review";
 import { FlashcardsPicker } from "@/components/flashcards-picker";
 import { AuthGate } from "@/components/ui/auth-gate";
 import type { Metadata } from "next";
@@ -24,16 +25,19 @@ export default async function FlashcardsPickerPage() {
         icon="cards-three"
         tileColor="mint"
         title="Sign in to study flashcards"
-        body="Flip cards, shuffle decks, and track what's sticking — your progress is saved per account."
+        body="Flip cards, mark what you know, and the rest comes back in your review queue."
         nextPath="/flashcards"
       />
     );
   }
 
   const trackSlug = await getActiveTrackSlug();
-  const totalConcepts = await prisma.concept.count({
-    where: { section: { tier: { track: { slug: trackSlug } } } },
-  });
+  const [totalConcepts, review] = await Promise.all([
+    prisma.concept.count({
+      where: { section: { tier: { track: { slug: trackSlug } } } },
+    }),
+    getReviewSummary(authUser.id),
+  ]);
 
-  return <FlashcardsPicker totalConcepts={totalConcepts} />;
+  return <FlashcardsPicker totalConcepts={totalConcepts} dueCount={review.dueCount} />;
 }

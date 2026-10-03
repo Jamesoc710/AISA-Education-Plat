@@ -33,6 +33,7 @@ export type ContinuePick = {
 };
 
 export type WeakConcept = {
+  conceptId: string;
   conceptSlug: string;
   conceptName: string;
   attempts: number;
@@ -169,7 +170,10 @@ export async function getUpcomingWorkshops(
  */
 export async function getContinueLearning(userId: string, trackSlug: string): Promise<ContinuePick | null> {
   const lastAttempt = await prisma.quizAttempt.findFirst({
-    where: { userId },
+    where: {
+      userId,
+      question: { concept: { section: { tier: { track: { slug: trackSlug } } } } },
+    },
     orderBy: { attemptedAt: "desc" },
     select: {
       question: {
@@ -233,23 +237,26 @@ export async function getWeakestConcept(userId: string, trackSlug: string): Prom
     },
     select: {
       isCorrect: true,
-      question: { select: { concept: { select: { slug: true, name: true } } } },
+      question: { select: { concept: { select: { id: true, slug: true, name: true } } } },
     },
   });
   if (attempts.length === 0) return null;
 
-  const tally = new Map<string, { name: string; slug: string; total: number; correct: number }>();
-  for (const a of attempts as { isCorrect: boolean | null; question: { concept: { slug: string; name: string } } }[]) {
-    const key = a.question.concept.slug;
-    const cur =
-      tally.get(key) ??
-      { name: a.question.concept.name, slug: a.question.concept.slug, total: 0, correct: 0 };
+  type Tally = { id: string; name: string; slug: string; total: number; correct: number };
+  const tally = new Map<string, Tally>();
+  for (const a of attempts as {
+    isCorrect: boolean | null;
+    question: { concept: { id: string; slug: string; name: string } };
+  }[]) {
+    const c = a.question.concept;
+    const key = c.slug;
+    const cur = tally.get(key) ?? { id: c.id, name: c.name, slug: c.slug, total: 0, correct: 0 };
     cur.total += 1;
     if (a.isCorrect) cur.correct += 1;
     tally.set(key, cur);
   }
 
-  let worst: { name: string; slug: string; total: number; correct: number } | null = null;
+  let worst: Tally | null = null;
   for (const c of tally.values()) {
     if (c.total < 3) continue;
     const pct = c.correct / c.total;
@@ -258,6 +265,7 @@ export async function getWeakestConcept(userId: string, trackSlug: string): Prom
   }
   if (!worst) return null;
   return {
+    conceptId: worst.id,
     conceptSlug: worst.slug,
     conceptName: worst.name,
     attempts: worst.total,

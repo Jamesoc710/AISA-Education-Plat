@@ -28,6 +28,8 @@ model User {
   teamMemberships        TeamMembership[]
   teamDrops              TeamDrop[]
   teamDropReactions      TeamDropReaction[]
+  reviewItems            ReviewItem[]
+  practiceAttempts       PracticeAttempt[]
   createdProjects        Project[]             @relation("ProjectCreator")
   projectInterests       ProjectInterest[]
 
@@ -154,6 +156,8 @@ model Concept {
   resources    Resource[]
   relatedFrom  ConceptRelation[] @relation("ConceptFrom")
   relatedTo    ConceptRelation[] @relation("ConceptTo")
+  reviewItems      ReviewItem[]
+  practiceAttempts PracticeAttempt[]
 
   @@map("concepts")
 }
@@ -203,6 +207,49 @@ model Question {
 }
 
 // ─── Practice ───────────────────────────────────────────────────────────────
+
+// Spaced review queue, one row per member per concept (Leitner boxes 1-5).
+// Every practice mode feeds it through lib/review.ts. Misses drop to box 1,
+// correct answers on a due item move up a box, and dueAt spaces out from
+// there. Reviewing early never promotes, so cramming can't inflate a box.
+model ReviewItem {
+  id         String    @id @default(cuid())
+  userId     String
+  conceptId  String
+  box        Int       @default(1) // 1..5
+  dueAt      DateTime
+  lastResult String? // correct | partial | incorrect
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concept Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, conceptId])
+  @@index([userId, dueAt])
+  @@map("review_items")
+}
+
+// Results from the concept-level modes (match, explain, flashcard). Question
+// based answers (MC, short answer) stay in QuizAttempt.
+model PracticeAttempt {
+  id        String   @id @default(cuid())
+  userId    String
+  conceptId String
+  mode      String // match | explain | flashcard
+  result    String // correct | partial | incorrect
+  response  String? // explain: what the member wrote
+  feedback  Json? // explain: { gotRight: string[], missed: string[], modelAnswer: string }
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concept Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, conceptId])
+  @@map("practice_attempts")
+}
 
 model QuizAttempt {
   id             String   @id @default(cuid())

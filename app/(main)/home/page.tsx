@@ -12,6 +12,7 @@ import {
   getDigestTeaser,
 } from "@/lib/home-data";
 import { getActiveTrackSlug } from "@/lib/track";
+import { getReviewSummary } from "@/lib/review";
 
 export const dynamic = "force-dynamic";
 
@@ -46,13 +47,14 @@ export default async function HomePage() {
   const week = getWeekWindow(now);
   const trackSlug = await getActiveTrackSlug();
 
-  const [weekEvents, continuePick, weakConcept, upcomingWorkshops, digestTeaser] =
+  const [weekEvents, continuePick, weakConcept, upcomingWorkshops, digestTeaser, review] =
     await Promise.all([
       getWeekEvents(week),
       getContinueLearning(dbUser.id, trackSlug),
       getWeakestConcept(dbUser.id, trackSlug),
       getUpcomingWorkshops(now),
       getDigestTeaser(),
+      getReviewSummary(dbUser.id),
     ]);
 
   const greeting = greetingForHour(now.getHours());
@@ -66,6 +68,7 @@ export default async function HomePage() {
       weekEvents={weekEvents}
       continuePick={continuePick}
       weakConcept={weakConcept}
+      review={review}
       upcomingWorkshops={upcomingWorkshops}
       digestTeaser={digestTeaser}
     />

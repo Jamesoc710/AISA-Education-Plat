@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { ConceptBody } from "@/components/concept-body";
 import { ConceptSectionNav } from "@/components/concept-section-nav";
 import { ConceptPager } from "@/components/concept-pager";
+import { ConceptPracticeActions, type ConceptReviewState } from "@/components/concept-practice-actions";
 import type { ConceptDetail, SidebarSection } from "@/lib/concepts";
 
 /**
@@ -16,9 +17,11 @@ import type { ConceptDetail, SidebarSection } from "@/lib/concepts";
 export function ConceptDetailClient({
   concept,
   sections,
+  practice,
 }: {
   concept: ConceptDetail;
   sections: SidebarSection[];
+  practice: { signedIn: boolean; hasQuestions: boolean; review: ConceptReviewState };
 }) {
   const { siblings, prev, next } = useMemo(() => {
     const section = sections.find((s) => s.id === concept.section.id);
@@ -40,7 +43,18 @@ export function ConceptDetailClient({
       }}
     >
       <div style={{ minWidth: 0 }}>
-        <ConceptBody concept={concept} />
+        <ConceptBody
+          concept={concept}
+          actions={
+            <ConceptPracticeActions
+              conceptId={concept.id}
+              conceptSlug={concept.slug}
+              hasQuestions={practice.hasQuestions}
+              signedIn={practice.signedIn}
+              initialReview={practice.review}
+            />
+          }
+        />
         <ConceptPager prev={prev} next={next} />
       </div>
 

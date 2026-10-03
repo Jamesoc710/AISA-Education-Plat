@@ -64,9 +64,13 @@ export default async function DashboardPage() {
     orderBy: { sortOrder: "asc" },
   });
 
-  // Fetch all quiz attempts for this user
+  // Fetch this user's quiz attempts in the active track (concept totals above
+  // are track-scoped too, so the percentages line up)
   const attempts = await prisma.quizAttempt.findMany({
-    where: { userId: authUser.id },
+    where: {
+      userId: authUser.id,
+      question: { concept: { section: { tier: { track: { slug: trackSlug } } } } },
+    },
     select: {
       questionId: true,
       isCorrect: true,

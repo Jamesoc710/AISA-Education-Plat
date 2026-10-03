@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
+import type { MCResult } from "@/components/quiz-mc";
+import type { SAResult } from "@/components/quiz-short-answer";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -12,41 +14,62 @@ export type QuizQuestion = {
   id: string;
   type: "MC" | "SHORT_ANSWER";
   questionText: string;
-  options: { text: string; isCorrect: boolean }[] | null;
-  answerExplanation: string;
+  options: { text: string }[] | null;
+  conceptId: string;
   conceptName: string;
   conceptSlug: string;
   sectionName: string;
   sectionId: string;
 };
 
-export type MCAnswer = {
-  questionId: string;
-  correct: boolean;
-  selectedIndex: number;
-};
+export type AnswerResult = MCResult | SAResult;
+export type ResultMap = Map<string, AnswerResult>;
 
-type QuizMode = "concept" | "section" | "tier" | "mixed";
+type Outcome = "correct" | "partial" | "incorrect" | null;
+
+/** null = not answered, or a short answer the grader couldn't score. */
+function outcomeOf(result: AnswerResult | undefined): Outcome {
+  if (!result) return null;
+  if (result.type === "MC") return result.isCorrect ? "correct" : "incorrect";
+  if (result.gradingFailed) return null;
+  return result.score;
+}
+
+function tally(questions: QuizQuestion[], results: ResultMap) {
+  let correct = 0;
+  let partial = 0;
+  let scored = 0;
+  for (const q of questions) {
+    const o = outcomeOf(results.get(q.id));
+    if (o === null) continue;
+    scored++;
+    if (o === "correct") correct++;
+    else if (o === "partial") partial++;
+  }
+  return { correct, partial, scored };
+}
+
+type QuizMode = "concept" | "section" | "tier" | "mixed" | "review";
 
 // ── Main Results Component ────────────────────────────────────────────────────
 
 export function QuizResults({
   questions,
-  mcAnswers,
+  results,
   mode,
   onRetake,
   onNewQuiz,
 }: {
   questions: QuizQuestion[];
-  mcAnswers: MCAnswer[];
+  results: ResultMap;
   mode: QuizMode;
   onRetake: () => void;
   onNewQuiz: () => void;
 }) {
-  const totalMC = questions.filter((q) => q.type === "MC").length;
-  const correctMC = mcAnswers.filter((a) => a.correct).length;
-  const totalSA = questions.filter((q) => q.type === "SHORT_ANSWER").length;
-  const percentage = totalMC > 0 ? Math.round((correctMC / totalMC) * 100) : 0;
+  const { correct, partial, scored } = tally(questions, results);
+  // Partial short answers count as half.
+  const percentage = scored > 0 ? Math.round(((correct + partial / 2) / scored) * 100) : 0;
+  const unscored = questions.length - scored;
 
   const scoreColor =
     percentage >= 80
@@ -61,16 +84,14 @@ export function QuizResults({
   const scoreLabel =
     percentage >= 80 ? "Strong" : percentage >= 50 ? "Getting there" : "Keep going";
 
-  // Build answer lookup
-  const answerMap = new Map(mcAnswers.map((a) => [a.questionId, a]));
-
   // Concepts that need review
   const conceptScores = new Map<
     string,
     { name: string; slug: string; correct: number; total: number }
   >();
   for (const q of questions) {
-    if (q.type !== "MC") continue;
+    const o = outcomeOf(results.get(q.id));
+    if (o === null) continue;
     const entry = conceptScores.get(q.conceptSlug) ?? {
       name: q.conceptName,
       slug: q.conceptSlug,
@@ -78,7 +99,7 @@ export function QuizResults({
       total: 0,
     };
     entry.total++;
-    if (answerMap.get(q.id)?.correct) entry.correct++;
+    if (o === "correct") entry.correct++;
     conceptScores.set(q.conceptSlug, entry);
   }
   const needsStudy = [...conceptScores.values()]
@@ -98,7 +119,7 @@ export function QuizResults({
           lineHeight: 1.15,
         }}
       >
-        Quiz complete
+        {mode === "review" ? "Review complete" : "Quiz complete"}
       </h1>
       <p
         style={{
@@ -108,8 +129,9 @@ export function QuizResults({
           lineHeight: 1.55,
         }}
       >
-        Here&apos;s how you did. Review the questions below to cement what you
-        learned.
+        {mode === "review"
+          ? "Misses come back tomorrow. Correct answers move further out, so each concept returns right before you'd forget it."
+          : "Here's how you did. Anything you missed is now in your review queue."}
       </p>
 
       {/* ── Score card ─────────────────────────────────────────── */}
@@ -124,7 +146,7 @@ export function QuizResults({
           boxShadow: "var(--shadow-card)",
         }}
       >
-        {totalMC > 0 && (
+        {scored > 0 && (
           <>
             <div
               style={{
@@ -153,23 +175,23 @@ export function QuizResults({
                 {scoreLabel}
               </StatusTag>
               <span>
-                {correctMC} of {totalMC} multiple choice correct
+                {correct} of {scored} correct
+                {partial > 0 ? `, ${partial} partly right` : ""}
               </span>
             </div>
           </>
         )}
-        {totalSA > 0 && (
+        {unscored > 0 && (
           <div
             style={{
               fontSize: "var(--text-sm)",
               color: "var(--color-text-3)",
-              marginTop: totalMC > 0 ? 12 : 0,
-              paddingTop: totalMC > 0 ? 12 : 0,
-              borderTop: totalMC > 0 ? "1px solid var(--color-border)" : "none",
+              marginTop: scored > 0 ? 12 : 0,
+              paddingTop: scored > 0 ? 12 : 0,
+              borderTop: scored > 0 ? "1px solid var(--color-border)" : "none",
             }}
           >
-            {totalSA} short answer question{totalSA !== 1 ? "s" : ""}{" "}
-            (self-assessed)
+            {unscored} question{unscored !== 1 ? "s" : ""} not scored
           </div>
         )}
       </div>
@@ -179,11 +201,11 @@ export function QuizResults({
         <SectionHeading>Question review</SectionHeading>
 
         {mode === "concept" ? (
-          <FlatQuestionList questions={questions} answerMap={answerMap} />
+          <FlatQuestionList questions={questions} results={results} />
         ) : (
           <GroupedQuestionList
             questions={questions}
-            answerMap={answerMap}
+            results={results}
             mode={mode}
           />
         )}
@@ -220,7 +242,7 @@ export function QuizResults({
           Retake quiz
         </Button>
         <Button variant="primary" size="md" onClick={onNewQuiz} fullWidth>
-          Choose another quiz
+          {mode === "review" ? "Back to practice" : "Choose another quiz"}
         </Button>
       </div>
       <div
@@ -365,15 +387,15 @@ function StudyLinkRow({
 
 function FlatQuestionList({
   questions,
-  answerMap,
+  results,
 }: {
   questions: QuizQuestion[];
-  answerMap: Map<string, MCAnswer>;
+  results: ResultMap;
 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
       {questions.map((q) => (
-        <QuestionRow key={q.id} question={q} answer={answerMap.get(q.id)} />
+        <QuestionRow key={q.id} question={q} result={results.get(q.id)} />
       ))}
     </div>
   );
@@ -383,11 +405,11 @@ function FlatQuestionList({
 
 function GroupedQuestionList({
   questions,
-  answerMap,
+  results,
   mode,
 }: {
   questions: QuizQuestion[];
-  answerMap: Map<string, MCAnswer>;
+  results: ResultMap;
   mode: QuizMode;
 }) {
   const sectionMap = new Map<
@@ -424,12 +446,7 @@ function GroupedQuestionList({
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
         {concepts.map((c) => {
-          const conceptMCAnswers = c.questions
-            .filter((q) => q.type === "MC")
-            .map((q) => answerMap.get(q.id))
-            .filter(Boolean) as MCAnswer[];
-          const correct = conceptMCAnswers.filter((a) => a.correct).length;
-          const total = conceptMCAnswers.length;
+          const { correct, scored: total } = tally(c.questions, results);
           const hasWrong = correct < total;
 
           return (
@@ -441,7 +458,7 @@ function GroupedQuestionList({
               defaultOpen={hasWrong}
             >
               {c.questions.map((q) => (
-                <QuestionRow key={q.id} question={q} answer={answerMap.get(q.id)} />
+                <QuestionRow key={q.id} question={q} result={results.get(q.id)} />
               ))}
             </ConceptAccordion>
           );
@@ -454,13 +471,10 @@ function GroupedQuestionList({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
       {sections.map(([sectionId, section]) => {
-        const allMCInSection = [...section.concepts.values()]
-          .flatMap((c) => c.questions)
-          .filter((q) => q.type === "MC");
-        const sectionCorrect = allMCInSection.filter(
-          (q) => answerMap.get(q.id)?.correct,
-        ).length;
-        const sectionTotal = allMCInSection.length;
+        const { correct: sectionCorrect, scored: sectionTotal } = tally(
+          [...section.concepts.values()].flatMap((c) => c.questions),
+          results,
+        );
         const sectionHasWrong = sectionCorrect < sectionTotal;
 
         return (
@@ -472,12 +486,7 @@ function GroupedQuestionList({
             defaultOpen={sectionHasWrong}
           >
             {[...section.concepts.values()].map((c) => {
-              const conceptMCAnswers = c.questions
-                .filter((q) => q.type === "MC")
-                .map((q) => answerMap.get(q.id))
-                .filter(Boolean) as MCAnswer[];
-              const correct = conceptMCAnswers.filter((a) => a.correct).length;
-              const total = conceptMCAnswers.length;
+              const { correct, scored: total } = tally(c.questions, results);
               const hasWrong = correct < total;
 
               return (
@@ -493,7 +502,7 @@ function GroupedQuestionList({
                     <QuestionRow
                       key={q.id}
                       question={q}
-                      answer={answerMap.get(q.id)}
+                      result={results.get(q.id)}
                     />
                   ))}
                 </ConceptAccordion>
@@ -704,38 +713,31 @@ function ScoreChip({
 
 function QuestionRow({
   question,
-  answer,
+  result,
 }: {
   question: QuizQuestion;
-  answer?: MCAnswer;
+  result?: AnswerResult;
 }) {
-  const [expanded, setExpanded] = useState(() => {
-    if (question.type === "MC" && answer && !answer.correct) return true;
-    return false;
-  });
-
-  const isMC = question.type === "MC";
-  const isCorrect = isMC ? answer?.correct ?? false : null;
-  const correctOption = isMC
-    ? question.options?.find((o) => o.isCorrect)?.text
-    : null;
-  const selectedOption =
-    isMC && answer && question.options
-      ? question.options[answer.selectedIndex]?.text
-      : null;
+  const outcome = outcomeOf(result);
+  const [expanded, setExpanded] = useState(() => outcome === "incorrect" || outcome === "partial");
 
   const rowBg =
-    isCorrect === true
+    outcome === "correct"
       ? "var(--color-correct-dim)"
-      : isCorrect === false
+      : outcome === "incorrect"
         ? "var(--color-incorrect-dim)"
-        : "var(--color-surface)";
+        : outcome === "partial"
+          ? "var(--color-gold-soft)"
+          : "var(--color-surface)";
   const rowBorder =
-    isCorrect === true
+    outcome === "correct"
       ? "var(--color-correct-border)"
-      : isCorrect === false
+      : outcome === "incorrect"
         ? "var(--color-incorrect-border)"
         : "var(--color-border)";
+
+  const detail = { fontSize: "var(--text-sm)", lineHeight: 1.55, color: "var(--color-text-2)" } as const;
+  const label = { color: "var(--color-text-3)" } as const;
 
   return (
     <div
@@ -749,6 +751,7 @@ function QuestionRow({
     >
       <button
         onClick={() => setExpanded(!expanded)}
+        aria-expanded={expanded}
         style={{
           display: "flex",
           alignItems: "center",
@@ -762,10 +765,8 @@ function QuestionRow({
           textAlign: "left",
         }}
       >
-        {/* Status indicator */}
-        <StatusDot state={isCorrect} />
+        <StatusDot outcome={outcome} />
 
-        {/* Question text */}
         <span
           style={{
             flex: 1,
@@ -781,12 +782,10 @@ function QuestionRow({
           {question.questionText}
         </span>
 
-        {/* Type label */}
         <StatusTag tone="neutral" size="xs" uppercase>
-          {isMC ? "MC" : "SA"}
+          {question.type === "MC" ? "MC" : "SA"}
         </StatusTag>
 
-        {/* Expand chevron */}
         <span
           style={{
             display: "inline-flex",
@@ -822,51 +821,69 @@ function QuestionRow({
             {question.conceptName}
           </span>
 
-          {isMC && selectedOption && (
-            <div style={{ fontSize: "var(--text-sm)", lineHeight: 1.55 }}>
-              <div style={{ color: "var(--color-text-2)", marginBottom: 3 }}>
-                <span style={{ color: "var(--color-text-3)" }}>Your answer: </span>
-                <span
-                  style={{
-                    color: isCorrect ? "var(--color-correct)" : "var(--color-incorrect)",
-                    fontWeight: 550,
-                  }}
-                >
-                  {selectedOption}
-                </span>
-              </div>
-              {!isCorrect && correctOption && (
-                <div style={{ color: "var(--color-text-2)" }}>
-                  <span style={{ color: "var(--color-text-3)" }}>Correct: </span>
-                  <span style={{ color: "var(--color-correct)", fontWeight: 550 }}>
-                    {correctOption}
+          {!result && <div style={detail}>Not answered.</div>}
+
+          {result?.type === "MC" && (
+            <>
+              <div style={detail}>
+                <div style={{ marginBottom: 3 }}>
+                  <span style={label}>Your answer: </span>
+                  <span
+                    style={{
+                      color: result.isCorrect ? "var(--color-correct)" : "var(--color-incorrect)",
+                      fontWeight: 550,
+                    }}
+                  >
+                    {result.selectedText}
                   </span>
                 </div>
+                {!result.isCorrect && result.correctText && (
+                  <div>
+                    <span style={label}>Correct: </span>
+                    <span style={{ color: "var(--color-correct)", fontWeight: 550 }}>
+                      {result.correctText}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div
+                style={{
+                  ...detail,
+                  color: "var(--color-text)",
+                  lineHeight: 1.65,
+                  paddingTop: "var(--space-2)",
+                  borderTop: "1px solid var(--color-border-subtle)",
+                }}
+              >
+                {result.explanation}
+              </div>
+            </>
+          )}
+
+          {result?.type === "SHORT_ANSWER" && (
+            <>
+              <div style={detail}>
+                <span style={label}>Your answer: </span>
+                {result.answer.trim() ? result.answer : "Skipped"}
+              </div>
+              {result.answer.trim() && (
+                <div style={detail}>
+                  <span style={label}>Feedback: </span>
+                  {result.reasoning}
+                </div>
               )}
-            </div>
-          )}
-
-          {!isMC && (
-            <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-2)", lineHeight: 1.6 }}>
-              <span style={{ color: "var(--color-text-3)", fontWeight: 600 }}>
-                Model answer:{" "}
-              </span>
-              {question.answerExplanation}
-            </div>
-          )}
-
-          {isMC && (
-            <div
-              style={{
-                fontSize: "var(--text-sm)",
-                color: "var(--color-text)",
-                lineHeight: 1.65,
-                paddingTop: "var(--space-2)",
-                borderTop: "1px solid var(--color-border-subtle)",
-              }}
-            >
-              {question.answerExplanation}
-            </div>
+              <div
+                style={{
+                  ...detail,
+                  lineHeight: 1.6,
+                  paddingTop: "var(--space-2)",
+                  borderTop: "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <span style={{ ...label, fontWeight: 600 }}>Model answer: </span>
+                {result.modelAnswer}
+              </div>
+            </>
           )}
         </div>
       )}
@@ -874,15 +891,18 @@ function QuestionRow({
   );
 }
 
-function StatusDot({ state }: { state: boolean | null }) {
+function StatusDot({ outcome }: { outcome: Outcome }) {
   const bg =
-    state === true
+    outcome === "correct"
       ? "var(--color-correct)"
-      : state === false
+      : outcome === "incorrect"
         ? "var(--color-incorrect)"
-        : "var(--color-surface-2)";
-  const fg =
-    state === null ? "var(--color-text-3)" : "#fff";
+        : outcome === "partial"
+          ? "var(--color-gold)"
+          : "var(--color-surface-2)";
+  const fg = outcome === null ? "var(--color-text-3)" : "#fff";
+  const glyph =
+    outcome === "correct" ? "✓" : outcome === "incorrect" ? "✗" : outcome === "partial" ? "½" : "–";
   return (
     <span
       style={{
@@ -901,7 +921,7 @@ function StatusDot({ state }: { state: boolean | null }) {
       }}
       aria-hidden
     >
-      {state === true ? "✓" : state === false ? "✗" : "–"}
+      {glyph}
     </span>
   );
 }

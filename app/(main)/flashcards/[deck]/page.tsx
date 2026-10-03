@@ -11,6 +11,7 @@ type Props = { params: Promise<{ deck: string }> };
 
 const DECK_LABELS: Record<string, string> = {
   all: "All Concepts",
+  due: "Due for review",
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -35,8 +36,12 @@ export default async function FlashcardPlayerPage({ params }: Props) {
 
   const trackSlug = await getActiveTrackSlug();
 
+  // The due deck spans tracks, like the review queue it comes from.
   const concepts = await prisma.concept.findMany({
-    where: { section: { tier: { track: { slug: trackSlug } } } },
+    where:
+      deck === "due"
+        ? { reviewItems: { some: { userId: authUser.id, dueAt: { lte: new Date() } } } }
+        : { section: { tier: { track: { slug: trackSlug } } } },
     select: {
       id: true,
       name: true,
@@ -68,7 +73,7 @@ export default async function FlashcardPlayerPage({ params }: Props) {
 
   return (
     <FlashcardPlayer
-      deck="all"
+      deck={deck as "all" | "due"}
       deckLabel={DECK_LABELS[deck]}
       cards={cards}
     />

@@ -3,24 +3,50 @@
 import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
 
+export type MCResult = {
+  type: "MC";
+  selectedText: string;
+  isCorrect: boolean;
+  correctText: string | null;
+  explanation: string;
+};
+
 type MCQuestionProps = {
   question: {
     id: string;
     questionText: string;
-    options: { text: string; isCorrect: boolean }[];
-    answerExplanation: string;
+    options: { text: string }[];
   };
-  onAnswer: (correct: boolean, selectedIndex: number) => void;
+  onResult: (result: MCResult) => void;
 };
 
-export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
+export function MCQuestion({ question, onResult }: MCQuestionProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const answered = selectedIndex !== null;
+  const [result, setResult] = useState<MCResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const answered = result !== null;
+  const checking = selectedIndex !== null && !answered && !error;
 
-  const handleSelect = (index: number) => {
-    if (answered) return;
+  const handleSelect = async (index: number) => {
+    if (answered || checking) return;
     setSelectedIndex(index);
-    onAnswer(question.options[index].isCorrect, index);
+    setError(null);
+    const selectedText = question.options[index].text;
+    try {
+      const res = await fetch("/api/quiz/answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionId: question.id, selectedText }),
+      });
+      if (!res.ok) throw new Error("check failed");
+      const data = await res.json();
+      const next: MCResult = { ...data, selectedText };
+      setResult(next);
+      onResult(next);
+    } catch {
+      setSelectedIndex(null);
+      setError("Couldn't check that answer. Try again.");
+    }
   };
 
   return (
@@ -46,16 +72,30 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
             key={i}
             index={i}
             text={opt.text}
-            isCorrect={opt.isCorrect}
+            isCorrect={result?.correctText === opt.text}
             answered={answered}
+            pending={checking && selectedIndex === i}
             isSelected={selectedIndex === i}
             onSelect={() => handleSelect(i)}
           />
         ))}
       </div>
 
+      {error && (
+        <p
+          role="alert"
+          style={{
+            margin: "var(--space-3) 0 0",
+            fontSize: "var(--text-sm)",
+            color: "var(--color-incorrect)",
+          }}
+        >
+          {error}
+        </p>
+      )}
+
       {/* Explanation — shown after answering */}
-      {answered && (
+      {result && (
         <div
           className="animate-fade-in"
           style={{
@@ -90,7 +130,7 @@ export function MCQuestion({ question, onAnswer }: MCQuestionProps) {
               lineHeight: 1.65,
             }}
           >
-            {question.answerExplanation}
+            {result.explanation}
           </p>
         </div>
       )}
@@ -103,6 +143,7 @@ function MCOption({
   text,
   isCorrect,
   answered,
+  pending,
   isSelected,
   onSelect,
 }: {
@@ -110,6 +151,7 @@ function MCOption({
   text: string;
   isCorrect: boolean;
   answered: boolean;
+  pending: boolean;
   isSelected: boolean;
   onSelect: () => void;
 }) {
@@ -145,6 +187,11 @@ function MCOption({
       bgColor = "var(--color-surface)";
       boxShadow = "none";
     }
+  } else if (pending) {
+    borderColor = "var(--color-accent)";
+    bgColor = "var(--color-accent-soft)";
+    indicatorBorder = "var(--color-accent)";
+    indicatorColor = "var(--color-accent-on-soft)";
   } else if (hov) {
     borderColor = "var(--color-accent)";
     bgColor = "var(--color-accent-soft)";
@@ -158,7 +205,8 @@ function MCOption({
       onClick={onSelect}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      disabled={answered}
+      disabled={answered || pending}
+      aria-busy={pending || undefined}
       style={{
         display: "flex",
         alignItems: "center",

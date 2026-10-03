@@ -11,7 +11,7 @@ import type { TeamLink } from "@/lib/teams";
 
 /**
  * Fixed left sidebar — Uxcel-style.
- * Logo → Home/Browse → DISCOVER → PRACTICE → ME → COMMUNITY → ADMIN → feedback (pinned bottom).
+ * Logo → Home/Browse/Practice/Progress/This week → COMMUNITY → ADMIN → feedback (pinned bottom).
  */
 export function Sidebar({
   user,
@@ -62,7 +62,7 @@ export function Sidebar({
 
       {/* ── Scrollable nav body ──────────────────────────────── */}
       <nav style={{ flex: 1, overflowY: "auto", paddingTop: "var(--space-1)" }}>
-        {/* Primary group (unlabeled) */}
+        {/* Primary group (unlabeled): the learning loop, then the weekly digest */}
         <div>
           <SidebarNavItem
             href="/home"
@@ -74,46 +74,25 @@ export function Sidebar({
             href="/browse"
             label="Browse"
             iconName="grid"
-            active={isActive("/browse")}
+            active={isActive("/browse") || isActive("/concepts")}
           />
-        </div>
-
-        {/* DISCOVER group — editorial + signal surfaces */}
-        <SectionLabel>Discover</SectionLabel>
-        <div>
           <SidebarNavItem
-            href="/digest"
-            label="This week"
-            iconName="newspaper"
-            active={isActive("/digest")}
-          />
-        </div>
-
-        {/* PRACTICE group — self-study tools */}
-        <SectionLabel>Practice</SectionLabel>
-        <div>
-          <SidebarNavItem
-            href="/quiz"
-            label="Practice quiz"
+            href="/practice"
+            label="Practice"
             iconName="help-circle"
-            active={isActive("/quiz")}
+            active={isActive("/practice") || isActive("/quiz") || isActive("/flashcards")}
           />
-          <SidebarNavItem
-            href="/flashcards"
-            label="Flashcards"
-            iconName="cards-three"
-            active={isActive("/flashcards")}
-          />
-        </div>
-
-        {/* ME group — personal */}
-        <SectionLabel>Me</SectionLabel>
-        <div>
           <SidebarNavItem
             href="/dashboard"
             label="Progress"
             iconName="bar-chart"
             active={isActive("/dashboard")}
+          />
+          <SidebarNavItem
+            href="/digest"
+            label="This week"
+            iconName="newspaper"
+            active={isActive("/digest")}
           />
         </div>
 
