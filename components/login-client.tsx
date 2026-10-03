@@ -12,7 +12,9 @@ const RESEND_COOLDOWN_SECONDS = 30;
 export function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/dashboard";
+  // Some links still send ?redirect=; accept both, and only same-site paths.
+  const requested = searchParams.get("next") ?? searchParams.get("redirect");
+  const next = requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/dashboard";
   const incomingError = searchParams.get("error");
 
   const [mode, setMode] = useState<Mode>("login");
