@@ -7,7 +7,6 @@ import { getWeekWindow, greetingForHour } from "@/lib/week-utils";
 import {
   getWeekEvents,
   getContinueLearning,
-  getDueItems,
   getWeakestConcept,
   getUpcomingWorkshops,
   getDigestTeaser,
@@ -47,11 +46,10 @@ export default async function HomePage() {
   const week = getWeekWindow(now);
   const trackSlug = await getActiveTrackSlug();
 
-  const [weekEvents, continuePick, dueItems, weakConcept, upcomingWorkshops, digestTeaser] =
+  const [weekEvents, continuePick, weakConcept, upcomingWorkshops, digestTeaser] =
     await Promise.all([
       getWeekEvents(week),
       getContinueLearning(dbUser.id, trackSlug),
-      getDueItems(dbUser.id),
       getWeakestConcept(dbUser.id, trackSlug),
       getUpcomingWorkshops(now),
       getDigestTeaser(),
@@ -67,7 +65,6 @@ export default async function HomePage() {
       todayISO={now.toISOString()}
       weekEvents={weekEvents}
       continuePick={continuePick}
-      dueItems={dueItems}
       weakConcept={weakConcept}
       upcomingWorkshops={upcomingWorkshops}
       digestTeaser={digestTeaser}

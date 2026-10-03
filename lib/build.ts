@@ -246,6 +246,7 @@ export type BuildTrack = {
 /** Tracks for the posting modal's track select, in display order. */
 export async function getTracks(): Promise<BuildTrack[]> {
   return prisma.track.findMany({
+    where: { tiers: { some: {} } },
     select: { slug: true, shortName: true, accentColor: true },
     orderBy: { sortOrder: "asc" },
   });

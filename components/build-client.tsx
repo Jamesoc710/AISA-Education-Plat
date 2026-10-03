@@ -11,7 +11,7 @@ import type { ProjectCardData, BuildTrack } from "@/lib/build";
 
 /**
  * Build Board index, on the editorial surface (data-surface="editorial"): a
- * single-column hairline index cloned from the Benchmarks Standings grammar.
+ * single-column hairline index.
  * .build-row reuses the 36px / 1fr / 172px grid, the staggered entrance with a
  * reduced-motion opt-out, SectionEyebrow, and the editorial-link hover sweep.
  *

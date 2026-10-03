@@ -1,29 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { PageFrame } from "@/components/ui/page-frame";
-
-const BOOKMARKS_KEY = "aisa-atlas-bookmarks";
 
 type Props = {
   totalConcepts: number;
 };
 
 export function FlashcardsPicker({ totalConcepts }: Props) {
-  const [bookmarkedCount, setBookmarkedCount] = useState<number | null>(null);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(BOOKMARKS_KEY);
-      const ids = stored ? (JSON.parse(stored) as string[]) : [];
-      setBookmarkedCount(Array.isArray(ids) ? ids.length : 0);
-    } catch {
-      setBookmarkedCount(0);
-    }
-  }, []);
-
   return (
     <PageFrame>
       <header style={{ marginBottom: "var(--space-6)" }}>
@@ -58,17 +44,6 @@ export function FlashcardsPicker({ totalConcepts }: Props) {
           blurb="Every concept in the Atlas, from fundamentals through advanced."
           icon="cards-three"
         />
-        {bookmarkedCount === null ? null : bookmarkedCount > 0 ? (
-          <DeckRow
-            href="/flashcards/bookmarked"
-            title="Bookmarked"
-            count={bookmarkedCount}
-            blurb="Concepts you've saved to study later."
-            icon="bookmark-filled"
-          />
-        ) : (
-          <EmptyBookmarksHint />
-        )}
       </div>
     </PageFrame>
   );
@@ -85,7 +60,7 @@ function DeckRow({
   title: string;
   count: number;
   blurb: string;
-  icon: "cards-three" | "bookmark-filled";
+  icon: "cards-three";
 }) {
   const [hov, setHov] = useState(false);
   return (
@@ -169,27 +144,5 @@ function DeckRow({
         style={{ color: hov ? "var(--color-text)" : "var(--color-text-3)" }}
       />
     </Link>
-  );
-}
-
-function EmptyBookmarksHint() {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-3)",
-        padding: "var(--space-4) var(--space-5)",
-        border: "1px dashed var(--color-border)",
-        borderRadius: "var(--radius-3)",
-        color: "var(--color-text-3)",
-        fontSize: "var(--text-sm)",
-      }}
-    >
-      <Icon name="bookmark" size={18} />
-      <span>
-        Bookmark concepts from the Browse page to build a personal review deck.
-      </span>
-    </div>
   );
 }

@@ -20,7 +20,6 @@ export default async function AdminRecruitsPage() {
       _count: {
         select: {
           quizAttempts: true,
-          homeworkSubmissions: true,
         },
       },
       quizAttempts: {
@@ -28,13 +27,6 @@ export default async function AdminRecruitsPage() {
           isCorrect: true,
           attemptedAt: true,
         },
-      },
-      homeworkSubmissions: {
-        select: {
-          submittedAt: true,
-        },
-        orderBy: { submittedAt: "desc" },
-        take: 1,
       },
     },
   });
@@ -49,7 +41,7 @@ export default async function AdminRecruitsPage() {
         ? Math.round((correctAttempts / totalAttempts) * 100)
         : null;
 
-    // Last active: most recent quiz attempt or homework submission
+    // Last active: most recent quiz attempt
     const lastQuizAt =
       totalAttempts > 0
         ? u.quizAttempts.reduce(
@@ -58,21 +50,7 @@ export default async function AdminRecruitsPage() {
             u.quizAttempts[0].attemptedAt,
           )
         : null;
-    const lastHomeworkAt =
-      u.homeworkSubmissions.length > 0
-        ? u.homeworkSubmissions[0].submittedAt
-        : null;
-
-    let lastActive: string | null = null;
-    if (lastQuizAt && lastHomeworkAt) {
-      lastActive = (
-        lastQuizAt > lastHomeworkAt ? lastQuizAt : lastHomeworkAt
-      ).toISOString();
-    } else if (lastQuizAt) {
-      lastActive = lastQuizAt.toISOString();
-    } else if (lastHomeworkAt) {
-      lastActive = lastHomeworkAt.toISOString();
-    }
+    const lastActive = lastQuizAt?.toISOString() ?? null;
 
     return {
       id: u.id,
@@ -83,7 +61,6 @@ export default async function AdminRecruitsPage() {
       createdAt: u.createdAt.toISOString(),
       quizScore,
       questionsAnswered: u._count.quizAttempts,
-      homeworkSubmitted: u._count.homeworkSubmissions,
       lastActive,
     };
   });

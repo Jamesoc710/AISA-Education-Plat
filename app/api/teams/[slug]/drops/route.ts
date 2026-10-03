@@ -20,7 +20,7 @@ function domainOf(url: string): string {
 }
 
 /**
- * POST /api/teams/[slug]/drops  { url, title, note, conceptSlug?, trendSlug? }
+ * POST /api/teams/[slug]/drops  { url, title, note, conceptSlug? }
  * Creates a member drop on The Drop. Posts instantly (a known 30-person club);
  * a lead can soft-remove later. The author is the authenticated session, never
  * client input. The one-line take (note) is required: it is the whole value.
@@ -55,7 +55,6 @@ export async function POST(
     title?: unknown;
     note?: unknown;
     conceptSlug?: unknown;
-    trendSlug?: unknown;
   };
 
   const url = typeof body.url === "string" ? body.url.trim() : "";
@@ -77,10 +76,6 @@ export async function POST(
     typeof body.conceptSlug === "string" && body.conceptSlug.trim()
       ? body.conceptSlug.trim().slice(0, MAX_SLUG)
       : null;
-  const trendSlug =
-    typeof body.trendSlug === "string" && body.trendSlug.trim()
-      ? body.trendSlug.trim().slice(0, MAX_SLUG)
-      : null;
 
   const drop = await prisma.teamDrop.create({
     data: {
@@ -91,7 +86,6 @@ export async function POST(
       sourceDomain: domainOf(url),
       note: note.slice(0, MAX_NOTE),
       conceptSlug,
-      trendSlug,
     },
     select: { id: true },
   });

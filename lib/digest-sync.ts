@@ -131,7 +131,7 @@ ${catalogText}`;
 
 // JSON extraction (balancedJsonCandidates), the dash sanitizer (cleanDigestText /
 // stripDashes), and URL verification (verifyUrl) now live in shared modules
-// (lib/llm-json, lib/text, lib/url) so the trend cron reuses the same code.
+// (lib/llm-json, lib/text, lib/url).
 
 interface ParsedResource {
   title: string;

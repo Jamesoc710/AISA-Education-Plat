@@ -15,22 +15,19 @@ glance you can see what is done, what is live work, and what is queued.
 ## What lives here
 
 ### complete/
-| Doc | What it covered | Shipped |
-| --- | --- | --- |
-| `TREND_TRACKER_PLAN.md` | `/trends` surface: schema, static list + detail, bubble field, live refresh cron | Yes (PR #1 to #3) |
-| `TREND_TRACKER_REDESIGN_PLAN.md` | Pulse Index list redesign, editorial brief detail page, Themes facet | Yes |
-| `PERSPECTIVES_PLAN.md` | Per-trend "Perspectives" accordion: content pipeline + seed + UI | Yes (all 22 trends) |
+Empty. Trends, Benchmarks, Homework and formal assessments were removed on
+2026-10-02 to focus the platform on Learn, Practice and Progress; their plans
+and research live in git history (before the `feat/focus-cuts` branch).
 
 ### ongoing/
 | Doc | What it is |
 | --- | --- |
-| `EXPANSION.md` | The TCO expansion master plan. Source of truth for vision, architecture, every feature, and the phased roadmap. |
-| `BENCHMARKS_PLAN.md` | "The Standings" build plan for the `/benchmarks` surface. Design locked by a design panel (`../../research/benchmarks-design-research.json`); ready to build in a fresh chat. |
-| `team-hq/` | Tracks become Teams: a per-team HQ page at `/teams/[slug]`. Council-resolved (5 seats), schema-hardened, ready to build. See `team-hq/00-README.md`. |
+| `EXPANSION.md` | The TCO expansion master plan. Historical vision doc; parts of it (Trends, Benchmarks) are superseded by the 2026-10-02 focus cuts. |
+| `team-hq/` | Tracks become Teams: a per-team HQ page at `/teams/[slug]`. Shipped. |
+| `build-board-redesign/` | Build board redesign plan and phase 1 build order. |
 
 ### future/
-See `future/README.md`. Current queue: build board polish and a "build with AI"
-tab. (Digest catch-up shipped; the Benchmarks tab is now in `ongoing/`.)
+See `future/README.md`.
 
 ## Conventions
 

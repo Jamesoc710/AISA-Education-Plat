@@ -9,7 +9,6 @@ import { getSectionVisual, getConceptVisual } from "@/lib/section-icons";
 import type { TrackSummary } from "@/lib/track";
 import type { SectionGroup, ConceptData } from "@/lib/types";
 
-const BOOKMARKS_KEY = "aisa-atlas-bookmarks";
 const EXPANDED_KEY = "aisa-atlas-browse-expanded";
 
 const TIER_COPY: Record<string, { title: string; subtitle: string }> = {
@@ -45,39 +44,21 @@ export function BrowseClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const query = (searchParams?.get("q") ?? "").trim();
-  const filter = searchParams?.get("filter") === "bookmarked" ? "bookmarked" : "all";
   const tierFilter = searchParams?.get("tier") ?? null;
 
   const activeTrack = tracks.find((t) => t.slug === activeTrackSlug) ?? null;
   // A track with no authored content yet (e.g. Capital Markets pre-seed).
   const trackIsEmpty = sections.length === 0;
 
-  const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
   const [userExpanded, setUserExpanded] = useState<Set<string>>(new Set());
 
   // Hydrate persisted state
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(BOOKMARKS_KEY);
-      if (stored) setBookmarks(new Set(JSON.parse(stored)));
-    } catch {}
-    try {
       const stored = localStorage.getItem(EXPANDED_KEY);
       if (stored) setUserExpanded(new Set(JSON.parse(stored)));
     } catch {}
   }, []);
-
-  const toggleBookmark = (id: string) => {
-    setBookmarks((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      try {
-        localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([...next]));
-      } catch {}
-      return next;
-    });
-  };
 
   const persistExpanded = (next: Set<string>) => {
     try {
@@ -115,7 +96,6 @@ export function BrowseClient({
       .filter((s) => !tierFilter || s.tier.slug === tierFilter)
       .map((section) => {
         const concepts = section.concepts.filter((c) => {
-          if (filter === "bookmarked" && !bookmarks.has(c.id)) return false;
           if (q) {
             const haystack = `${c.name} ${c.subtitle} ${c.section.name}`.toLowerCase();
             if (!haystack.includes(q)) return false;
@@ -125,7 +105,7 @@ export function BrowseClient({
         return { ...section, concepts };
       })
       .filter((s) => s.concepts.length > 0);
-  }, [sections, query, filter, tierFilter, bookmarks]);
+  }, [sections, query, tierFilter]);
 
   const totalVisible = filteredSections.reduce((acc, s) => acc + s.concepts.length, 0);
 
@@ -140,15 +120,6 @@ export function BrowseClient({
 
   // ── Page header copy reflects filters ───────────────────────
   const header = (() => {
-    if (filter === "bookmarked") {
-      return {
-        title: "Bookmarked",
-        subtitle:
-          totalVisible === 0
-            ? "Star a concept on any card and it'll show up here."
-            : `${totalVisible} concept${totalVisible === 1 ? "" : "s"} you've saved.`,
-      };
-    }
     if (tierFilter && TIER_COPY[tierFilter]) {
       return {
         title: TIER_COPY[tierFilter].title,
@@ -168,7 +139,7 @@ export function BrowseClient({
     };
   })();
 
-  const isFiltered = filter !== "all" || tierFilter !== null;
+  const isFiltered = tierFilter !== null;
 
   // Difficulty-tier filter: replaces the old sidebar tier rows. Shown only where
   // the track actually has tiers (AI today) and on the default browse view.
@@ -177,7 +148,7 @@ export function BrowseClient({
     [sections],
   );
   const showTierFilter =
-    activeTrackSlug === "ai" && availableTiers.length > 1 && filter === "all" && !query;
+    activeTrackSlug === "ai" && availableTiers.length > 1 && !query;
 
   return (
     <div style={{ padding: "32px 32px 80px" }}>
@@ -301,15 +272,13 @@ export function BrowseClient({
         {trackIsEmpty ? (
           <TrackEmptyState track={activeTrack} />
         ) : filteredSections.length === 0 ? (
-          <EmptyState query={query} filter={filter} />
+          <EmptyState query={query} />
         ) : (
           <div className="browse-sections">
             {filteredSections.map((section) => (
               <SectionRow
                 key={section.id}
                 section={section}
-                bookmarks={bookmarks}
-                onToggleBookmark={toggleBookmark}
                 expanded={displayExpanded.has(section.id)}
                 onToggleExpanded={() => toggleSection(section.id)}
               />
@@ -329,14 +298,10 @@ export function BrowseClient({
 
 function SectionRow({
   section,
-  bookmarks,
-  onToggleBookmark,
   expanded,
   onToggleExpanded,
 }: {
   section: SectionGroup;
-  bookmarks: Set<string>;
-  onToggleBookmark: (id: string) => void;
   expanded: boolean;
   onToggleExpanded: () => void;
 }) {
@@ -486,12 +451,7 @@ function SectionRow({
               inert={!expanded}
             >
               {section.concepts.map((concept) => (
-                <ConceptRow
-                  key={concept.id}
-                  concept={concept}
-                  bookmarked={bookmarks.has(concept.id)}
-                  onToggleBookmark={onToggleBookmark}
-                />
+                <ConceptRow key={concept.id} concept={concept} />
               ))}
             </div>
           </div>
@@ -503,15 +463,7 @@ function SectionRow({
 
 // ── Concept Row (inline editorial, used only inside browse) ─────────────────
 
-function ConceptRow({
-  concept,
-  bookmarked,
-  onToggleBookmark,
-}: {
-  concept: ConceptData;
-  bookmarked: boolean;
-  onToggleBookmark: (id: string) => void;
-}) {
+function ConceptRow({ concept }: { concept: ConceptData }) {
   const [hovered, setHovered] = useState(false);
   const visual = getConceptVisual(concept.slug, concept.section.slug);
 
@@ -530,7 +482,7 @@ function ConceptRow({
           display: "flex",
           alignItems: "flex-start",
           gap: "var(--space-3)",
-          padding: "12px 40px 12px 4px",
+          padding: "12px 4px",
           textDecoration: "none",
           color: "inherit",
         }}
@@ -567,78 +519,13 @@ function ConceptRow({
           </p>
         </div>
       </Link>
-
-      <div
-        style={{
-          position: "absolute",
-          top: 10,
-          right: 4,
-        }}
-      >
-        <InlineBookmarkButton
-          bookmarked={bookmarked}
-          visible={hovered || bookmarked}
-          onClick={() => onToggleBookmark(concept.id)}
-        />
-      </div>
     </div>
-  );
-}
-
-function InlineBookmarkButton({
-  bookmarked,
-  visible,
-  onClick,
-}: {
-  bookmarked: boolean;
-  visible: boolean;
-  onClick: () => void;
-}) {
-  const [hov, setHov] = useState(false);
-  return (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        onClick();
-      }}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      title={bookmarked ? "Remove bookmark" : "Bookmark this concept"}
-      aria-label={bookmarked ? "Remove bookmark" : "Bookmark this concept"}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: 26,
-        height: 26,
-        border: "none",
-        background: hov ? "var(--color-surface-2)" : "transparent",
-        cursor: "pointer",
-        padding: 0,
-        borderRadius: "var(--radius-1)",
-        opacity: visible ? 1 : 0,
-        transition: "opacity 120ms ease, background-color 120ms ease",
-        color: bookmarked
-          ? "var(--color-gold)"
-          : hov
-          ? "var(--color-text)"
-          : "var(--color-text-3)",
-      }}
-    >
-      <Icon
-        name={bookmarked ? "bookmark-filled" : "bookmark"}
-        size={14}
-        strokeWidth={1.85}
-      />
-    </button>
   );
 }
 
 // ── Empty State ──────────────────────────────────────────────────────────────
 
-function EmptyState({ query, filter }: { query: string; filter: "all" | "bookmarked" }) {
+function EmptyState({ query }: { query: string }) {
   return (
     <div
       style={{
@@ -659,16 +546,10 @@ function EmptyState({ query, filter }: { query: string; filter: "all" | "bookmar
         <Icon name="search" size={28} strokeWidth={1.5} />
       </span>
       <p style={{ fontSize: "var(--text-base)", margin: 0, fontWeight: 500, color: "var(--color-text)" }}>
-        {filter === "bookmarked"
-          ? "No bookmarks yet"
-          : query
-          ? `No concepts match "${query}"`
-          : "No concepts found"}
+        {query ? `No concepts match "${query}"` : "No concepts found"}
       </p>
       <p style={{ fontSize: "var(--text-sm)", margin: 0, color: "var(--color-text-2)", maxWidth: 380 }}>
-        {filter === "bookmarked"
-          ? "Star a concept on any card to save it for later."
-          : "Try adjusting your search or clearing the filter."}
+        Try adjusting your search or clearing the filter.
       </p>
     </div>
   );

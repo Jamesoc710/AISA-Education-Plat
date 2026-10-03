@@ -21,12 +21,10 @@ const RESOURCE_PALETTE: Record<string, string> = {
 
 export function ConceptBody({
   concept,
-  bookmarked,
-  onToggleBookmark,
+  headerAction,
 }: {
   concept: ConceptDetail;
-  bookmarked: boolean;
-  onToggleBookmark: () => void;
+  headerAction?: React.ReactNode;
 }) {
   const [deeperOpen, setDeeperOpen] = useState(false);
   const [explanationMode, setExplanationMode] = useState<"detailed" | "simple">(
@@ -106,7 +104,7 @@ export function ConceptBody({
           >
             {concept.name}
           </h1>
-          <BookmarkButton bookmarked={bookmarked} onClick={onToggleBookmark} />
+          {headerAction}
         </div>
 
         <p
@@ -305,60 +303,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     >
       {children}
     </h2>
-  );
-}
-
-// ── Bookmark button ────────────────────────────────────────────────────────────
-
-function BookmarkButton({
-  bookmarked,
-  onClick,
-}: {
-  bookmarked: boolean;
-  onClick: () => void;
-}) {
-  const [hov, setHov] = useState(false);
-  const baseColor = bookmarked
-    ? "var(--color-gold)"
-    : hov
-    ? "var(--color-text)"
-    : "var(--color-text-2)";
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      title={bookmarked ? "Remove bookmark" : "Bookmark this concept"}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "var(--space-2)",
-        padding: "7px 12px",
-        marginTop: "var(--space-1)",
-        backgroundColor: bookmarked
-          ? "var(--color-gold-soft)"
-          : hov
-          ? "var(--color-surface-2)"
-          : "var(--color-surface)",
-        border: `1px solid ${bookmarked ? "var(--color-gold-soft)" : "var(--color-border)"}`,
-        borderRadius: "var(--radius-2)",
-        cursor: "pointer",
-        fontFamily: "inherit",
-        fontSize: "var(--text-sm)",
-        fontWeight: 500,
-        color: baseColor,
-        flexShrink: 0,
-        transition: "background-color 100ms ease, color 100ms ease, border-color 100ms ease",
-      }}
-    >
-      <Icon
-        name={bookmarked ? "bookmark-filled" : "bookmark"}
-        size={14}
-        strokeWidth={1.85}
-      />
-      {bookmarked ? "Bookmarked" : "Bookmark"}
-    </button>
   );
 }
 

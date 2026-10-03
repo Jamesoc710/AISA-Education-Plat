@@ -12,7 +12,6 @@ import {
 import type {
   HomeWeekEvent,
   ContinuePick,
-  DueItem,
   WeakConcept,
   UpcomingWorkshop,
   DigestTeaser,
@@ -24,7 +23,6 @@ interface HomeClientProps {
   todayISO: string;
   weekEvents: HomeWeekEvent[];
   continuePick: ContinuePick | null;
-  dueItems: DueItem[];
   weakConcept: WeakConcept | null;
   upcomingWorkshops: UpcomingWorkshop[];
   digestTeaser: DigestTeaser | null;
@@ -79,7 +77,6 @@ export function HomeClient(props: HomeClientProps) {
     todayISO,
     weekEvents,
     continuePick,
-    dueItems,
     weakConcept,
     upcomingWorkshops,
     digestTeaser,
@@ -189,18 +186,6 @@ export function HomeClient(props: HomeClientProps) {
           />
 
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ marginBottom: 28 }}>
-              <SectionEyebrow>On your plate</SectionEyebrow>
-              <DueList items={dueItems} todayISO={todayISO} />
-            </div>
-            <div
-              aria-hidden
-              style={{
-                height: 1,
-                backgroundColor: "var(--color-border)",
-                margin: "4px 0 28px",
-              }}
-            />
             <div>
               <SectionEyebrow>Practice</SectionEyebrow>
               <PracticeBlock weak={weakConcept} />
@@ -470,130 +455,6 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
             >
               {e.title}
             </span>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-// ─── Due list ──────────────────────────────────────────────────────────────
-
-function DueList({ items, todayISO }: { items: DueItem[]; todayISO: string }) {
-  if (items.length === 0) {
-    return (
-      <p
-        style={{
-          margin: 0,
-          fontSize: 15,
-          color: "var(--color-text-2)",
-          lineHeight: 1.5,
-        }}
-      >
-        You&rsquo;re caught up. Nothing pending.
-      </p>
-    );
-  }
-
-  const now = new Date(todayISO);
-  return (
-    <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-      {items.map((it, idx) => {
-        const dd = daysUntil(it.dueDate, now);
-        let dueLabel = "No date";
-        let urgent = false;
-        if (dd !== null) {
-          if (dd < 0) {
-            dueLabel = `${Math.abs(dd)}d overdue`;
-            urgent = true;
-          } else if (dd === 0) {
-            dueLabel = "Due today";
-            urgent = true;
-          } else if (dd === 1) {
-            dueLabel = "Tomorrow";
-          } else if (dd <= 7) {
-            dueLabel = `In ${dd} days`;
-          } else {
-            dueLabel = `In ${dd} days`;
-          }
-        }
-
-        return (
-          <li
-            key={it.id}
-            style={{
-              borderTop: idx === 0 ? "1px solid var(--color-border)" : "none",
-              borderBottom: "1px solid var(--color-border)",
-            }}
-          >
-            <Link
-              href={it.href}
-              className="editorial-link-row"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 12,
-                padding: "14px 2px",
-                textDecoration: "none",
-                color: "inherit",
-                transition: "color 140ms ease",
-              }}
-            >
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <div
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 500,
-                    color: "var(--color-text)",
-                    letterSpacing: "-0.005em",
-                    lineHeight: 1.35,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {it.title}
-                </div>
-                <div
-                  style={{
-                    marginTop: 4,
-                    fontSize: 12,
-                    fontWeight: 500,
-                    color: "var(--color-text-3)",
-                    letterSpacing: "0.02em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {it.kind === "homework" ? "Homework" : "Assessment"}
-                </div>
-              </div>
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  letterSpacing: "0.04em",
-                  color: urgent ? "var(--color-incorrect)" : "var(--color-text-2)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {urgent && (
-                  <span
-                    aria-hidden
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: 999,
-                      backgroundColor: "var(--color-incorrect)",
-                    }}
-                  />
-                )}
-                {dueLabel}
-              </span>
-            </Link>
           </li>
         );
       })}

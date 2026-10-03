@@ -14,19 +14,12 @@ export default async function AdminPage() {
   const [
     totalRecruits,
     activeThisWeek,
-    totalQuizAttempts,
-    pendingHomework,
-    pendingSAAnswers,
-    formalQuizzes,
-    totalAssignments,
+    totalAnswers,
+    answersThisWeek,
     scheduleEventCount,
     latestScheduleEvent,
     latestDigest,
-    trendTotal,
-    trendPublished,
-    latestTrend,
-    benchmarkTotal,
-    benchmarkPublished,
+    recentQuizAttempts,
   ] = await Promise.all([
     prisma.user.count({ where: { role: "MEMBER" } }),
     prisma.quizAttempt
@@ -37,10 +30,7 @@ export default async function AdminPage() {
       })
       .then((rows: { userId: string }[]) => rows.length),
     prisma.quizAttempt.count(),
-    prisma.homeworkSubmission.count({ where: { grade: null } }),
-    prisma.formalQuizAnswer.count({ where: { isCorrect: null } }),
-    prisma.formalQuiz.count(),
-    prisma.assignment.count(),
+    prisma.quizAttempt.count({ where: { attemptedAt: { gte: sevenDaysAgo } } }),
     prisma.scheduleEvent.count(),
     prisma.scheduleEvent.findFirst({
       orderBy: { syncedAt: "desc" },
@@ -59,17 +49,8 @@ export default async function AdminPage() {
         durationMs: true,
       },
     }),
-    prisma.trend.count(),
-    prisma.trend.count({ where: { status: "published" } }),
-    prisma.trend.findFirst({ orderBy: { syncedAt: "desc" }, select: { syncedAt: true } }),
-    prisma.benchmark.count(),
-    prisma.benchmark.count({ where: { status: "published" } }),
-  ]);
-
-  // ── Recent activity ────────────────────────────────────────────────────────
-  const [recentQuizAttempts, recentHomework] = await Promise.all([
     prisma.quizAttempt.findMany({
-      take: 15,
+      take: 20,
       orderBy: { attemptedAt: "desc" },
       select: {
         id: true,
@@ -79,42 +60,17 @@ export default async function AdminPage() {
         question: { select: { concept: { select: { name: true } } } },
       },
     }),
-    prisma.homeworkSubmission.findMany({
-      take: 15,
-      orderBy: { submittedAt: "desc" },
-      select: {
-        id: true,
-        submittedAt: true,
-        grade: true,
-        user: { select: { name: true } },
-        assignment: { select: { title: true } },
-      },
-    }),
   ]);
 
-  // ── Merge + sort ───────────────────────────────────────────────────────────
+  // ── Recent activity ────────────────────────────────────────────────────────
   type QuizRow = (typeof recentQuizAttempts)[number];
-  type HwRow = (typeof recentHomework)[number];
-
-  const quizActivity = recentQuizAttempts.map((a: QuizRow) => ({
+  const activity = recentQuizAttempts.map((a: QuizRow) => ({
     id: a.id,
     type: "quiz" as const,
     description: `${a.user.name} answered ${a.question.concept.name} question ${a.isCorrect ? "correctly" : "incorrectly"}`,
     timestamp: a.attemptedAt.toISOString(),
     status: (a.isCorrect ? "correct" : "incorrect") as "correct" | "incorrect",
   }));
-
-  const hwActivity = recentHomework.map((s: HwRow) => ({
-    id: s.id,
-    type: "homework" as const,
-    description: `${s.user.name} submitted Homework: ${s.assignment.title}`,
-    timestamp: s.submittedAt.toISOString(),
-    status: (s.grade ? "graded" : "submitted") as "graded" | "submitted",
-  }));
-
-  const activity = [...quizActivity, ...hwActivity]
-    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-    .slice(0, 20);
 
   // ── Build Board drafts awaiting review ───────────────────────────────────────
   const draftProjects = await prisma.project.findMany({
@@ -146,8 +102,8 @@ export default async function AdminPage() {
       stats={{
         totalRecruits,
         activeThisWeek,
-        pendingToGrade: pendingHomework + pendingSAAnswers,
-        formalQuizzes,
+        totalAnswers,
+        answersThisWeek,
       }}
       activity={activity}
       calendarSync={{
@@ -170,17 +126,6 @@ export default async function AdminPage() {
             }
           : null
       }
-      trends={{
-        total: trendTotal,
-        published: trendPublished,
-        drafts: trendTotal - trendPublished,
-        lastSyncedAt: latestTrend?.syncedAt.toISOString() ?? null,
-      }}
-      benchmarks={{
-        total: benchmarkTotal,
-        published: benchmarkPublished,
-        drafts: benchmarkTotal - benchmarkPublished,
-      }}
       buildDrafts={buildDrafts}
     />
   );

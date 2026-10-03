@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Calendar | AISA Atlas",
-  description: "Tech team weekly schedule, lectures, and homework deadlines.",
+  description: "The TCO club calendar: meetings, workshops and events.",
 };
 
 export default async function CalendarPage() {

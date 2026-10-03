@@ -9,7 +9,7 @@ import type { DropView } from "@/lib/team-data";
 
 /**
  * Worth a read: a team bulletin. Members post a link from the team's world with
- * a one-line take; the module blends in a system trend/news auto-floor so it is
+ * a one-line take; the module blends in a system news auto-floor so it is
  * never blank. The full reverse-chron archive lives at /teams/[slug]/drops.
  */
 export function WorthARead({

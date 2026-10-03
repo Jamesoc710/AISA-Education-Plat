@@ -1,7 +1,7 @@
 /**
  * Team registry: the single typed source of truth that reconciles the calendar
- * team spine (ScheduleEvent.type), the content track (Track.slug), the trend and
- * digest categories, and each team's identity (display name, mandate, accent).
+ * team spine (ScheduleEvent.type), the content track (Track.slug), the digest
+ * category, and each team's identity (display name, mandate, accent).
  *
  * Pure code, no Prisma, so it is safe to import from both client and server.
  * The live reads (membership, meetings, projects, drops) and the door
@@ -26,7 +26,6 @@ export type Team = {
   mandate: string; // one-line "what we do" (no em dashes)
   teamType?: string; // calendar spine: TECH_TEAM | CAPITAL_TEAM | MEDIA_TEAM | ...
   trackId?: string; // OPTIONAL content scope -> Track.slug (ai | capital-markets)
-  trendCategory?: string; // Trend.category ("AI" | "Tech" | "Capital") -> The Drop floor
   digestCategory?: string; // DigestItem.category ("ai" | "tech" | "markets") -> The Drop floor
   conceptPrefix?: string; // e.g. "cm-" for sub-topic reads (informational in v1)
   accent: string; // team color; NEVER #4255FF (the editorial blue, reserved for home)
@@ -48,7 +47,6 @@ const TEAMS: Team[] = [
     mandate: "Where we make sense of AI and the tools reshaping how we build.",
     teamType: "TECH_TEAM",
     trackId: "ai",
-    trendCategory: "AI",
     digestCategory: "ai",
     accent: "#5E6AD2", // indigo
     flags: { forming: false, memberFacing: true },
@@ -59,7 +57,6 @@ const TEAMS: Team[] = [
     mandate: "Where we read the markets and the money moving through tech.",
     teamType: "CAPITAL_TEAM",
     trackId: "capital-markets",
-    trendCategory: "Capital",
     digestCategory: "markets",
     conceptPrefix: "cm-",
     accent: "#16A34A", // green, echoing the Capital track + the CAPITAL_TEAM calendar color
@@ -70,7 +67,7 @@ const TEAMS: Team[] = [
     displayName: "Media",
     mandate: "Where we tell the club's story and shape how it shows up.",
     teamType: "MEDIA_TEAM",
-    // no track, no trend/digest category: renders The Drop member-only, no system floor
+    // no track, no digest category: renders The Drop member-only, no system floor
     accent: "#8064A2", // violet, echoing the MEDIA calendar color
     flags: { forming: false, memberFacing: true },
   },
@@ -79,7 +76,6 @@ const TEAMS: Team[] = [
     displayName: "Venture",
     mandate: "Where we study how startups get funded and who backs them.",
     // no teamType yet: forming, doorless until a first meeting lands on the calendar
-    trendCategory: "Capital",
     digestCategory: "markets",
     accent: "#B45309", // amber
     flags: { forming: true, memberFacing: true },
@@ -126,8 +122,8 @@ export function getMemberFacingTeams(): Team[] {
  * the door for ANY meeting of the team's type (past or future) instead, so an
  * established team does not vanish between terms when nothing future is yet on
  * the calendar. This preserves every concrete outcome the plan specifies: a
- * forming VC (no teamType, so no meetings of its type) and field-guides (not a
- * team) still clear nothing and stay doorless. The "Next team meeting" module
+ * forming VC (no teamType, so no meetings of its type) still clears nothing
+ * and stays doorless. The "Next team meeting" module
  * still shows only upcoming meetings; this is the door gate, not the card.
  */
 export type LivenessSignals = {

@@ -15,7 +15,6 @@ type Recruit = {
   createdAt: string;
   quizScore: number | null;
   questionsAnswered: number;
-  homeworkSubmitted: number;
   lastActive: string | null;
 };
 
@@ -25,7 +24,6 @@ type SortKey =
   | "role"
   | "quizScore"
   | "questionsAnswered"
-  | "homeworkSubmitted"
   | "createdAt"
   | "lastActive";
 
@@ -116,10 +114,6 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
           aVal = a.questionsAnswered;
           bVal = b.questionsAnswered;
           break;
-        case "homeworkSubmitted":
-          aVal = a.homeworkSubmitted;
-          bVal = b.homeworkSubmitted;
-          break;
         case "createdAt":
           aVal = a.createdAt;
           bVal = b.createdAt;
@@ -166,7 +160,6 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
     { label: "Role", key: "role" },
     { label: "Score", key: "quizScore" },
     { label: "Questions", key: "questionsAnswered" },
-    { label: "Homework", key: "homeworkSubmitted" },
     { label: "Joined", key: "createdAt" },
     { label: "Last active", key: "lastActive" },
   ];
@@ -425,20 +418,6 @@ export function AdminRecruits({ recruits }: { recruits: Recruit[] }) {
                     }}
                   >
                     {r.questionsAnswered}
-                  </td>
-                  <td
-                    style={{
-                      padding: "12px 16px",
-                      fontSize: "var(--text-sm)",
-                      color: "var(--color-text-2)",
-                      fontVariantNumeric: "tabular-nums",
-                      borderTop:
-                        idx === 0
-                          ? "none"
-                          : "1px solid var(--color-border-subtle)",
-                    }}
-                  >
-                    {r.homeworkSubmitted}
                   </td>
                   <td
                     style={{

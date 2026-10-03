@@ -5,15 +5,13 @@ import { IconTile } from "@/components/ui/icon-tile";
 import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 import { AdminCalendarSync } from "@/components/admin-calendar-sync";
 import { AdminDigestCard, type DigestEditionSummary } from "@/components/admin-digest-card";
-import { AdminTrendsCard, type TrendTrackerSummary } from "@/components/admin-trends-card";
-import { AdminBenchmarksCard, type BenchmarkAdminSummary } from "@/components/admin-benchmarks-card";
 import { AdminBuildCard, type BuildDraftSummary } from "@/components/admin-build-card";
 
 interface Stats {
   totalRecruits: number;
   activeThisWeek: number;
-  pendingToGrade: number;
-  formalQuizzes: number;
+  totalAnswers: number;
+  answersThisWeek: number;
 }
 
 interface CalendarSyncInfo {
@@ -23,10 +21,10 @@ interface CalendarSyncInfo {
 
 interface ActivityItem {
   id: string;
-  type: "quiz" | "homework";
+  type: "quiz";
   description: string;
   timestamp: string;
-  status: "correct" | "incorrect" | "submitted" | "graded";
+  status: "correct" | "incorrect";
 }
 
 interface AdminOverviewProps {
@@ -34,8 +32,6 @@ interface AdminOverviewProps {
   activity: ActivityItem[];
   calendarSync: CalendarSyncInfo;
   digest: DigestEditionSummary | null;
-  trends: TrendTrackerSummary;
-  benchmarks: BenchmarkAdminSummary;
   buildDrafts: BuildDraftSummary[];
 }
 
@@ -60,19 +56,15 @@ function statusTone(status: ActivityItem["status"]): StatusTagTone {
       return "green";
     case "incorrect":
       return "red";
-    case "submitted":
-      return "blue";
-    case "graded":
-      return "accent";
   }
 }
 
-export function AdminOverview({ stats, activity, calendarSync, digest, trends, benchmarks, buildDrafts }: AdminOverviewProps) {
+export function AdminOverview({ stats, activity, calendarSync, digest, buildDrafts }: AdminOverviewProps) {
   const statCards: { value: number; label: string; tile: "indigo" | "sky" | "honey" | "mint" }[] = [
     { value: stats.totalRecruits, label: "Total members", tile: "indigo" },
     { value: stats.activeThisWeek, label: "Active this week", tile: "sky" },
-    { value: stats.pendingToGrade, label: "Pending to grade", tile: "honey" },
-    { value: stats.formalQuizzes, label: "Formal quizzes", tile: "mint" },
+    { value: stats.totalAnswers, label: "Practice answers", tile: "honey" },
+    { value: stats.answersThisWeek, label: "Answers this week", tile: "mint" },
   ];
 
   return (
@@ -82,8 +74,6 @@ export function AdminOverview({ stats, activity, calendarSync, digest, trends, b
         eventCount={calendarSync.eventCount}
       />
       <AdminDigestCard edition={digest} />
-      <AdminTrendsCard trends={trends} />
-      <AdminBenchmarksCard benchmarks={benchmarks} />
       <AdminBuildCard drafts={buildDrafts} />
       <div
         style={{

@@ -103,11 +103,6 @@ import {
   PaperPlaneTilt,
   RocketLaunch,
   PlayCircle,
-  // Trend Tracker
-  Pulse,
-  TrendDown,
-  // Benchmarks
-  Ranking,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon, IconWeight } from "@phosphor-icons/react";
 
@@ -142,11 +137,7 @@ export type IconName =
   | "trash"
   // Build Board
   | "hammer" | "github-logo" | "arrow-square-out" | "paper-plane-tilt"
-  | "rocket-launch" | "play-circle"
-  // Trend Tracker
-  | "pulse" | "trend-down"
-  // Benchmarks
-  | "ranking";
+  | "rocket-launch" | "play-circle";
 
 const REGISTRY: Record<IconName, PhosphorIcon> = {
   // Section tiles
@@ -260,11 +251,6 @@ const REGISTRY: Record<IconName, PhosphorIcon> = {
   "paper-plane-tilt": PaperPlaneTilt,
   "rocket-launch": RocketLaunch,
   "play-circle": PlayCircle,
-  // Trend Tracker
-  "pulse": Pulse,
-  "trend-down": TrendDown,
-  // Benchmarks
-  "ranking": Ranking,
 };
 
 export function Icon({

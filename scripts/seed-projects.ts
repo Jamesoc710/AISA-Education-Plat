@@ -24,7 +24,7 @@ import { isProjectStage, PROJECT_STAGES } from "../lib/project-stages";
 // Em dash, en dash, figure dash, horizontal bar: banned in member-facing text.
 const BANNED_DASHES = /[‒–—―]/;
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-const TRACK_SLUGS = new Set(["ai", "capital-markets", "field-guides"]);
+const TRACK_SLUGS = new Set(["ai", "capital-markets"]);
 
 function textFields(p: ProjectSeed): string[] {
   return [

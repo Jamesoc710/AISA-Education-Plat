@@ -21,16 +21,9 @@ model User {
   mentor    User?  @relation("MentorRecruits", fields: [mentorId], references: [id])
   recruits  User[] @relation("MentorRecruits")
 
-  bookmarks              Bookmark[]
   suggestedResources     Resource[]
   quizAttempts           QuizAttempt[]
-  homeworkSubmissions    HomeworkSubmission[]
-  mentorNotesGiven       MentorNote[]          @relation("MentorNoteGiver")
-  mentorNotesReceived    MentorNote[]          @relation("MentorNoteRecruit")
   projectAssignments     ProjectAssignment[]
-  createdAssignments     Assignment[]          @relation("AssignmentCreator")
-  createdFormalQuizzes   FormalQuiz[]          @relation("FormalQuizCreator")
-  formalQuizAttempts     FormalQuizAttempt[]
   feedbackSubmitted      Feedback[]
   teamMemberships        TeamMembership[]
   teamDrops              TeamDrop[]
@@ -41,13 +34,13 @@ model User {
   @@map("users")
 }
 
-// ─── Tracks (top-level content domain: AI / Capital Markets / Field Guides) ──
+// ─── Tracks (top-level content domain: AI / Capital Markets) ────────────────
 // New root above Tier. Tier is the only model that needs the FK — Section /
-// Concept / Question / Bookmark inherit a Track transitively through Tier.
+// Concept / Question inherit a Track transitively through Tier.
 
 model Track {
   id          String  @id @default(cuid())
-  slug        String  @unique // "ai" | "capital-markets" | "field-guides"
+  slug        String  @unique // "ai" | "capital-markets"
   name        String
   shortName   String
   description String
@@ -90,7 +83,6 @@ model TeamDrop {
   sourceDomain String
   note         String // the required one-line take
   conceptSlug  String? // optional soft link to the curriculum
-  trendSlug    String? // optional soft link to a trend
   createdAt    DateTime  @default(now())
   removedAt    DateTime? // lead soft-remove; no hard delete
 
@@ -160,8 +152,6 @@ model Concept {
   section      Section           @relation(fields: [sectionId], references: [id])
   questions    Question[]
   resources    Resource[]
-  bookmarks    Bookmark[]
-  assignments  Assignment[]
   relatedFrom  ConceptRelation[] @relation("ConceptFrom")
   relatedTo    ConceptRelation[] @relation("ConceptTo")
 
@@ -208,26 +198,11 @@ model Question {
 
   concept             Concept              @relation(fields: [conceptId], references: [id])
   attempts            QuizAttempt[]
-  formalQuizQuestions  FormalQuizQuestion[]
-  formalQuizAnswers   FormalQuizAnswer[]
 
   @@map("questions")
 }
 
-model Bookmark {
-  userId    String
-  conceptId String
-  status    String   @default("bookmarked") // [FUTURE]: in_progress | confident
-  createdAt DateTime @default(now())
-
-  user    User    @relation(fields: [userId], references: [id])
-  concept Concept @relation(fields: [conceptId], references: [id])
-
-  @@id([userId, conceptId])
-  @@map("bookmarks")
-}
-
-// ─── Future Tables (schema only — no MVP UI/routes built) ────────────────────
+// ─── Practice ───────────────────────────────────────────────────────────────
 
 model QuizAttempt {
   id             String   @id @default(cuid())
@@ -244,36 +219,6 @@ model QuizAttempt {
   question Question @relation(fields: [questionId], references: [id])
 
   @@map("quiz_attempts")
-}
-
-model HomeworkSubmission {
-  id           String   @id @default(cuid())
-  userId       String
-  assignmentId String
-  content      String
-  submittedAt  DateTime @default(now())
-  grade        String?  // e.g. "A", "B+", "Pass", "Fail"
-  feedback     String?
-  gradedAt     DateTime?
-
-  user       User       @relation(fields: [userId], references: [id])
-  assignment Assignment @relation(fields: [assignmentId], references: [id])
-
-  @@unique([userId, assignmentId]) // One submission per recruit per assignment
-  @@map("homework_submissions")
-}
-
-model MentorNote {
-  id        String   @id @default(cuid())
-  mentorId  String
-  recruitId String
-  note      String
-  createdAt DateTime @default(now())
-
-  mentor  User @relation("MentorNoteGiver", fields: [mentorId], references: [id])
-  recruit User @relation("MentorNoteRecruit", fields: [recruitId], references: [id])
-
-  @@map("mentor_notes")
 }
 
 model ProjectAssignment {
@@ -340,91 +285,6 @@ model ProjectInterest {
   @@unique([projectId, userId])
   @@index([status])
   @@map("project_interests")
-}
-
-// ─── Assignment (Homework) ──────────────────────────────────────────────────
-
-model Assignment {
-  id          String    @id @default(cuid())
-  title       String
-  description String    // Markdown instructions
-  conceptId   String?   // Optional tie to a concept
-  dueDate     DateTime?
-  createdById String
-  createdAt   DateTime  @default(now())
-
-  concept     Concept?             @relation(fields: [conceptId], references: [id])
-  createdBy   User                 @relation("AssignmentCreator", fields: [createdById], references: [id])
-  submissions HomeworkSubmission[]
-
-  @@map("assignments")
-}
-
-// ─── Formal Quiz System ─────────────────────────────────────────────────────
-
-model FormalQuiz {
-  id          String    @id @default(cuid())
-  title       String
-  description String?
-  createdById String
-  timeLimit   Int?      // Minutes, null = no limit
-  availableAt DateTime? // When recruits can start
-  dueDate     DateTime? // Deadline
-  status      String    @default("draft") // draft | active | closed
-  createdAt   DateTime  @default(now())
-
-  createdBy  User                @relation("FormalQuizCreator", fields: [createdById], references: [id])
-  questions  FormalQuizQuestion[]
-  attempts   FormalQuizAttempt[]
-
-  @@map("formal_quizzes")
-}
-
-model FormalQuizQuestion {
-  id           String @id @default(cuid())
-  formalQuizId String
-  questionId   String
-  sortOrder    Int
-
-  formalQuiz FormalQuiz @relation(fields: [formalQuizId], references: [id], onDelete: Cascade)
-  question   Question   @relation(fields: [questionId], references: [id])
-
-  @@unique([formalQuizId, questionId])
-  @@map("formal_quiz_questions")
-}
-
-model FormalQuizAttempt {
-  id           String    @id @default(cuid())
-  userId       String
-  formalQuizId String
-  score        Float?    // Calculated on submit (MC only)
-  startedAt    DateTime  @default(now())
-  submittedAt  DateTime?
-
-  user       User              @relation(fields: [userId], references: [id])
-  formalQuiz FormalQuiz        @relation(fields: [formalQuizId], references: [id])
-  answers    FormalQuizAnswer[]
-
-  @@unique([userId, formalQuizId]) // One attempt per recruit per quiz
-  @@map("formal_quiz_attempts")
-}
-
-model FormalQuizAnswer {
-  id         String   @id @default(cuid())
-  attemptId  String
-  questionId String
-  selected   String?  // The text they chose (MC) or typed (SA)
-  isCorrect  Boolean? // Auto-graded for MC, null for SA until admin grades
-  gradedAt   DateTime?
-  llmScore       String?  // "correct" | "partial" | "incorrect" — null for MC
-  llmReasoning   String?  // LLM explanation of grade
-  llmGradedAt    DateTime?
-
-  attempt  FormalQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question Question          @relation(fields: [questionId], references: [id])
-
-  @@unique([attemptId, questionId])
-  @@map("formal_quiz_answers")
 }
 
 // ─── Calendar (synced from SharePoint TCO Master Calendar) ──────────────────
@@ -503,145 +363,4 @@ model DigestEdition {
 
   @@index([status])
   @@map("digest_editions")
-}
-
-// ─── Trend Tracker ("pulse of tech" bubble field + briefs) ──────────────────
-// Seeded static-first from docs/research/trend-map-research.json as drafts; a
-// daily cron (Phase 4) refreshes them via web search using the inline
-// contentHash skip + curatedAt lock. Nothing student-facing until published.
-// Trends are GLOBAL (categorized AI/Tech/Capital), not Track-scoped.
-
-model Trend {
-  id              String        @id @default(cuid())
-  slug            String        @unique // kebab-case; upsert key + URL
-  name            String
-  category        String        // "AI" | "Tech" | "Capital"
-  whatItIs        String        // plain-language explainer
-  whatsHappening  String        // "what's happening now (mid-2026)"
-  momentum        Int           @default(50) // 0-100, drives bubble size
-  momentumLabel   String        @default("accelerating") // emerging|accelerating|mainstreaming|cooling
-  direction       String        @default("heating") // heating|cooling -> solid|dashed ring
-  themes          String[]      @default([]) // plain-language facet tags; display-only, replaces the momentumLabel stage in the UI (see docs/plans/complete/TREND_TRACKER_REDESIGN_PLAN.md section 3)
-  relatedConcepts Json?         // [{ label, slug? }] - slug links to /concepts/[slug]
-  sources         Json?         // string[] backing URLs
-  perspectives    Json?         // { shape, intro, stances:[{label,who,summary,body,sources}], leans } - detail-page accordion; null = no section (see docs/plans/complete/PERSPECTIVES_PLAN.md)
-  confidence      String        @default("high")
-  status          String        @default("draft") // draft | published (publish gate)
-  contentHash     String?       // SHA-256 for cron skip (inline, like DigestEdition)
-  curatedAt       DateTime?     // set on any admin edit -> cron skips this row
-  syncedAt        DateTime      @default(now()) // staleness banner if > 36h
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  updates         TrendUpdate[]
-
-  @@index([status])
-  @@index([category])
-  @@map("trends")
-}
-
-model TrendUpdate {
-  id           String   @id @default(cuid())
-  trendId      String
-  headline     String
-  whyItMatters String
-  sourceUrl    String?
-  sourceDomain String?
-  date         DateTime
-  createdAt    DateTime @default(now())
-
-  trend Trend @relation(fields: [trendId], references: [id], onDelete: Cascade)
-
-  @@index([trendId])
-  @@index([date])
-  @@map("trend_updates")
-}
-
-// ─── Benchmarks ("The Standings" / State of the Models) ─────────────────────
-// An editorial literacy surface for the AI benchmarks people argue about. STATUS
-// (a trust tier), not the score, is the hero: per our own verified research almost
-// every benchmark number is contested, dated, self-reported, or saturated. Leaders
-// are stored inline as Json (mirroring DigestEdition/Trend, not a second table) so
-// the future weekly cron (PR2) can reuse the inline contentHash + draft-gate shape.
-// Seeded as drafts from docs/research/benchmarks-*.json; nothing student-facing
-// until published. See docs/plans/ongoing/BENCHMARKS_PLAN.md.
-
-model Benchmark {
-  id               String   @id @default(cuid())
-  slug             String   @unique          // kebab-case; upsert key + /benchmarks/[slug]
-  name             String                     // "GPQA Diamond"
-  domain           String                     // Reasoning | Coding | Math | Multimodal | Human preference | Agents
-  scoreType        String                     // Accuracy | Elo | Pass rate (never compare an Elo to a %)
-  trust            String                     // REQUIRED trust tier: live | near_ceiling | contested | dated
-  nearTie          Boolean  @default(false)   // author-set; orthogonal to trust (drives the "ranks tied" note)
-  caveat           String                     // the four-word list-row caveat ("dropped by OpenAI 2026")
-
-  whatItMeasures   String                     // first sentence is the bus-stop lead; the rest fills the WHAT IT MEASURES beat
-  exampleTask      String?
-  whyCare          String
-  scoring          String
-  calibration      String?                    // "chance 25%, experts ~81%, prior SOTA X"
-  watchOut         String
-  watchOutUrl      String?
-
-  leaders          Json                       // [{ rank, model, lab, score(verbatim), baselineGloss, asOfDate, sourceUrl, selfReported, disputed }]
-  leaderboardUrl   String?
-  boardLastUpdated DateTime?
-  honestEmpty      Boolean  @default(false)   // true => "no reliable current leaderboard" + single dated anchor
-  datedAnchor      String?                    // the single dated anchor shown in the honest-empty state
-  needsRecheck     Boolean  @default(false)
-
-  relatedConcepts  Json?                       // [{ label, slug? }] -> /concepts/[slug]
-  sources          Json?                       // string[]
-  useCases         Json?                       // string[] of UseCase slugs this benchmark backs (evidence strip + "also central to X")
-
-  status           String   @default("draft")  // publish gate: draft | published (mirrors Trend.status)
-  contentHash      String?                       // SHA-256 for the PR2 cron skip (inline, like Trend)
-  curatedAt        DateTime?                      // set on admin edit -> PR2 cron skips this row
-  syncedAt         DateTime @default(now())       // PR2 staleness banner
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  @@index([status])
-  @@index([trust])
-  @@map("benchmarks")
-}
-
-// ─── Use cases ("By Task, with Receipts") ───────────────────────────────────
-// The second door at /benchmarks: a task-first explorer plus a per-use-case
-// "decision walk" page where the spine is how-to-choose guidance and every
-// honest pick is a welded ScoreStamp citing exactly one benchmark, one date,
-// one caveat. Mirrors Benchmark's draft-gate + inline-Json shape so it inherits
-// the publish path, the @@index([status]) visibility rule, the DraftChip, and
-// the seed dash-validation for free. Picks AUTHOR the (slug, rank) + label +
-// caveat; the score/lab/date/flags RESOLVE from the cited Benchmark.leaders at
-// render, so a pick can never drift from the board it cites.
-// Seeded as drafts from prisma/seed-data/use-cases.ts. See
-// docs/plans/ongoing/BENCHMARKS_USE_CASES_BUILD_PLAN.md.
-
-model UseCase {
-  id                      String   @id @default(cuid())
-  slug                    String   @unique           // kebab-case; upsert key + /benchmarks/use/[slug]
-  name                    String                      // "Factual accuracy: not making things up"
-  audienceLine            String                      // one-line student gloss (explorer + page lead)
-  taskLead                String                      // the bold bus-stop framing sentence
-  bottomLine              String                      // the dated bottom-line callout copy (authored, trust-gated)
-  bottomLineBenchmarkSlug String?                     // the ONE board the bottom line + rail date bind to (null when honestEmpty)
-  evidenceLine            String                      // "read mainly through SimpleQA, with HLE as a cross-check"
-  yardsticks              Json                        // [{ benchmarkSlug, trustGloss }] ordered (the tests that matter)
-  picks                   Json                        // [PickSeed] authored honest picks
-  howToChoose             Json                        // [{ goal, benchmarkSlug?, guidance, noCleanAnswer?, reason? }]
-  judgeCriteria           Json?                       // string[]; the honest-empty "judge it yourself on these two things"
-  watchOut                String
-  watchOutUrl             String?
-  relatedConcepts         Json?                       // [{ label, slug? }] reuse the validated shape
-  honestEmpty             Boolean  @default(false)    // AUTHORED: no backing board has a usable live leader; drives explorer grouping
-  datedAnchor             String?                     // the single anchor shown when honestEmpty (present this FIRST)
-  gapReason               String?                     // why no trustworthy board exists (shown after the anchor); required when honestEmpty
-  order                   Int      @default(0)        // editorial sort within a group
-  status                  String   @default("draft")  // publish gate, mirrors Benchmark
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
-
-  @@index([status])
-  @@map("use_cases")
 }

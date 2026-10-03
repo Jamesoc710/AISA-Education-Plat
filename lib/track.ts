@@ -27,6 +27,8 @@ export async function getActiveTrackSlug(): Promise<string> {
 
 export async function getTracks(): Promise<TrackSummary[]> {
   const tracks = await prisma.track.findMany({
+    // A track with no content never shows up in a switcher.
+    where: { tiers: { some: {} } },
     orderBy: { sortOrder: "asc" },
     select: {
       id: true,

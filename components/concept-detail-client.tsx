@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ConceptBody } from "@/components/concept-body";
 import { ConceptSectionNav } from "@/components/concept-section-nav";
 import { ConceptPager } from "@/components/concept-pager";
 import type { ConceptDetail, SidebarSection } from "@/lib/concepts";
-
-const BOOKMARKS_KEY = "aisa-atlas-bookmarks";
 
 /**
  * Concept detail client.
@@ -22,26 +20,6 @@ export function ConceptDetailClient({
   concept: ConceptDetail;
   sections: SidebarSection[];
 }) {
-  const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(BOOKMARKS_KEY);
-      if (stored) setBookmarks(new Set(JSON.parse(stored)));
-    } catch {}
-  }, []);
-
-  const toggleBookmark = (id: string) => {
-    setBookmarks((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      try {
-        localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([...next]));
-      } catch {}
-      return next;
-    });
-  };
-
   const { siblings, prev, next } = useMemo(() => {
     const section = sections.find((s) => s.id === concept.section.id);
     const list = section?.concepts ?? [];
@@ -62,11 +40,7 @@ export function ConceptDetailClient({
       }}
     >
       <div style={{ minWidth: 0 }}>
-        <ConceptBody
-          concept={concept}
-          bookmarked={bookmarks.has(concept.id)}
-          onToggleBookmark={() => toggleBookmark(concept.id)}
-        />
+        <ConceptBody concept={concept} />
         <ConceptPager prev={prev} next={next} />
       </div>
 

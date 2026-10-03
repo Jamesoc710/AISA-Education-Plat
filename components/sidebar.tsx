@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { SidebarNavItem } from "@/components/ui/sidebar-nav-item";
 import { Icon } from "@/components/ui/icon";
@@ -12,9 +12,6 @@ import type { TeamLink } from "@/lib/teams";
 /**
  * Fixed left sidebar — Uxcel-style.
  * Logo → Home/Browse → DISCOVER → PRACTICE → ME → COMMUNITY → ADMIN → feedback (pinned bottom).
- *
- * Items routing to pages not yet migrated to the new shell still link normally;
- * those pages will appear dark until their own phase ships.
  */
 export function Sidebar({
   user,
@@ -24,11 +21,7 @@ export function Sidebar({
   teams?: TeamLink[];
 }) {
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const filter = searchParams?.get("filter") ?? null;
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const onBrowse = pathname === "/browse";
-  const browseDefault = onBrowse && !filter;
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -81,7 +74,7 @@ export function Sidebar({
             href="/browse"
             label="Browse"
             iconName="grid"
-            active={browseDefault}
+            active={isActive("/browse")}
           />
         </div>
 
@@ -93,18 +86,6 @@ export function Sidebar({
             label="This week"
             iconName="newspaper"
             active={isActive("/digest")}
-          />
-          <SidebarNavItem
-            href="/trends"
-            label="Trends"
-            iconName="pulse"
-            active={isActive("/trends")}
-          />
-          <SidebarNavItem
-            href="/benchmarks"
-            label="Benchmarks"
-            iconName="ranking"
-            active={isActive("/benchmarks")}
           />
         </div>
 
@@ -133,12 +114,6 @@ export function Sidebar({
             label="Progress"
             iconName="bar-chart"
             active={isActive("/dashboard")}
-          />
-          <SidebarNavItem
-            href="/browse?filter=bookmarked"
-            label="Bookmarked"
-            iconName="bookmark"
-            active={onBrowse && filter === "bookmarked"}
           />
         </div>
 

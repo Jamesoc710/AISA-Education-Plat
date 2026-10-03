@@ -1,9 +1,9 @@
 /**
  * Surgical, idempotent track seed + backfill (TCO expansion, Phase 1).
  *
- * Creates the three top-level Tracks and backfills every existing Tier to the
- * AI track. Touches ONLY the tracks + tiers tables — never users, concepts, or
- * bookmarks. Safe to re-run.
+ * Creates the top-level Tracks and backfills every existing Tier to the AI
+ * track. Touches ONLY the tracks + tiers tables, never users or concepts.
+ * Safe to re-run.
  *
  *   npx tsx --env-file=.env scripts/seed-tracks.ts
  */
@@ -34,15 +34,6 @@ const TRACKS = [
     accentColor: "#16A34A", // green, echoing the calendar's CAPITAL_TEAM
     isPrimary: false,
     sortOrder: 1,
-  },
-  {
-    slug: "field-guides",
-    name: "Field Guides",
-    shortName: "Guides",
-    description: "Practical tech literacy — building with AI, dev basics, security, and careers.",
-    accentColor: "#64748B", // slate
-    isPrimary: false,
-    sortOrder: 2,
   },
 ];
 

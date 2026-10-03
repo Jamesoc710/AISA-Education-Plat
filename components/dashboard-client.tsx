@@ -26,25 +26,6 @@ type Overview = {
   avgScore: number;
   quizSessions: number;
 };
-type PendingAssessment = {
-  id: string;
-  title: string;
-  description: string | null;
-  timeLimit: number | null;
-  dueDate: string | null;
-  questionCount: number;
-  completed: boolean;
-  score: number | null;
-};
-type HomeworkItem = {
-  id: string;
-  title: string;
-  dueDate: string | null;
-  conceptName: string | null;
-  submitted: boolean;
-  submittedAt: string | null;
-  grade: string | null;
-};
 type ActivityBucket = { date: string; total: number; correct: number };
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -63,24 +44,6 @@ function getMasteryColor(pct: number): string {
   return "var(--color-incorrect)";
 }
 
-function formatDue(iso: string | null): string | null {
-  if (!iso) return null;
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-function daysUntil(iso: string | null, nowMs: number): number | null {
-  if (!iso) return null;
-  return Math.ceil((new Date(iso).getTime() - nowMs) / 86400000);
-}
-
-function dueLabel(days: number | null): string {
-  if (days === null) return "no deadline";
-  if (days <= 0) return "due today";
-  if (days === 1) return "due tomorrow";
-  return `due in ${days} days`;
-}
-
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export function DashboardClient({
@@ -88,16 +51,12 @@ export function DashboardClient({
   overview,
   tiers,
   conceptScores,
-  pendingAssessments,
-  homeworkItems,
   activity,
 }: {
   userName: string;
   overview: Overview;
   tiers: TierInfo[];
   conceptScores: Record<string, ConceptScore>;
-  pendingAssessments: PendingAssessment[];
-  homeworkItems: HomeworkItem[];
   activity: ActivityBucket[];
 }) {
   const firstName = userName.split(" ")[0];
@@ -112,10 +71,6 @@ export function DashboardClient({
     () => computeWeakItems(tiers, conceptScores, 6),
     [tiers, conceptScores],
   );
-
-  const openAssessments = pendingAssessments.filter((a) => !a.completed);
-  const openHomework = homeworkItems.filter((h) => !h.submitted);
-  const hasUpcoming = openAssessments.length + openHomework.length > 0;
 
   return (
     <div
@@ -189,18 +144,6 @@ export function DashboardClient({
             <HairRule top={56} bottom={28} />
             <SectionEyebrow>Review these</SectionEyebrow>
             <ReviewList items={weakItems} />
-          </>
-        )}
-
-        {/* ── Upcoming ────────────────────────────────────────────── */}
-        {hasUpcoming && (
-          <>
-            <HairRule top={56} bottom={28} />
-            <SectionEyebrow>Upcoming</SectionEyebrow>
-            <UpcomingList
-              assessments={openAssessments}
-              homework={openHomework}
-            />
           </>
         )}
       </div>
@@ -1089,156 +1032,6 @@ function ReviewList({ items }: { items: WeakItem[] }) {
           </Link>
         </div>
       ))}
-    </div>
-  );
-}
-
-// ─── Upcoming list ─────────────────────────────────────────────────────────
-
-function UpcomingList({
-  assessments,
-  homework,
-}: {
-  assessments: PendingAssessment[];
-  homework: HomeworkItem[];
-}) {
-  type Row =
-    | { kind: "assessment"; item: PendingAssessment; dueMs: number }
-    | { kind: "homework"; item: HomeworkItem; dueMs: number };
-  const rows: Row[] = [];
-  for (const a of assessments) {
-    rows.push({
-      kind: "assessment",
-      item: a,
-      dueMs: a.dueDate
-        ? new Date(a.dueDate).getTime()
-        : Number.POSITIVE_INFINITY,
-    });
-  }
-  for (const h of homework) {
-    rows.push({
-      kind: "homework",
-      item: h,
-      dueMs: h.dueDate
-        ? new Date(h.dueDate).getTime()
-        : Number.POSITIVE_INFINITY,
-    });
-  }
-  rows.sort((a, b) => a.dueMs - b.dueMs);
-
-  const now = Date.now();
-
-  return (
-    <div>
-      {rows.map((row, i) => {
-        const item = row.item;
-        const dueISO =
-          row.kind === "assessment" ? item.dueDate : (item as HomeworkItem).dueDate;
-        const days = daysUntil(dueISO, now);
-        const dueText = dueLabel(days);
-        const overdue = days !== null && days < 0;
-        const kindLabel =
-          row.kind === "assessment" ? "Assessment" : "Homework";
-        const href =
-          row.kind === "assessment"
-            ? `/assessment/${item.id}`
-            : `/homework/${item.id}`;
-        const ctaText = row.kind === "assessment" ? "Start" : "Open";
-        const meta: string[] = [kindLabel];
-        if (row.kind === "assessment") {
-          meta.push(`${(item as PendingAssessment).questionCount} questions`);
-        } else if ((item as HomeworkItem).conceptName) {
-          meta.push((item as HomeworkItem).conceptName as string);
-        }
-
-        return (
-          <div
-            key={`${row.kind}-${item.id}`}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 1fr) 160px auto",
-              alignItems: "center",
-              gap: 24,
-              padding: "18px 0",
-              borderTop:
-                i === 0 ? "1px solid var(--color-border)" : "none",
-              borderBottom: "1px solid var(--color-border)",
-            }}
-          >
-            <div style={{ minWidth: 0 }}>
-              <div
-                style={{
-                  fontSize: 18,
-                  fontWeight: 600,
-                  letterSpacing: "-0.01em",
-                  color: "var(--color-text)",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {item.title}
-              </div>
-              <div
-                style={{
-                  fontSize: 13,
-                  color: "var(--color-text-3)",
-                  marginTop: 3,
-                }}
-              >
-                {meta.join(" · ")}
-              </div>
-            </div>
-            <div
-              style={{
-                fontSize: 13,
-                color: overdue
-                  ? "var(--color-incorrect)"
-                  : "var(--color-text-2)",
-                fontWeight: overdue ? 600 : 500,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              {overdue && (
-                <span
-                  aria-hidden
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: "50%",
-                    backgroundColor: "var(--color-incorrect)",
-                    flexShrink: 0,
-                  }}
-                />
-              )}
-              <span>
-                {dueText}
-                {dueISO ? ` · ${formatDue(dueISO)}` : ""}
-              </span>
-            </div>
-            <Link
-              href={href}
-              className="editorial-link"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                fontSize: 14,
-                fontWeight: 600,
-                color: "var(--color-accent)",
-                textDecoration: "none",
-                paddingBottom: 2,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {ctaText}
-              <ArrowRight />
-            </Link>
-          </div>
-        );
-      })}
     </div>
   );
 }

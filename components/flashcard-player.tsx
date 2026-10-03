@@ -1,11 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { PageFrame } from "@/components/ui/page-frame";
-
-const BOOKMARKS_KEY = "aisa-atlas-bookmarks";
 
 type Card = {
   id: string;
@@ -17,7 +15,7 @@ type Card = {
   sectionName: string;
 };
 
-type Deck = "all" | "bookmarked" | "workshop";
+type Deck = "all" | "workshop";
 
 type Props = {
   deck: Deck;
@@ -26,32 +24,7 @@ type Props = {
 };
 
 export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
-  // Bookmarks come from localStorage; hydrate once on mount
-  const [bookmarks, setBookmarks] = useState<Set<string> | null>(null);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(BOOKMARKS_KEY);
-      const ids = stored ? (JSON.parse(stored) as string[]) : [];
-      setBookmarks(new Set(Array.isArray(ids) ? ids : []));
-    } catch {
-      setBookmarks(new Set());
-    }
-  }, []);
-
-  // For the bookmarked deck, freeze the initial set of IDs once on mount so
-  // unstarring a card during the session doesn't pull it out from under you.
-  const frozenBookmarkIds = useRef<Set<string> | null>(null);
-  if (deck === "bookmarked" && frozenBookmarkIds.current === null && bookmarks !== null) {
-    frozenBookmarkIds.current = new Set(bookmarks);
-  }
-
-  const activeCards = useMemo(() => {
-    if (deck !== "bookmarked") return cards;
-    if (frozenBookmarkIds.current === null) return [];
-    const ids = frozenBookmarkIds.current;
-    return cards.filter((c) => ids.has(c.id));
-  }, [deck, cards, bookmarks]);
+  const activeCards = cards;
 
   const [order, setOrder] = useState<number[]>(() =>
     Array.from({ length: cards.length }, (_, i) => i),
@@ -109,18 +82,6 @@ export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
     setExpanded(false);
   }, [total]);
 
-  const toggleBookmark = useCallback((id: string) => {
-    setBookmarks((prev) => {
-      const next = new Set(prev ?? []);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      try {
-        localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([...next]));
-      } catch {}
-      return next;
-    });
-  }, []);
-
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
@@ -137,8 +98,6 @@ export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
         flip();
       } else if (e.key === "s" || e.key === "S") {
         shuffle();
-      } else if (e.key === "b" || e.key === "B") {
-        if (current) toggleBookmark(current.id);
       } else if (e.key === "e" || e.key === "E") {
         e.preventDefault();
         toggleExpand();
@@ -146,11 +105,7 @@ export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [goPrev, goNext, flip, shuffle, toggleBookmark, toggleExpand, current]);
-
-  if (bookmarks === null) {
-    return <PageFrame maxWidth={1100}><div style={{ height: 400 }} /></PageFrame>;
-  }
+  }, [goPrev, goNext, flip, shuffle, toggleExpand]);
 
   if (total === 0) {
     return (
@@ -159,8 +114,6 @@ export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
       </PageFrame>
     );
   }
-
-  const isStarred = current ? bookmarks.has(current.id) : false;
 
   return (
     <PageFrame maxWidth={1100} padding="var(--space-5) var(--pad-page-x) var(--space-6)">
@@ -212,9 +165,7 @@ export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
           card={current}
           flipped={flipped}
           expanded={expanded}
-          starred={isStarred}
           onFlip={flip}
-          onStar={() => toggleBookmark(current.id)}
           onToggleExpand={toggleExpand}
         />
       )}
@@ -253,17 +204,13 @@ function FlipCard({
   card,
   flipped,
   expanded,
-  starred,
   onFlip,
-  onStar,
   onToggleExpand,
 }: {
   card: Card;
   flipped: boolean;
   expanded: boolean;
-  starred: boolean;
   onFlip: () => void;
-  onStar: () => void;
   onToggleExpand: () => void;
 }) {
   return (
@@ -301,16 +248,12 @@ function FlipCard({
           side="front"
           card={card}
           expanded={expanded}
-          starred={starred}
-          onStar={onStar}
           onToggleExpand={onToggleExpand}
         />
         <CardFace
           side="back"
           card={card}
           expanded={expanded}
-          starred={starred}
-          onStar={onStar}
           onToggleExpand={onToggleExpand}
         />
       </div>
@@ -322,15 +265,11 @@ function CardFace({
   side,
   card,
   expanded,
-  starred,
-  onStar,
   onToggleExpand,
 }: {
   side: "front" | "back";
   card: Card;
   expanded: boolean;
-  starred: boolean;
-  onStar: () => void;
   onToggleExpand: () => void;
 }) {
   const isBack = side === "back";
@@ -354,10 +293,7 @@ function CardFace({
         flexDirection: "column",
       }}
     >
-      {/* Star in top-right */}
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <StarButton starred={starred} onClick={onStar} />
-      </div>
+      <div style={{ height: 36 }} />
 
       {/* Centered content — stacked layers for smooth crossfade */}
       <div style={{ flex: 1, position: "relative", minHeight: 0 }}>
@@ -468,40 +404,6 @@ function ExplainPill({ expanded, onClick }: { expanded: boolean; onClick: () => 
   );
 }
 
-// ── Star button ──────────────────────────────────────────────────────────────
-
-function StarButton({ starred, onClick }: { starred: boolean; onClick: () => void }) {
-  const [hov, setHov] = useState(false);
-  return (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      aria-label={starred ? "Remove bookmark (B)" : "Bookmark (B)"}
-      title={starred ? "Bookmarked · B" : "Bookmark · B"}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: 36,
-        height: 36,
-        border: "none",
-        background: hov ? "var(--color-surface-2)" : "transparent",
-        borderRadius: "50%",
-        cursor: "pointer",
-        color: starred ? "var(--color-gold, #D4A94C)" : "var(--color-text-2)",
-        transition: "color 120ms ease, background-color 120ms ease",
-      }}
-    >
-      <Icon name={starred ? "star-filled" : "star"} size={20} />
-    </button>
-  );
-}
-
 // ── Circular control button ──────────────────────────────────────────────────
 
 function CircleButton({
@@ -578,20 +480,15 @@ function BackPill() {
 
 function EmptyDeck({ deck }: { deck: Deck }) {
   const title =
-    deck === "bookmarked"
-      ? "No bookmarked concepts yet"
-      : deck === "workshop"
+    deck === "workshop"
       ? "No concepts tagged for this session"
       : "No cards in this deck";
   const body =
-    deck === "bookmarked"
-      ? "Bookmark concepts from the Browse page to build your review deck."
-      : deck === "workshop"
+    deck === "workshop"
       ? "This session doesn't have any related concepts yet. Check the calendar for others."
       : "Try picking a different deck.";
-  const ctaHref = deck === "bookmarked" ? "/browse" : deck === "workshop" ? "/calendar" : "/flashcards";
-  const ctaLabel =
-    deck === "bookmarked" ? "Go to Browse" : deck === "workshop" ? "Open calendar" : "Back to decks";
+  const ctaHref = deck === "workshop" ? "/calendar" : "/flashcards";
+  const ctaLabel = deck === "workshop" ? "Open calendar" : "Back to decks";
   return (
     <>
       <div style={{ marginBottom: "var(--space-5)" }}>
@@ -606,7 +503,7 @@ function EmptyDeck({ deck }: { deck: Deck }) {
           color: "var(--color-text-2)",
         }}
       >
-        <Icon name="bookmark" size={28} style={{ margin: "0 auto var(--space-3)" }} />
+        <Icon name="cards-three" size={28} style={{ margin: "0 auto var(--space-3)" }} />
         <h2 style={{ margin: 0, fontSize: "var(--text-lg)", fontWeight: 600, color: "var(--color-text)" }}>
           {title}
         </h2>

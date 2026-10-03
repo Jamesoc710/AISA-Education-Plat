@@ -1,6 +1,5 @@
-// Shared LLM-text sanitizers. Extracted from digest-sync so the digest and the
-// trend cron share one no-dash backstop (project rule: no em/en dashes in any
-// LLM-generated or UI copy).
+// Shared LLM-text sanitizers: the no-dash backstop (project rule: no em/en
+// dashes in any LLM-generated or UI copy).
 
 // Backstop for the no-dash style rule: em/en dashes between digits become
 // hyphens (5-7), every other em/en dash becomes a comma pause.

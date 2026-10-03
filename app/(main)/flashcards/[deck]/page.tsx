@@ -11,7 +11,6 @@ type Props = { params: Promise<{ deck: string }> };
 
 const DECK_LABELS: Record<string, string> = {
   all: "All Concepts",
-  bookmarked: "Bookmarked",
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -36,8 +35,6 @@ export default async function FlashcardPlayerPage({ params }: Props) {
 
   const trackSlug = await getActiveTrackSlug();
 
-  // Bookmarks currently live in localStorage (not DB), so we always fetch every
-  // concept and let the client filter by locally-stored IDs when deck=bookmarked.
   const concepts = await prisma.concept.findMany({
     where: { section: { tier: { track: { slug: trackSlug } } } },
     select: {
@@ -71,7 +68,7 @@ export default async function FlashcardPlayerPage({ params }: Props) {
 
   return (
     <FlashcardPlayer
-      deck={deck as "all" | "bookmarked"}
+      deck="all"
       deckLabel={DECK_LABELS[deck]}
       cards={cards}
     />

@@ -11,7 +11,7 @@ import {
 
 /**
  * Server-side reads for the Team HQ. lib/teams.ts stays pure; everything that
- * touches Prisma, the calendar, trends, the digest, or the session lives here.
+ * touches Prisma, the calendar, the digest, or the session lives here.
  */
 
 // ─── Shared view shapes ──────────────────────────────────────────────────────
@@ -29,7 +29,7 @@ export type DropView = {
   id: string; // drop id (member) or a synthetic key (radar floor)
   kind: "member" | "radar";
   title: string;
-  url: string; // external link, or an internal /trends/[slug] path for a trend
+  url: string; // external link
   external: boolean; // open in a new tab
   sourceLabel: string; // domain, or "Radar" for system items
   note: string; // the one-line take (member) or why-it-matters (radar)
@@ -189,7 +189,7 @@ async function resolveViewer(): Promise<{ id: string | null; isModerator: boolea
     : { id: null, isModerator: false };
 }
 
-// ─── The Drop auto-floor (system trend / news) ───────────────────────────────
+// ─── The Drop auto-floor (system news) ──────────────────────────────────────
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -230,38 +230,14 @@ function firstDigestItem(
 }
 
 /**
- * Fill up to `need` Drop slots with system items: the top published trend in the
- * team's trend category, then the latest published digest's top item in the
- * team's digest category. Tagged "radar", never attributed to a member, never
- * reactable. A team with neither category gets no floor (member-only Drop).
+ * Fill up to `need` Drop slots with system items: the latest published digest's
+ * top item in the team's digest category. Tagged "radar", never attributed to a
+ * member, never reactable. A team without a digest category gets no floor
+ * (member-only Drop).
  */
 async function floorItems(team: Team, need: number, now: Date): Promise<DropView[]> {
   if (need <= 0) return [];
   const out: DropView[] = [];
-
-  if (team.trendCategory) {
-    const trend = await prisma.trend.findFirst({
-      where: { status: "published", category: team.trendCategory },
-      orderBy: [{ momentum: "desc" }, { name: "asc" }],
-      select: { slug: true, name: true, whatsHappening: true, syncedAt: true },
-    });
-    if (trend) {
-      out.push({
-        id: `radar-trend-${trend.slug}`,
-        kind: "radar",
-        title: trend.name,
-        url: `/trends/${trend.slug}`,
-        external: false,
-        sourceLabel: "Trend",
-        note: trend.whatsHappening,
-        authorName: null,
-        timeLabel: relativeTime(trend.syncedAt, now),
-        reactionCount: 0,
-        reacted: false,
-        canRemove: false,
-      });
-    }
-  }
 
   if (out.length < need && team.digestCategory) {
     const edition = await prisma.digestEdition.findFirst({

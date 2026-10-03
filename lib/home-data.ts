@@ -32,24 +32,6 @@ export type ContinuePick = {
   kind: "resume" | "start";
 };
 
-export type DueItem = {
-  id: string;
-  title: string;
-  /** ISO string or null (some assignments have no due date) */
-  dueDate: string | null;
-  href: string;
-  kind: "homework" | "assessment";
-};
-
-export type BookmarkPreview = {
-  conceptId: string;
-  conceptSlug: string;
-  conceptName: string;
-  conceptSubtitle: string;
-  sectionName: string;
-  sectionSlug: string;
-};
-
 export type WeakConcept = {
   conceptSlug: string;
   conceptName: string;
@@ -236,83 +218,6 @@ export async function getContinueLearning(userId: string, trackSlug: string): Pr
     sectionSlug: firstConcept.section.slug,
     kind: "start",
   };
-}
-
-/**
- * Homework not yet submitted + next formal assessment not yet attempted.
- * Merged, sorted by dueDate (nulls last), truncated to 4.
- */
-export async function getDueItems(userId: string): Promise<DueItem[]> {
-  const [assignments, activeQuiz] = await Promise.all([
-    prisma.assignment.findMany({
-      where: { submissions: { none: { userId } } },
-      orderBy: [{ dueDate: "asc" }, { createdAt: "desc" }],
-      select: { id: true, title: true, dueDate: true },
-      take: 4,
-    }),
-    prisma.formalQuiz.findFirst({
-      where: {
-        status: "active",
-        attempts: { none: { userId, submittedAt: { not: null } } },
-      },
-      orderBy: [{ dueDate: "asc" }, { createdAt: "desc" }],
-      select: { id: true, title: true, dueDate: true },
-    }),
-  ]);
-
-  const items: DueItem[] = assignments.map((a: (typeof assignments)[number]) => ({
-    id: `hw-${a.id}`,
-    title: a.title,
-    dueDate: a.dueDate?.toISOString() ?? null,
-    href: `/homework/${a.id}`,
-    kind: "homework",
-  }));
-
-  if (activeQuiz) {
-    items.push({
-      id: `fq-${activeQuiz.id}`,
-      title: activeQuiz.title,
-      dueDate: activeQuiz.dueDate?.toISOString() ?? null,
-      href: `/assessment/${activeQuiz.id}`,
-      kind: "assessment",
-    });
-  }
-
-  return items
-    .sort((a, b) => {
-      if (!a.dueDate && !b.dueDate) return 0;
-      if (!a.dueDate) return 1;
-      if (!b.dueDate) return -1;
-      return a.dueDate.localeCompare(b.dueDate);
-    })
-    .slice(0, 4);
-}
-
-export async function getRecentBookmarks(userId: string, limit = 3): Promise<BookmarkPreview[]> {
-  const rows = await prisma.bookmark.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    take: limit,
-    select: {
-      concept: {
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          subtitle: true,
-          section: { select: { name: true, slug: true } },
-        },
-      },
-    },
-  });
-  return rows.map((r: (typeof rows)[number]) => ({
-    conceptId: r.concept.id,
-    conceptSlug: r.concept.slug,
-    conceptName: r.concept.name,
-    conceptSubtitle: r.concept.subtitle,
-    sectionName: r.concept.section.name,
-    sectionSlug: r.concept.section.slug,
-  }));
 }
 
 /**

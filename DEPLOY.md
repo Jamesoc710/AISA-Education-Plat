@@ -19,4 +19,8 @@ Order matters, because old code must never run against dropped tables and new co
 
 1. Apply additive migrations (`npx prisma migrate deploy`) before deploying code that uses them.
 2. Deploy.
-3. Apply destructive migrations (drops) only after the code that stopped using those tables is live.
+3. Apply destructive migrations (drops) only after the code that stopped using those tables is live, and back the tables up first:
+
+```bash
+docker run --rm postgres:15-alpine pg_dump "$DIRECT_URL" --data-only -t <table> -t <table> > backups/<name>.sql
+```

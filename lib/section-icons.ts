@@ -142,12 +142,11 @@ export const CONCEPT_VISUALS: Record<string, IconName> = {
 
 // ── Build Board: per-track tile colors ──────────────────────────
 // Project cards color their IconTile by the project's track so the
-// board reads multi-track at a glance (AI indigo, Capital green,
-// Field Guides steel; unaffiliated projects fall back to stone).
+// board reads multi-track at a glance (AI indigo, Capital green;
+// unaffiliated projects fall back to stone).
 const TRACK_TILE_COLORS: Record<string, string> = {
   "ai":              "indigo",
   "capital-markets": "sage",
-  "field-guides":    "steel",
 };
 
 export function getTrackTileColor(trackSlug: string | null | undefined): string {
