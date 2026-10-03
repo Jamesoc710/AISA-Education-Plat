@@ -282,6 +282,8 @@ function FlipCard({
         perspective: 2000,
         width: "100%",
         aspectRatio: "16 / 10",
+        // Keep the grade buttons and controls in view on laptop-height screens.
+        maxHeight: "max(280px, calc(100vh - 330px))",
         cursor: "pointer",
         outline: "none",
       }}
