@@ -50,6 +50,7 @@ export default async function QuizPage({
       tiers={tiers}
       resume={resume}
       reviewDue={review?.dueCount ?? 0}
+      signedIn={Boolean(authUser)}
       initial={initial}
     />
   );

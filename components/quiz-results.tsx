@@ -57,12 +57,14 @@ export function QuizResults({
   questions,
   results,
   mode,
+  signedIn,
   onRetake,
   onNewQuiz,
 }: {
   questions: QuizQuestion[];
   results: ResultMap;
   mode: QuizMode;
+  signedIn: boolean;
   onRetake: () => void;
   onNewQuiz: () => void;
 }) {
@@ -131,7 +133,9 @@ export function QuizResults({
       >
         {mode === "review"
           ? "Misses come back tomorrow. Correct answers move further out, so each concept returns right before you'd forget it."
-          : "Here's how you did. Anything you missed is now in your review queue."}
+          : signedIn
+            ? "Here's how you did. Anything you missed is now in your review queue."
+            : "Here's how you did. Sign in to save results and get a review queue that brings back what you missed."}
       </p>
 
       {/* ── Score card ─────────────────────────────────────────── */}

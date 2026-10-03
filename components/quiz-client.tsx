@@ -92,11 +92,13 @@ export function QuizClient({
   tiers,
   resume,
   reviewDue,
+  signedIn,
   initial,
 }: {
   tiers: TierOption[];
   resume: QuizResumePick | null;
   reviewDue: number;
+  signedIn: boolean;
   /** Deep link (/quiz?mode=concept&id=... or /quiz?mode=review) to start right away. */
   initial: { mode: QuizMode; id: string | null } | null;
 }) {
@@ -269,6 +271,7 @@ export function QuizClient({
           questions={questions}
           results={results}
           mode={mode!}
+          signedIn={signedIn}
           onRetake={retakeQuiz}
           onNewQuiz={mode === "review" ? () => router.push("/practice") : resetQuiz}
         />
