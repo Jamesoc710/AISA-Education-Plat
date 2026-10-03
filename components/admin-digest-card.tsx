@@ -231,7 +231,15 @@ export function AdminDigestCard({ edition, olderDrafts }: AdminDigestCardProps) 
             type="button"
             onClick={handlePublishToggle}
             disabled={busy !== null}
-            style={buttonStyle(busy !== null)}
+            style={{
+              ...buttonStyle(busy !== null),
+              // A pending draft's Publish is the card's main action; make it stand out
+              ...(edition.status === "draft" && {
+                color: "#fff",
+                backgroundColor: "var(--color-accent)",
+                border: "1px solid transparent",
+              }),
+            }}
           >
             <Icon name={edition.status === "published" ? "eye-slash" : "check-circle"} size={14} />
             {busy === "publish"
