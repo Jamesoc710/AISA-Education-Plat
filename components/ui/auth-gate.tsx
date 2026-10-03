@@ -7,7 +7,7 @@ import { IconTile } from "@/components/ui/icon-tile";
 /**
  * Drop-in panel for logged-out pages that still live inside the (main)
  * shell. Instead of bouncing the user back to /login, we keep the
- * sidebar + top chrome context so they can still navigate around, and
+ * top navigation so they can still navigate around, and
  * show a centered sign-in card with contextual copy in the main area.
  *
  * Each page passes the nextPath so successful sign-in drops the user

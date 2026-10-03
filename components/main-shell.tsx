@@ -2,8 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { Sidebar } from "@/components/sidebar";
-import { TopChrome } from "@/components/top-chrome";
+import { TopNav } from "@/components/top-nav";
 import type { TeamLink } from "@/lib/teams";
 
 /**
@@ -40,7 +39,7 @@ export type ShellUser = {
  *
  * - Wraps its subtree in `data-theme="light"` so light-theme tokens apply.
  *   Pages outside (main) keep the dark default.
- * - Two-column grid: fixed sidebar + scrollable main column with sticky top chrome.
+ * - Top navigation bar above a scrollable main column.
  */
 export function MainShell({
   user,
@@ -56,8 +55,8 @@ export function MainShell({
     <div
       data-theme="light"
       style={{
-        display: "grid",
-        gridTemplateColumns: "240px 1fr",
+        display: "flex",
+        flexDirection: "column",
         height: "100vh",
         width: "100vw",
         overflow: "hidden",
@@ -66,28 +65,18 @@ export function MainShell({
         fontFamily: "var(--font-sans)",
       }}
     >
-      <Sidebar user={user} teams={teams} />
-
-      <div
+      <TopNav user={user} teams={teams} />
+      <main
         style={{
-          display: "flex",
-          flexDirection: "column",
-          minWidth: 0,
-          overflow: "hidden",
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+          backgroundColor: "var(--color-bg)",
         }}
       >
-        <TopChrome user={user} />
-        <main
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            backgroundColor: "var(--color-bg)",
-          }}
-        >
-          {/* key={pathname} remounts on route change so the CSS animation retriggers */}
-          <PageTransition key={pathname}>{children}</PageTransition>
-        </main>
-      </div>
+        {/* key={pathname} remounts on route change so the CSS animation retriggers */}
+        <PageTransition key={pathname}>{children}</PageTransition>
+      </main>
     </div>
   );
 }

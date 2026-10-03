@@ -10,7 +10,7 @@ import type { ConceptDetail, SidebarSection } from "@/lib/concepts";
 /**
  * Concept detail client.
  *
- * Lives inside the (main) shell — so the global sidebar + top chrome are
+ * Lives inside the (main) shell, so the global top navigation is
  * supplied by MainShell. This component owns the content card + the
  * right-rail "More in section" nav + bottom prev/next pager.
  */

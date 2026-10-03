@@ -450,3 +450,11 @@ input:focus:not(:focus-visible) {
   border-radius: 6px;
   animation: pulse 1.8s ease-in-out infinite;
 }
+
+/* ── Top nav ───────────────────────────────────────────────────── */
+/* Secondary labels drop to icon-only so the primary links never crowd. */
+@media (max-width: 1180px) {
+  .topnav-collapsible-label {
+    display: none;
+  }
+}
