@@ -49,7 +49,7 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
         gridTemplateColumns: "1fr auto 1fr",
         alignItems: "center",
         columnGap: "var(--space-4)",
-        height: 60,
+        height: 64,
         flexShrink: 0,
         padding: "0 24px",
         backgroundColor: "var(--color-bg)",
@@ -62,8 +62,8 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
         style={{
           justifySelf: "start",
           display: "block",
-          width: 66,
-          height: 24,
+          width: 71,
+          height: 26,
           overflow: "hidden",
         }}
       >
@@ -71,9 +71,9 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
         <img
           src="/assets/tco-logo.png"
           alt="TCO"
-          width={93}
-          height={93}
-          style={{ display: "block", maxWidth: "none", margin: "-31px 0 0 -14px" }}
+          width={101}
+          height={101}
+          style={{ display: "block", maxWidth: "none", margin: "-34px 0 0 -15px" }}
         />
       </Link>
 
@@ -118,11 +118,11 @@ const pillStyle = (active: boolean, hov: boolean) =>
     display: "inline-flex",
     alignItems: "center",
     gap: 6,
-    height: 34,
-    padding: "0 12px",
+    height: 36,
+    padding: "0 14px",
     borderRadius: "var(--radius-2)",
     fontFamily: "inherit",
-    fontSize: "var(--text-sm)",
+    fontSize: "var(--text-base)",
     fontWeight: active ? 600 : 500,
     letterSpacing: "-0.005em",
     whiteSpace: "nowrap",
