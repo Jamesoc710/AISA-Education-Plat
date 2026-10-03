@@ -11,9 +11,9 @@ import type { ShellUser } from "@/components/main-shell";
 import type { TeamLink } from "@/lib/teams";
 
 /**
- * Global top navigation: wordmark and primary links on the left, a Community
- * dropdown (teams, Build board, Calendar), then search (Browse only),
- * feedback and the account menu on the right.
+ * Global top navigation: wordmark on the left, the primary links and a
+ * Community dropdown (teams, Build board, Calendar) centered, and search
+ * (Browse only), feedback and the account menu on the right.
  *
  * Search state syncs with the URL `?q=` param, which /browse reads directly.
  */
@@ -43,12 +43,15 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
       style={{
         position: "relative",
         zIndex: 30,
-        display: "flex",
+        // Equal side columns keep the links truly centered; a crowded side
+        // column (search on Browse at narrow widths) grows instead of overlapping.
+        display: "grid",
+        gridTemplateColumns: "1fr auto 1fr",
         alignItems: "center",
-        gap: "var(--space-2)",
-        height: 60,
+        columnGap: "var(--space-4)",
+        height: 68,
         flexShrink: 0,
-        padding: "0 24px",
+        padding: "0 28px",
         backgroundColor: "var(--color-bg)",
         borderBottom: "1px solid var(--color-border)",
       }}
@@ -57,25 +60,24 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
         href="/home"
         aria-label="TCO home"
         style={{
+          justifySelf: "start",
           display: "block",
-          width: 66,
-          height: 24,
+          width: 77,
+          height: 28,
           overflow: "hidden",
-          marginRight: "var(--space-5)",
-          flexShrink: 0,
         }}
       >
         {/* The source PNG is mostly padding; crop to the wordmark. */}
         <img
           src="/assets/tco-logo.png"
           alt="TCO"
-          width={93}
-          height={93}
-          style={{ display: "block", maxWidth: "none", margin: "-31px 0 0 -14px" }}
+          width={109}
+          height={109}
+          style={{ display: "block", maxWidth: "none", margin: "-36px 0 0 -16px" }}
         />
       </Link>
 
-      <nav aria-label="Primary" style={{ display: "flex", alignItems: "center", gap: 2, minWidth: 0 }}>
+      <nav aria-label="Primary" style={{ display: "flex", alignItems: "center", gap: 4 }}>
         {PRIMARY.map((item) => (
           <NavLink
             key={item.href}
@@ -91,12 +93,18 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
         />
       </nav>
 
-      <div style={{ flex: 1 }} />
-
-      {showSearch && <BrowseSearch />}
-
-      <FeedbackButton onClick={() => setFeedbackOpen(true)} />
-      {user ? <UserMenu user={user} /> : <SignInLink />}
+      <div
+        style={{
+          justifySelf: "end",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2)",
+        }}
+      >
+        {showSearch && <BrowseSearch />}
+        <FeedbackButton onClick={() => setFeedbackOpen(true)} />
+        {user ? <UserMenu user={user} /> : <SignInLink />}
+      </div>
 
       <FeedbackDialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </header>
@@ -105,16 +113,16 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
 
 // ── Primary link ─────────────────────────────────────────────────────────────
 
-const pillStyle = (active: boolean, hov: boolean) =>
+const pillStyle = (active: boolean, hov: boolean, size: "lg" | "sm" = "lg") =>
   ({
     display: "inline-flex",
     alignItems: "center",
     gap: 6,
-    height: 34,
-    padding: "0 12px",
-    borderRadius: "var(--radius-2)",
+    height: size === "lg" ? 40 : 34,
+    padding: size === "lg" ? "0 16px" : "0 12px",
+    borderRadius: size === "lg" ? 10 : "var(--radius-2)",
     fontFamily: "inherit",
-    fontSize: "var(--text-sm)",
+    fontSize: size === "lg" ? "var(--text-md)" : "var(--text-sm)",
     fontWeight: active ? 600 : 500,
     letterSpacing: "-0.005em",
     whiteSpace: "nowrap",
@@ -131,6 +139,7 @@ function NavLink({ href, label, active }: { href: string; label: string; active:
   return (
     <Link
       href={href}
+      className="topnav-link"
       aria-current={active ? "page" : undefined}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
@@ -193,6 +202,7 @@ function CommunityMenu({
         onClick={() => setOpen((v) => !v)}
         onMouseEnter={() => setHov(true)}
         onMouseLeave={() => setHov(false)}
+        className="topnav-link"
         style={pillStyle(active, hov || open)}
       >
         Community
@@ -204,7 +214,7 @@ function CommunityMenu({
             transition: "transform 150ms ease",
           }}
         >
-          <Icon name="chevron-down" size={13} strokeWidth={2} />
+          <Icon name="chevron-down" size={14} strokeWidth={2} />
         </span>
       </button>
 
@@ -214,8 +224,11 @@ function CommunityMenu({
           className="animate-fade-in"
           style={{
             position: "absolute",
-            top: "calc(100% + 10px)",
-            left: 0,
+            top: "calc(100% + 12px)",
+            // Centered under the trigger. A margin, not a transform: the
+            // fade-in animation owns transform.
+            left: "50%",
+            marginLeft: -150,
             width: 300,
             padding: "var(--space-2)",
             backgroundColor: "var(--color-surface)",
@@ -379,7 +392,7 @@ function BrowseSearch() {
   }, [searchParams]);
 
   return (
-    <div style={{ flexShrink: 0 }}>
+    <div className="topnav-search" style={{ flexShrink: 0 }}>
       <SearchInput value={query} onChange={setQuery} width={220} placeholder="Search concepts…" />
     </div>
   );
@@ -395,7 +408,7 @@ function FeedbackButton({ onClick }: { onClick: () => void }) {
       onMouseLeave={() => setHov(false)}
       title="Leave feedback"
       aria-label="Leave feedback"
-      style={{ ...pillStyle(false, hov), gap: "var(--space-2)", flexShrink: 0 }}
+      style={{ ...pillStyle(false, hov, "sm"), gap: "var(--space-2)", flexShrink: 0 }}
     >
       <Icon name="message-square" size={15} strokeWidth={1.85} />
       <span className="topnav-collapsible-label">Feedback</span>
