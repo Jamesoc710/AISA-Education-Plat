@@ -19,6 +19,7 @@ export default async function AdminPage() {
     scheduleEventCount,
     latestScheduleEvent,
     latestDigest,
+    digestDrafts,
     recentQuizAttempts,
   ] = await Promise.all([
     prisma.user.count({ where: { role: "MEMBER" } }),
@@ -41,6 +42,7 @@ export default async function AdminPage() {
       select: {
         id: true,
         weekOf: true,
+        periodEnd: true,
         status: true,
         headline: true,
         items: true,
@@ -48,6 +50,11 @@ export default async function AdminPage() {
         searchesUsed: true,
         durationMs: true,
       },
+    }),
+    prisma.digestEdition.findMany({
+      where: { status: "draft" },
+      orderBy: { weekOf: "asc" },
+      select: { id: true, weekOf: true, periodEnd: true, headline: true, items: true },
     }),
     prisma.quizAttempt.findMany({
       take: 20,
@@ -71,6 +78,18 @@ export default async function AdminPage() {
     timestamp: a.attemptedAt.toISOString(),
     status: (a.isCorrect ? "correct" : "incorrect") as "correct" | "incorrect",
   }));
+
+  // ── Digest drafts other than the newest (it has the main card row) ────────
+  type DigestDraftRow = (typeof digestDrafts)[number];
+  const olderDigestDrafts = digestDrafts
+    .filter((d: DigestDraftRow) => d.id !== latestDigest?.id)
+    .map((d: DigestDraftRow) => ({
+      id: d.id,
+      weekOf: d.weekOf.toISOString(),
+      periodEnd: d.periodEnd?.toISOString() ?? null,
+      headline: d.headline,
+      itemCount: Array.isArray(d.items) ? d.items.length : 0,
+    }));
 
   // ── Build Board drafts awaiting review ───────────────────────────────────────
   const draftProjects = await prisma.project.findMany({
@@ -115,6 +134,7 @@ export default async function AdminPage() {
           ? {
               id: latestDigest.id,
               weekOf: latestDigest.weekOf.toISOString(),
+              periodEnd: latestDigest.periodEnd?.toISOString() ?? null,
               status: latestDigest.status,
               headline: latestDigest.headline,
               itemCount: Array.isArray(latestDigest.items)
@@ -126,6 +146,7 @@ export default async function AdminPage() {
             }
           : null
       }
+      olderDigestDrafts={olderDigestDrafts}
       buildDrafts={buildDrafts}
     />
   );

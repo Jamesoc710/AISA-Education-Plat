@@ -4,9 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import type { DigestEditionView, DigestItemView } from "@/lib/digest-view";
 import type { DigestQuizQuestion } from "@/lib/digest-sync";
+import { editionDateLabel } from "@/lib/digest-label";
 
 export interface PastEditionRef {
   weekOf: string; // ISO
+  periodEnd: string | null; // ISO, recap editions only
   headline: string;
 }
 
@@ -15,16 +17,6 @@ interface DigestClientProps {
   previewingDraft: boolean;
   archiveView?: boolean; // viewing a past week via /digest/[week]
   pastEditions?: PastEditionRef[];
-}
-
-function formatWeekOf(iso: string): string {
-  // weekOf is a UTC Monday — force UTC so it doesn't render as Sunday locally
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
 }
 
 /** Top-of-page back nav. Arrow slides left + color shifts to accent on hover/focus. */
@@ -110,7 +102,7 @@ export function DigestClient({
           }}
         >
           This Week in Tech
-          {edition ? ` · Week of ${formatWeekOf(edition.weekOf)}` : ""}
+          {edition ? ` · ${editionDateLabel(edition.weekOf, edition.periodEnd)}` : ""}
         </div>
 
         {!edition ? (
@@ -144,7 +136,7 @@ export function DigestClient({
             )}
 
             {edition.quiz && edition.quiz.length > 0 && (
-              <DigestQuizSection quiz={edition.quiz} />
+              <DigestQuizSection quiz={edition.quiz} recap={edition.periodEnd !== null} />
             )}
 
             {pastEditions.length > 0 && (
@@ -366,15 +358,6 @@ function DigestItemRow({ item, index }: { item: DigestItemView; index: number })
   );
 }
 
-function weekLabelShort(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
-
 function PastEditionsSection({
   editions,
   label,
@@ -424,7 +407,7 @@ function PastEditionsSection({
                   color: "var(--color-text-3)",
                 }}
               >
-                {weekLabelShort(e.weekOf)}
+                {editionDateLabel(e.weekOf, e.periodEnd, "short")}
               </span>
               <span style={{ fontSize: 15, fontWeight: 500, color: "var(--color-text)" }}>
                 {e.headline}
@@ -501,7 +484,7 @@ function BigPictureSection({
   );
 }
 
-function DigestQuizSection({ quiz }: { quiz: DigestQuizQuestion[] }) {
+function DigestQuizSection({ quiz, recap }: { quiz: DigestQuizQuestion[]; recap: boolean }) {
   return (
     <>
       <HairRule top={40} bottom={36} />
@@ -519,7 +502,7 @@ function DigestQuizSection({ quiz }: { quiz: DigestQuizQuestion[] }) {
           Test yourself
         </div>
         <p style={{ margin: "0 0 22px", fontSize: 14, color: "var(--color-text-3)" }}>
-          A few quick questions on this week. Just for you, nothing is recorded.
+          A few quick questions on {recap ? "these weeks" : "this week"}. Just for you, nothing is recorded.
         </p>
         {quiz.map((q, i) => (
           <QuizQuestionRow key={i} q={q} index={i} />

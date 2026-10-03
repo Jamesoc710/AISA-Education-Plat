@@ -6,10 +6,13 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 import { StatusTag } from "@/components/ui/status-tag";
+import { Button } from "@/components/ui/button";
+import { editionDateLabel } from "@/lib/digest-label";
 
 export interface DigestEditionSummary {
   id: string;
   weekOf: string; // ISO
+  periodEnd: string | null; // ISO, recap editions only
   status: string; // draft | published
   headline: string;
   itemCount: number;
@@ -18,8 +21,18 @@ export interface DigestEditionSummary {
   durationMs: number | null;
 }
 
+/** A draft that isn't the newest edition (a backfill, or one a newer cron draft buried). */
+export interface DigestDraftSummary {
+  id: string;
+  weekOf: string; // ISO
+  periodEnd: string | null;
+  headline: string;
+  itemCount: number;
+}
+
 interface AdminDigestCardProps {
   edition: DigestEditionSummary | null;
+  olderDrafts: DigestDraftSummary[];
 }
 
 function relativeTime(timestamp: string): string {
@@ -55,9 +68,10 @@ function weekLabel(iso: string): string {
 /**
  * "This Week in Tech" controls on the admin Overview, next to the calendar's
  * Sync now card. The cron and "Generate now" both write DRAFTS; an admin
- * reviews (/digest?preview=draft) and publishes from here.
+ * reviews (/digest?preview=draft) and publishes from here. Older drafts get
+ * their own rows so a newer cron draft can't strand them.
  */
-export function AdminDigestCard({ edition }: AdminDigestCardProps) {
+export function AdminDigestCard({ edition, olderDrafts }: AdminDigestCardProps) {
   const router = useRouter();
   const [busy, setBusy] = useState<"generate" | "publish" | null>(null);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
@@ -138,103 +152,208 @@ export function AdminDigestCard({ edition }: AdminDigestCardProps) {
         padding: "16px 20px",
         boxShadow: "var(--shadow-card)",
         marginBottom: "var(--space-4)",
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-4)",
       }}
     >
-      <IconTile icon="newspaper" color="sky" size="sm" />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "var(--space-3)",
-            marginBottom: "var(--space-1)",
-          }}
-        >
-          <span
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
+        <IconTile icon="newspaper" color="sky" size="sm" />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
             style={{
-              fontSize: "var(--text-sm)",
-              fontWeight: 600,
-              color: "var(--color-text)",
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-3)",
+              marginBottom: "var(--space-1)",
             }}
           >
-            This Week in Tech
-          </span>
-          {edition && (
-            <StatusTag
-              tone={edition.status === "published" ? "green" : "blue"}
-              style={{ textTransform: "capitalize" }}
-            >
-              {edition.status}
-            </StatusTag>
-          )}
-        </div>
-        <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
-          {edition ? (
-            <>
-              Week of {weekLabel(edition.weekOf)} · {edition.itemCount} items ·{" "}
-              {/* relative time drifts between SSR and hydration; keep the client value */}
-              <span suppressHydrationWarning>
-                generated {relativeTime(edition.generatedAt)}
-              </span>
-              {edition.searchesUsed != null && edition.durationMs != null && (
-                <>
-                  {" · "}
-                  {edition.searchesUsed} searches · {Math.round(edition.durationMs / 1000)}s
-                </>
-              )}
-              {edition.status === "draft" && (
-                <DraftAgeHint generatedAt={edition.generatedAt} />
-              )}
-            </>
-          ) : (
-            "No editions yet. Generate the first draft"
-          )}
-          {result && (
             <span
               style={{
-                marginLeft: "var(--space-3)",
-                color: result.ok ? "var(--color-correct)" : "var(--color-incorrect)",
+                fontSize: "var(--text-sm)",
                 fontWeight: 600,
+                color: "var(--color-text)",
               }}
             >
-              · {result.message}
+              This Week in Tech
             </span>
-          )}
+            {edition && (
+              <StatusTag
+                tone={edition.status === "published" ? "green" : "blue"}
+                style={{ textTransform: "capitalize" }}
+              >
+                {edition.status}
+              </StatusTag>
+            )}
+          </div>
+          <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
+            {edition ? (
+              <>
+                {edition.periodEnd
+                ? editionDateLabel(edition.weekOf, edition.periodEnd, "short")
+                : `Week of ${weekLabel(edition.weekOf)}`}{" "}
+              · {edition.itemCount} items ·{" "}
+                {/* relative time drifts between SSR and hydration; keep the client value */}
+                <span suppressHydrationWarning>
+                  generated {relativeTime(edition.generatedAt)}
+                </span>
+                {edition.searchesUsed != null && edition.durationMs != null && (
+                  <>
+                    {" · "}
+                    {edition.searchesUsed} searches · {Math.round(edition.durationMs / 1000)}s
+                  </>
+                )}
+                {edition.status === "draft" && (
+                  <DraftAgeHint generatedAt={edition.generatedAt} />
+                )}
+              </>
+            ) : (
+              "No editions yet. Generate the first draft"
+            )}
+            {result && (
+              <span
+                style={{
+                  marginLeft: "var(--space-3)",
+                  color: result.ok ? "var(--color-correct)" : "var(--color-incorrect)",
+                  fontWeight: 600,
+                }}
+              >
+                · {result.message}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-      {edition?.status === "draft" && (
-        <Link href="/digest?preview=draft" style={buttonStyle(false)}>
-          <Icon name="eye" size={14} />
-          Review draft
-        </Link>
-      )}
-      {edition && (
+        {edition?.status === "draft" && (
+          <Link href="/digest?preview=draft" style={buttonStyle(false)}>
+            <Icon name="eye" size={14} />
+            Review draft
+          </Link>
+        )}
+        {edition && (
+          <button
+            type="button"
+            onClick={handlePublishToggle}
+            disabled={busy !== null}
+            style={buttonStyle(busy !== null)}
+          >
+            <Icon name={edition.status === "published" ? "eye-slash" : "check-circle"} size={14} />
+            {busy === "publish"
+              ? "Working..."
+              : edition.status === "published"
+                ? "Unpublish"
+                : "Publish"}
+          </button>
+        )}
         <button
           type="button"
-          onClick={handlePublishToggle}
+          onClick={handleGenerate}
           disabled={busy !== null}
           style={buttonStyle(busy !== null)}
         >
-          <Icon name={edition.status === "published" ? "eye-slash" : "check-circle"} size={14} />
-          {busy === "publish"
-            ? "Working..."
-            : edition.status === "published"
-              ? "Unpublish"
-              : "Publish"}
+          <Icon name="sparkle" size={14} />
+          {busy === "generate" ? "Generating..." : "Generate now"}
         </button>
+      </div>
+
+      {olderDrafts.length > 0 && (
+        <div style={{ marginTop: "var(--space-4)", borderTop: "1px solid var(--color-border-subtle)" }}>
+          {olderDrafts.map((d) => (
+            <OlderDraftRow key={d.id} draft={d} />
+          ))}
+        </div>
       )}
-      <button
-        type="button"
-        onClick={handleGenerate}
-        disabled={busy !== null}
-        style={buttonStyle(busy !== null)}
-      >
-        <Icon name="sparkle" size={14} />
-        {busy === "generate" ? "Generating..." : "Generate now"}
-      </button>
+    </div>
+  );
+}
+
+function OlderDraftRow({ draft }: { draft: DigestDraftSummary }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function publish() {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/digest", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: draft.id, action: "publish" }),
+      });
+      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+      if (!json.ok) throw new Error(json.error ?? "Publish failed");
+      router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Publish failed");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-4)",
+        padding: "var(--space-3) 0",
+        borderBottom: "1px solid var(--color-border-subtle)",
+      }}
+    >
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-2)", flexWrap: "wrap" }}>
+          <span
+            style={{
+              fontSize: "var(--text-xs)",
+              fontWeight: 600,
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+              color: "var(--color-text-3)",
+            }}
+          >
+            {draft.periodEnd
+              ? editionDateLabel(draft.weekOf, draft.periodEnd, "short")
+              : `Week of ${weekLabel(draft.weekOf)}`}
+          </span>
+          <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
+            {draft.itemCount} items
+          </span>
+        </div>
+        <p
+          style={{
+            margin: "var(--space-1) 0 0",
+            fontSize: "var(--text-sm)",
+            color: "var(--color-text-2)",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {draft.headline}
+        </p>
+        {error && (
+          <p style={{ margin: "var(--space-1) 0 0", fontSize: "var(--text-xs)", color: "var(--color-incorrect)" }}>
+            {error}
+          </p>
+        )}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexShrink: 0 }}>
+        <Link
+          href={`/digest/${draft.weekOf.slice(0, 10)}?preview=draft`}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
+            fontSize: "var(--text-sm)",
+            fontWeight: 600,
+            color: "var(--color-text-2)",
+            textDecoration: "none",
+            padding: "0 var(--space-2)",
+          }}
+        >
+          <Icon name="eye" size={14} />
+          Review
+        </Link>
+        <Button size="sm" variant="primary" disabled={busy} onClick={publish}>
+          {busy ? "Publishing..." : "Publish"}
+        </Button>
+      </div>
     </div>
   );
 }

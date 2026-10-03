@@ -4,7 +4,11 @@ import { Icon } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
 import { StatusTag, type StatusTagTone } from "@/components/ui/status-tag";
 import { AdminCalendarSync } from "@/components/admin-calendar-sync";
-import { AdminDigestCard, type DigestEditionSummary } from "@/components/admin-digest-card";
+import {
+  AdminDigestCard,
+  type DigestDraftSummary,
+  type DigestEditionSummary,
+} from "@/components/admin-digest-card";
 import { AdminBuildCard, type BuildDraftSummary } from "@/components/admin-build-card";
 
 interface Stats {
@@ -32,6 +36,7 @@ interface AdminOverviewProps {
   activity: ActivityItem[];
   calendarSync: CalendarSyncInfo;
   digest: DigestEditionSummary | null;
+  olderDigestDrafts: DigestDraftSummary[];
   buildDrafts: BuildDraftSummary[];
 }
 
@@ -59,7 +64,14 @@ function statusTone(status: ActivityItem["status"]): StatusTagTone {
   }
 }
 
-export function AdminOverview({ stats, activity, calendarSync, digest, buildDrafts }: AdminOverviewProps) {
+export function AdminOverview({
+  stats,
+  activity,
+  calendarSync,
+  digest,
+  olderDigestDrafts,
+  buildDrafts,
+}: AdminOverviewProps) {
   const statCards: { value: number; label: string; tile: "indigo" | "sky" | "honey" | "mint" }[] = [
     { value: stats.totalRecruits, label: "Total members", tile: "indigo" },
     { value: stats.activeThisWeek, label: "Active this week", tile: "sky" },
@@ -73,7 +85,7 @@ export function AdminOverview({ stats, activity, calendarSync, digest, buildDraf
         lastSyncedAt={calendarSync.lastSyncedAt}
         eventCount={calendarSync.eventCount}
       />
-      <AdminDigestCard edition={digest} />
+      <AdminDigestCard edition={digest} olderDrafts={olderDigestDrafts} />
       <AdminBuildCard drafts={buildDrafts} />
       <div
         style={{

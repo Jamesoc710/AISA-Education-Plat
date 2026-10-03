@@ -5,6 +5,8 @@
 //
 // Input file shape: { weekOf: "YYYY-MM-DD" (a Monday), headline, items, quiz,
 // bigPicture: { narrative, watchFor } } — the same shape the LLM pipeline emits.
+// A multi-week recap adds periodEnd: "YYYY-MM-DD" (the last Sunday it covers)
+// and may carry up to RECAP_MAX_ITEMS items.
 //
 // Mirrors the post-generation half of generateDigest() in lib/digest-sync.ts:
 // same sanitizer, URL verification (sourceDomain from the RESOLVED url, never
@@ -27,6 +29,7 @@ import type {
 // Caps mirrored from lib/digest-sync.ts
 const MIN_ITEMS = 3;
 const MAX_ITEMS = 7;
+const RECAP_MAX_ITEMS = 10;
 const RAW_ITEM_CAP = 10;
 const MAX_RESOURCES_PER_ITEM = 2;
 const VIDEO_HOST_RE = /(^|\.)(youtube\.com|youtu\.be|vimeo\.com)$/i;
@@ -123,10 +126,27 @@ function parseWeekOf(raw: unknown): Date {
   return d;
 }
 
+function parsePeriodEnd(raw: unknown, weekOf: Date): Date | null {
+  if (raw === undefined || raw === null) return null;
+  const s = String(raw).trim();
+  const d = new Date(`${s}T00:00:00.000Z`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s) || Number.isNaN(d.getTime())) {
+    throw new Error(`Invalid periodEnd "${s}" (expected YYYY-MM-DD)`);
+  }
+  if (d.getUTCDay() !== 0) throw new Error(`periodEnd ${s} is not a Sunday`);
+  // A recap spans at least two weeks; one week needs no periodEnd
+  if (d.getTime() - weekOf.getTime() < 13 * 86400000) {
+    throw new Error(`periodEnd ${s} must be at least two weeks after weekOf`);
+  }
+  return d;
+}
+
 async function backfill(filePath: string, catalogSlugs: Set<string>): Promise<void> {
   console.log(`\n=== ${filePath}`);
   const raw = JSON.parse(readFileSync(filePath, "utf8")) as Record<string, unknown>;
   const weekOf = parseWeekOf(raw.weekOf);
+  const periodEnd = parsePeriodEnd(raw.periodEnd, weekOf);
+  const maxItems = periodEnd ? RECAP_MAX_ITEMS : MAX_ITEMS;
 
   const headline = cleanDigestText(String(raw.headline ?? "").trim().slice(0, 300));
   const bp = raw.bigPicture as { narrative?: unknown; watchFor?: unknown } | undefined;
@@ -210,7 +230,7 @@ async function backfill(filePath: string, catalogSlugs: Set<string>): Promise<vo
       resources: resources.slice(0, MAX_RESOURCES_PER_ITEM),
     });
   });
-  const finalItems = items.slice(0, MAX_ITEMS);
+  const finalItems = items.slice(0, maxItems);
   if (finalItems.length < MIN_ITEMS) {
     throw new Error(`Only ${finalItems.length}/${MIN_ITEMS} items survived URL verification`);
   }
@@ -238,6 +258,7 @@ async function backfill(filePath: string, catalogSlugs: Set<string>): Promise<vo
   }
 
   const data = {
+    periodEnd,
     headline,
     items: finalItems as unknown as Prisma.InputJsonValue,
     bigPicture,
@@ -257,6 +278,7 @@ async function backfill(filePath: string, catalogSlugs: Set<string>): Promise<vo
   });
   console.log(
     `  ${current ? "UPDATED" : "CREATED"} draft weekOf=${weekOf.toISOString().slice(0, 10)} ` +
+      (periodEnd ? `periodEnd=${periodEnd.toISOString().slice(0, 10)} ` : "") +
       `items=${finalItems.length} quiz=${quiz ? quiz.length : 0} closer=${bigPicture ? "yes" : "no"}`,
   );
 }

@@ -17,6 +17,7 @@ export interface DigestItemView extends DigestItem {
 export interface DigestEditionView {
   headline: string;
   weekOf: string; // ISO — Monday 00:00 UTC
+  periodEnd: string | null; // ISO — set only on a multi-week recap
   generatedAt: string; // ISO
   status: string;
   items: DigestItemView[];
@@ -48,6 +49,7 @@ export async function editionToView(edition: DigestEdition): Promise<DigestEditi
   return {
     headline: edition.headline,
     weekOf: edition.weekOf.toISOString(),
+    periodEnd: edition.periodEnd?.toISOString() ?? null,
     generatedAt: edition.generatedAt.toISOString(),
     status: edition.status,
     bigPicture: edition.bigPicture,

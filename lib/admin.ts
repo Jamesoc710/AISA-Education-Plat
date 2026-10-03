@@ -23,3 +23,17 @@ export async function requireAdmin() {
 
   return user;
 }
+
+/** Non-redirecting check for pages that show admins extra content (draft previews). */
+export async function viewerIsAdmin(): Promise<boolean> {
+  const supabase = await createClient();
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
+  if (!authUser) return false;
+  const user = await prisma.user.findUnique({
+    where: { id: authUser.id },
+    select: { role: true },
+  });
+  return user?.role === "ADMIN";
+}
