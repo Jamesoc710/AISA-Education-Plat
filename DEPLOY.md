@@ -1,92 +1,22 @@
-# Deploying AISA Atlas to Vercel
+# Deploying
 
-## Current State
+Production is the Vercel project `aisa-atlas`. Pushing or merging to `master` deploys it.
 
-The app uses **SQLite** via `better-sqlite3` for local development. This works great locally but **will not work on Vercel** — Vercel's serverless functions don't support native Node modules like `better-sqlite3`, and the filesystem is read-only (no persistent SQLite file).
+## Environment
 
-## Production Deployment Steps
+All variables are listed in `.env.example`. They are set in Vercel (Project Settings, Environment Variables). `CRON_SECRET` must be set or the cron routes return 401.
 
-### 1. Set up a PostgreSQL database
+## Crons (`vercel.json`)
 
-**Recommended options** (both have generous free tiers):
+| Route | Schedule | What it does |
+| --- | --- | --- |
+| `/api/cron/sync-schedule` | daily 06:00 UTC | Syncs the TCO Master Calendar sheet into `schedule_events` |
+| `/api/cron/sync-digest` | Mondays 13:00 UTC | Drafts the weekly digest (an admin publishes it from `/admin`) |
 
-- **Neon** (neon.tech) — serverless Postgres, recommended for Next.js
-- **Supabase** (supabase.com) — Postgres + extras
+## Schema changes in production
 
-Create a database and copy the connection string.
+Order matters, because old code must never run against dropped tables and new code must never run before its tables exist:
 
-### 2. Update Prisma for PostgreSQL
-
-In `prisma/schema.prisma`, change the provider:
-
-```prisma
-datasource db {
-  provider = "postgresql"
-}
-```
-
-In `prisma.config.ts`, no changes needed — it already reads `DATABASE_URL` from env.
-
-Replace the SQLite adapter with the PostgreSQL adapter:
-
-```bash
-npm uninstall @prisma/adapter-better-sqlite3 better-sqlite3 @types/better-sqlite3
-npm install @prisma/adapter-pg pg
-npm install -D @types/pg
-```
-
-Update `lib/prisma.ts`:
-
-```ts
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-
-function createPrismaClient() {
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-  return new PrismaClient({ adapter });
-}
-
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
-```
-
-Update `prisma/seed.ts` similarly.
-
-### 3. Run migrations and seed
-
-```bash
-npx prisma migrate dev --name init
-npm run seed
-```
-
-### 4. Deploy to Vercel
-
-```bash
-# Install Vercel CLI if needed
-npm i -g vercel
-
-# Deploy
-vercel
-
-# Set the DATABASE_URL environment variable in Vercel dashboard
-# or via CLI:
-vercel env add DATABASE_URL
-```
-
-### 5. Set environment variables in Vercel
-
-In the Vercel dashboard → Project Settings → Environment Variables:
-
-| Variable | Value |
-|---|---|
-| `DATABASE_URL` | `postgresql://user:pass@host:5432/dbname?sslmode=require` |
-
-### Alternative: Keep SQLite (limited)
-
-If you just need a quick demo deployment without persistence, you can:
-1. Bundle the SQLite database in the build
-2. Use Vercel's Node.js runtime (not Edge)
-3. Accept that data resets on each deploy
-
-This is not recommended for production.
+1. Apply additive migrations (`npx prisma migrate deploy`) before deploying code that uses them.
+2. Deploy.
+3. Apply destructive migrations (drops) only after the code that stopped using those tables is live.
