@@ -49,16 +49,19 @@ export async function GET(req: NextRequest) {
         ? {}
         : { concept: { section: { tier: { track: { slug: trackSlug } } } } };
 
-    let scopeWhere: object = {};
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    // Short answers need an account (they're LLM-graded and saved), so
+    // signed-out visitors get multiple choice only.
+    let scopeWhere: object = user ? {} : { type: "MC" };
     let reviewUserId: string | null = null;
-    if (mode === "concept") scopeWhere = { conceptId: id! };
-    else if (mode === "section") scopeWhere = { concept: { sectionId: id! } };
-    else if (mode === "tier") scopeWhere = { concept: { section: { tierId: id! } } };
+    if (mode === "concept") scopeWhere = { ...scopeWhere, conceptId: id! };
+    else if (mode === "section") scopeWhere = { ...scopeWhere, concept: { sectionId: id! } };
+    else if (mode === "tier") scopeWhere = { ...scopeWhere, concept: { section: { tierId: id! } } };
     else if (mode === "review") {
-      const supabase = await createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
       if (!user) {
         return NextResponse.json({ error: "Sign in to review." }, { status: 401 });
       }

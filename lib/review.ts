@@ -65,10 +65,13 @@ export async function getReviewSummary(userId: string): Promise<ReviewSummary> {
   return { dueCount, totalCount, masteredCount, nextDueAt: next?.dueAt.toISOString() ?? null };
 }
 
-/** Due concept ids, most overdue first. */
+/**
+ * Due concept ids that have quiz questions, lowest box first. A due concept
+ * with no questions still clears through flashcards, Match or Explain it back.
+ */
 export async function getDueConceptIds(userId: string, limit: number): Promise<string[]> {
   const rows = await prisma.reviewItem.findMany({
-    where: { userId, dueAt: { lte: new Date() } },
+    where: { userId, dueAt: { lte: new Date() }, concept: { questions: { some: {} } } },
     orderBy: [{ box: "asc" }, { dueAt: "asc" }],
     take: limit,
     select: { conceptId: true },
