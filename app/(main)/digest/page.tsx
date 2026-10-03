@@ -9,8 +9,6 @@ export const metadata = {
   title: "This Week | AISA Atlas",
 };
 
-const STALE_AFTER_MS = 8 * 24 * 60 * 60 * 1000;
-
 async function viewerIsAdmin(): Promise<boolean> {
   const supabase = await createClient();
   const {
@@ -52,9 +50,6 @@ export default async function DigestPage({
   return (
     <DigestClient
       edition={edition ? await editionToView(edition) : null}
-      stale={
-        edition ? Date.now() - edition.generatedAt.getTime() > STALE_AFTER_MS : false
-      }
       previewingDraft={previewingDraft}
       pastEditions={pastEditions.map((p: { weekOf: Date; headline: string }) => ({
         weekOf: p.weekOf.toISOString(),

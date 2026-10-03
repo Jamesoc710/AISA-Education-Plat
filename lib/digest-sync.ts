@@ -436,7 +436,7 @@ export async function generateDigest(opts?: {
 
   // 1. Generate. Any failure from here on leaves the DB untouched — the
   //    /digest page keeps serving the last published edition (graceful
-  //    degradation; the staleness banner covers the gap).
+  //    degradation).
   const previous = await prisma.digestEdition.findFirst({
     where: { weekOf: { lt: weekOf } },
     orderBy: { weekOf: "desc" },

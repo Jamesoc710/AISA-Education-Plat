@@ -12,7 +12,6 @@ export interface PastEditionRef {
 
 interface DigestClientProps {
   edition: DigestEditionView | null;
-  stale: boolean;
   previewingDraft: boolean;
   archiveView?: boolean; // viewing a past week via /digest/[week]
   pastEditions?: PastEditionRef[];
@@ -72,7 +71,6 @@ function BackLink({ href, label }: { href: string; label: string }) {
  */
 export function DigestClient({
   edition,
-  stale,
   previewingDraft,
   archiveView = false,
   pastEditions = [],
@@ -132,12 +130,6 @@ export function DigestClient({
             >
               {edition.headline}
             </h1>
-
-            {stale && (
-              <Banner tone="warning">
-                This edition is more than a week old. A fresh one is on its way.
-              </Banner>
-            )}
 
             <HairRule top={40} bottom={8} />
 

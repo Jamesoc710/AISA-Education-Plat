@@ -33,7 +33,6 @@ export default async function DigestWeekPage({
   return (
     <DigestClient
       edition={await editionToView(edition)}
-      stale={false} // archived weeks are supposed to be old
       previewingDraft={false}
       archiveView
       pastEditions={others.map((p: { weekOf: Date; headline: string }) => ({
