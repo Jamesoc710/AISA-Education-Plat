@@ -32,7 +32,7 @@ type Refined = {
   bigPicture: { narrative: string; watchFor: string };
 };
 
-// Mirrors contentHashOf in lib/digest-sync.ts and scripts/backfill-digest.ts.
+// Length caps and contentHashOf mirror lib/digest-sync.ts and scripts/backfill-digest.ts.
 function contentHashOf(
   headline: string,
   items: DigestItem[],
@@ -71,8 +71,8 @@ async function apply(filePath: string, write: boolean): Promise<void> {
     return {
       ...live,
       title: clean(r.title, 200) || live.title,
-      summary: clean(r.summary, 1200) || live.summary,
-      whyItMatters: clean(r.whyItMatters, 800) || live.whyItMatters,
+      summary: clean(r.summary, 600) || live.summary,
+      whyItMatters: clean(r.whyItMatters, 400) || live.whyItMatters,
       resources: liveRes.map((res, j) => ({ ...res, title: clean(refinedRes[j].title, 200) || res.title })),
     };
   });
@@ -92,7 +92,7 @@ async function apply(filePath: string, write: boolean): Promise<void> {
     throw new Error(`Quiz length differs (live ${liveQuizCount}, refined ${quiz?.length ?? 0})`);
   }
 
-  const headline = clean(raw.headline, 200);
+  const headline = clean(raw.headline, 300);
   const bigPicture = clean(raw.bigPicture?.narrative, 3000);
   const watchFor = clean(raw.bigPicture?.watchFor, 300);
   if (!headline || (row.bigPicture && !bigPicture)) throw new Error("Missing headline or closer");
