@@ -15,7 +15,13 @@ export { cleanDigestText };
 // content-hash skip → upsert by weekOf as a DRAFT. Publishing is a separate,
 // human admin action — this module never sets status to "published".
 
-const MODEL = "claude-opus-4-8";
+const MODEL = "claude-opus-5-5";
+// Opus 5.5 defaults to medium effort (4.8 defaulted to high); set it
+// explicitly. Medium keeps a run well inside the 300s function limit.
+const EFFORT = "medium" as const;
+// Safety classifiers can decline news about cyberattacks and the like; the
+// "default" fallback reruns a declined request on Anthropic's recommended model.
+const FALLBACK_BETA = "server-side-fallback-2026-07-01";
 // 20250305, not 20260209: the newer version's dynamic-filtering rounds pushed a
 // live run to ~410s, past any Vercel function ceiling. Plain search is fast.
 const WEB_SEARCH_TOOL = "web_search_20250305" as const;
@@ -284,29 +290,48 @@ async function generateWithClaude(
 
   const userPrompt = `Today is ${new Date().toUTCString()}. Compile the digest for the week of ${weekOf.toISOString().slice(0, 10)}. Search the web for notable AI / tech / capital-markets news from the past 7 days, then return the JSON.${previousBlock}`;
 
-  const messages: Anthropic.MessageParam[] = [{ role: "user", content: userPrompt }];
+  type BetaMessage = Anthropic.Beta.Messages.BetaMessage;
+  const messages: Anthropic.Beta.Messages.BetaMessageParam[] = [{ role: "user", content: userPrompt }];
   let searchesUsed = 0;
   let apiCalls = 0;
-  let response: Anthropic.Message;
+  let response: BetaMessage;
+
+  // Every call shares system, tools and the message history byte for byte and
+  // only ever appends, which Opus 5.5 requires to keep its earlier thinking valid.
+  const call = (toolChoice?: { type: "none" }) =>
+    client.beta.messages
+      .stream({
+        model: MODEL,
+        max_tokens: MAX_TOKENS,
+        thinking: { type: "adaptive" },
+        output_config: { effort: EFFORT },
+        betas: [FALLBACK_BETA],
+        fallbacks: "default",
+        system: buildSystemPrompt(catalogText),
+        messages,
+        tools: [
+          { type: WEB_SEARCH_TOOL, name: "web_search", max_uses: WEB_SEARCH_MAX_USES },
+        ],
+        ...(toolChoice ? { tool_choice: toolChoice } : {}),
+      })
+      .finalMessage();
+
+  const assertNotRefused = (r: BetaMessage) => {
+    if (r.stop_reason === "refusal") {
+      throw new Error(
+        `Model declined the request even after fallback (${r.stop_details?.category ?? "no category"})`,
+      );
+    }
+  };
 
   // Server-side search loop can pause (stop_reason "pause_turn"); resume by
   // echoing the assistant turn. MAX_API_CALLS bounds total spend per run.
   // Streamed because thinking + search push runs past the SDK's 10-minute
   // non-streaming estimate guard; finalMessage() assembles the full response.
   do {
-    response = await client.messages
-      .stream({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        thinking: { type: "adaptive" },
-        system: buildSystemPrompt(catalogText),
-        messages,
-        tools: [
-          { type: WEB_SEARCH_TOOL, name: "web_search", max_uses: WEB_SEARCH_MAX_USES },
-        ],
-      })
-      .finalMessage();
+    response = await call();
     apiCalls++;
+    assertNotRefused(response);
     searchesUsed += response.usage.server_tool_use?.web_search_requests ?? 0;
 
     for (const block of response.content) {
@@ -327,9 +352,9 @@ async function generateWithClaude(
     throw new Error("Response truncated at max_tokens, digest JSON incomplete");
   }
 
-  const textOf = (r: Anthropic.Message) =>
+  const textOf = (r: BetaMessage) =>
     r.content
-      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .filter((b): b is Anthropic.Beta.Messages.BetaTextBlock => b.type === "text")
       .map((b) => b.text)
       .join("");
 
@@ -352,20 +377,9 @@ async function generateWithClaude(
       content:
         "Output the strict JSON object now, exactly per the schema in the system prompt, based on what you already found. No prose before or after it.",
     });
-    response = await client.messages
-      .stream({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        thinking: { type: "adaptive" },
-        system: buildSystemPrompt(catalogText),
-        messages,
-        tools: [
-          { type: WEB_SEARCH_TOOL, name: "web_search", max_uses: WEB_SEARCH_MAX_USES },
-        ],
-        tool_choice: { type: "none" },
-      })
-      .finalMessage();
+    response = await call({ type: "none" });
     apiCalls++;
+    assertNotRefused(response);
     searchesUsed += response.usage.server_tool_use?.web_search_requests ?? 0;
     if (response.stop_reason === "max_tokens") {
       throw new Error("Response truncated at max_tokens, digest JSON incomplete");
