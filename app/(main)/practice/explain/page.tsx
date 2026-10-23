@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveTrackSlug } from "@/lib/track";
 import { AuthGate } from "@/components/ui/auth-gate";
@@ -33,10 +33,7 @@ export default async function ExplainPage({
   searchParams: Promise<{ concept?: string | string[] }>;
 }) {
   const { concept: conceptParam } = await searchParams;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
 
   if (!user) {
     const next = typeof conceptParam === "string" ? `/practice/explain?concept=${conceptParam}` : "/practice/explain";

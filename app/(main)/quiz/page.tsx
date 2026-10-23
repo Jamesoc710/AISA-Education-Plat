@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 import { getActiveTrackSlug } from "@/lib/track";
 import { QuizClient, type QuizMode } from "@/components/quiz-client";
 import { getReviewSummary } from "@/lib/review";
@@ -34,10 +34,7 @@ export default async function QuizPage({
     mode && DEEP_LINK_MODES.includes(mode) && (!needsId || id) ? { mode, id } : null;
 
   const trackSlug = await getActiveTrackSlug();
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+  const authUser = await getAuthUser();
 
   const [tiers, resume, review] = await Promise.all([
     loadTiers(trackSlug),

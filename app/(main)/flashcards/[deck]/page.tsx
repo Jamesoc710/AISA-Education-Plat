@@ -1,5 +1,5 @@
 import { redirect, notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveTrackSlug } from "@/lib/track";
 import { FlashcardPlayer } from "@/components/flashcard-player";
@@ -27,10 +27,7 @@ export default async function FlashcardPlayerPage({ params }: Props) {
 
   if (!DECK_LABELS[deck]) notFound();
 
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+  const authUser = await getAuthUser();
 
   if (!authUser) redirect(`/login?redirect=/flashcards/${deck}`);
 

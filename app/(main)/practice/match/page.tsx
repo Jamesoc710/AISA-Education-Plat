@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveTrackSlug } from "@/lib/track";
 import { MatchGame, type MatchConcept, type MatchPool } from "@/components/match-game";
@@ -31,10 +31,7 @@ const toConcept = (c: Row): MatchConcept => ({
 
 export default async function MatchPage() {
   const trackSlug = await getActiveTrackSlug();
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
 
   const select = {
     id: true,

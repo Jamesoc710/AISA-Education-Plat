@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 import { prisma } from "@/lib/prisma";
 import { MainShell } from "@/components/main-shell";
 import { getDoorTeams } from "@/lib/team-data";
@@ -8,10 +8,7 @@ export default async function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+  const authUser = await getAuthUser();
 
   let user: { id: string; email: string; name: string | null; role: string } | null = null;
   if (authUser) {

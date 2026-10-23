@@ -1,5 +1,5 @@
 import { redirect, notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 import { prisma } from "@/lib/prisma";
 import { FlashcardPlayer } from "@/components/flashcard-player";
 import type { Metadata } from "next";
@@ -22,10 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function WorkshopFlashcardsPage({ params }: Props) {
   const { eventId } = await params;
 
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+  const authUser = await getAuthUser();
   if (!authUser) redirect(`/login?redirect=/flashcards/workshop/${eventId}`);
 
   const event = await prisma.scheduleEvent.findUnique({

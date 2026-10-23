@@ -1,5 +1,5 @@
 import { getConceptBySlug, getAllSectionsForSidebar } from "@/lib/concepts";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 import { prisma } from "@/lib/prisma";
 import { ConceptDetailClient } from "@/components/concept-detail-client";
 import type { Metadata } from "next";
@@ -19,13 +19,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ConceptPage({ params }: Props) {
   const { slug } = await params;
-  const supabase = await createClient();
-  const [concept, sections, auth] = await Promise.all([
+  const [concept, sections, authUser] = await Promise.all([
     getConceptBySlug(slug),
     getAllSectionsForSidebar(),
-    supabase.auth.getUser(),
+    getAuthUser(),
   ]);
-  const userId = auth.data.user?.id ?? null;
+  const userId = authUser?.id ?? null;
 
   const [questionCount, reviewItem] = await Promise.all([
     prisma.question.count({ where: { conceptId: concept.id } }),

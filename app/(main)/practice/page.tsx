@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 import { getReviewSummary } from "@/lib/review";
 import { PracticeHub } from "@/components/practice-hub";
 import type { Metadata } from "next";
@@ -11,10 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PracticePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
   const review = user ? await getReviewSummary(user.id) : null;
 
   return <PracticeHub review={review} />;
