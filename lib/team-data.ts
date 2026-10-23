@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 import { getActiveTrackSlug } from "@/lib/track";
 import { MODERATOR_ROLES } from "@/lib/build";
 import {
@@ -175,10 +175,7 @@ export async function getDoorTeams(): Promise<TeamLink[]> {
 // ─── Viewer ──────────────────────────────────────────────────────────────────
 
 async function resolveViewer(): Promise<{ id: string | null; isModerator: boolean }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
   if (!user) return { id: null, isModerator: false };
   const u = await prisma.user.findUnique({
     where: { id: user.id },

@@ -25,10 +25,10 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Refresh the session — important for Server Components
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Refresh the session — important for Server Components. getClaims verifies
+  // the JWT locally against Supabase's signing keys, with no Auth round trip.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims;
 
   // Protect /admin — redirect to /login if not authenticated.
   // Logged-out views for /dashboard, /home, /flashcards render an in-shell

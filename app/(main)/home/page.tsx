@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 import { prisma } from "@/lib/prisma";
 import { HomeClient } from "@/components/home-client";
 import { AuthGate } from "@/components/ui/auth-gate";
@@ -21,10 +21,7 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+  const authUser = await getAuthUser();
   if (!authUser) {
     return (
       <AuthGate

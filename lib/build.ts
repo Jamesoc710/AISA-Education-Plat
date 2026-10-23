@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 
 /**
  * Build Board data layer.
@@ -87,10 +88,7 @@ function asExtraContributors(value: unknown): ProjectContributor[] {
 
 /** Resolve the signed-in member (null when logged out). */
 export async function getBuildViewer(): Promise<BuildViewer | null> {
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+  const authUser = await getAuthUser();
   if (!authUser) return null;
 
   const user = await prisma.user.findUnique({
