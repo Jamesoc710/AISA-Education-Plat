@@ -22,3 +22,16 @@ export function cleanDigestText(s: string): string {
     s.replace(/<\/?cite\b[^>]*>?/gi, "").replace(/[ \t]{2,}/g, " "),
   );
 }
+
+// Length cap that never ends mid-word: keep the last whole sentence that fits,
+// else the last whole word plus an ellipsis. A plain slice published summaries
+// ending "until its monito".
+export function clipText(s: string, max: number): string {
+  if (s.length <= max) return s;
+  const window = s.slice(0, max + 1);
+  const sentenceEnd = Math.max(...[". ", "? ", "! ", ".\n"].map((p) => window.lastIndexOf(p)));
+  if (sentenceEnd > max / 2) return s.slice(0, sentenceEnd + 1);
+  const wordEnd = window.lastIndexOf(" ");
+  const cut = wordEnd > 0 ? s.slice(0, wordEnd) : s.slice(0, max - 1);
+  return `${cut.replace(/[\s,;:(]+$/, "")}…`;
+}

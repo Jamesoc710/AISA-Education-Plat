@@ -2,7 +2,7 @@ import { createHash } from "crypto";
 import Anthropic from "@anthropic-ai/sdk";
 import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
-import { cleanDigestText } from "./text";
+import { cleanDigestText, clipText } from "./text";
 import { verifyUrl } from "./url";
 import { balancedJsonCandidates } from "./llm-json";
 
@@ -106,8 +106,8 @@ Use web search to find what ACTUALLY happened in the last 7 days. Cover a mix ac
 
 Pick the 5-7 most notable items. For each item provide:
 - "title": a clear, factual headline (max ~15 words).
-- "summary": 2-3 plain-English sentences on what happened. Facts only; save the significance for the next field.
-- "whyItMatters": 1-2 sentences on why a student or club member should care about this.
+- "summary": 2-3 plain-English sentences on what happened, under 500 characters. Facts only; save the significance for the next field.
+- "whyItMatters": 1-2 sentences on why a student or club member should care about this, under 350 characters.
 - "category": exactly one of "ai", "tech", or "markets" (which of the three coverage areas the item belongs to).
 - "relatedConceptSlugs": 0-2 slugs from the concept catalog at the end of this prompt that a member could study to understand this story better. Copy slugs verbatim from the catalog; use [] when nothing clearly applies. Never invent a slug.
 - "url": the source article's URL copied EXACTLY from a web search result. Never construct, shorten, or guess a URL.
@@ -162,17 +162,35 @@ interface ParsedDigest {
   quiz: DigestQuizQuestion[] | null; // additive: a bad quiz never fails the run
 }
 
+// Sanitize, then cap at a sentence or word boundary
+const prose = (v: unknown, max: number) => clipText(cleanDigestText(String(v ?? "").trim()), max);
+
+function shuffled<T>(xs: T[]): T[] {
+  const a = [...xs];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function withCorrectAt(q: DigestQuizQuestion, slot: number): DigestQuizQuestion {
+  const correct = q.options.filter((o) => o.isCorrect);
+  const distractors = q.options.filter((o) => !o.isCorrect);
+  return { ...q, options: [...distractors.slice(0, slot), ...correct, ...distractors.slice(slot)] };
+}
+
 function parseQuiz(raw: unknown): DigestQuizQuestion[] | null {
   if (!Array.isArray(raw)) return null;
   const out: DigestQuizQuestion[] = [];
   for (const entry of raw.slice(0, 5)) {
     const q = entry as { question?: unknown; options?: unknown; explanation?: unknown };
-    const question = cleanDigestText(String(q.question ?? "").trim().slice(0, 300));
-    const explanation = cleanDigestText(String(q.explanation ?? "").trim().slice(0, 400));
+    const question = prose(q.question, 300);
+    const explanation = prose(q.explanation, 400);
     const options = (Array.isArray(q.options) ? q.options : []).slice(0, 4).map((o) => {
       const oo = o as { text?: unknown; isCorrect?: unknown };
       return {
-        text: cleanDigestText(String(oo.text ?? "").trim().slice(0, 200)),
+        text: prose(oo.text, 200),
         isCorrect: oo.isCorrect === true,
       };
     });
@@ -181,7 +199,11 @@ function parseQuiz(raw: unknown): DigestQuizQuestion[] | null {
     if (options.filter((o) => o.isCorrect).length !== 1) continue;
     out.push({ question, options, explanation });
   }
-  return out.length >= 3 ? out.slice(0, 4) : null;
+  if (out.length < 3) return null;
+  // The model tends to put the right answer first and the page keeps stored
+  // order, so give each question's answer a different slot
+  const slots = shuffled([0, 1, 2, 3]);
+  return out.slice(0, 4).map((q, i) => withCorrectAt(q, slots[i]));
 }
 
 function digestFromCandidate(candidate: string): ParsedDigest | null {
@@ -196,11 +218,11 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
   } catch {
     return null;
   }
-  const headline = cleanDigestText(String(raw.headline ?? "").trim().slice(0, 300));
+  const headline = prose(raw.headline, 300);
   if (!headline || !Array.isArray(raw.items) || raw.items.length === 0) return null;
   const bp = raw.bigPicture as { narrative?: unknown; watchFor?: unknown } | undefined;
-  const narrative = cleanDigestText(String(bp?.narrative ?? "").trim().slice(0, 1500));
-  const watchFor = cleanDigestText(String(bp?.watchFor ?? "").trim().slice(0, 300));
+  const narrative = prose(bp?.narrative, 1500);
+  const watchFor = prose(bp?.watchFor, 300);
   if (!narrative) return null; // the closer is part of the contract now
   const items = raw.items.slice(0, RAW_ITEM_CAP).flatMap((entry): ParsedItem[] => {
     const e = entry as {
@@ -212,9 +234,9 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
       relatedConceptSlugs?: unknown;
       resources?: unknown;
     };
-    const title = cleanDigestText(String(e.title ?? "").trim().slice(0, 200));
-    const summary = cleanDigestText(String(e.summary ?? "").trim().slice(0, 600));
-    const whyItMatters = cleanDigestText(String(e.whyItMatters ?? "").trim().slice(0, 400));
+    const title = prose(e.title, 200);
+    const summary = prose(e.summary, 600);
+    const whyItMatters = prose(e.whyItMatters, 400);
     const url = String(e.url ?? "").trim();
     const category: DigestCategory | null =
       e.category === "ai" || e.category === "tech" || e.category === "markets"
@@ -229,7 +251,7 @@ function digestFromCandidate(candidate: string): ParsedDigest | null {
       .slice(0, MAX_RESOURCES_PER_ITEM)
       .flatMap((res): ParsedResource[] => {
         const r = res as { title?: unknown; url?: unknown; type?: unknown };
-        const rTitle = cleanDigestText(String(r.title ?? "").trim().slice(0, 200));
+        const rTitle = prose(r.title, 200);
         const rUrl = String(r.url ?? "").trim();
         if (!rTitle || !/^https?:\/\//i.test(rUrl)) return [];
         return [{ title: rTitle, url: rUrl, type: r.type === "video" ? "video" : "article" }];

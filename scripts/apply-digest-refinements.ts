@@ -1,4 +1,4 @@
-// Rewrite the TEXT of already-published digest editions from refined JSON.
+// Rewrite the TEXT of stored digest editions (published or draft) from refined JSON.
 //
 // Usage:
 //   npx tsx scripts/apply-digest-refinements.ts <refined.json> [more.json ...]          (dry run)
@@ -9,8 +9,9 @@
 // as the live row. Only wording changes: headline, item title / summary /
 // whyItMatters, resource titles, the closer, and the quiz text. Every URL,
 // sourceDomain, category, concept link, the item count and order, status and
-// publishedAt stay exactly as stored; any mismatch aborts that file. Unpublished
-// editions go through scripts/backfill-digest.ts instead.
+// publishedAt stay exactly as stored; any mismatch aborts that file. Links are
+// not re-verified, so a site that blocks bots can't cost an item. New editions
+// go through scripts/backfill-digest.ts instead.
 import { readFileSync } from "fs";
 import { createHash } from "crypto";
 import { prisma } from "../lib/prisma";
@@ -53,7 +54,6 @@ async function apply(filePath: string, write: boolean): Promise<void> {
   const weekOf = new Date(`${raw.weekOf}T00:00:00.000Z`);
   const row = await prisma.digestEdition.findUnique({ where: { weekOf } });
   if (!row) throw new Error(`No edition for weekOf ${raw.weekOf}`);
-  if (row.status !== "published") throw new Error(`weekOf ${raw.weekOf} is ${row.status}, not published`);
 
   const current = row.items as unknown as DigestItem[];
   if (!Array.isArray(raw.items) || raw.items.length !== current.length) {
@@ -119,7 +119,7 @@ async function apply(filePath: string, write: boolean): Promise<void> {
       contentHash: contentHashOf(headline, items, bigPicture, watchFor, quiz),
     },
   });
-  console.log("  UPDATED (still published)");
+  console.log(`  UPDATED (still ${row.status})`);
 }
 
 async function main() {
