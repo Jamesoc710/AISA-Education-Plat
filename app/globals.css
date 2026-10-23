@@ -432,12 +432,6 @@ input:focus:not(:focus-visible) {
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .page-enter,
-  .welcome-enter,
-  .login-exit { animation: none; }
-}
-
 /* ── Utility: skeleton pulse ───────────────────────────────────── */
 
 @keyframes pulse {
@@ -449,6 +443,14 @@ input:focus:not(:focus-visible) {
   background-color: var(--color-surface-2);
   border-radius: 6px;
   animation: pulse 1.8s ease-in-out infinite;
+}
+
+/* After .skeleton so its `animation: none` wins the cascade. */
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  .welcome-enter,
+  .login-exit,
+  .skeleton { animation: none; }
 }
 
 /* ── Top nav ───────────────────────────────────────────────────── */
