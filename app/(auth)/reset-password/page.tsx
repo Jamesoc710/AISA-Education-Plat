@@ -1,6 +1,5 @@
-import { Suspense } from "react";
-import { ResetPasswordClient } from "@/components/reset-password-client";
 import type { Metadata } from "next";
+import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 
 export const metadata: Metadata = {
   title: "Choose a new password | TCO",
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function ResetPasswordPage() {
-  return (
-    <Suspense>
-      <ResetPasswordClient />
-    </Suspense>
-  );
+  return <ResetPasswordForm />;
 }

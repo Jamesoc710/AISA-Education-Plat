@@ -31,7 +31,9 @@ export function AuthGate({
   signInLabel?: string;
   signUpLabel?: string;
 }) {
-  const signInHref = `/login?next=${encodeURIComponent(nextPath)}`;
+  const query = `?next=${encodeURIComponent(nextPath)}`;
+  const signInHref = `/login${query}`;
+  const signUpHref = `/signup${query}`;
   return (
     <div
       style={{
@@ -111,7 +113,7 @@ export function AuthGate({
             <Icon name="arrow-right" size={14} strokeWidth={2} />
           </Link>
           <Link
-            href={signInHref}
+            href={signUpHref}
             style={{
               display: "inline-flex",
               alignItems: "center",

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAuthUser } from "@/lib/supabase/auth";
-import { prisma } from "@/lib/prisma";
+import { getOrCreateProfile } from "@/lib/user-profile";
 import { HomeClient } from "@/components/home-client";
 import { AuthGate } from "@/components/ui/auth-gate";
 import { getWeekWindow, greetingForHour } from "@/lib/week-utils";
@@ -28,17 +28,14 @@ export default async function HomePage() {
         icon="home"
         tileColor="indigo"
         title="Sign in to see your home"
-        body="Your week at a glance, what's due, and where to pick up — personalized to your account."
+        body="Your week at a glance and where to pick up next, saved to your account."
         nextPath="/home"
       />
     );
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: authUser.id },
-    select: { id: true, name: true },
-  });
-  if (!dbUser) redirect("/login");
+  const dbUser = await getOrCreateProfile(authUser.id);
+  if (!dbUser) redirect("/login?error=profile");
 
   const now = new Date();
   const week = getWeekWindow(now);

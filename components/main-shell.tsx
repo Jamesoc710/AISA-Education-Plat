@@ -7,7 +7,7 @@ import type { TeamLink } from "@/lib/teams";
 
 /**
  * Plays either the standard page-enter fade or, once per signin, the larger
- * `welcome-enter` animation. The welcome flag is set by login-client in
+ * `welcome-enter` animation. The welcome flag is set by the auth forms in
  * sessionStorage just before navigation and consumed here on first mount.
  */
 function PageTransition({ children }: { children: ReactNode }) {

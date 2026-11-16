@@ -1,10 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
+import { ensureUserRow } from "@/lib/user-profile";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
  * POST /api/auth/callback
- * Called after Supabase sign-in/sign-up to ensure a User record exists in Prisma.
+ * Called by the auth forms right after a session is created in the browser
+ * (password sign-in, sign-up without confirmation, email link, new password)
+ * to make sure the member has a profile row. `name` is only sent on sign-up.
  */
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -16,27 +18,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({}));
-  const name =
-    body.name ||
-    user.user_metadata?.name ||
-    user.email?.split("@")[0] ||
-    "User";
+  const body = (await req.json().catch(() => ({}))) as { name?: unknown };
+  const name = typeof body.name === "string" ? body.name.slice(0, 120) : null;
 
-  // Upsert: create if new, update name/email if existing
-  await prisma.user.upsert({
-    where: { id: user.id },
-    create: {
-      id: user.id,
-      email: user.email!,
-      name,
-      role: "MEMBER",
-    },
-    update: {
-      email: user.email!,
-      name,
-    },
-  });
+  try {
+    await ensureUserRow(user, name);
+  } catch {
+    return NextResponse.json({ error: "Could not set up profile" }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }
