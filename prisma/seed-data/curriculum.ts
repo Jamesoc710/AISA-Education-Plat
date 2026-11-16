@@ -107,6 +107,18 @@ Embeddings are also the foundation of semantic search and RAG systems, where tex
     goDeeper: `The embedding layer is a lookup table of shape [vocab_size × embedding_dim]. Positional embeddings are added to token embeddings to give the model sequence order information (since attention itself is order-agnostic). Modern models use rotary positional embeddings (RoPE) instead of learned or sinusoidal positions. Dedicated embedding models (like text-embedding-3-large) are transformers trained specifically to produce useful dense representations rather than to generate text.`,
   },
 
+  {
+    sectionSlug: "core-architecture",
+    name: "From Prompt to Output",
+    slug: "prompt-to-output",
+    subtitle: "What a model actually does between your question and its answer",
+    difficulty: "FUNDAMENTALS",
+    sortOrder: 5,
+    whatItIs: "When you send a prompt, the model does not look up an answer. It builds one, a token at a time, by repeating the same short loop.\n\n1. **Assemble the input.** Your message is joined with everything else the model is allowed to see: the system prompt, the earlier conversation, and any documents or tool results. All of it has to fit in the context window.\n2. **Tokenize.** The text is split into tokens, and each token becomes an ID number.\n3. **Embed.** Each ID is swapped for its embedding, a long list of numbers that represents the token, along with information about its position.\n4. **Run the transformer layers.** The embeddings pass through dozens of layers. In each one, attention lets every token pull in information from the others, and a feed-forward step processes the result. By the last layer, the final position holds a rich summary of the whole input.\n5. **Score every possible next token.** That summary is turned into a probability for each token in the vocabulary.\n6. **Pick one.** A sampling rule chooses a token. Temperature controls how adventurous the choice is.\n7. **Repeat.** The chosen token is added to the input and the loop runs again, until the model produces a stop token or hits a length limit.\n\nThe reply you read is that loop run hundreds of times. Reasoning models do the same thing, but first generate thinking tokens you may not see. With tool use, the model's output is a structured request, your code runs it, and the result goes back into the input for another round.",
+    whyItMatters: "This one loop explains most of what people find surprising about LLMs. Answers stream in word by word because they are produced that way. Cost and speed depend on token counts because every token is a pass through the model. The same prompt can give different answers because of sampling. The model cannot go back and fix an earlier word, only keep writing. And nothing in the loop checks facts, which is where hallucinations come from. If you can walk through these steps, you can explain most model behavior from first principles.",
+    goDeeper: "The scores in step 5 are called logits, and a softmax turns them into probabilities. Common sampling rules are temperature, top-k and top-p (nucleus) sampling. Serving systems cache the work already done for earlier tokens (the KV cache), so each new token only needs one new position computed. Input is processed in parallel and output one step at a time, which is why output tokens are slower and priced higher than input tokens.",
+  },
+
   // ── FUNDAMENTALS / Training Process ───────────────────────────────────────
   {
     sectionSlug: "training-process",
@@ -291,6 +303,18 @@ Safety training from RLHF is not robust, it's a statistical tendency, not a hard
     goDeeper: null,
   },
 
+  {
+    sectionSlug: "key-concepts",
+    name: "Limits of LLMs",
+    slug: "llm-limitations",
+    subtitle: "Where today's models fall short, and which limits look temporary",
+    difficulty: "FUNDAMENTALS",
+    sortOrder: 7,
+    whatItIs: "LLMs are impressive and unreliable in specific, predictable ways. The main limits:\n\n- **Hallucination.** A model generates what is plausible, not what is verified. It can state something false in the same confident voice as something true.\n- **No learning after training.** The weights are frozen. A model does not learn from your conversations, and what it knows stops at its training cutoff. Anything newer has to be supplied in the prompt or through tools.\n- **Limited working memory.** Everything has to fit in the context window, and recall gets worse as the window fills. Across separate conversations there is no memory at all unless a product adds one.\n- **Reliability over long tasks.** A small error rate per step compounds. An agent that is right 95% of the time at each step will usually fail somewhere in a 50-step task.\n- **Brittle reasoning.** Models can solve a hard problem and then miss an easy one phrased in an unfamiliar way. Performance drops on problems unlike the training data.\n- **Opacity and control.** Nobody can fully explain why a model produced a given output, and safety training can be bypassed with clever prompting.\n- **Cost and energy.** Training and running frontier models takes enormous compute, which limits who can build them and how cheaply they can be used.\n\nSome of these are engineering problems that keep shrinking: context windows grow, tools supply fresh facts, hallucination rates fall. Others, such as the lack of learning after training, look tied to how the technology works today.",
+    whyItMatters: "Knowing the limits is what separates someone who can deploy AI from someone who can only demo it. Every limit maps to a design decision: retrieval and citations for hallucination, human review for high-stakes output, short and well-scoped tasks for agents. The limits are also at the center of the biggest strategic argument in the field. If they yield to more scale and better engineering, today's spending is justified and AGI may be close. If some of them need new ideas, timelines are longer than the optimists say. Your own view on that should rest on which limits you think are temporary.",
+    goDeeper: "Researchers disagree on whether these are limits of the transformer architecture, of the training objective, or only of current scale. Three kinds of evidence are worth watching: long-horizon benchmarks that measure how long a task an agent can finish on its own, research on memory and continual learning, and interpretability work that tries to explain what is happening inside a model.",
+  },
+
   // ── FUNDAMENTALS / Capabilities ────────────────────────────────────────────
   {
     sectionSlug: "capabilities",
@@ -387,6 +411,30 @@ Wrappers are extremely common because building on top of GPT-4 or Claude is fast
 Successful AI products built on top of model APIs add genuine proprietary value: unique data flywheels, deep domain expertise, integrations into existing workflows, or specialized fine-tuning that creates a real moat.`,
     whyItMatters: `This concept comes up constantly in conversations about AI business strategy. When evaluating a startup or product idea, being able to identify whether it's a wrapper (and whether that's a problem) is a key analytical skill. It also informs how AISA members should think about the AI products they build: what's the real moat beyond "we used Claude"?`,
     goDeeper: null,
+  },
+
+  {
+    sectionSlug: "industry-basics",
+    name: "Closed vs. Open Models",
+    slug: "closed-vs-open-models",
+    subtitle: "Renting intelligence through an API or running the weights yourself",
+    difficulty: "FUNDAMENTALS",
+    sortOrder: 4,
+    whatItIs: "AI models reach the world in two ways.\n\nA **closed model** stays on its maker's servers. You use it through an app or an API and never see the weights. The frontier models from OpenAI, Anthropic and Google work this way. The lab controls pricing, access, safety filters and when a version is retired.\n\nAn **open model** has weights you can download. Meta's Llama family, Mistral's open releases, and Chinese models such as DeepSeek and Qwen are examples. Anyone with the hardware can run them privately, fine-tune them, inspect them, and keep using them for as long as they like. Most are \"open weights\", not fully open source: you get the trained model, but not the training data or the full recipe.\n\nThe trade is control against convenience and capability. Closed models are usually the most capable at any given moment and need no infrastructure, but your data leaves your hands, you pay per token, and the provider can change the model under you. Open models give you privacy, customization and predictable cost at scale, but you need the hardware and skills to run them, and the best open model has usually trailed the best closed one.",
+    whyItMatters: "Whether to call an API or run your own model is one of the first decisions in any AI project, and the honest answer depends on how sensitive the data is, how much volume you expect, how much customization you need, and who will maintain it. The split also shapes the industry. Open releases put price pressure on closed labs. They spread capability to anyone, which worries people focused on safety, because the safeguards on a downloaded model can be removed. And they sit at the center of the competition between the US and China. When a company calls its model open, ask what exactly is open.",
+    goDeeper: "Licenses vary: some open-weight models allow any commercial use, others restrict it. \"Open\" and \"closed\" also describe a business choice more than a fixed identity. Labs known for closed models have released smaller open-weight ones, and labs known for open models have kept their strongest work closed. Distillation, training a small model on the outputs of a larger one, is one reason closed labs watch how their APIs are used.",
+  },
+
+  {
+    sectionSlug: "industry-basics",
+    name: "The AI Bubble Debate",
+    slug: "ai-bubble",
+    subtitle: "Whether the money going into AI is justified by what AI will earn",
+    difficulty: "FUNDAMENTALS",
+    sortOrder: 5,
+    whatItIs: "The AI bubble debate is the argument over whether the money flowing into AI is justified by what AI will earn.\n\n**The case that it is a bubble.** Tech giants and AI labs are spending hundreds of billions of dollars a year on chips and data centers, far more than AI products currently bring in. Much of the money moves in a circle: chip makers and cloud companies invest in AI labs, which spend it on those same companies' chips and cloud. Valuations assume enormous future growth. Chips lose their value within a few years, so the spending has to pay off quickly. All of this resembles earlier manias, such as the dot-com and telecom buildouts around 2000.\n\n**The case that it is not.** Usage and revenue are real and growing faster than almost any earlier technology. The biggest spenders are highly profitable companies that have paid for much of the buildout from their own profits, though borrowing has grown. Demand for compute has kept running ahead of supply. And if AI can do a meaningful share of knowledge work, the eventual market is large enough to justify the bet.\n\n**The middle view.** Both can be true. A technology can be transformative and still be over-invested in the short run. The internet was real, and the dot-com crash still wiped out most internet stocks. The useful questions are who is exposed, and when the returns have to show up.",
+    whyItMatters: "This is the question underneath most AI business news, and TCO members on both the tech and capital markets sides will be asked where they stand. A good answer separates the technology from the financing. Who pays if growth slows: chip makers, data center builders, lenders, startups with no path to profit, and anyone holding an index that leans on a few tech names. Who is fine: profitable companies using AI to cut costs. And what you would watch: AI revenue against spending, how fully the new compute is used, and whether prices for model access keep falling. There is no single right answer. A position backed by specifics is what counts.",
+    goDeeper: "Terms worth knowing: capital expenditure (capex) is money spent on long-lived assets such as data centers. Depreciation is how fast those assets lose value. Circular or vendor financing is when a supplier funds its own customer. Hyperscalers are the largest cloud companies. Historical comparisons cut both ways: the railway and fiber-optic booms both ended in crashes, and both left behind infrastructure that the next generation of companies built on.",
   },
 
   // ── FUNDAMENTALS / Practical Skills ───────────────────────────────────────
@@ -936,6 +984,18 @@ Interpretability matters for: debugging model failures, providing audit trails f
 ];
 
 export const CONCEPT_RELATIONS: [string, string][] = [
+  ["prompt-to-output", "tokens"],
+  ["prompt-to-output", "embeddings"],
+  ["prompt-to-output", "attention-mechanisms"],
+  ["prompt-to-output", "context-windows"],
+  ["closed-vs-open-models", "open-source-vs-open-weights"],
+  ["closed-vs-open-models", "major-ai-players"],
+  ["llm-limitations", "hallucinations"],
+  ["llm-limitations", "continual-learning"],
+  ["llm-limitations", "context-windows"],
+  ["ai-bubble", "training-costs"],
+  ["ai-bubble", "agi"],
+  ["ai-bubble", "ai-regulation"],
   ["transformers", "attention-mechanisms"],
   ["transformers", "tokens"],
   ["transformers", "embeddings"],

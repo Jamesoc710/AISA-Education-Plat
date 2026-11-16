@@ -194,4 +194,17 @@ export const FLASHCARD_SHORTS: Record<string, string> = {
 
   interpretability:
     "The research area focused on understanding what a model is actually doing internally.",
+
+  // ── Added November 2026 ───────────────────────────────────────────────
+  "prompt-to-output":
+    "The loop a model runs to answer: tokenize, embed, run the layers, predict one token, repeat.",
+
+  "llm-limitations":
+    "The predictable ways LLMs fall short: made-up facts, no learning after training, limited memory, and errors that compound over long tasks.",
+
+  "closed-vs-open-models":
+    "Closed models are used through the maker's servers; open models have weights anyone can download and run.",
+
+  "ai-bubble":
+    "The argument over whether spending on AI has outrun what AI can earn.",
 };

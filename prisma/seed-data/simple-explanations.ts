@@ -197,4 +197,17 @@ export const SIMPLE_EXPLANATIONS: Record<string, string> = {
 
   interpretability:
     "Interpretability is about understanding why an AI model gives the answers it gives, looking inside the \"black box\" to see how it thinks. Currently, we can observe what goes into a model and what comes out, but the reasoning process in between is largely a mystery. It's like having a brilliant advisor who gives great advice but can never explain their reasoning, you'd want to understand why before trusting them with important decisions.",
+
+  // ── Added November 2026 ───────────────────────────────────────────────
+  "prompt-to-output":
+    "When you ask an AI a question, it chops your words into small pieces, turns each piece into numbers, and runs those numbers through many layers of math that work out how the pieces relate. The result is a guess at the single best next piece. It adds that piece and guesses again, over and over, until the answer is finished. It is like a very well-read person writing a reply one word at a time, without ever going back to edit.",
+
+  "llm-limitations":
+    "AI chatbots are like a brilliant, well-read colleague with some serious quirks. They sometimes make things up and sound sure about it. They do not remember yesterday or learn from experience. They lose track during very long tasks. And nobody can fully explain how they reach their answers. Some of these quirks are being fixed quickly. Others may need new inventions.",
+
+  "closed-vs-open-models":
+    "A closed AI model is like a restaurant: you order from the menu and never see the kitchen. An open model is like being handed the recipe book and the ingredients. You can cook it at home, change it, and nobody can take it away, but you need your own kitchen. Closed models are usually the strongest and the easiest to use. Open ones give you privacy and control.",
+
+  "ai-bubble":
+    "Companies are spending staggering amounts of money building AI, much more than AI earns today. Some people think that is a bubble: excitement has run ahead of reality and a painful crash is coming. Others think the spending is a sensible bet on a technology that will change most jobs. It may be both, like the internet in 1999. The idea was right, and plenty of investors still lost money.",
 };

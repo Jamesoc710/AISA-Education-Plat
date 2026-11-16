@@ -576,11 +576,13 @@ function MarkdownBody({
             </code>
           );
         },
+        // The CSS reset strips list markers, so the list type is set explicitly.
         ul: ({ children }) => (
           <ul
             style={{
               margin: "0 0 14px",
               paddingLeft: 22,
+              listStyleType: "disc",
               color: baseColor,
               fontSize,
               lineHeight: leading,
@@ -594,6 +596,7 @@ function MarkdownBody({
             style={{
               margin: "0 0 14px",
               paddingLeft: 22,
+              listStyleType: "decimal",
               color: baseColor,
               fontSize,
               lineHeight: leading,

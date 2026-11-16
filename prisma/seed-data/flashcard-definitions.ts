@@ -193,4 +193,17 @@ export const FLASHCARD_DEFINITIONS: Record<string, string> = {
 
   interpretability:
     "The research area focused on understanding what computations a model is actually doing internally, rather than treating it as a black box. It matters for debugging, audit trails in high-stakes domains, and detecting deceptive alignment in future more capable systems.",
+
+  // ── Added November 2026 ───────────────────────────────────────────────
+  "prompt-to-output":
+    "The path from input to answer: text is split into tokens, tokens become embeddings, transformer layers use attention to build context, and the model predicts one next token at a time until it stops.",
+
+  "llm-limitations":
+    "LLMs hallucinate, cannot learn after training, are bounded by the context window, grow unreliable over long multi-step tasks, and are hard to interpret or fully control. Some limits are shrinking with engineering; others may need new ideas.",
+
+  "closed-vs-open-models":
+    "A closed model is only available through its maker's app or API. An open model's weights can be downloaded, run privately and fine-tuned, trading convenience and peak capability for control.",
+
+  "ai-bubble":
+    "The debate over whether AI investment is a bubble. Spending on chips and data centers far exceeds current AI revenue and much of it is circular, but usage is growing fast and the largest spenders are profitable. The real question is who is exposed if returns come late.",
 };
