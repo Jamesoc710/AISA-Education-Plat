@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Match | TCO",
+  title: "Match",
   description: "Pair terms with their definitions against the clock.",
 };
 

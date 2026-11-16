@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Flashcards | AISA Atlas",
+  title: "Flashcards",
   description: "Study AI concepts with flashcards.",
 };
 

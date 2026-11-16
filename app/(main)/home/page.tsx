@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getAuthUser } from "@/lib/supabase/auth";
 import { getOrCreateProfile } from "@/lib/user-profile";
 import { HomeClient } from "@/components/home-client";
-import { AuthGate } from "@/components/ui/auth-gate";
+import { Welcome } from "@/components/welcome";
 import { getWeekWindow, greetingForHour } from "@/lib/week-utils";
 import {
   getWeekEvents,
@@ -12,27 +12,18 @@ import {
   getDigestTeaser,
 } from "@/lib/home-data";
 import { getActiveTrackSlug } from "@/lib/track";
+import { CLUB_TIME_ZONE } from "@/lib/config";
 import { getReviewSummary } from "@/lib/review";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Home | AISA Atlas",
+  title: "Home",
 };
 
 export default async function HomePage() {
   const authUser = await getAuthUser();
-  if (!authUser) {
-    return (
-      <AuthGate
-        icon="home"
-        tileColor="indigo"
-        title="Sign in to see your home"
-        body="Your week at a glance and where to pick up next, saved to your account."
-        nextPath="/home"
-      />
-    );
-  }
+  if (!authUser) return <Welcome />;
 
   const dbUser = await getOrCreateProfile(authUser.id);
   if (!dbUser) redirect("/login?error=profile");
@@ -51,7 +42,15 @@ export default async function HomePage() {
       getReviewSummary(dbUser.id),
     ]);
 
-  const greeting = greetingForHour(now.getHours());
+  // The server clock is UTC; greet by the club's local hour.
+  const clubHour = Number(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: CLUB_TIME_ZONE,
+      hour: "numeric",
+      hourCycle: "h23",
+    }).format(now),
+  );
+  const greeting = greetingForHour(clubHour);
   const firstName = (dbUser.name ?? "").split(" ")[0] || null;
 
   return (

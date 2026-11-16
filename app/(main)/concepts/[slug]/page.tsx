@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const concept = await getConceptBySlug(slug);
   return {
-    title: `${concept.name} | AISA Atlas`,
+    title: concept.name,
     description: concept.subtitle,
   };
 }

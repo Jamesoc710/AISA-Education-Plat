@@ -4,7 +4,7 @@ import { ConfirmLink } from "@/components/auth/confirm-link";
 import { safeNextPath } from "@/lib/safe-redirect";
 
 export const metadata: Metadata = {
-  title: "Confirm your email | TCO",
+  title: "Confirm your email",
   // Links carry a one-time token; keep them out of search results and referrers.
   robots: { index: false, follow: false },
   referrer: "no-referrer",

@@ -2,18 +2,16 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { CalendarClient } from "@/components/calendar-client";
 import { IconTile } from "@/components/ui/icon-tile";
+import { CALENDAR_CLOSED } from "@/lib/config";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Calendar | AISA Atlas",
+  title: "Calendar",
   description: "The TCO club calendar: meetings, workshops and events.",
 };
 
-// Temporary closure. Flip to false to bring the calendar back; the daily
-// schedule sync keeps running, so the data is current when it reopens.
-const CALENDAR_CLOSED = true;
 
 function CalendarClosed() {
   return (

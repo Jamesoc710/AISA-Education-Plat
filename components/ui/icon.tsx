@@ -78,6 +78,7 @@ import {
   Copyright,
   EyeSlash,
   EnvelopeSimple,
+  List,
   ListChecks,
   CaretCircleDown,
   Image as ImageIcon,
@@ -140,7 +141,9 @@ export type IconName =
   | "hammer" | "github-logo" | "arrow-square-out" | "paper-plane-tilt"
   | "rocket-launch" | "play-circle"
   // Auth
-  | "envelope";
+  | "envelope"
+  // Phone nav
+  | "menu";
 
 const REGISTRY: Record<IconName, PhosphorIcon> = {
   // Section tiles
@@ -256,6 +259,8 @@ const REGISTRY: Record<IconName, PhosphorIcon> = {
   "play-circle": PlayCircle,
   // Auth
   "envelope": EnvelopeSimple,
+  // Phone nav
+  "menu": List,
 };
 
 export function Icon({

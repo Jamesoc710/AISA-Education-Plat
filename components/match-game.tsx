@@ -160,6 +160,7 @@ function Board({
   const [announce, setAnnounce] = useState("");
   const done = matched.size === round.concepts.length;
   const saved = useRef(false);
+  const [saveFailed, setSaveFailed] = useState(false);
 
   // Clock runs from the first pick until the last pair.
   useEffect(() => {
@@ -181,7 +182,9 @@ function Board({
           result: missed.has(c.id) ? "incorrect" : "correct",
         })),
       }),
-    }).catch(() => {});
+    })
+      .then((res) => setSaveFailed(!res.ok))
+      .catch(() => setSaveFailed(true));
   }, [done, signedIn, round.concepts, missed]);
 
   const byId = useMemo(() => new Map(round.concepts.map((c) => [c.id, c])), [round.concepts]);
@@ -291,6 +294,7 @@ function Board({
           clock={clock}
           mistakes={mistakes}
           signedIn={signedIn}
+          saveFailed={saveFailed}
           onAgain={onAgain}
           onChoose={onChoose}
         />
@@ -375,6 +379,7 @@ function Summary({
   clock,
   mistakes,
   signedIn,
+  saveFailed,
   onAgain,
   onChoose,
 }: {
@@ -383,6 +388,7 @@ function Summary({
   clock: string;
   mistakes: number;
   signedIn: boolean;
+  saveFailed: boolean;
   onAgain: () => void;
   onChoose: () => void;
 }) {
@@ -418,6 +424,7 @@ function Summary({
             ? "Perfect round, no misses."
             : `${round.concepts.length - missedConcepts.length} of ${round.concepts.length} on the first try, ${mistakes} miss${mistakes === 1 ? "" : "es"}.`}
           {!signedIn && " Sign in to save your progress."}
+          {saveFailed && " This round didn't save. Check your connection."}
         </div>
       </div>
 

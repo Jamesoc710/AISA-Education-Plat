@@ -1,5 +1,6 @@
 "use client";
 
+import { CALENDAR_CLOSED } from "@/lib/config";
 import Link from "next/link";
 import { daysUntil } from "@/lib/week-utils";
 import { TypeTag } from "@/components/ui/type-tag";
@@ -101,7 +102,7 @@ export function HomeClient(props: HomeClientProps) {
         style={{
           maxWidth: 1080,
           margin: "0 auto",
-          padding: "56px 48px 96px",
+          padding: "var(--pad-page-y) var(--pad-wide-x) 96px",
         }}
       >
         {/* ── Meta line ───────────────────────────────────────────── */}
@@ -149,7 +150,14 @@ export function HomeClient(props: HomeClientProps) {
         )}
 
         {/* ── Two-column: This week | On plate + Practice ─────────── */}
+        {CALENDAR_CLOSED ? (
+          <div>
+            <SectionEyebrow>Practice</SectionEyebrow>
+            <PracticeBlock weak={weakConcept} review={review} />
+          </div>
+        ) : (
         <div
+          className="split-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "minmax(0, 1.35fr) 1px minmax(0, 1fr)",
@@ -158,7 +166,7 @@ export function HomeClient(props: HomeClientProps) {
           }}
         >
           <div>
-            <SectionEyebrow>This week</SectionEyebrow>
+            <SectionEyebrow>On the calendar</SectionEyebrow>
             <WeekList events={weekEvents} todayDayIdx={todayDayIdx} />
             <Link
               href="/calendar"
@@ -195,6 +203,7 @@ export function HomeClient(props: HomeClientProps) {
             </div>
           </div>
         </div>
+        )}
 
         {/* ── Workshop prep (shared-edge cards) ───────────────────── */}
         {upcomingWorkshops.length > 0 && (
@@ -410,6 +419,7 @@ function WeekList({ events, todayDayIdx }: { events: HomeWeekEvent[]; todayDayId
         return (
           <li
             key={e.id}
+            className="home-week-row"
             style={{
               display: "grid",
               gridTemplateColumns: "52px 72px 72px 1fr",
@@ -548,6 +558,7 @@ function WorkshopPrepRow({
   const twoUp = workshops.length > 1;
   return (
     <div
+      className="stack-on-phone"
       style={{
         display: "grid",
         gridTemplateColumns: twoUp ? "1fr 1fr" : "1fr",

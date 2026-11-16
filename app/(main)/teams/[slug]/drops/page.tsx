@@ -12,6 +12,11 @@ import { TeamHoverStyles } from "@/components/team-hq/team-hover-styles";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const team = getTeam((await params).slug);
+  return team ? { title: `${team.displayName} drops`, description: team.mandate } : {};
+}
+
 /**
  * The full, reverse-chron archive of a team's member drops: the durable record a
  * group chat cannot keep. Member posts only here (no system floor). Gated by the

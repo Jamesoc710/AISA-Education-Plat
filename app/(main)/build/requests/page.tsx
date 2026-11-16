@@ -10,7 +10,7 @@ import { BuildRequestsClient } from "@/components/build-requests-client";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Your requests | AISA Atlas",
+  title: "Your requests",
 };
 
 export default async function BuildRequestsPage() {

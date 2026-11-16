@@ -84,7 +84,7 @@ export function DashboardClient({
         style={{
           maxWidth: 1080,
           margin: "0 auto",
-          padding: "56px 48px 96px",
+          padding: "var(--pad-page-y) var(--pad-wide-x) 96px",
         }}
       >
         {/* ── Hero ────────────────────────────────────────────────── */}
@@ -295,6 +295,7 @@ function MasterySection({
     <div>
       <SectionEyebrow>Mastery</SectionEyebrow>
       <div
+        className="split-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "minmax(0, 1fr) 1px minmax(0, 1.4fr)",

@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Quiz | TCO",
+  title: "Quiz",
   description: "Pick a mode to see where you're at.",
 };
 

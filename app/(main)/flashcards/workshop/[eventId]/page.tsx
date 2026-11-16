@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     select: { title: true },
   });
   return {
-    title: event ? `${event.title} — Prep | AISA Atlas` : "Workshop prep | AISA Atlas",
+    title: event ? `Prep: ${event.title}` : "Workshop prep",
   };
 }
 

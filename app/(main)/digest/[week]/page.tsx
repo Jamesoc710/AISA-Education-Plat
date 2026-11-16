@@ -7,7 +7,7 @@ import { editionToView } from "@/lib/digest-view";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "This Week | AISA Atlas",
+  title: "This Week",
 };
 
 /**

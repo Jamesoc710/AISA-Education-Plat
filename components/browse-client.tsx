@@ -151,7 +151,7 @@ export function BrowseClient({
     activeTrackSlug === "ai" && availableTiers.length > 1 && !query;
 
   return (
-    <div style={{ padding: "32px 32px 80px" }}>
+    <div style={{ padding: "32px var(--pad-browse-x) 80px" }}>
       <div style={{ maxWidth: 1040, margin: "0 auto" }}>
         {/* ── Track switcher ──────────────────────────────────── */}
         {tracks.length > 1 && (
@@ -716,11 +716,11 @@ function TrackEmptyState({ track }: { track: TrackSummary | null }) {
         <Icon name="book-open" size={28} strokeWidth={1.5} />
       </span>
       <p style={{ fontSize: "var(--text-base)", margin: 0, fontWeight: 600, color: "var(--color-text)" }}>
-        {track ? `${track.name} is coming soon` : "Coming soon"}
+        {track ? `No lessons in ${track.name} yet` : "No lessons here yet"}
       </p>
       <p style={{ fontSize: "var(--text-sm)", margin: 0, color: "var(--color-text-2)", maxWidth: 400, lineHeight: 1.55 }}>
-        We&apos;re building out this team. Content lands here shortly. Switch back to
-        Artificial Intelligence to keep exploring in the meantime.
+        This track doesn&apos;t have lessons yet. Switch to Artificial Intelligence above to keep
+        exploring.
       </p>
     </div>
   );

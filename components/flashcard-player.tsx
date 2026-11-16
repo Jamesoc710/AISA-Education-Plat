@@ -46,6 +46,7 @@ export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
   // Self-grading after the flip feeds the review queue. Saving is
   // fire-and-forget so the next card never waits on the network.
   const [tally, setTally] = useState({ got: 0, notYet: 0 });
+  const [saveFailed, setSaveFailed] = useState(false);
   const grade = useCallback(
     (result: "correct" | "incorrect") => {
       if (!current || !flipped) return;
@@ -54,7 +55,9 @@ export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode: "flashcard", results: [{ conceptId: current.id, result }] }),
-      }).catch(() => {});
+      })
+        .then((res) => setSaveFailed(!res.ok))
+        .catch(() => setSaveFailed(true));
       setFlipped(false);
       setExpanded(false);
       setIndex((i) => (i + 1) % total);
@@ -187,7 +190,9 @@ export function FlashcardPlayer({ deck, deckLabel, cards }: Props) {
           }}
           aria-live="polite"
         >
-          {tally.got + tally.notYet > 0 && `${tally.got} got it · ${tally.notYet} not yet`}
+          {saveFailed
+            ? "Not saving right now. Check your connection."
+            : tally.got + tally.notYet > 0 && `${tally.got} got it · ${tally.notYet} not yet`}
         </div>
       </div>
 

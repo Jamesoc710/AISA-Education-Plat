@@ -9,6 +9,7 @@ import { FeedbackDialog } from "@/components/feedback-dialog";
 import { createClient } from "@/lib/supabase/client";
 import type { ShellUser } from "@/components/main-shell";
 import type { TeamLink } from "@/lib/teams";
+import { CALENDAR_CLOSED } from "@/lib/config";
 
 /**
  * Global top navigation: wordmark on the left, the primary links and a
@@ -40,6 +41,7 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
 
   return (
     <header
+      className="topnav"
       style={{
         position: "relative",
         zIndex: 30,
@@ -51,7 +53,6 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
         columnGap: "var(--space-4)",
         height: 64,
         flexShrink: 0,
-        padding: "0 24px",
         backgroundColor: "var(--color-bg)",
         borderBottom: "1px solid var(--color-border)",
       }}
@@ -77,7 +78,11 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
         />
       </Link>
 
-      <nav aria-label="Primary" style={{ display: "flex", alignItems: "center", gap: 2 }}>
+      <nav
+        aria-label="Primary"
+        className="topnav-primary"
+        style={{ display: "flex", alignItems: "center", gap: 2 }}
+      >
         {PRIMARY.map((item) => (
           <NavLink
             key={item.href}
@@ -102,8 +107,19 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
         }}
       >
         {showSearch && <BrowseSearch />}
-        <FeedbackButton onClick={() => setFeedbackOpen(true)} />
+        {/* Feedback is tied to an account, so it is only offered when signed in. */}
+        {user && (
+          <span className="topnav-wide-only">
+            <FeedbackButton onClick={() => setFeedbackOpen(true)} />
+          </span>
+        )}
         {user ? <UserMenu user={user} /> : <SignInLink />}
+        <MobileMenu
+          user={user}
+          teams={teams}
+          pathname={pathname}
+          onFeedback={() => setFeedbackOpen(true)}
+        />
       </div>
 
       <FeedbackDialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
@@ -262,14 +278,134 @@ function CommunityMenu({
             title="Build board"
             description="Projects members are building"
           />
-          <CommunityItem
-            href="/calendar"
-            active={matches(pathname, "/calendar")}
-            mark={<Icon name="calendar" size={16} strokeWidth={1.85} />}
-            title="Calendar"
-            description="Meetings, workshops and events"
-          />
+          {!CALENDAR_CLOSED && (
+            <CommunityItem
+              href="/calendar"
+              active={matches(pathname, "/calendar")}
+              mark={<Icon name="calendar" size={16} strokeWidth={1.85} />}
+              title="Calendar"
+              description="Meetings, workshops and events"
+            />
+          )}
         </div>
+      )}
+    </div>
+  );
+}
+
+// ── Phone menu ───────────────────────────────────────────────────────────────
+
+/**
+ * Under 760px the centered links do not fit, so they move into this panel
+ * (see `.topnav-*` in globals.css). Same destinations as the desktop bar.
+ */
+function MobileMenu({
+  user,
+  teams,
+  pathname,
+  onFeedback,
+}: {
+  user: ShellUser | null;
+  teams: TeamLink[];
+  pathname: string;
+  onFeedback: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelId = useId();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const link = (href: string, label: string, active: boolean, mark?: React.ReactNode) => (
+    <Link
+      key={href}
+      href={href}
+      className="topnav-mobile-item"
+      aria-current={active ? "page" : undefined}
+      onClick={() => setOpen(false)}
+    >
+      {mark}
+      {label}
+    </Link>
+  );
+
+  return (
+    <div ref={rootRef} className="topnav-narrow-only">
+      <button
+        ref={triggerRef}
+        type="button"
+        className="topnav-mobile-trigger"
+        aria-expanded={open}
+        aria-controls={panelId}
+        aria-label={open ? "Close menu" : "Open menu"}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <Icon name={open ? "x" : "menu"} size={20} />
+      </button>
+
+      {open && (
+        <nav id={panelId} aria-label="Menu" className="topnav-mobile-panel animate-fade-in">
+          {PRIMARY.map((item) =>
+            link(
+              item.href,
+              item.label,
+              [item.href, ...(item.also ?? [])].some((h) => matches(pathname, h)),
+            ),
+          )}
+
+          <div className="topnav-mobile-label">Community</div>
+          {teams.map((t) =>
+            link(
+              `/teams/${t.slug}`,
+              t.displayName,
+              matches(pathname, `/teams/${t.slug}`),
+              <span
+                aria-hidden
+                style={{ width: 9, height: 9, borderRadius: 999, backgroundColor: t.accent }}
+              />,
+            ),
+          )}
+          {link("/build", "Build board", matches(pathname, "/build"))}
+          {!CALENDAR_CLOSED && link("/calendar", "Calendar", matches(pathname, "/calendar"))}
+
+          <div className="topnav-mobile-rule" />
+          {user ? (
+            <button
+              type="button"
+              className="topnav-mobile-item"
+              onClick={() => {
+                setOpen(false);
+                onFeedback();
+              }}
+            >
+              Leave feedback
+            </button>
+          ) : (
+            link("/signup", "Create an account", false)
+          )}
+        </nav>
       )}
     </div>
   );

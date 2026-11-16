@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Practice | TCO",
+  title: "Practice",
   description: "Review what's due, quiz yourself, match terms, or explain a concept in your own words.",
 };
 

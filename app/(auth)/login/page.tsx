@@ -7,7 +7,7 @@ import { landingErrorMessage } from "@/lib/auth-errors";
 import { safeNextPath } from "@/lib/safe-redirect";
 
 export const metadata: Metadata = {
-  title: "Sign in | TCO",
+  title: "Sign in",
   description: "Sign in to your TCO account.",
 };
 

@@ -1,3 +1,4 @@
+import { CALENDAR_CLOSED } from "@/lib/config";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTeam, teamAccentVars } from "@/lib/teams";
@@ -15,6 +16,11 @@ import { SetLensButton } from "@/components/team-hq/set-lens-button";
 import { TeamHoverStyles } from "@/components/team-hq/team-hover-styles";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const team = getTeam((await params).slug);
+  return team ? { title: `${team.displayName} team`, description: team.mandate } : {};
+}
 
 /**
  * The Team HQ at /teams/[slug]. Editorial surface in the team accent (never the
@@ -41,7 +47,7 @@ export default async function TeamPage({
 
   const memberLabel =
     data.memberCount === 0
-      ? "No members yet"
+      ? "Roster forming"
       : data.memberCount === 1
         ? "1 member"
         : `${data.memberCount} members`;
@@ -55,7 +61,7 @@ export default async function TeamPage({
           borderBottom: "1px solid var(--color-border)",
         }}
       >
-        <div style={{ maxWidth: 1080, margin: "0 auto", padding: "48px 48px 40px" }}>
+        <div style={{ maxWidth: 1080, margin: "0 auto", padding: "48px var(--pad-wide-x) 40px" }}>
           {/* short accent tick */}
           <div
             aria-hidden
@@ -132,7 +138,7 @@ export default async function TeamPage({
       </div>
 
       {/* ── Body ─────────────────────────────────────────────────────── */}
-      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "40px 48px 96px" }}>
+      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "40px var(--pad-wide-x) 96px" }}>
         {/* ── 2. Next team meeting ────────────────────────────────── */}
         <section>
           <SectionEyebrow>Next team meeting</SectionEyebrow>
@@ -168,11 +174,17 @@ export default async function TeamPage({
             </article>
           ) : (
             <p style={emptyStyle}>
-              No meeting on the calendar right now.{" "}
-              <Link href="/calendar" className="editorial-link" style={accentLink}>
-                See the full calendar
-              </Link>
-              .
+              {CALENDAR_CLOSED ? (
+                "No meeting scheduled right now."
+              ) : (
+                <>
+                  No meeting on the calendar right now.{" "}
+                  <Link href="/calendar" className="editorial-link" style={accentLink}>
+                    See the full calendar
+                  </Link>
+                  .
+                </>
+              )}
             </p>
           )}
         </section>

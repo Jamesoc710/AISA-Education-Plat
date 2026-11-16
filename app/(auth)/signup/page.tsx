@@ -6,7 +6,7 @@ import { getAuthProviders } from "@/lib/supabase/auth-settings";
 import { safeNextPath } from "@/lib/safe-redirect";
 
 export const metadata: Metadata = {
-  title: "Create your account | TCO",
+  title: "Create your account",
   description: "Create a TCO account to save your progress and practice what you learn.",
 };
 

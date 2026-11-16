@@ -4,7 +4,7 @@ import { BuildClient } from "@/components/build-client";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Build Board | AISA Atlas",
+  title: "Build Board",
 };
 
 export default async function BuildPage() {

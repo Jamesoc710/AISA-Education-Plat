@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 const MAX_ANSWER = 2000;
+// Short answers graded per member per rolling 24 hours.
+const DAILY_GRADED_LIMIT = 120;
 
 /**
  * POST /api/quiz/answer
@@ -85,12 +87,32 @@ export async function POST(req: NextRequest) {
   }
 
   const answer = typeof body.answer === "string" ? body.answer.slice(0, MAX_ANSWER) : "";
-  const result = await gradeShortAnswer({
-    questionText: question.questionText,
-    modelAnswer: question.answerExplanation,
-    studentAnswer: answer,
-    conceptName: question.concept.name,
+
+  // Each graded answer is one LLM call. Past the daily cap the answer is still
+  // saved and the model answer shown, just without a grade (the same path as
+  // a grader outage), so a long study session is never blocked.
+  const gradedToday = await prisma.quizAttempt.count({
+    where: {
+      userId: user.id,
+      llmGradedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+    },
   });
+  // An empty answer is a skip; the grader handles it without an LLM call.
+  const overLimit = answer.trim().length > 0 && gradedToday >= DAILY_GRADED_LIMIT;
+
+  const result = overLimit
+    ? {
+        score: "partial" as const,
+        reasoning:
+          "You've reached today's limit for graded answers, so this one isn't scored. Compare your answer with the model answer below.",
+        failed: true,
+      }
+    : await gradeShortAnswer({
+        questionText: question.questionText,
+        modelAnswer: question.answerExplanation,
+        studentAnswer: answer,
+        conceptName: question.concept.name,
+      });
 
   // A grader outage is not the member's fault: keep the answer, skip the grade,
   // and leave the review queue alone.

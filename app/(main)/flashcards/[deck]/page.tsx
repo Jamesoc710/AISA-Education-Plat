@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { deck } = await params;
   const label = DECK_LABELS[deck];
   return {
-    title: label ? `${label} flashcards | AISA Atlas` : "Flashcards | AISA Atlas",
+    title: label ? `${label} flashcards` : "Flashcards",
   };
 }
 

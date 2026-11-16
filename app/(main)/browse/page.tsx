@@ -5,6 +5,11 @@ import type { ConceptData, SectionGroup } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Browse",
+  description: "Every concept in the TCO curriculum, from the fundamentals to the frontier.",
+};
+
 async function getConcepts(trackSlug: string): Promise<SectionGroup[]> {
   const concepts = await prisma.concept.findMany({
     where: { section: { tier: { track: { slug: trackSlug } } } },

@@ -72,7 +72,7 @@ export function DigestClient({
       data-surface="editorial"
       style={{ backgroundColor: "var(--color-bg)", minHeight: "100%" }}
     >
-      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "56px 48px 96px" }}>
+      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "var(--pad-page-y) var(--pad-wide-x) 96px" }}>
         {archiveView ? (
           <BackLink href="/digest" label="Latest edition" />
         ) : (

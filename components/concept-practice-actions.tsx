@@ -34,6 +34,7 @@ export function ConceptPracticeActions({
 }) {
   const [review, setReview] = useState(initialReview);
   const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   const toggle = async () => {
     setBusy(true);
@@ -46,7 +47,12 @@ export function ConceptPracticeActions({
       if (res.ok) {
         const data = await res.json();
         setReview({ inReview: data.inReview, dueAt: data.dueAt ?? null });
+        setFailed(false);
+      } else {
+        setFailed(true);
       }
+    } catch {
+      setFailed(true);
     } finally {
       setBusy(false);
     }
@@ -68,6 +74,14 @@ export function ConceptPracticeActions({
         <ActionLink icon="help-circle" label="Quiz me" href={`/quiz?mode=concept&id=${conceptId}`} />
       )}
       <ActionLink icon="chat-circle-text" label="Explain it back" href={`/practice/explain?concept=${conceptSlug}`} />
+      {failed && (
+        <p
+          role="alert"
+          style={{ flexBasis: "100%", margin: 0, fontSize: "var(--text-sm)", color: "var(--color-incorrect)" }}
+        >
+          That didn&apos;t save. Check your connection and try again.
+        </p>
+      )}
     </div>
   );
 }
