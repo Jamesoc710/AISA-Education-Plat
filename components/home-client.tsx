@@ -70,7 +70,7 @@ function simplifyTime(t: string): string {
 function formatTime(start: string | null, end: string | null): string | null {
   if (!start) return null;
   if (!end) return simplifyTime(start);
-  return `${simplifyTime(start)}–${simplifyTime(end)}`;
+  return `${simplifyTime(start)} to ${simplifyTime(end)}`;
 }
 
 export function HomeClient(props: HomeClientProps) {

@@ -15,12 +15,12 @@ const TIER_COPY: Record<string, { title: string; subtitle: string }> = {
   fundamentals: {
     title: "Fundamentals",
     subtitle:
-      "The building blocks — start here to get a confident mental model of how it all works.",
+      "The building blocks. Start here to get a confident mental model of how it all works.",
   },
   intermediate: {
     title: "Intermediate",
     subtitle:
-      "How it actually works in the real world — the layer that turns familiarity into real understanding.",
+      "How it actually works in the real world: the layer that turns familiarity into real understanding.",
   },
   advanced: {
     title: "Advanced",

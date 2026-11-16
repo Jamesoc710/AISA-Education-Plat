@@ -21,7 +21,7 @@ export default async function DashboardPage() {
         icon="bar-chart"
         tileColor="blue"
         title="Sign in to see your progress"
-        body="Your dashboard tracks concept coverage, quiz accuracy, and 30-day activity — all tied to your account."
+        body="Your dashboard tracks concept coverage, quiz accuracy, and 30-day activity, all saved to your account."
         nextPath="/dashboard"
       />
     );

@@ -894,7 +894,7 @@ function Legend() {
   const items = [
     { label: "New", color: "var(--color-text-3)" },
     { label: "<50%", color: "var(--color-incorrect)" },
-    { label: "50–79%", color: "var(--color-gold)" },
+    { label: "50-79%", color: "var(--color-gold)" },
     { label: "80%+", color: "var(--color-correct)" },
   ];
   return (
@@ -985,7 +985,7 @@ function ReviewList({ items }: { items: WeakItem[] }) {
                 : "var(--color-text-3)",
             }}
           >
-            {item.score ? `${item.score.pct}%` : "–"}
+            {item.score ? `${item.score.pct}%` : "-"}
           </div>
           <div style={{ minWidth: 0 }}>
             <div

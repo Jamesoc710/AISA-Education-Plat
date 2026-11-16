@@ -910,7 +910,7 @@ function StatusDot({ outcome }: { outcome: Outcome }) {
           : "var(--color-surface-2)";
   const fg = outcome === null ? "var(--color-text-3)" : "#fff";
   const glyph =
-    outcome === "correct" ? "✓" : outcome === "incorrect" ? "✗" : outcome === "partial" ? "½" : "–";
+    outcome === "correct" ? "✓" : outcome === "incorrect" ? "✗" : outcome === "partial" ? "½" : "-";
   return (
     <span
       style={{

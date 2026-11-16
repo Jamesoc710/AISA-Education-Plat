@@ -82,7 +82,7 @@ function formatDayDate(d: Date): string {
 }
 
 function formatRange(start: Date, end: Date): string {
-  return `${formatDayDate(start)} – ${formatDayDate(end)}`;
+  return `${formatDayDate(start)} to ${formatDayDate(end)}`;
 }
 
 // Source times may arrive as "12", "12:00", "13:00", or "6:30pm" depending on
@@ -102,7 +102,7 @@ function simplifyTime(t: string): string {
 function formatEventTime(start: string | null, end: string | null): string | null {
   if (!start) return null;
   if (!end) return simplifyTime(start);
-  return `${simplifyTime(start)}–${simplifyTime(end)}`;
+  return `${simplifyTime(start)} to ${simplifyTime(end)}`;
 }
 
 // Academic term from the middle of the synced range: Jan-Mar Winter, Apr-Jun
