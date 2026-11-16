@@ -9,6 +9,10 @@
  *
  * Each of the 57 concepts gets its own icon; it inherits its parent
  * section's color so tier/section grouping stays readable.
+ *
+ * Browse uses the color pair without the icon: the fg shade is the section's
+ * text ink and the bg shade is its hover tint (components/browse-client.tsx).
+ * A section missing from the map falls back to stone there too.
  */
 
 import type { IconName } from "@/components/ui/icon";

@@ -333,34 +333,10 @@ input:focus:not(:focus-visible) {
   background-color: var(--color-bg);
 }
 
-.browse-tier-rule { border-bottom: 1px solid var(--browse-tier-ink, var(--color-text)); }
-.browse-tier-name { color: var(--browse-tier-ink, var(--color-text)); }
-
-/* Colour. Each section carries one ink (--browse-ink) for its name and count,
-   and one for its concepts' hover state. Which ink that is depends on the
-   scheme set on the page root. TEMPORARY: only one scheme survives. */
-.browse-section {
-  --browse-ink: var(--color-text);
-  --browse-hover-ink: var(--color-accent);
-  --browse-hover-bg: var(--color-surface);
-  --browse-rule: var(--color-border);
-}
-[data-browse-color="section"] .browse-section,
-[data-browse-color="section-full"] .browse-section {
-  --browse-ink: var(--section-ink);
-  --browse-hover-ink: var(--section-ink);
-  --browse-hover-bg: var(--section-tint);
-  --browse-rule: color-mix(in srgb, var(--section-ink) 22%, transparent);
-}
-[data-browse-color="section-full"] .browse-concept-name { color: var(--section-ink); }
-[data-browse-color="level"] .browse-section { --browse-ink: var(--tile-coral-fg); }
-[data-browse-color="tier"] section { --browse-tier-ink: var(--tier-ink); }
-[data-browse-color="tier"] .browse-section {
-  --browse-ink: var(--tier-ink);
-  --browse-hover-ink: var(--tier-ink);
-}
+/* Colour means "which section": SectionRow sets --section-ink (text) and
+   --section-tint (pale fill) from the section palette. */
 .browse-section-name,
-.browse-section-count { color: var(--browse-ink); }
+.browse-section-count { color: var(--section-ink, var(--color-text)); }
 
 /* Index layout: section identity on the left, its concepts on the right. */
 .browse-section {
@@ -404,7 +380,9 @@ input:focus:not(:focus-visible) {
   bottom: 0;
   left: 12px;
   height: 1px;
-  background-color: var(--browse-rule);
+  /* A faint wash of the section ink; plain border colour where color-mix is missing. */
+  background-color: var(--color-border);
+  background-color: color-mix(in srgb, var(--section-ink, var(--color-border)) 22%, transparent);
   transition: opacity 120ms ease;
 }
 /* No hairline under the last row of the two-column grid. */
@@ -412,7 +390,7 @@ input:focus:not(:focus-visible) {
 .browse-concept:nth-last-child(2):nth-child(odd)::after { display: none; }
 
 .browse-concept:hover {
-  background-color: var(--browse-hover-bg);
+  background-color: var(--section-tint, var(--color-surface));
   box-shadow: var(--shadow-card-hover);
 }
 .browse-concept:hover::after { opacity: 0; }
@@ -425,7 +403,7 @@ input:focus:not(:focus-visible) {
   letter-spacing: -0.01em;
   transition: color 120ms ease;
 }
-.browse-concept:hover .browse-concept-name { color: var(--browse-hover-ink); }
+.browse-concept:hover .browse-concept-name { color: var(--section-ink, var(--color-accent)); }
 
 .browse-concept-sub {
   display: -webkit-box;
@@ -442,7 +420,7 @@ input:focus:not(:focus-visible) {
   display: flex;
   flex-shrink: 0;
   align-self: center;
-  color: var(--browse-hover-ink);
+  color: var(--section-ink, var(--color-accent));
   opacity: 0;
   transform: translateX(-4px);
   transition: opacity 120ms ease, transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);

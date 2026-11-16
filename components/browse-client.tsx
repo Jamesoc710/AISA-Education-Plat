@@ -36,34 +36,14 @@ function plural(n: number, word: string) {
   return `${n} ${word}${n === 1 ? "" : "s"}`;
 }
 
-/**
- * TEMPORARY while the scheme is being chosen: what colour means on this page.
- * The rules for each live in globals.css under [data-browse-color].
- *
- * - section:      every section has its own ink, on its name and its hover state
- * - section-full: the same, and the section's concept names take the ink too
- * - level:        one spot colour marks section names, so colour says "section"
- * - tier:         one colour per difficulty tier, the ones tier labels already use
- */
-export type BrowseColor = "section" | "section-full" | "level" | "tier";
-
-// Same tokens as components/ui/tier-badge.tsx.
-const TIER_INK: Record<string, string> = {
-  fundamentals: "var(--color-gold)",
-  intermediate: "var(--color-blue)",
-  advanced: "var(--color-slate)",
-};
-
 export function BrowseClient({
   sections,
   tracks = [],
   activeTrackSlug = "ai",
-  colorBy = "section",
 }: {
   sections: SectionGroup[];
   tracks?: TrackSummary[];
   activeTrackSlug?: string;
-  colorBy?: BrowseColor;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -114,11 +94,7 @@ export function BrowseClient({
   };
 
   return (
-    <div
-      data-surface="editorial"
-      data-browse-color={colorBy}
-      style={{ backgroundColor: "var(--color-bg)", minHeight: "100%" }}
-    >
+    <div data-surface="editorial" style={{ backgroundColor: "var(--color-bg)", minHeight: "100%" }}>
       <div
         style={{
           maxWidth: 1160,
@@ -213,19 +189,11 @@ function TierBlock({
   first: boolean;
 }) {
   return (
-    <section
-      style={
-        {
-          marginTop: first ? "24px" : "40px",
-          "--tier-ink": TIER_INK[tier.slug] ?? "var(--color-text)",
-        } as CSSProperties
-      }
-    >
+    <section style={{ marginTop: first ? "24px" : "40px" }}>
       {showHeading ? (
         // Bleeds 12px each side so it also covers a hovered row passing beneath.
         <div className="browse-tier-head">
           <div
-            className="browse-tier-rule"
             style={{
               display: "flex",
               alignItems: "baseline",
@@ -233,16 +201,17 @@ function TierBlock({
               flexWrap: "wrap",
               gap: "var(--space-1) var(--space-5)",
               paddingBottom: "var(--space-4)",
+              borderBottom: "1px solid var(--color-text)",
             }}
           >
             <h2
-              className="browse-tier-name"
               style={{
                 margin: 0,
                 fontSize: "var(--text-3xl)",
                 fontWeight: 600,
                 letterSpacing: "-0.025em",
                 lineHeight: 1.1,
+                color: "var(--color-text)",
               }}
             >
               {tier.name}
@@ -260,7 +229,7 @@ function TierBlock({
           </div>
         </div>
       ) : (
-        <div aria-hidden className="browse-tier-rule" style={{ marginTop: "var(--space-4)" }} />
+        <div aria-hidden style={{ marginTop: "var(--space-4)", borderBottom: "1px solid var(--color-text)" }} />
       )}
 
       {tier.sections.map((section) => (
@@ -274,8 +243,12 @@ function TierBlock({
 //
 // Section identity on the left, every concept in it on the right. Nothing to
 // expand: the page is the index. Size and rules separate the three levels
-// (large ruled tier heading, section in the left column, concepts as rows);
-// colour is applied in globals.css from the inks set here.
+// (large ruled tier heading, section in the left column, concepts as rows).
+//
+// Colour means "which section". Each section has one ink from the palette in
+// lib/section-icons.ts (warm in Fundamentals, cool in Intermediate, muted in
+// Advanced): its name and count are set in it, and its concepts pick it up on
+// hover. The ink and its pale tint are handed to globals.css as variables.
 
 function SectionRow({ section }: { section: SectionGroup }) {
   const visual = getSectionVisual(section.slug);
