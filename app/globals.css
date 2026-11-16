@@ -300,6 +300,49 @@ input:focus:not(:focus-visible) {
   }
 }
 
+/* The section a concept belongs to, above its title. Colour is set inline from
+   the section's ink; this is the rest. */
+.concept-section-link {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.concept-section-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* "More in {section}" rail. The aside sets --section-ink and --section-tint,
+   so the current concept sits on its section's colour. */
+.concept-rail-link {
+  display: block;
+  margin: 1px 4px;
+  padding: 8px 10px;
+  overflow: hidden;
+  font-size: var(--text-sm);
+  font-weight: 450;
+  line-height: 1.35;
+  color: var(--color-text-2);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: var(--radius-2);
+  transition: background-color 100ms ease, color 100ms ease;
+}
+.concept-rail-link:hover {
+  color: var(--color-text);
+  background-color: var(--color-surface-2);
+}
+.concept-rail-link[aria-current="page"] {
+  font-weight: 600;
+  color: var(--section-ink, var(--color-accent-on-soft));
+  background-color: var(--section-tint, var(--color-accent-soft));
+  /* Softer than the full tint so the ink keeps its contrast on it. */
+  background-color: color-mix(in srgb, var(--section-tint, var(--color-accent-soft)) 55%, var(--color-surface));
+}
+
 /* ── Quiz — responsive ─────────────────────────────────────────── */
 
 @media (max-width: 640px) {
@@ -348,6 +391,9 @@ input:focus:not(:focus-visible) {
   /* Rows add 12px of their own at the bottom, so this evens out top and bottom. */
   padding: 28px 0 16px;
   border-bottom: 1px solid var(--color-border);
+  /* A link to #section lands flush under the sticky tier heading (68px tall),
+     which also hides the rule that closes the section above. */
+  scroll-margin-top: 68px;
 }
 .browse-section:last-child { border-bottom: none; }
 

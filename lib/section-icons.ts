@@ -10,9 +10,10 @@
  * Each of the 57 concepts gets its own icon; it inherits its parent
  * section's color so tier/section grouping stays readable.
  *
- * Browse uses the color pair without the icon: the fg shade is the section's
- * text ink and the bg shade is its hover tint (components/browse-client.tsx).
- * A section missing from the map falls back to stone there too.
+ * A section's color is also its identity in text, with no icon: the fg shade
+ * is the ink its name is set in and the bg shade is the pale tint behind a
+ * hovered or current item. See getSectionInk, used by Browse, the concept
+ * page and the quiz pickers. A section missing from the map falls back to stone.
  */
 
 import type { IconName } from "@/components/ui/icon";
@@ -161,6 +162,22 @@ const FALLBACK: SectionVisual = { icon: "book-open", color: "stone" };
 
 export function getSectionVisual(slug: string): SectionVisual {
   return SECTION_VISUALS[slug] ?? FALLBACK;
+}
+
+/**
+ * A section's colours as CSS values, plus the same pair as the custom
+ * properties the stylesheet reads (--section-ink, --section-tint). Spread
+ * `vars` into the style of whatever wraps the section's content.
+ */
+export function getSectionInk(sectionSlug: string) {
+  const { color } = getSectionVisual(sectionSlug);
+  const ink = `var(--tile-${color}-fg)`;
+  const tint = `var(--tile-${color}-bg)`;
+  return {
+    ink,
+    tint,
+    vars: { "--section-ink": ink, "--section-tint": tint } as Record<string, string>,
+  };
 }
 
 export function getConceptVisual(conceptSlug: string, sectionSlug: string): SectionVisual {

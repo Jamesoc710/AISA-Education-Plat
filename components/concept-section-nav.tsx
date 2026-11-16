@@ -2,15 +2,17 @@
 
 import { forwardRef, useEffect, useRef } from "react";
 import Link from "next/link";
-import { IconTile } from "@/components/ui/icon-tile";
-import { getSectionVisual } from "@/lib/section-icons";
+import { getSectionInk } from "@/lib/section-icons";
 
 type Sibling = { id: string; name: string; slug: string };
 
 /**
  * Right-rail "More in {section}" nav for concept detail pages.
  * Sticky, lists all sibling concepts in the current section.
- * Current concept is highlighted with the indigo accent bar.
+ *
+ * The section is named in the same ink it has on Browse, and the current
+ * concept sits on that section's tint. Link states live in globals.css
+ * (.concept-rail-link).
  */
 export function ConceptSectionNav({
   sectionName,
@@ -23,7 +25,7 @@ export function ConceptSectionNav({
   siblings: Sibling[];
   currentSlug: string;
 }) {
-  const visual = getSectionVisual(sectionSlug);
+  const section = getSectionInk(sectionSlug);
   const currentRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
@@ -44,37 +46,33 @@ export function ConceptSectionNav({
         borderRadius: "var(--radius-3)",
         padding: "16px 14px 12px",
         boxShadow: "var(--shadow-card)",
+        ...section.vars,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", padding: "0 4px 12px" }}>
-        <IconTile icon={visual.icon} color={visual.color} size="sm" />
-        <div style={{ minWidth: 0 }}>
-          <div
-            style={{
-              fontSize: "var(--text-xs)",
-              fontWeight: 600,
-              letterSpacing: "0.07em",
-              textTransform: "uppercase",
-              color: "var(--color-text-3)",
-              lineHeight: 1.2,
-            }}
-          >
-            More in
-          </div>
-          <div
-            style={{
-              fontSize: "var(--text-sm)",
-              fontWeight: 600,
-              color: "var(--color-text)",
-              lineHeight: 1.3,
-              letterSpacing: "-0.01em",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {sectionName}
-          </div>
+      <div style={{ padding: "0 10px 12px" }}>
+        <div
+          style={{
+            fontSize: "var(--text-xs)",
+            fontWeight: 600,
+            letterSpacing: "0.07em",
+            textTransform: "uppercase",
+            color: "var(--color-text-3)",
+            lineHeight: 1.2,
+          }}
+        >
+          More in
+        </div>
+        <div
+          style={{
+            marginTop: "var(--space-1)",
+            fontSize: "var(--text-base)",
+            fontWeight: 600,
+            color: section.ink,
+            lineHeight: 1.3,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {sectionName}
         </div>
       </div>
 
@@ -85,14 +83,13 @@ export function ConceptSectionNav({
           margin: "0 -4px",
         }}
       >
-        {siblings.map((s, idx) => {
+        {siblings.map((s) => {
           const isCurrent = s.slug === currentSlug;
           return (
             <SiblingLink
               key={s.id}
               href={`/concepts/${s.slug}`}
               name={s.name}
-              index={idx + 1}
               current={isCurrent}
               ref={isCurrent ? currentRef : undefined}
             />
@@ -105,79 +102,16 @@ export function ConceptSectionNav({
 
 const SiblingLink = forwardRef<
   HTMLAnchorElement,
-  { href: string; name: string; index: number; current: boolean }
->(function SiblingLink({ href, name, index, current }, ref) {
+  { href: string; name: string; current: boolean }
+>(function SiblingLink({ href, name, current }, ref) {
   return (
     <Link
       ref={ref}
       href={href}
-      style={{
-        position: "relative",
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-3)",
-        padding: "8px 10px 8px 12px",
-        margin: "1px 4px",
-        borderRadius: "var(--radius-2)",
-        fontSize: "var(--text-sm)",
-        fontWeight: current ? 550 : 450,
-        color: current ? "var(--color-accent-on-soft)" : "var(--color-text-2)",
-        backgroundColor: current ? "var(--color-accent-soft)" : "transparent",
-        textDecoration: "none",
-        transition: "background-color 100ms ease, color 100ms ease",
-      }}
-      onMouseEnter={(e) => {
-        if (!current) {
-          e.currentTarget.style.backgroundColor = "var(--color-surface-2)";
-          e.currentTarget.style.color = "var(--color-text)";
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!current) {
-          e.currentTarget.style.backgroundColor = "transparent";
-          e.currentTarget.style.color = "var(--color-text-2)";
-        }
-      }}
+      className="concept-rail-link"
+      aria-current={current ? "page" : undefined}
     >
-      {current && (
-        <span
-          aria-hidden
-          style={{
-            position: "absolute",
-            left: 0,
-            top: "var(--space-2)",
-            bottom: "var(--space-2)",
-            width: 2,
-            borderRadius: "var(--radius-1)",
-            backgroundColor: "var(--color-accent)",
-          }}
-        />
-      )}
-      <span
-        aria-hidden
-        style={{
-          fontSize: "var(--text-xs)",
-          fontWeight: 500,
-          color: current ? "var(--color-accent-on-soft)" : "var(--color-text-3)",
-          minWidth: 16,
-          flexShrink: 0,
-          fontVariantNumeric: "tabular-nums",
-        }}
-      >
-        {String(index).padStart(2, "0")}
-      </span>
-      <span
-        style={{
-          flex: 1,
-          minWidth: 0,
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-          lineHeight: 1.35,
-        }}
-      >
-        {name}
-      </span>
+      {name}
     </Link>
   );
 });

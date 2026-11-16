@@ -8,11 +8,11 @@ import { QuizResults } from "@/components/quiz-results";
 import type { QuizQuestion, AnswerResult, ResultMap } from "@/components/quiz-results";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
-import { TierBadge } from "@/components/ui/tier-badge";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
 import { PageFrame } from "@/components/ui/page-frame";
+import { getSectionInk } from "@/lib/section-icons";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -25,6 +25,7 @@ type ConceptOption = {
 type SectionOption = {
   id: string;
   name: string;
+  slug: string;
   concepts: ConceptOption[];
 };
 type TierOption = {
@@ -44,13 +45,16 @@ export type QuizResumePick = {
   attemptedAt: string;
 };
 
-// ── Tile palette per tier (matches --tile-{color}-bg/fg vars) ─────────────────
+// The pickers name the curriculum the way Browse does: tiers are plain headings,
+// and each section is set in its own ink (getSectionInk), which its concepts
+// pick up on hover.
 
-const TIER_TILE: Record<string, string> = {
-  fundamentals: "gold",
-  intermediate: "blue",
-  advanced: "stone",
-};
+const tierLabelStyle = {
+  fontSize: "var(--text-base)",
+  fontWeight: 600,
+  letterSpacing: "-0.01em",
+  color: "var(--color-text)",
+} as const;
 
 // ── Back button ───────────────────────────────────────────────────────────────
 
@@ -776,7 +780,7 @@ function ConceptPicker({
                   textAlign: "left",
                 }}
               >
-                <TierBadge slug={tier.slug} label={tier.name} />
+                <span style={tierLabelStyle}>{tier.name}</span>
                 <span style={{ flex: 1 }} />
                 <span
                   style={{
@@ -826,7 +830,7 @@ function ConceptPicker({
                         query.length > 0 || expandedSections.has(section.id);
 
                       return (
-                        <div key={section.id}>
+                        <div key={section.id} style={getSectionInk(section.slug).vars}>
                           {sIdx > 0 && (
                             <div
                               style={{
@@ -872,8 +876,8 @@ function ConceptPicker({
                               style={{
                                 flex: 1,
                                 fontSize: "var(--text-sm)",
-                                fontWeight: 550,
-                                color: "var(--color-text-2)",
+                                fontWeight: 600,
+                                color: "var(--section-ink)",
                               }}
                             >
                               {section.name}
@@ -950,7 +954,7 @@ function ConceptRow({
         alignItems: "center",
         gap: "var(--space-2)",
         padding: "8px 16px 8px 42px",
-        backgroundColor: hov ? "var(--color-accent-soft)" : "transparent",
+        backgroundColor: hov ? "var(--section-tint, var(--color-accent-soft))" : "transparent",
         border: "none",
         cursor: "pointer",
         fontFamily: "inherit",
@@ -963,7 +967,7 @@ function ConceptRow({
           flex: 1,
           fontSize: "var(--text-sm)",
           fontWeight: 500,
-          color: hov ? "var(--color-accent-on-soft)" : "var(--color-text)",
+          color: hov ? "var(--section-ink, var(--color-accent-on-soft))" : "var(--color-text)",
           transition: "color 100ms ease",
         }}
       >
@@ -981,7 +985,7 @@ function ConceptRow({
       <span
         style={{
           display: "inline-flex",
-          color: hov ? "var(--color-accent)" : "var(--color-text-3)",
+          color: hov ? "var(--section-ink, var(--color-accent))" : "var(--color-text-3)",
           opacity: hov ? 1 : 0,
           transition: "opacity 120ms ease, color 120ms ease",
         }}
@@ -1041,7 +1045,7 @@ function SectionPicker({
                 marginBottom: "var(--space-3)",
               }}
             >
-              <TierBadge slug={tier.slug} label={tier.name} />
+              <span style={tierLabelStyle}>{tier.name}</span>
               <span
                 style={{
                   fontSize: "var(--text-xs)",
@@ -1063,7 +1067,6 @@ function SectionPicker({
                 <SectionRow
                   key={section.id}
                   section={section}
-                  tierTile={TIER_TILE[tier.slug] ?? "stone"}
                   onSelect={() => onSelect(section.id)}
                 />
               ))}
@@ -1077,14 +1080,13 @@ function SectionPicker({
 
 function SectionRow({
   section,
-  tierTile,
   onSelect,
 }: {
   section: SectionOption;
-  tierTile: string;
   onSelect: () => void;
 }) {
   const [hov, setHov] = useState(false);
+  const { ink } = getSectionInk(section.slug);
   const totalQuestions = section.concepts.reduce(
     (sum, c) => sum + c.questionCount,
     0,
@@ -1100,7 +1102,7 @@ function SectionRow({
         gap: "var(--space-4)",
         padding: "14px 16px",
         backgroundColor: "var(--color-surface)",
-        border: `1px solid ${hov ? "var(--color-accent)" : "var(--color-border)"}`,
+        border: `1px solid ${hov ? ink : "var(--color-border)"}`,
         borderRadius: "var(--radius-2)",
         cursor: "pointer",
         fontFamily: "inherit",
@@ -1111,15 +1113,14 @@ function SectionRow({
         transform: hov ? "translateY(-1px)" : "translateY(0)",
       }}
     >
-      <IconTile icon="layers" color={tierTile} size="sm" />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            fontSize: "var(--text-base)",
-            fontWeight: 550,
-            color: "var(--color-text)",
+            fontSize: "var(--text-md)",
+            fontWeight: 600,
+            color: ink,
             marginBottom: "var(--space-1)",
-            letterSpacing: "-0.005em",
+            letterSpacing: "-0.01em",
           }}
         >
           {section.name}
@@ -1136,7 +1137,7 @@ function SectionRow({
       <span
         style={{
           display: "inline-flex",
-          color: hov ? "var(--color-accent)" : "var(--color-text-3)",
+          color: hov ? ink : "var(--color-text-3)",
           transition: "color 120ms ease",
         }}
       >
@@ -1213,7 +1214,6 @@ function TierRow({
     (sum, s) => sum + s.concepts.length,
     0,
   );
-  const tile = TIER_TILE[tier.slug] ?? "stone";
 
   return (
     <button
@@ -1237,7 +1237,6 @@ function TierRow({
         transform: hov ? "translateY(-1px)" : "translateY(0)",
       }}
     >
-      <IconTile icon="bar-chart" color={tile} size="lg" />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{

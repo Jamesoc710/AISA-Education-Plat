@@ -48,12 +48,9 @@ export default function ConceptLoading() {
             boxShadow: "var(--shadow-card)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", padding: "0 4px 12px" }}>
-            <Skeleton width={32} height={32} radius="var(--radius-2)" />
-            <div style={{ flex: 1 }}>
-              <Skeleton width="50%" height={10} style={{ marginBottom: "var(--space-2)" }} />
-              <Skeleton width="80%" height={14} />
-            </div>
+          <div style={{ padding: "0 10px 12px" }}>
+            <Skeleton width="34%" height={10} style={{ marginBottom: "var(--space-2)" }} />
+            <Skeleton width="72%" height={16} />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", padding: "4px 4px 0" }}>
             {Array.from({ length: 6 }, (_, i) => (

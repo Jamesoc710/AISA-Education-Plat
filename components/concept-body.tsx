@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { ConceptDetail } from "@/lib/concepts";
 import { Icon } from "@/components/ui/icon";
+import { getSectionInk } from "@/lib/section-icons";
 
 /**
  * Resource-type tag colors — reuse the section pastel tokens.
@@ -71,16 +72,19 @@ export function ConceptBody({
         >
           {concept.section.tier.name}
         </Link>
-        <Icon name="chevron-right" size={11} strokeWidth={2} />
-        <span style={{ color: "var(--color-text-2)" }}>{concept.section.name}</span>
       </nav>
 
       {/* ── Header ─────────────────────────────────────────── */}
       <header style={{ marginBottom: "var(--space-6)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-4)" }}>
-          <span style={{ fontSize: "var(--text-sm)", color: "var(--color-text-2)", fontWeight: 500 }}>
+        {/* The section, in the ink it has on Browse, linking back to its place there. */}
+        <div style={{ marginBottom: "var(--space-3)" }}>
+          <Link
+            href={`/browse#${concept.section.slug}`}
+            className="concept-section-link"
+            style={{ color: getSectionInk(concept.section.slug).ink }}
+          >
             {concept.section.name}
-          </span>
+          </Link>
         </div>
 
         <div

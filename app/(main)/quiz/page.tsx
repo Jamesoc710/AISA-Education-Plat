@@ -64,6 +64,7 @@ async function loadTiers(trackSlug: string) {
         select: {
           id: true,
           name: true,
+          slug: true,
           concepts: {
             select: {
               id: true,
@@ -87,6 +88,7 @@ async function loadTiers(trackSlug: string) {
     sections: t.sections.map((s: typeof tiers[number]["sections"][number]) => ({
       id: s.id,
       name: s.name,
+      slug: s.slug,
       concepts: s.concepts
         .filter((c: typeof s.concepts[number]) => c._count.questions > 0)
         .map((c: typeof s.concepts[number]) => ({

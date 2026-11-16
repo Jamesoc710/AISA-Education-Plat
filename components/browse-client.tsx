@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo, type CSSProperties } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 import { FilterTabs, type FilterTabItem } from "@/components/ui/filter-tabs";
 import { ArrowRight } from "@/components/ui/editorial";
-import { getSectionVisual } from "@/lib/section-icons";
+import { getSectionInk } from "@/lib/section-icons";
 import type { TrackSummary } from "@/lib/track";
 import type { SectionGroup, ConceptData } from "@/lib/types";
 
@@ -249,20 +249,12 @@ function TierBlock({
 // lib/section-icons.ts (warm in Fundamentals, cool in Intermediate, muted in
 // Advanced): its name and count are set in it, and its concepts pick it up on
 // hover. The ink and its pale tint are handed to globals.css as variables.
+// The concept page and the quiz pickers name sections in the same ink.
 
 function SectionRow({ section }: { section: SectionGroup }) {
-  const visual = getSectionVisual(section.slug);
-
   return (
-    <div
-      className="browse-section"
-      style={
-        {
-          "--section-ink": `var(--tile-${visual.color}-fg)`,
-          "--section-tint": `var(--tile-${visual.color}-bg)`,
-        } as CSSProperties
-      }
-    >
+    // The id lets the concept page link straight back to this section.
+    <div id={section.slug} className="browse-section" style={getSectionInk(section.slug).vars}>
       <div style={{ minWidth: 0 }}>
         <h3
           className="browse-section-name"
