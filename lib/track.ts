@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { AI_TRACK_ONLY } from "@/lib/config";
 
 /**
  * Track resolution for the multi-track pivot.
@@ -21,6 +22,8 @@ export type TrackSummary = {
 };
 
 export async function getActiveTrackSlug(): Promise<string> {
+  // A saved choice of another track is ignored while only the AI track is offered.
+  if (AI_TRACK_ONLY) return DEFAULT_TRACK_SLUG;
   const store = await cookies();
   return store.get(TRACK_COOKIE)?.value || DEFAULT_TRACK_SLUG;
 }
@@ -28,7 +31,10 @@ export async function getActiveTrackSlug(): Promise<string> {
 export async function getTracks(): Promise<TrackSummary[]> {
   const tracks = await prisma.track.findMany({
     // A track with no content never shows up in a switcher.
-    where: { tiers: { some: {} } },
+    where: {
+      tiers: { some: {} },
+      ...(AI_TRACK_ONLY ? { slug: DEFAULT_TRACK_SLUG } : {}),
+    },
     orderBy: { sortOrder: "asc" },
     select: {
       id: true,
