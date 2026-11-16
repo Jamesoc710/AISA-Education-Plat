@@ -34,7 +34,7 @@ npx prisma migrate deploy                              # applies pending migrati
 
 ## Content
 
-Curriculum, questions and flashcard text live in `prisma/seed-data/`. Load or update them with the idempotent scripts in `scripts/` (for example `scripts/seed-capital-questions.ts`), which upsert and never wipe user data.
+Curriculum, questions and flashcard text live in `prisma/seed-data/`. For the AI track, `scripts/content/sync-curriculum.ts` brings a database in line with those files: it prints what would change by default, writes with `--apply`, and never deletes. Load or update them with the idempotent scripts in `scripts/` (for example `scripts/seed-capital-questions.ts`), which upsert and never wipe user data.
 
 ## Checks
 

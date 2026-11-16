@@ -446,7 +446,7 @@ More sophisticated RAG adds query rewriting, reranking, hybrid search (vector + 
     sortOrder: 1,
     whatItIs: `GPUs (Graphics Processing Units) are processors designed to perform thousands of simple mathematical operations in parallel. Originally built for rendering graphics, they were repurposed for AI training when researchers discovered their massive parallelism was ideal for transformer computation.
 
-NVIDIA dominates the data center GPU market with their A100 and H100 chips, which cost $20,000–$80,000 each. NVIDIA's sustained dominance is partly due to CUDA, their programming framework, which has been optimized for AI workloads for over a decade and has massive developer adoption.
+NVIDIA dominates the data center GPU market with their A100 and H100 chips, which cost $20,000 to $80,000 each. NVIDIA's sustained dominance is partly due to CUDA, their programming framework, which has been optimized for AI workloads for over a decade and has massive developer adoption.
 
 A modern AI training cluster uses tens of thousands of these GPUs interconnected with specialized high-bandwidth networking (NVLink, InfiniBand).`,
     whyItMatters: `GPU availability is literally the bottleneck for AI development. The reason there are only a few organizations capable of training frontier models is that you need access to thousands of H100s, costing billions of dollars. This hardware constraint shapes every aspect of the industry, investment patterns, regulatory policy (chip export controls), and competitive strategy.`,
