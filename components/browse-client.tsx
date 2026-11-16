@@ -3,11 +3,9 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { IconTile } from "@/components/ui/icon-tile";
 import { Icon } from "@/components/ui/icon";
 import { FilterTabs, type FilterTabItem } from "@/components/ui/filter-tabs";
 import { SectionEyebrow, ArrowRight } from "@/components/ui/editorial";
-import { getSectionVisual } from "@/lib/section-icons";
 import type { TrackSummary } from "@/lib/track";
 import type { SectionGroup, ConceptData } from "@/lib/types";
 
@@ -120,7 +118,11 @@ export function BrowseClient({
         )}
 
         {/* ── Page header ─────────────────────────────────────── */}
-        <SectionEyebrow>{query ? "Search" : (activeTrack?.name ?? "Curriculum")}</SectionEyebrow>
+        <SectionEyebrow>
+          {query
+            ? "Search"
+            : `Your map of ${activeTrack?.name ?? "the curriculum"}, from the fundamentals to the frontier`}
+        </SectionEyebrow>
         <h1
           style={{
             margin: 0,
@@ -176,8 +178,10 @@ export function BrowseClient({
 
 // ── Tier ─────────────────────────────────────────────────────────────────────
 //
-// One chapter of the index: a ruled heading, then its sections. A track with a
-// single tier skips the heading and keeps only the rule.
+// One chapter of the index: a ruled heading, then its sections. The heading
+// sticks to the top of the scroll area for as long as its tier is on screen,
+// so a long page always says which tier you are in. A track with a single tier
+// skips the heading and keeps only the rule.
 
 function TierBlock({
   tier,
@@ -189,20 +193,21 @@ function TierBlock({
   first: boolean;
 }) {
   return (
-    <section style={{ marginTop: first ? "40px" : "56px" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "baseline",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "var(--space-1) var(--space-5)",
-          paddingBottom: showHeading ? "var(--space-4)" : 0,
-          borderBottom: "1px solid var(--color-text)",
-        }}
-      >
-        {showHeading && (
-          <>
+    <section style={{ marginTop: first ? "24px" : "40px" }}>
+      {showHeading ? (
+        // Bleeds 12px each side so it also covers a hovered row passing beneath.
+        <div className="browse-tier-head">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "var(--space-1) var(--space-5)",
+              paddingBottom: "var(--space-4)",
+              borderBottom: "1px solid var(--color-text)",
+            }}
+          >
             <h2
               style={{
                 margin: 0,
@@ -225,9 +230,11 @@ function TierBlock({
             >
               {plural(tier.sections.length, "section")} · {plural(tier.conceptCount, "concept")}
             </span>
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      ) : (
+        <div aria-hidden style={{ marginTop: "var(--space-4)", borderBottom: "1px solid var(--color-text)" }} />
+      )}
 
       {tier.sections.map((section) => (
         <SectionRow key={section.id} section={section} />
@@ -239,52 +246,51 @@ function TierBlock({
 // ── Section Row ──────────────────────────────────────────────────────────────
 //
 // Section identity on the left, every concept in it on the right. Nothing to
-// expand: the page is the index. Layout and hover live in globals.css
-// (.browse-section, .browse-concepts, .browse-concept).
+// expand: the page is the index. The three levels are told apart by type and
+// rules alone: tiers get the large ruled heading, sections the left column,
+// concepts the rows. Layout and hover live in globals.css (.browse-section,
+// .browse-concepts, .browse-concept).
 
 function SectionRow({ section }: { section: SectionGroup }) {
-  const visual = getSectionVisual(section.slug);
-
   return (
     <div className="browse-section">
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-4)" }}>
-        <IconTile icon={visual.icon} color={visual.color} size="md" />
-        <div style={{ minWidth: 0 }}>
-          <h3
+      <div style={{ minWidth: 0 }}>
+        <h3
+          style={{
+            margin: 0,
+            fontSize: "var(--text-lg)",
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
+            lineHeight: 1.25,
+            color: "var(--color-text)",
+          }}
+        >
+          {section.name}
+        </h3>
+        {section.description && (
+          <p
             style={{
-              margin: 0,
-              fontSize: "var(--text-lg)",
-              fontWeight: 600,
-              letterSpacing: "-0.02em",
-              lineHeight: 1.25,
-              color: "var(--color-text)",
+              margin: "6px 0 0",
+              fontSize: "var(--text-sm)",
+              lineHeight: 1.5,
+              color: "var(--color-text-2)",
             }}
           >
-            {section.name}
-          </h3>
-          {section.description && (
-            <p
-              style={{
-                margin: "6px 0 0",
-                fontSize: "var(--text-sm)",
-                lineHeight: 1.5,
-                color: "var(--color-text-2)",
-              }}
-            >
-              {section.description}
-            </p>
-          )}
-          <div
-            style={{
-              marginTop: "var(--space-3)",
-              fontSize: "var(--text-xs)",
-              fontWeight: 600,
-              color: `var(--tile-${visual.color}-fg)`,
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            {plural(section.concepts.length, "concept")}
-          </div>
+            {section.description}
+          </p>
+        )}
+        <div
+          style={{
+            marginTop: "var(--space-3)",
+            fontSize: "var(--text-xs)",
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "var(--color-text)",
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {plural(section.concepts.length, "concept")}
         </div>
       </div>
 

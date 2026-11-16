@@ -322,6 +322,17 @@ input:focus:not(:focus-visible) {
 
 /* ── Browse page — responsive ──────────────────────────────────── */
 
+/* Tier heading: sticks while its tier scrolls past. Opaque, and 12px wider than
+   the column on each side so a hovered row never shows around it. */
+.browse-tier-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: 0 -12px;
+  padding: var(--space-4) 12px 0;
+  background-color: var(--color-bg);
+}
+
 /* Index layout: section identity on the left, its concepts on the right. */
 .browse-section {
   display: grid;

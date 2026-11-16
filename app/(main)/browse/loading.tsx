@@ -5,7 +5,7 @@ export default function BrowseLoading() {
   return (
     <LoadingShell>
       <div style={{ maxWidth: 1160, margin: "0 auto", padding: "var(--pad-page-y) var(--pad-wide-x) 96px" }}>
-        <Skeleton width={170} height={12} style={{ marginBottom: "var(--space-4)" }} />
+        <Skeleton width={460} height={12} style={{ marginBottom: "var(--space-4)" }} />
         <Skeleton width={210} height="clamp(40px, 5vw, 56px)" radius="var(--radius-2)" />
 
         <div
@@ -34,12 +34,9 @@ export default function BrowseLoading() {
 
         {[3, 2, 2, 4].map((rows, i) => (
           <div key={i} className="browse-section">
-            <div style={{ display: "flex", gap: "var(--space-4)" }}>
-              <Skeleton width={44} height={44} radius="var(--radius-2)" style={{ flexShrink: 0 }} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <Skeleton width="70%" height={22} style={{ marginBottom: "var(--space-2)" }} />
-                <Skeleton width="92%" height={14} />
-              </div>
+            <div>
+              <Skeleton width="62%" height={22} style={{ marginBottom: "var(--space-2)" }} />
+              <Skeleton width="88%" height={14} />
             </div>
             <div
               style={{
