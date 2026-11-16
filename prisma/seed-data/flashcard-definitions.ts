@@ -32,7 +32,7 @@ export const FLASHCARD_DEFINITIONS: Record<string, string> = {
 
   rlhf: "The post-training stage that turns a raw base model into a usable assistant. Humans rank model responses, a reward model learns those preferences, and the model is fine-tuned to produce answers humans prefer.",
 
-  rlvr: "A training technique that teaches models to reason step by step by rewarding them for correct answers on problems with verifiable solutions, like math or code. It's how modern reasoning models like o3 and Claude's extended thinking mode were built.",
+  rlvr: "A training technique that teaches models to reason step by step by rewarding them for correct answers on problems with verifiable solutions, like math or code. It's how modern reasoning models, the ones that think before they answer, were built.",
 
   // ── FUNDAMENTALS / Model Types ────────────────────────────────────────
   "base-models":
@@ -71,11 +71,11 @@ export const FLASHCARD_DEFINITIONS: Record<string, string> = {
     "When a model runs in a loop, using tools to gather information, take actions, check results, and keep going until a task is complete. This is how coding assistants, research agents, and most non-trivial AI products work.",
 
   multimodality:
-    "A model's ability to process more than just text, including images, audio, and video within the same architecture. GPT-4o, Claude, and Gemini are all multimodal, which lets them analyze photos, documents, charts, and audio directly.",
+    "A model's ability to process more than just text, including images, audio, and video within the same architecture. ChatGPT, Claude, and Gemini are all multimodal, which lets them analyze photos, documents, charts, and audio directly.",
 
   // ── FUNDAMENTALS / Industry Basics ────────────────────────────────────
   "major-ai-players":
-    "The three labs at the frontier in 2026 are OpenAI (ChatGPT, Microsoft-backed), Google DeepMind (Gemini, trained on their own TPUs), and Anthropic (Claude, safety-focused). Meta, Mistral, xAI, and Chinese labs like DeepSeek are significant secondary players.",
+    "The three labs that set the pace at the frontier are OpenAI (ChatGPT, Microsoft-backed), Google DeepMind (Gemini, trained on their own TPUs), and Anthropic (Claude, safety-focused). Meta, Mistral, xAI, and Chinese labs like DeepSeek are significant secondary players.",
 
   "open-source-vs-open-weights":
     "Open source traditionally means the code, training data, and procedures are all public, which almost no AI model qualifies for. Open weights (like Llama or Mistral) means just the trained model file is downloadable, which is still valuable but not fully open.",
@@ -93,7 +93,7 @@ export const FLASHCARD_DEFINITIONS: Record<string, string> = {
   rag: "Retrieval-Augmented Generation, a pattern where you pull relevant documents from a vector database and inject them into the model's context so it can answer grounded in your data. It's the default architecture for enterprise AI working with custom knowledge.",
 
   // ── INTERMEDIATE / Hardware & Compute ─────────────────────────────────
-  gpus: "Chips originally built for graphics that turned out to be ideal for AI because they run thousands of simple operations in parallel. NVIDIA dominates the data center GPU market with H100s and A100s costing tens of thousands of dollars each.",
+  gpus: "Chips originally built for graphics that turned out to be ideal for AI because they run thousands of simple operations in parallel. NVIDIA dominates the data center GPU market with chips costing tens of thousands of dollars each.",
 
   tpus: "Google's custom AI chips, purpose-built for the matrix math that neural networks rely on. They're the reason Google trains Gemini without depending on NVIDIA, and Anthropic now partners with Google for TPU access as well.",
 

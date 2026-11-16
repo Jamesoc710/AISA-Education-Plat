@@ -58,7 +58,7 @@ export const CONCEPTS = [
 The key innovation is the **self-attention mechanism**, which allows the model to weigh how relevant each token is to every other token in the input. This gives transformers rich contextual understanding, the word "not" before "good" fundamentally changes the meaning, and the attention mechanism learns to capture this.
 
 Because transformers process input in parallel, they scale extremely well across thousands of GPUs. This parallelizability is what made it possible to train models on internet-scale data and reach the capabilities we see today.`,
-    whyItMatters: `Every major AI model you'll encounter (GPT-4, Claude, Gemini, Llama) is a transformer. When clients ask why AI improved so dramatically after 2017, the answer is transformers. When you're evaluating a new model architecture or reading a research paper, understanding transformers is your baseline. You can't have an intelligent conversation about modern AI without it.`,
+    whyItMatters: `Every major AI model you'll encounter (GPT, Claude, Gemini, Llama) is a transformer. When clients ask why AI improved so dramatically after 2017, the answer is transformers. When you're evaluating a new model architecture or reading a research paper, understanding transformers is your baseline. You can't have an intelligent conversation about modern AI without it.`,
     goDeeper: `The original transformer has an encoder-decoder structure designed for translation tasks. Modern LLMs use decoder-only transformers, which predict the next token autoregressively. The attention formula is: Attention(Q,K,V) = softmax(QKᵀ/√dₖ)V, queries, keys, and values are learned linear projections of the input embeddings. Multi-head attention runs this process in parallel across multiple "heads," each learning different types of relationships.`,
   },
   {
@@ -89,7 +89,7 @@ Most LLMs use **subword tokenization** (typically BPE, or Byte Pair Encoding), w
 
 Tokens are not always whole words, and they don't map 1-to-1 with characters. "ChatGPT is great" might be 5 tokens. This has real implications: token counts determine cost, speed, and context window usage.`,
     whyItMatters: `Token counting directly affects your API costs, latency, and what fits in a context window. When a client asks why their long document can't fit in one prompt, or why the API bill is higher than expected, tokens are the answer. The famous example of LLMs failing to count the r's in "strawberry" also comes down to tokenization, the model sees subword units, not individual characters.`,
-    goDeeper: `The tokenizer is fixed before training and can't be changed without retraining the model. GPT-4 uses cl100k_base, a ~100,000-token vocabulary. Multilingual models often have larger vocabularies to handle non-Latin scripts efficiently. Vocabulary size is a hyperparameter tradeoff: larger vocab = fewer tokens per sequence but larger embedding tables and slower softmax computation.`,
+    goDeeper: `The tokenizer is fixed before training and can't be changed without retraining the model. Vocabularies typically hold somewhere between 50,000 and 200,000 tokens. Multilingual models often have larger vocabularies to handle non-Latin scripts efficiently. Vocabulary size is a hyperparameter tradeoff: larger vocab = fewer tokens per sequence but larger embedding tables and slower softmax computation.`,
   },
   {
     sectionSlug: "core-architecture",
@@ -157,12 +157,12 @@ This is the same mechanism used for safety alignment, teaching the model to refu
     subtitle: "How modern models learn to think step-by-step using verifiable rewards",
     difficulty: "FUNDAMENTALS",
     sortOrder: 3,
-    whatItIs: `Reinforcement Learning from Verifiable Rewards (RLVR) is the training technique behind modern reasoning models like OpenAI's o1/o3 and Claude's extended thinking mode. Unlike RLHF, which relies on human preference judgments, RLVR uses datasets where answers can be automatically verified as correct or incorrect, math problems, coding challenges, logic puzzles.
+    whatItIs: `Reinforcement Learning from Verifiable Rewards (RLVR) is the training technique behind modern reasoning models, the ones that visibly think before they answer. OpenAI's o1 was the first widely used example in 2024, and every major lab has shipped them since. Unlike RLHF, which relies on human preference judgments, RLVR uses datasets where answers can be automatically verified as correct or incorrect, math problems, coding challenges, logic puzzles.
 
 The model generates solutions, gets rewarded for correct answers, and iteratively learns strategies that work. Crucially, no one programmed chain-of-thought reasoning or backtracking, these **emerged** from training pressure alone. The model discovered that thinking through problems step-by-step leads to more correct answers.
 
 The result is "test-time compute": the model can spend more reasoning tokens on harder problems, scaling its capability with task difficulty.`,
-    whyItMatters: `Reasoning models changed what AI can actually accomplish. Problems that stumped instruction-tuned models (complex math, multi-step coding, careful logical deduction) became tractable. When you see "thinking" tokens in Claude or o3, RLVR is why they exist. It's also why the question "which is bigger, 9.11 or 9.9?" now gets answered correctly.`,
+    whyItMatters: `Reasoning models changed what AI can actually accomplish. Problems that stumped instruction-tuned models (complex math, multi-step coding, careful logical deduction) became tractable. When you see a model "thinking" before it answers, RLVR is why. It's also why the question "which is bigger, 9.11 or 9.9?" now gets answered correctly.`,
     goDeeper: `DeepSeek-R1 showed that RLVR training could be applied to open-weight models with dramatic capability gains, published in early 2025. The key algorithmic innovation is GRPO (Group Relative Policy Optimization), which avoids needing a separate critic model by comparing multiple rollouts within a group. The "thinking" tokens are not fixed-format chain-of-thought, the model develops its own internal reasoning language during training.`,
   },
 
@@ -206,7 +206,7 @@ The "instruct" or "chat" suffix in model names (e.g., Llama-3-8B-Instruct) signa
     sortOrder: 3,
     whatItIs: `Reasoning models are instruction-tuned models further trained with RLVR to develop extended chain-of-thought reasoning capabilities. They generate "thinking" tokens before their final answer, working through the problem step by step, trying approaches, catching errors, and backtracking when something doesn't work.
 
-Examples include OpenAI's o1, o3; Anthropic's Claude with extended thinking; and Google's Gemini Flash Thinking. These models dramatically outperform standard instruction-tuned models on math, coding, and complex multi-step reasoning tasks.
+OpenAI's o1 started the category in 2024. Today the flagship models from OpenAI, Anthropic and Google all reason this way, usually with a setting for how hard to think. These models dramatically outperform standard instruction-tuned models on math, coding, and complex multi-step reasoning tasks.
 
 The tradeoff: reasoning tokens cost more (latency and API cost scale with thinking depth), and they're overkill for simple tasks. The best systems route simple queries to fast instruction-tuned models and hard queries to reasoning models.`,
     whyItMatters: `Reasoning models represent the current frontier of what AI can do. For projects involving code generation, data analysis, or complex decision-making, knowing when to use a reasoning model vs. a standard model is a real engineering decision with cost and latency implications.`,
@@ -255,7 +255,7 @@ In practice, longer context windows enable document analysis, long conversations
 
 A model with 7 billion parameters has 7 billion floating-point numbers that collectively encode everything it learned. Larger parameter counts generally mean more capacity to store knowledge and learn complex patterns, but also more compute required for both training and inference.
 
-Model sizes range from tiny (1B parameters, runs on a phone) to massive (estimated ~1.8 trillion for GPT-4's mixture-of-experts architecture).`,
+Model sizes range from tiny (1B parameters, runs on a phone) to massive: frontier models are believed to have hundreds of billions to trillions of parameters, though labs rarely publish the numbers.`,
     whyItMatters: `Parameter count is shorthand for model capability and cost. A 7B parameter model you can run on a laptop has very different cost and capability characteristics than a 70B model requiring a server. When making deployment decisions (self-hosted vs. API, which model tier to use) understanding what parameter count implies about hardware requirements and capability is essential.`,
     goDeeper: null,
   },
@@ -338,12 +338,14 @@ This architecture is how Claude Code, ChatGPT's code interpreter, and virtually 
     subtitle: "LLMs running in loops with tools to complete multi-step tasks autonomously",
     difficulty: "FUNDAMENTALS",
     sortOrder: 2,
-    whatItIs: `Agentic AI refers to LLMs operating in an autonomous loop: receive a task, use tools to gather information, take actions, observe results, and continue until the task is complete or the model determines it's stuck. This enables tasks that can't be accomplished in a single prompt.
+    whatItIs: `An agent is an LLM running in a loop with tools, working toward a goal instead of answering a single message. It receives a task, decides what to do next, uses a tool, looks at the result, and repeats until the job is done or it gets stuck.
 
-A coding agent, for example, might: search the codebase to understand structure, write a function, run tests, read the error output, fix the bug, and repeat until tests pass. Each step involves at least one LLM call and one or more tool invocations.
+**How that differs from a chatbot.** A chatbot answers and waits: you ask, it replies, and you decide what happens next. An agent keeps going on its own. It plans the steps, takes actions in the world (searching, running code, editing files, sending requests), checks its own work, and corrects course. The model underneath can be exactly the same. What changes is the loop around it, the tools it is given, and how much it is trusted to do without asking.
 
-Key challenges in agentic systems: error recovery (what happens when a tool fails), context management (long tasks exceed context windows), and reliability (one bad decision early can derail the whole task).`,
-    whyItMatters: `Agents are the primary reason AI labs are investing so heavily in capabilities right now. They extend what a single model call can accomplish by orders of magnitude. You'll be building with agentic frameworks (LangChain, LlamaIndex, Claude's agent SDK). Understanding the loop model, tool calling, and failure modes is the foundation for building anything non-trivial with AI.`,
+A coding agent, for example, might search the codebase to understand its structure, write a function, run the tests, read the error output, fix the bug, and repeat until the tests pass. Each step involves at least one model call and one or more tool calls.
+
+The hard parts are error recovery (what happens when a tool fails), context management (long tasks outgrow the context window), and reliability (one bad decision early on can derail everything after it).`,
+    whyItMatters: `Agents are the main reason AI labs are investing so heavily right now. They turn a model from something you consult into something that does work, which is where most of the economic value is expected to come from. Coding agents were the first to be widely used, and the same pattern is spreading to research, customer support and office work. Understanding the loop, the tools and the failure modes is the foundation for building anything non-trivial with AI, and for judging claims about what agents can really do.`,
     goDeeper: null,
   },
   {
@@ -357,7 +359,7 @@ Key challenges in agentic systems: error recovery (what happens when a tool fail
 
 This allows a model to: analyze images and describe them, answer questions about photos, generate images from text descriptions, transcribe and reason about audio, and understand documents with mixed text and visuals.
 
-GPT-4o, Claude 3.5+, and Gemini are all multimodal. Image generation models like DALL-E use related but distinct architectures (diffusion models).`,
+The flagship models from OpenAI, Anthropic and Google are all multimodal. Dedicated image and video generators often use a related but distinct approach, diffusion models.`,
     whyItMatters: `Most real-world data isn't pure text. Documents have tables and charts, products have images, meetings produce audio. Multimodal models unlock AI applications across these domains. For client work, understanding what a model can and can't perceive across modalities prevents you from proposing solutions that don't actually work.`,
     goDeeper: null,
   },
@@ -370,16 +372,18 @@ GPT-4o, Claude 3.5+, and Gemini are all multimodal. Image generation models like
     subtitle: "Who's building frontier AI and what differentiates each lab",
     difficulty: "FUNDAMENTALS",
     sortOrder: 1,
-    whatItIs: `Three organizations dominate frontier AI development as of early 2026:
+    whatItIs: `Three labs set the pace at the frontier of AI:
 
-**OpenAI** has first-mover advantage with ChatGPT, the largest user base, massive Microsoft investment, and a history of setting industry benchmarks. Their GPT-4 and o-series models remain highly competitive.
+**OpenAI** makes ChatGPT, the most widely used AI product in the world, and has the strongest consumer brand. It is closely tied to Microsoft and has committed to enormous spending on data centers.
 
-**Google DeepMind** produces Gemini, currently competitive at the frontier, and crucially trains models on their own TPU infrastructure rather than NVIDIA GPUs, the only major player not dependent on NVIDIA's supply chain.
+**Google DeepMind** makes Gemini. Google's advantages are structural: its own TPU chips, vast data and cash flow, and distribution through Search, Android and Workspace.
 
-**Anthropic** has a strong enterprise/API presence, models widely used as backends in other companies' AI products, and leads in agentic model capabilities. Founded by former OpenAI leaders with a focus on safety research.
+**Anthropic** makes Claude. It is strongest with businesses and developers, especially for coding and agents, and was founded by former OpenAI researchers with a focus on safety.
 
-Meta (Llama open weights), Mistral, xAI (Grok), and Chinese labs (DeepSeek, Baidu) are significant secondary players.`,
-    whyItMatters: `You'll be asked about the AI landscape constantly, by clients, recruiters, and industry contacts. Being able to accurately describe who's winning, why, and what the competitive dynamics look like is a baseline for credibility. It also shapes which models and APIs are appropriate for a given project.`,
+Around them: **Meta** (the Llama open models, and huge spending on talent and compute), **xAI** (Grok, tied to X), **Mistral** in Europe, and Chinese labs such as **DeepSeek** and **Alibaba** (Qwen), which release strong open-weight models. **NVIDIA** is not a lab, but it sells the chips nearly everyone depends on, which makes it one of the most important companies in the field.
+
+Which lab has the best model changes every few months, so no ranking written here would stay true for long. The weekly digest tracks the current state.`,
+    whyItMatters: `You'll be asked about the AI landscape constantly, by clients, recruiters and industry contacts. Rather than memorizing who is ahead this month, learn what each lab's lasting advantages are: distribution, compute, talent, data, cash and focus. Those change slowly, and they are what a good prediction about the next year rests on. They also shape which models and APIs make sense for a given project.`,
     goDeeper: null,
   },
   {
@@ -406,7 +410,7 @@ The distinction matters for legal, business, and reproducibility reasons. An "op
     sortOrder: 3,
     whatItIs: `A "wrapper" is a product or service built primarily by calling another company's AI API, with minimal proprietary technology added. The core value proposition (the intelligence) is entirely rented from the underlying model provider.
 
-Wrappers are extremely common because building on top of GPT-4 or Claude is fast and cheap. But they're strategically fragile: the model provider could ship the same feature natively, undercutting the product. They're also hard to differentiate, if your entire product is "GPT-4 with a nice UI," a competitor can replicate it in a weekend.
+Wrappers are extremely common because building on top of a model like GPT or Claude is fast and cheap. But they're strategically fragile: the model provider could ship the same feature natively, undercutting the product. They're also hard to differentiate, if your entire product is "a frontier model with a nice UI," a competitor can replicate it in a weekend.
 
 Successful AI products built on top of model APIs add genuine proprietary value: unique data flywheels, deep domain expertise, integrations into existing workflows, or specialized fine-tuning that creates a real moat.`,
     whyItMatters: `This concept comes up constantly in conversations about AI business strategy. When evaluating a startup or product idea, being able to identify whether it's a wrapper (and whether that's a problem) is a key analytical skill. It also informs how AISA members should think about the AI products they build: what's the real moat beyond "we used Claude"?`,
@@ -449,7 +453,7 @@ Successful AI products built on top of model APIs add genuine proprietary value:
 
 Key techniques: **zero-shot prompting** (just ask), **few-shot prompting** (provide examples of input-output pairs), **chain-of-thought** (instruct the model to reason step-by-step before answering), **role prompting** (assign a persona or expertise), and **output structuring** (specify JSON, markdown, or other formats).
 
-Prompt engineering is less of a science and more of a craft, different models respond differently to the same prompts, and prompts that work for GPT-4 may not work for Claude.`,
+Prompt engineering is less of a science and more of a craft, different models respond differently to the same prompts, and prompts that work for one model may not work for another.`,
     whyItMatters: `This is the most immediately applicable skill for any work with AI models. Whether you're building a product, running an experiment, or helping a client, your ability to write effective prompts determines whether the AI actually does what you want. It's one of the fastest skills to improve with deliberate practice, ship something and iterate on the prompts.`,
     goDeeper: null,
   },
@@ -494,10 +498,10 @@ More sophisticated RAG adds query rewriting, reranking, hybrid search (vector + 
     sortOrder: 1,
     whatItIs: `GPUs (Graphics Processing Units) are processors designed to perform thousands of simple mathematical operations in parallel. Originally built for rendering graphics, they were repurposed for AI training when researchers discovered their massive parallelism was ideal for transformer computation.
 
-NVIDIA dominates the data center GPU market with their A100 and H100 chips, which cost $20,000 to $80,000 each. NVIDIA's sustained dominance is partly due to CUDA, their programming framework, which has been optimized for AI workloads for over a decade and has massive developer adoption.
+NVIDIA dominates the data center GPU market with chips that cost tens of thousands of dollars each and are replaced by a faster generation every year or two. NVIDIA's sustained dominance is partly due to CUDA, their programming framework, which has been optimized for AI workloads for over a decade and has massive developer adoption.
 
 A modern AI training cluster uses tens of thousands of these GPUs interconnected with specialized high-bandwidth networking (NVLink, InfiniBand).`,
-    whyItMatters: `GPU availability is literally the bottleneck for AI development. The reason there are only a few organizations capable of training frontier models is that you need access to thousands of H100s, costing billions of dollars. This hardware constraint shapes every aspect of the industry, investment patterns, regulatory policy (chip export controls), and competitive strategy.`,
+    whyItMatters: `GPU availability is literally the bottleneck for AI development. The reason there are only a few organizations capable of training frontier models is that you need access to enormous numbers of top-end GPUs, costing billions of dollars. This hardware constraint shapes every aspect of the industry, investment patterns, regulatory policy (chip export controls), and competitive strategy.`,
     goDeeper: null,
   },
   {
@@ -509,8 +513,8 @@ A modern AI training cluster uses tens of thousands of these GPUs interconnected
     sortOrder: 2,
     whatItIs: `TPUs (Tensor Processing Units) are custom ASICs designed by Google specifically for the matrix mathematics required by neural networks. Unlike GPUs, which are general-purpose parallel processors adapted for AI, TPUs are purpose-built for lower-precision tensor operations.
 
-Google's Gemini series is trained and served entirely on TPUs, making Google the only major AI lab not dependent on NVIDIA's supply chain. Google is now licensing TPU access through Google Cloud, with Anthropic entering a significant partnership for TPU compute.`,
-    whyItMatters: `Google's TPU independence is a significant strategic moat. While OpenAI and Anthropic pay NVIDIA's premium, Google controls its own compute cost structure. Understanding TPUs explains why Anthropic's Google partnership is so significant, why hardware independence matters strategically, and why chip geopolitics affects AI lab strategy.`,
+Google's Gemini models are trained and served on TPUs, which makes Google the major AI lab least dependent on NVIDIA. Google also rents TPU capacity to others through Google Cloud, and Anthropic has signed a very large deal for it. Other companies are following the same path: Amazon, Microsoft, Meta and OpenAI all have custom AI chips in use or in development.`,
+    whyItMatters: `Google's TPU independence is a significant strategic moat. While most labs pay NVIDIA's premium, Google controls its own compute costs. Understanding TPUs explains why Anthropic's Google partnership is so significant, why hardware independence matters strategically, and why chip geopolitics affects AI lab strategy.`,
     goDeeper: null,
   },
   {
@@ -522,7 +526,7 @@ Google's Gemini series is trained and served entirely on TPUs, making Google the
     sortOrder: 3,
     whatItIs: `Accelerators (GPUs, TPUs, and emerging custom chips) enable AI at scale through massive parallelism. Transformers can be structured so that most computation happens in large matrix multiplications, which decompose perfectly into thousands of independent operations that accelerators can run simultaneously.
 
-A CPU might have 32 cores executing complex instructions. An H100 has 16,896 CUDA cores running simple operations simultaneously. For the specific math AI training requires, this is thousands of times faster than a CPU.
+A CPU might have 32 cores executing complex instructions. A data center GPU has thousands of simpler cores running the same operation at once. For the specific math AI training requires, this is thousands of times faster than a CPU.
 
 The key insight: scaling laws show models get reliably better with more compute, and the only way to reach required compute levels with current technology is massive parallelism on accelerators.`,
     whyItMatters: `Accelerators aren't just faster computers, they're a fundamentally different computational paradigm that made modern AI possible. This context helps you understand why "just train it on a normal computer" isn't feasible, why chip stocks have become so valuable, and why countries are treating semiconductor access as a national security issue.`,
@@ -535,7 +539,7 @@ The key insight: scaling laws show models get reliably better with more compute,
     subtitle: "Why building frontier models costs hundreds of millions, and what that means",
     difficulty: "INTERMEDIATE",
     sortOrder: 4,
-    whatItIs: `Pre-training a frontier model costs hundreds of millions of dollars and involves running data centers consuming megawatts of power for months. The costs come from: hardware (thousands of H100 GPUs at high rental or purchase cost), energy (power and cooling), engineering time for training infrastructure, and the R&D compute spent on experiments before the final run.
+    whatItIs: `Pre-training a frontier model costs hundreds of millions of dollars or more and involves running data centers consuming megawatts of power for months. The costs come from: hardware (tens of thousands of GPUs, bought or rented at high cost), energy (power and cooling), engineering time for training infrastructure, and the R&D compute spent on experiments before the final run.
 
 For major labs, the majority of spending goes to R&D compute (experiments, ablations, failed runs), not the final model run. A training failure partway through wastes enormous resources.
 
@@ -614,13 +618,19 @@ The risk: catastrophic forgetting, fine-tuning on new data can overwrite previou
     subtitle: "How we measure AI capability, and why benchmarks are tricky",
     difficulty: "INTERMEDIATE",
     sortOrder: 1,
-    whatItIs: `Benchmarks are standardized test suites used to evaluate and compare LLM capabilities. Common benchmarks include MMLU (multiple-choice knowledge across 57 subjects), HumanEval (code generation), MATH (mathematical reasoning), and LMSYS Chatbot Arena (human preference-based Elo ratings).
+    whatItIs: `A benchmark is a standard test for AI models: a fixed set of tasks with a way to score the answers, so different models can be compared on the same footing. Some test knowledge and reasoning with exam-style questions. Some test coding by asking a model to fix real software bugs. Others, like chatbot arenas, have people vote between two anonymous answers.
 
-Different benchmarks measure different things, and a model can score highly on one while underperforming on another. There's also significant concern about **benchmark contamination**, models trained on data that includes benchmark questions score artificially high.
+Benchmarks matter because they are the closest thing the field has to a shared scoreboard. Labs use them to track progress and to market new models. Customers use them to shortlist models. Investors and policymakers use them to judge how fast AI is moving.
 
-The field is increasingly moving toward human evaluation as a more reliable signal, since human raters are harder to game than fixed question sets.`,
-    whyItMatters: `Benchmark scores are the primary currency of AI capability claims, and they're frequently misleading. Being able to ask "which benchmarks, evaluated how, with what contamination controls?" is critical for evaluating model vendor claims. It also helps you understand why "Model X beat Model Y on benchmark Z" doesn't always mean Model X is better for your use case.`,
-    goDeeper: null,
+They are also flawed, in ways worth knowing:
+
+- **Contamination.** Test questions leak into training data, so a model may have effectively seen the answers.
+- **Saturation.** Once top models score near 100%, the benchmark stops telling them apart, and a harder one has to be written.
+- **Teaching to the test.** When a number becomes a target, labs optimize for it, and scores rise faster than real-world ability.
+- **Narrowness.** A benchmark measures what is easy to score, which is not the same as what matters in real work.
+- **Unequal conditions.** Results depend on prompts, tools and settings, and companies report the setup that flatters them most.`,
+    whyItMatters: `Benchmark scores are the main currency of AI capability claims, and they are often misleading. When you see that one model beat another, ask which benchmark, run by whom, under what conditions, and whether it resembles the work you care about. For a real project, the most reliable test is a small evaluation of your own, built from your actual tasks.`,
+    goDeeper: `Names you will run into: MMLU (broad multiple-choice knowledge, now saturated), SWE-bench (fixing real GitHub issues), ARC-AGI (novel puzzles designed to resist memorization), GPQA and Humanity's Last Exam (expert-level questions), and LMArena (human votes between anonymous models). Another approach measures how long a task an agent can complete on its own, which tracks progress on long-horizon work. Goodhart's law is the idea behind teaching to the test: when a measure becomes a target, it stops being a good measure.`,
   },
   {
     sectionSlug: "evaluation-alignment",
@@ -639,18 +649,23 @@ Anthropic's entire founding rationale centers on alignment research, the belief 
   },
   {
     sectionSlug: "evaluation-alignment",
-    name: "AGI (Definitions and) Strategy",
+    name: "AGI: Definitions and Strategy",
     slug: "agi",
     subtitle: "What AGI actually means, why it matters, and how it shapes the AI industry",
     difficulty: "INTERMEDIATE",
     sortOrder: 3,
-    whatItIs: `Artificial General Intelligence (AGI) has no consensus definition, but is commonly described as AI capable of performing any cognitive task that a human can. OpenAI's formal definition is "a highly autonomous system that outperforms humans at most economically valuable work."
+    whatItIs: `Artificial general intelligence (AGI) has no agreed definition, which is part of why arguments about it go in circles. The common versions:
 
-No current system meets any reasonable AGI definition. Current LLMs are highly capable in specific domains but fail on tasks requiring robust physical reasoning, reliable common sense, or self-directed long-term planning.
+- **Human-level across the board.** AI that can do any intellectual task a person can.
+- **Economic.** OpenAI's charter defines AGI as highly autonomous systems that outperform humans at most economically valuable work.
+- **Levels, not a line.** Google DeepMind researchers proposed grading systems by how capable and how general they are, instead of naming a single finish line.
+- **Skeptical.** Some researchers argue the term is too vague to be useful, or that current methods will not get there without new ideas.
 
-Despite this, the belief that AGI is achievable in the near future drives massive investment, the first organization to achieve AGI at a controllable level would have an extraordinary competitive and geopolitical advantage.`,
-    whyItMatters: `AGI as a goal shapes everything in the AI industry (investment patterns, talent competition, regulatory debates, and geopolitical strategy. Being able to discuss AGI with appropriate nuance) acknowledging genuine uncertainty about timelines and definitions while understanding why labs take it seriously, is essential for credible industry analysis.`,
-    goDeeper: null,
+Which definition you pick changes the answer to "how close are we?" Today's models match or beat people on many narrow tasks, but they still struggle with long independent projects, learning on the job and reliable judgment.
+
+Whatever the definition, the belief that AGI is reachable soon drives the industry. It is the reason labs raise and spend sums that current revenue cannot justify, the reason companies compete so hard for chips and researchers, and the reason governments treat AI as a matter of national security. A lab that got there first, and kept control of it, would hold an extraordinary advantage.`,
+    whyItMatters: `AGI as a goal shapes investment, hiring, regulation and geopolitics, so you need a view on it. A good one starts with a definition you can defend, is honest about how uncertain the timelines are, and explains why serious people take the idea seriously even though nobody can prove when, or whether, it arrives. It is also worth noticing who benefits from each definition: a company raising money has reasons to say AGI is close.`,
+    goDeeper: `Related terms: superintelligence means AI far beyond human ability, and transformative AI sidesteps the definition problem by asking about impact instead of capability. Whether AGI has been reached has even mattered in contracts between companies, which shows the definition is not only an academic question.`,
   },
 
   // ── INTERMEDIATE / Geopolitics & Regulation ────────────────────────────────
@@ -676,9 +691,11 @@ This competition creates a "race to the top" dynamic where both nations prioriti
     subtitle: "How chip export restrictions shape global AI development",
     difficulty: "INTERMEDIATE",
     sortOrder: 2,
-    whatItIs: `The US government restricts export of advanced AI chips (NVIDIA H100, A100) and semiconductor manufacturing equipment to China and other nations. These controls aim to prevent adversaries from accessing the compute required to train frontier AI models.
+    whatItIs: `The US government restricts export of advanced AI chips (NVIDIA's most capable data center GPUs) and semiconductor manufacturing equipment to China and other nations. These controls aim to prevent adversaries from accessing the compute required to train frontier AI models.
 
 The chokepoints: NVIDIA designs chips, TSMC (Taiwan) manufactures them using ASML (Netherlands) lithography equipment. US export controls cover multiple layers of this supply chain.
+
+The rules have been tightened and relaxed several times as governments weigh security against chip makers' sales, so the details keep changing.
 
 China's DeepSeek demonstrated in early 2025 that highly capable models could be trained with fewer chips through algorithmic efficiency improvements, raising questions about the long-term effectiveness of compute-focused controls.`,
     whyItMatters: `Chip export controls are a primary tool of AI geopolitical strategy and a significant business risk for semiconductor companies. Understanding the supply chain and where controls apply helps you analyze policy proposals, understand NVIDIA's strategic position, and contextualize Chinese AI lab achievements within their hardware constraints.`,
@@ -691,7 +708,7 @@ China's DeepSeek demonstrated in early 2025 that highly capable models could be 
     subtitle: "How government policy shapes where and how fast AI develops",
     difficulty: "INTERMEDIATE",
     sortOrder: 3,
-    whatItIs: `AI regulation varies dramatically by jurisdiction. The EU AI Act (2024) establishes risk-based regulation, with the highest requirements for "high-risk" systems in domains like healthcare and law enforcement. The US has taken a lighter-touch approach, relying primarily on voluntary commitments and executive orders.
+    whatItIs: `AI regulation varies dramatically by jurisdiction. The EU AI Act, passed in 2024 and phasing in over several years, establishes risk-based regulation, with the highest requirements for "high-risk" systems in domains like healthcare and law enforcement. The US has taken a lighter-touch approach, relying mostly on executive orders, voluntary commitments and a growing patchwork of state laws.
 
 The regulatory environment creates incentives and disincentives: heavy regulation can slow domestic development and push AI companies to less-regulated jurisdictions. The US-China race dynamic creates political pressure against regulation that might handicap US companies.`,
     whyItMatters: `Regulation determines where AI companies can operate, what they can build, and how fast they can move. For AI products in regulated industries (finance, healthcare, law), understanding the regulatory landscape becomes necessary for product design. For AISA members working on AI policy or consulting with enterprises, this is immediately applicable knowledge.`,
@@ -793,7 +810,7 @@ Common failure modes: choosing a model based on benchmark rankings rather than y
 
 **Self-host if privacy or cost at scale is the constraint:** Open-weight models for data-sensitive applications or very high-volume deployments.
 
-**Model family selection:** Claude excels at instruction following and agentic tasks; GPT-4 is strong across the board with a large ecosystem; Gemini has the longest context and Google integration.`,
+**Pick the tier, then the family:** Every lab sells a range, from a large flagship model to small, fast, cheap ones. Start with the smallest model that does the job well, and move up only when quality requires it. Differences between labs shift with every release, so test the current models on your own task instead of relying on reputation.`,
     whyItMatters: `This decision tree is something you'll apply on every project. Getting it right (not over-engineering or under-engineering) is what makes AI projects succeed. Being able to walk a client through this framework demonstrates genuine expertise beyond "we'll just use ChatGPT."`,
     goDeeper: null,
   },
@@ -808,7 +825,7 @@ Common failure modes: choosing a model based on benchmark rankings rather than y
     sortOrder: 1,
     whatItIs: `Modern image generation primarily uses **diffusion models**, systems trained to gradually denoise random noise into coherent images conditioned on a text prompt. During training, images are progressively corrupted with noise; the model learns to reverse this process. At inference, the model starts from random noise and iteratively denoises it guided by the text prompt.
 
-Models like DALL-E 3 and Stable Diffusion combine a text encoder (often CLIP or LLM-based) with a UNet or transformer diffusion model. Video generation extends this to temporal consistency, requiring coherent motion across frames, a significantly harder problem.
+Image models such as Stable Diffusion and Midjourney combine a text encoder (often CLIP or LLM-based) with a UNet or transformer diffusion model. Video generation extends this to temporal consistency, requiring coherent motion across frames, a significantly harder problem.
 
 The integration trend is toward multimodal LLMs that natively generate and understand images rather than requiring separate model pipelines.`,
     whyItMatters: `Image and video generation are among the most commercially visible AI capabilities and a source of significant disruption in creative industries. Understanding the technical approach (diffusion vs. GAN vs. transformer) helps you evaluate capabilities, limitations, and appropriate use cases. It's also relevant context for conversations about AI and creative labor.`,

@@ -76,7 +76,7 @@ export const FLASHCARD_SHORTS: Record<string, string> = {
 
   // ── FUNDAMENTALS / Industry Basics ────────────────────────────────────
   "major-ai-players":
-    "The three labs at the frontier of AI in 2026: OpenAI, Google DeepMind, and Anthropic.",
+    "The three labs that set the pace at the frontier of AI: OpenAI, Google DeepMind, and Anthropic.",
 
   "open-source-vs-open-weights":
     "Open source means everything is public; open weights means only the trained model file is downloadable.",

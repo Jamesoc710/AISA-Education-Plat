@@ -71,7 +71,7 @@ export const SIMPLE_EXPLANATIONS: Record<string, string> = {
     "Agentic AI is when an AI system can take multiple steps on its own to complete a task, making decisions along the way without asking a human at each step. Instead of just answering one question at a time, it can plan a multi-step project (like researching a topic, writing a draft, and revising it) similar to handing a task to an intern who figures out the steps themselves.",
 
   multimodality:
-    "Multimodality means an AI can work with more than just text, it can also understand images, audio, and sometimes video. Think of it like the difference between texting someone vs. having a video call: a multimodal AI can look at a photo you upload and describe what's in it, or listen to an audio clip and transcribe it. Modern AI models like GPT-4 and Claude can handle multiple types of input and output.",
+    "Multimodality means an AI can work with more than just text, it can also understand images, audio, and sometimes video. Think of it like the difference between texting someone vs. having a video call: a multimodal AI can look at a photo you upload and describe what's in it, or listen to an audio clip and transcribe it. Modern AI models like ChatGPT, Claude and Gemini can handle multiple types of input and output.",
 
   // ── FUNDAMENTALS / Industry Basics ────────────────────────────────────
   "major-ai-players":
@@ -104,7 +104,7 @@ export const SIMPLE_EXPLANATIONS: Record<string, string> = {
     "AI accelerators are specialized computer chips built to handle the massive math that AI training requires. Regular computer processors (CPUs) are too slow for AI, it would take years instead of weeks. GPUs and TPUs are both types of accelerators, and the global shortage of these chips is one of the biggest bottlenecks in AI development right now.",
 
   "training-costs":
-    "Training a large AI model can cost tens or even hundreds of millions of dollars, mostly in electricity and computing hardware rental. GPT-4 reportedly cost over $100 million to train. It's like building a factory: the upfront investment is enormous, but once it's built (trained), producing outputs (inference) is relatively cheap per unit.",
+    "Training a large AI model can cost tens or even hundreds of millions of dollars, mostly in electricity and computing hardware rental. The largest models reportedly cost far more than $100 million to train. It's like building a factory: the upfront investment is enormous, but once it's built (trained), producing outputs (inference) is relatively cheap per unit.",
 
   "training-vs-inference-compute":
     "Training compute is the one-time cost of building an AI model (like constructing a building), while inference compute is the ongoing cost of running it for users (like the electricity bill). Training is a massive upfront investment that happens once; inference costs add up over time with every query users send. As AI becomes more popular, inference costs are becoming a bigger concern than training costs.",

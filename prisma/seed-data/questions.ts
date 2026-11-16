@@ -238,7 +238,7 @@ export const QUESTIONS: QuestionSeed[] = [
     conceptSlug: "pre-training",
     type: "SHORT_ANSWER",
     questionText: "Why does pre-training cost hundreds of millions of dollars for frontier models?",
-    answerExplanation: "Pre-training requires running billions of forward and backward passes over trillions of tokens of data, on clusters of thousands of specialized GPUs running continuously for months. The costs come from GPU rental or purchase (H100s cost $20K-$80K each), massive energy bills for power and cooling, and engineering time for the training infrastructure. Most labs spend more on R&D compute (experiments, ablations, failed runs) than on the final training run itself. Only well-capitalized organizations can sustain this spend.",
+    answerExplanation: "Pre-training requires running billions of forward and backward passes over trillions of tokens of data, on clusters of thousands of specialized GPUs running continuously for months. The costs come from GPU rental or purchase (top chips cost tens of thousands of dollars each), massive energy bills for power and cooling, and engineering time for the training infrastructure. Most labs spend more on R&D compute (experiments, ablations, failed runs) than on the final training run itself. Only well-capitalized organizations can sustain this spend.",
     difficulty: "INTERMEDIATE",
   },
 
@@ -643,7 +643,7 @@ export const QUESTIONS: QuestionSeed[] = [
     conceptSlug: "major-ai-players",
     type: "SHORT_ANSWER",
     questionText: "In your view, what does it mean for an AI company to be 'winning'? Evaluate the current positions of OpenAI, Google, and Anthropic.",
-    answerExplanation: "There's no single definition, 'winning' could mean largest user base (OpenAI, with ChatGPT), most capable model (contested between Google Gemini and OpenAI GPT-4 series), most capable for agentic tasks (Anthropic's Claude leads here), best business model (Anthropic has strong API revenue, Google has enterprise integration), or furthest toward AGI (unverifiable). OpenAI has first-mover advantage and brand recognition. Google has hardware independence and distribution through Google Cloud/Workspace. Anthropic has strong agentic capabilities and research reputation. A strong answer acknowledges that 'winning' depends on the metric and that the landscape shifts quarterly.",
+    answerExplanation: "There's no single definition, 'winning' could mean largest user base (OpenAI, with ChatGPT), most capable model (the lead changes hands every few months), strongest with developers and businesses (Anthropic's Claude has been the one to beat for coding), best business model (Anthropic has strong API revenue, Google has enterprise integration), or furthest toward AGI (unverifiable). OpenAI has first-mover advantage and brand recognition. Google has hardware independence and distribution through Google Cloud/Workspace. Anthropic has strong agentic capabilities and research reputation. A strong answer acknowledges that 'winning' depends on the metric and that the landscape shifts quarterly.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -673,7 +673,7 @@ export const QUESTIONS: QuestionSeed[] = [
       { text: "Wrappers are illegal under AI licensing agreements", isCorrect: false },
       { text: "They can't handle enterprise-scale traffic", isCorrect: false },
     ],
-    answerExplanation: "If your entire value proposition is 'GPT-4 with a better interface for X,' OpenAI can add X as a native feature and your product becomes unnecessary overnight. They have the model, the distribution, and the brand. Successful AI products add proprietary value (unique data, domain expertise, workflow integrations) that the model provider can't trivially replicate.",
+    answerExplanation: "If your entire value proposition is 'a frontier model with a better interface for X,' the model's maker can add X as a native feature and your product becomes unnecessary overnight. They have the model, the distribution, and the brand. Successful AI products add proprietary value (unique data, domain expertise, workflow integrations) that the model provider can't trivially replicate.",
     difficulty: "FUNDAMENTALS",
   },
 
@@ -1000,11 +1000,11 @@ export const QUESTIONS: QuestionSeed[] = [
     questionText: "What is the US government's primary strategy for limiting China's AI development?",
     options: [
       { text: "Banning Chinese nationals from studying AI at US universities", isCorrect: false },
-      { text: "Export controls restricting sale of advanced AI chips (H100, A100) to China", isCorrect: true },
+      { text: "Export controls restricting sale of advanced AI chips to China", isCorrect: true },
       { text: "Imposing tariffs on Chinese AI software products", isCorrect: false },
       { text: "Requiring all AI models to be open-sourced before deployment", isCorrect: false },
     ],
-    answerExplanation: "The US has implemented export controls preventing NVIDIA from selling its most advanced AI chips (H100, A100) to China. The theory: since AI development requires massive compute, restricting access to the best chips limits China's ability to train frontier models. China has responded with domestic chip programs and efficiency-focused research (DeepSeek).",
+    answerExplanation: "The US has implemented export controls preventing NVIDIA from selling its most advanced AI chips to China. The theory: since AI development requires massive compute, restricting access to the best chips limits China's ability to train frontier models. China has responded with domestic chip programs and efficiency-focused research (DeepSeek).",
     difficulty: "INTERMEDIATE",
   },
 
@@ -1273,7 +1273,7 @@ export const QUESTIONS: QuestionSeed[] = [
     conceptSlug: "fine-tuning-specifics",
     type: "SHORT_ANSWER",
     questionText: "Compare full fine-tuning, LoRA, and QLoRA. When would you choose each?",
-    answerExplanation: "Full fine-tuning updates all model weights, maximum expressiveness but requires high-end GPU clusters (for a 70B model, 8+ A100s), risks catastrophic forgetting, and is slow. Use when you need maximum customization and have the resources. LoRA freezes the base model and adds small trainable adapter layers, 90%+ fewer parameters to train, feasible on 1-2 80GB GPUs for 70B models, minimal forgetting since base weights are frozen. Use for most fine-tuning needs. QLoRA extends LoRA by quantizing the frozen base model to 4-bit precision, enables 70B model fine-tuning on a single consumer GPU (24GB VRAM), with modest accuracy tradeoff. Use when hardware is the constraint and you can't afford full LoRA setup. For most teams, LoRA is the practical default.",
+    answerExplanation: "Full fine-tuning updates all model weights, maximum expressiveness but requires high-end GPU clusters (for a 70B model, eight or more high-end GPUs), risks catastrophic forgetting, and is slow. Use when you need maximum customization and have the resources. LoRA freezes the base model and adds small trainable adapter layers, 90%+ fewer parameters to train, feasible on 1-2 80GB GPUs for 70B models, minimal forgetting since base weights are frozen. Use for most fine-tuning needs. QLoRA extends LoRA by quantizing the frozen base model to 4-bit precision, enables 70B model fine-tuning on a single consumer GPU (24GB VRAM), with modest accuracy tradeoff. Use when hardware is the constraint and you can't afford full LoRA setup. For most teams, LoRA is the practical default.",
     difficulty: "ADVANCED",
   },
 
