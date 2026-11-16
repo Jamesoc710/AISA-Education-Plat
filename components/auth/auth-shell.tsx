@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { BrandMark } from "@/components/ui/brand-mark";
@@ -45,6 +46,9 @@ export function AuthShell({ children }: { children: ReactNode }) {
           <BrandMark size={28} />
         </div>
         <div className="auth-card">{children}</div>
+        <p className="auth-legal">
+          <Link href="/privacy">Privacy</Link>
+        </p>
       </main>
     </div>
   );

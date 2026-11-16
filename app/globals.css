@@ -860,6 +860,15 @@ input:focus:not(:focus-visible) {
 
 .auth-stack { display: flex; flex-direction: column; gap: var(--space-3); }
 
+.auth-legal {
+  width: 100%;
+  max-width: 400px;
+  margin: var(--space-6) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+}
+.auth-legal a { color: inherit; }
+
 @media (max-width: 900px) {
   .auth-shell { grid-template-columns: minmax(0, 1fr); }
   .auth-brand { display: none; }

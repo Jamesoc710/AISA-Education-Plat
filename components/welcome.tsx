@@ -154,6 +154,12 @@ export function Welcome() {
             </div>
           ))}
         </div>
+
+        <p style={{ margin: "var(--space-7) 0 0", fontSize: "var(--text-sm)", color: "var(--color-text-2)" }}>
+          <Link href="/privacy" style={{ color: "inherit" }}>
+            Privacy
+          </Link>
+        </p>
       </div>
       <EditorialLinkStyles />
     </div>
