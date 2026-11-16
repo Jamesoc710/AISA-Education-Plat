@@ -6,6 +6,11 @@
  * able to do, in general terms, and `LAST_YEARS_TEST` is the previous test,
  * shown so people know the style.
  *
+ * Tone: readers range from CS majors to business, philosophy and psychology
+ * majors with no AI background. Write so a newcomer is not put off and an
+ * experienced reader is not talked down to: everyday words first, the proper
+ * term in passing, and nothing phrased as a demand.
+ *
  * `conceptSlugs` may name concepts that are not in the database yet; the page
  * and the practice scopes skip any slug that does not resolve.
  */
@@ -18,7 +23,7 @@ export type TestPrepArea = {
   priority: TestPrepPriority;
   /** One sentence on what this area is about. */
   summary: string;
-  /** "You should be able to..." statements. */
+  /** Things to understand, written as plain noun phrases, not demands. */
   outcomes: string[];
   conceptSlugs: string[];
 };
@@ -35,26 +40,26 @@ export const TEST_PREP_FORMAT = {
 export const TEST_PREP_GROUPS: { priority: TestPrepPriority; title: string; lead: string }[] = [
   {
     priority: "core",
-    title: "Know these cold",
-    lead: "The mechanics. These have right answers, and you should be able to explain each one without notes.",
+    title: "Topics that might be covered",
+    lead: "The test draws from these areas. None of them needs a technical background. If you can explain the idea in your own words, the way you would to a friend, you are in good shape.",
   },
   {
     priority: "position",
-    title: "Be ready to argue a position",
-    lead: "There is no single right answer here. What counts is a clear claim, real evidence, and knowing the best argument against you.",
+    title: "Questions that ask for your take",
+    lead: "Some questions ask what you think. There is no right answer here. A clear opinion with a reason or two behind it is what we are looking for.",
   },
 ];
 
 export const TEST_PREP_AREAS: TestPrepArea[] = [
   {
     slug: "training",
-    title: "How an LLM is trained",
+    title: "How AI models are trained",
     priority: "core",
-    summary: "The stages a model goes through between raw data and the assistant you talk to.",
+    summary: "How a model goes from knowing nothing to being the assistant you chat with.",
     outcomes: [
-      "Walk through the training stages in order and say what changes at each one.",
-      "For each stage, explain what the model is learning to do, what data it learns from, and what kind of model comes out.",
-      "Explain how the stages differ from each other, not just what each one is.",
+      "The main steps a model goes through as it is trained, in order.",
+      "What the model is practicing at each step, and what it learns from.",
+      "How the model is different after each step, and why each one is needed.",
     ],
     conceptSlugs: [
       "pre-training",
@@ -67,13 +72,13 @@ export const TEST_PREP_AREAS: TestPrepArea[] = [
   },
   {
     slug: "prompt-to-output",
-    title: "From prompt to output",
+    title: "What happens when you ask an AI a question",
     priority: "core",
-    summary: "What happens inside the model between the moment you hit enter and the words that come back.",
+    summary: "The journey from the words you type to the answer you get back.",
     outcomes: [
-      "Follow a prompt through the model step by step, in plain language.",
-      "Define tokens and embeddings and explain how one becomes the other.",
-      "Explain what attention does and why longer context is hard to build.",
+      "The basic steps between typing a question and getting an answer.",
+      "How a model breaks text into small pieces, called tokens, and turns them into numbers it can work with.",
+      "How a model works out which words matter to each other, and why it can only take in so much text at once.",
     ],
     conceptSlugs: [
       "prompt-to-output",
@@ -87,37 +92,37 @@ export const TEST_PREP_AREAS: TestPrepArea[] = [
   },
   {
     slug: "agents",
-    title: "Agents and tool use",
+    title: "AI that can take action",
     priority: "core",
-    summary: "How a model goes from answering questions to getting things done.",
+    summary: "How AI goes from answering questions to getting things done.",
     outcomes: [
-      "Explain tool use: what the model does, and what the surrounding code does.",
-      "Describe an agent in your own words and say what makes it different from a chat assistant.",
-      "Name where agents tend to go wrong.",
+      "How a model can use outside tools, like a search engine or a calculator, instead of relying only on what it remembers.",
+      "What people mean by an AI agent, in your own words.",
+      "How an agent is different from a regular chatbot.",
     ],
     conceptSlugs: ["tool-use", "agentic-capabilities"],
   },
   {
     slug: "benchmarks",
-    title: "Benchmarks",
+    title: "How AI models are measured",
     priority: "core",
-    summary: "How the industry measures models, and how much those measurements can be trusted.",
+    summary: "The tests used to compare AI models, and how much to trust the scores.",
     outcomes: [
-      "Explain what a benchmark is and why labs, customers and investors care about them.",
-      "Give concrete reasons a benchmark score can mislead.",
-      "Say how you would judge a model for a real task instead of by a leaderboard.",
+      "What a benchmark is: a standard test that lets people compare one model with another.",
+      "Why those scores matter to the companies building AI and to anyone choosing a model.",
+      "Why a high score does not always mean a model is better in real life.",
     ],
     conceptSlugs: ["benchmarking-llms", "evaluating-llm-solutions", "filtering-ai-hype"],
   },
   {
     slug: "landscape",
-    title: "The model landscape",
+    title: "The different kinds of AI models",
     priority: "core",
-    summary: "The kinds of models on offer and what separates them.",
+    summary: "The types of models out there and what sets them apart.",
     outcomes: [
-      "Compare closed models with open ones: who can run them, change them and inspect them, and what each choice costs.",
-      "Explain why a lab's flagship model and its mid-tier model differ, and when the smaller one is the better pick.",
-      "Describe the major labs and what sets each one apart.",
+      "The difference between models you can only use through a company's app and models anyone can download and run themselves.",
+      "Why companies offer both a top-of-the-line model and smaller, cheaper ones, and when the smaller one is the better choice.",
+      "Who the major AI companies are and what each one is known for.",
     ],
     conceptSlugs: [
       "closed-vs-open-models",
@@ -130,13 +135,13 @@ export const TEST_PREP_AREAS: TestPrepArea[] = [
   },
   {
     slug: "hardware",
-    title: "Hardware and compute",
+    title: "The chips that power AI",
     priority: "core",
-    summary: "The chips and data centers underneath everything, and who controls them.",
+    summary: "The hardware behind AI, and the companies that make it.",
     outcomes: [
-      "Explain why AI needs accelerators instead of ordinary processors.",
-      "Separate training from inference: what each one is and what each one demands.",
-      "Describe NVIDIA's position in the market and why Google's hardware situation is different.",
+      "Why AI runs on special chips instead of the kind in a normal laptop.",
+      "The difference between building a model, called training, and using one, called inference.",
+      "Why NVIDIA matters so much to the AI industry, and how Google's approach is different.",
     ],
     conceptSlugs: [
       "accelerators",
@@ -151,21 +156,22 @@ export const TEST_PREP_AREAS: TestPrepArea[] = [
     slug: "agi",
     title: "AGI",
     priority: "position",
-    summary: "What people mean by it, and how chasing it shapes the industry.",
+    summary: "What people mean by artificial general intelligence, and why the idea drives so much of the industry.",
     outcomes: [
-      "Give your own definition of AGI and defend it against a competing one.",
-      "Explain how the pursuit of AGI affects where money goes and what labs prioritize.",
+      "What AGI means to you, and how that compares with other definitions you have heard.",
+      "How the race toward AGI shapes where companies put their money and attention.",
     ],
     conceptSlugs: ["agi", "ai-alignment", "scaling-laws"],
   },
   {
     slug: "limitations",
-    title: "Limits of LLMs",
+    title: "Where AI still falls short",
     priority: "position",
-    summary: "Where today's models fall short, and which of those limits look temporary.",
+    summary: "What today's AI cannot do well yet.",
     outcomes: [
-      "Name the limitations you think matter most and explain where each one comes from.",
-      "Say which ones you expect to be solved soon and which ones look deeper.",
+      "The weaknesses that matter most to you, such as making things up or not remembering past conversations.",
+      "Why those weaknesses exist, in simple terms.",
+      "Which ones you expect to be fixed soon, and which might stick around.",
     ],
     conceptSlugs: [
       "llm-limitations",
@@ -177,24 +183,24 @@ export const TEST_PREP_AREAS: TestPrepArea[] = [
   },
   {
     slug: "bubble",
-    title: "The AI bubble debate",
+    title: "Is AI a bubble?",
     priority: "position",
-    summary: "Whether the money pouring into AI is justified, and who is exposed if it is not.",
+    summary: "Whether the huge amounts of money going into AI make sense.",
     outcomes: [
-      "Take a side on whether there is a bubble and back it with specifics.",
-      "Explain who would be hurt if spending slowed, and who would be fine.",
-      "Describe what you would watch to know whether you were wrong.",
+      "Whether you think AI is overhyped as an investment, and why.",
+      "Who would be hurt if the excitement cooled off, and who would be fine.",
+      "What might change your mind.",
     ],
     conceptSlugs: ["ai-bubble", "training-costs", "ai-regulation", "wrapper"],
   },
   {
     slug: "frontier",
-    title: "Who leads the frontier",
+    title: "Which AI company is ahead",
     priority: "position",
-    summary: "Which lab is ahead, why, and whether that will last.",
+    summary: "Who is leading right now, and whether that could change.",
     outcomes: [
-      "Pick the lab you expect to lead over the next year and explain what you are basing that on.",
-      "Name the strongest reason you might be wrong.",
+      "Which company you think will be in the lead a year from now, and what makes you think so.",
+      "One reason you might turn out to be wrong.",
     ],
     conceptSlugs: ["major-ai-players", "benchmarking-llms", "us-china-ai-race", "export-controls"],
   },
@@ -210,15 +216,15 @@ export const TEST_PREP_DECK_PREFIX = "prep-";
 export const ANSWER_ADVICE: { title: string; body: string }[] = [
   {
     title: "Answer the question first",
-    body: "Lead with the direct answer, then use the next sentence or two to show you understand why. Two clear sentences beat six vague ones.",
+    body: "Start with your answer, then add a sentence or two showing you understand why. Two clear sentences beat six vague ones.",
   },
   {
-    title: "Explain it like you would to a teammate",
-    body: "Plain words are fine. If you use a term, show you know what it means. A short example often does more than a definition.",
+    title: "Write the way you would explain it to a friend",
+    body: "Plain words are fine, and often better. You do not need jargon to get credit. A quick example usually does more than a textbook definition.",
   },
   {
-    title: "For opinion questions: claim, evidence, counterpoint",
-    body: "State your position, give one or two specific reasons, and name the best argument against you. Any well-argued position can earn full marks. The weekly digest is the easiest place to find current evidence.",
+    title: "For opinion questions, say what you think and why",
+    body: "Give your opinion, one or two reasons for it, and one point someone might raise against it. There is no single right answer. We are looking at your reasoning. The weekly digest is an easy place to find recent examples.",
   },
 ];
 

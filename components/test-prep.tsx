@@ -60,9 +60,9 @@ export function TestPrep({ areas }: { areas: AreaView[] }) {
         Test prep
       </h1>
       <p style={{ ...leadStyle, marginBottom: "var(--space-6)" }}>
-        What the tech team test covers, what to study first, and what last year&apos;s test looked
-        like. This year&apos;s questions are worded differently and some topics have changed, so
-        study the ideas, not the wording.
+        What the tech team test covers and what last year&apos;s test looked like. You don&apos;t
+        need a technical background: everything is explained from scratch, and every concept has
+        a Simple and a Detailed version, so start wherever you&apos;re comfortable.
       </p>
 
       {/* ── How the test works ─────────────────────────────────────── */}
@@ -130,7 +130,7 @@ export function TestPrep({ areas }: { areas: AreaView[] }) {
       {/* ── How to answer ──────────────────────────────────────────── */}
       <section aria-labelledby="prep-answers" style={{ marginBottom: "var(--space-7)" }}>
         <h2 id="prep-answers" style={h2Style}>
-          Writing a strong answer
+          Tips for answering
         </h2>
         <div
           style={{
@@ -174,8 +174,9 @@ export function TestPrep({ areas }: { areas: AreaView[] }) {
           Last year&apos;s test
         </h2>
         <p style={leadStyle}>
-          The full test from last year, so you can see the style and depth. Expect different
-          wording this year, and some different topics.
+          Here is last year&apos;s full test, so you can see the style. This year&apos;s
+          questions are worded differently and some topics have changed, so focus on the ideas,
+          not the wording.
         </p>
         <div style={{ ...cardStyle, padding: "var(--space-2) var(--space-5)" }}>
           {LAST_YEARS_TEST.map((group, i) => (
@@ -276,7 +277,7 @@ function AreaCard({ area, number }: { area: AreaView; number: number }) {
           marginBottom: "var(--space-2)",
         }}
       >
-        You should be able to
+        {area.priority === "position" ? "What to think about" : "What to understand"}
       </div>
       <ul
         className="prep-outcomes"
@@ -303,7 +304,7 @@ function AreaCard({ area, number }: { area: AreaView; number: number }) {
               marginBottom: "var(--space-2)",
             }}
           >
-            Read
+            Where to learn it
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)" }}>
             {area.concepts.map((c) => (

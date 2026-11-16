@@ -153,7 +153,7 @@ export function HomeClient(props: HomeClientProps) {
               color: "var(--color-text-2)",
             }}
           >
-            What the tech team test covers, what to study first, and last year&apos;s test.
+            What the tech team test covers, and what last year&apos;s test looked like.
           </p>
           <div style={{ marginTop: "var(--space-3)" }}>
             <Link
@@ -169,7 +169,7 @@ export function HomeClient(props: HomeClientProps) {
                 textDecoration: "none",
               }}
             >
-              See what to study
+              See what it covers
               <ArrowRight />
             </Link>
           </div>
