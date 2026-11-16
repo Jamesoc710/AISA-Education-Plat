@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
@@ -53,6 +53,15 @@ export function BrowseClient({
   const activeTrack = tracks.find((t) => t.slug === activeTrackSlug) ?? null;
   // A track with no authored content yet (e.g. Capital Markets pre-seed).
   const trackIsEmpty = sections.length === 0;
+
+  // A link to /browse#<section> (the concept page has one) arrives through this
+  // route's loading skeleton, so the section does not exist yet when the router
+  // looks for the anchor and the page stays at the top. Scroll to it once the
+  // index has rendered. scroll-margin-top on the section clears the sticky heading.
+  useEffect(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (id) document.getElementById(id)?.scrollIntoView();
+  }, []);
 
   const allTiers = useMemo(() => groupByTier(sections), [sections]);
   const hasTiers = allTiers.length > 1;
