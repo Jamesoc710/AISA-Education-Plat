@@ -2,6 +2,7 @@ import { getAuthUser } from "@/lib/supabase/auth";
 import { prisma } from "@/lib/prisma";
 import { MainShell } from "@/components/main-shell";
 import { getDoorTeams } from "@/lib/team-data";
+import { COMMUNITY_CLOSED } from "@/lib/config";
 
 export default async function MainLayout({
   children,
@@ -19,7 +20,8 @@ export default async function MainLayout({
     if (dbUser) user = dbUser;
   }
 
-  const teams = await getDoorTeams();
+  // The Community menu is the only consumer; skip the query while it is closed.
+  const teams = COMMUNITY_CLOSED ? [] : await getDoorTeams();
 
   return (
     <MainShell user={user} teams={teams}>

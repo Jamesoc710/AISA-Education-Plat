@@ -7,6 +7,11 @@
 // While true, the calendar page shows a closed card and links to it are hidden.
 export const CALENDAR_CLOSED = true;
 
+// Temporary closure of the Community area (team pages and the build board).
+// While true, the Community menu is hidden and those pages show a closed card.
+// Flip to false to bring it back; nothing is deleted.
+export const COMMUNITY_CLOSED = true;
+
 // The club is on the University of Oregon campus. Server code runs in UTC, so
 // anything shown as "today" or "this evening" is computed in this zone.
 export const CLUB_TIME_ZONE = "America/Los_Angeles";

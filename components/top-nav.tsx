@@ -9,7 +9,7 @@ import { FeedbackDialog } from "@/components/feedback-dialog";
 import { createClient } from "@/lib/supabase/client";
 import type { ShellUser } from "@/components/main-shell";
 import type { TeamLink } from "@/lib/teams";
-import { CALENDAR_CLOSED } from "@/lib/config";
+import { CALENDAR_CLOSED, COMMUNITY_CLOSED } from "@/lib/config";
 import { BrandMark } from "@/components/ui/brand-mark";
 
 /**
@@ -76,11 +76,13 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
             active={[item.href, ...(item.also ?? [])].some((h) => matches(pathname, h))}
           />
         ))}
-        <CommunityMenu
-          teams={teams}
-          pathname={pathname}
-          active={COMMUNITY_PATHS.some((p) => matches(pathname, p))}
-        />
+        {!COMMUNITY_CLOSED && (
+          <CommunityMenu
+            teams={teams}
+            pathname={pathname}
+            active={COMMUNITY_PATHS.some((p) => matches(pathname, p))}
+          />
+        )}
       </nav>
 
       <div
@@ -360,20 +362,24 @@ function MobileMenu({
             ),
           )}
 
-          <div className="topnav-mobile-label">Community</div>
-          {teams.map((t) =>
-            link(
-              `/teams/${t.slug}`,
-              t.displayName,
-              matches(pathname, `/teams/${t.slug}`),
-              <span
-                aria-hidden
-                style={{ width: 9, height: 9, borderRadius: 999, backgroundColor: t.accent }}
-              />,
-            ),
+          {!COMMUNITY_CLOSED && (
+            <>
+              <div className="topnav-mobile-label">Community</div>
+              {teams.map((t) =>
+                link(
+                  `/teams/${t.slug}`,
+                  t.displayName,
+                  matches(pathname, `/teams/${t.slug}`),
+                  <span
+                    aria-hidden
+                    style={{ width: 9, height: 9, borderRadius: 999, backgroundColor: t.accent }}
+                  />,
+                ),
+              )}
+              {link("/build", "Build board", matches(pathname, "/build"))}
+              {!CALENDAR_CLOSED && link("/calendar", "Calendar", matches(pathname, "/calendar"))}
+            </>
           )}
-          {link("/build", "Build board", matches(pathname, "/build"))}
-          {!CALENDAR_CLOSED && link("/calendar", "Calendar", matches(pathname, "/calendar"))}
 
           <div className="topnav-mobile-rule" />
           {user ? (
