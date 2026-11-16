@@ -322,20 +322,105 @@ input:focus:not(:focus-visible) {
 
 /* ── Browse page — responsive ──────────────────────────────────── */
 
-/* Section-level layout: vertical stack. Editorial spacing — rows lean on
-   the left color rail rather than card borders for grouping, so sections
-   need more vertical air between them than a packed list would. */
-.browse-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
+/* Index layout: section identity on the left, its concepts on the right. */
+.browse-section {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  column-gap: var(--space-7);
+  row-gap: var(--space-4);
+  align-items: start;
+  /* Rows add 12px of their own at the bottom, so this evens out top and bottom. */
+  padding: 28px 0 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.browse-section:last-child { border-bottom: none; }
+
+/* Rows carry 12px of padding for their hover surface. The negative margin
+   pulls them back out so the text still lines up with the rules above, and
+   the first concept name sits level with the section name. */
+.browse-concepts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-3);
+  margin: -10px -12px 0;
 }
 
-/* Concept list inside an expanded section — tight stack with hair-rule
-   dividers drawn by each ConceptRow's borderTop. */
-.browse-grid {
+.browse-concept {
+  position: relative;
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: 12px;
+  color: var(--color-text);
+  text-decoration: none;
+  border-radius: var(--radius-2);
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+/* Hairline between rows, inset so it never meets the rounded hover corners. */
+.browse-concept::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  left: 12px;
+  height: 1px;
+  background-color: var(--color-border);
+  transition: opacity 120ms ease;
+}
+/* No hairline under the last row of the two-column grid. */
+.browse-concept:last-child::after,
+.browse-concept:nth-last-child(2):nth-child(odd)::after { display: none; }
+
+.browse-concept:hover {
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-card-hover);
+}
+.browse-concept:hover::after { opacity: 0; }
+
+.browse-concept-name {
+  display: block;
+  font-size: var(--text-md);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  transition: color 120ms ease;
+}
+.browse-concept:hover .browse-concept-name { color: var(--color-accent); }
+
+.browse-concept-sub {
+  display: -webkit-box;
+  margin-top: 2px;
+  overflow: hidden;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--color-text-2);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.browse-concept-arrow {
+  display: flex;
+  flex-shrink: 0;
+  align-self: center;
+  color: var(--color-accent);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 120ms ease, transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.browse-concept:hover .browse-concept-arrow,
+.browse-concept:focus-visible .browse-concept-arrow {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 900px) {
+  .browse-section { grid-template-columns: minmax(0, 1fr); }
+  .browse-concepts { margin-top: 0; }
+}
+
+@media (max-width: 640px) {
+  .browse-concepts { grid-template-columns: minmax(0, 1fr); }
+  .browse-concept:nth-last-child(2):nth-child(odd)::after { display: block; }
 }
 
 @media (max-width: 640px) {

@@ -1,36 +1,41 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { IconTile } from "@/components/ui/icon-tile";
 import { Icon } from "@/components/ui/icon";
-import { getSectionVisual, getConceptVisual } from "@/lib/section-icons";
+import { FilterTabs, type FilterTabItem } from "@/components/ui/filter-tabs";
+import { SectionEyebrow, ArrowRight } from "@/components/ui/editorial";
+import { getSectionVisual } from "@/lib/section-icons";
 import type { TrackSummary } from "@/lib/track";
 import type { SectionGroup, ConceptData } from "@/lib/types";
 
-const EXPANDED_KEY = "aisa-atlas-browse-expanded";
-
-const TIER_COPY: Record<string, { title: string; subtitle: string }> = {
-  fundamentals: {
-    title: "Fundamentals",
-    subtitle:
-      "The building blocks. Start here to get a confident mental model of how it all works.",
-  },
-  intermediate: {
-    title: "Intermediate",
-    subtitle:
-      "How it actually works in the real world: the layer that turns familiarity into real understanding.",
-  },
-  advanced: {
-    title: "Advanced",
-    subtitle:
-      "The cutting edge and the deep dives, for when you want to go from informed to genuinely fluent.",
-  },
+type TierGroup = {
+  slug: string;
+  name: string;
+  sections: SectionGroup[];
+  conceptCount: number;
 };
 
-// Canonical difficulty order for the on-page tier filter.
-const TIER_ORDER = ["fundamentals", "intermediate", "advanced"];
+// Sections arrive ordered by tier, so first-seen order is curriculum order.
+function groupByTier(sections: SectionGroup[]): TierGroup[] {
+  const groups: TierGroup[] = [];
+  for (const section of sections) {
+    let group = groups.find((g) => g.slug === section.tier.slug);
+    if (!group) {
+      group = { slug: section.tier.slug, name: section.tier.name, sections: [], conceptCount: 0 };
+      groups.push(group);
+    }
+    group.sections.push(section);
+    group.conceptCount += section.concepts.length;
+  }
+  return groups;
+}
+
+function plural(n: number, word: string) {
+  return `${n} ${word}${n === 1 ? "" : "s"}`;
+}
 
 export function BrowseClient({
   sections,
@@ -50,109 +55,54 @@ export function BrowseClient({
   // A track with no authored content yet (e.g. Capital Markets pre-seed).
   const trackIsEmpty = sections.length === 0;
 
-  const [userExpanded, setUserExpanded] = useState<Set<string>>(new Set());
-
-  // Hydrate persisted state
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(EXPANDED_KEY);
-      if (stored) setUserExpanded(new Set(JSON.parse(stored)));
-    } catch {}
-  }, []);
-
-  const persistExpanded = (next: Set<string>) => {
-    try {
-      localStorage.setItem(EXPANDED_KEY, JSON.stringify([...next]));
-    } catch {}
-  };
-
-  const toggleSection = (id: string) => {
-    setUserExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      persistExpanded(next);
-      return next;
-    });
-  };
-
-  const expandAll = (ids: string[]) => {
-    const next = new Set(ids);
-    setUserExpanded(next);
-    persistExpanded(next);
-  };
-
-  const collapseAll = () => {
-    const next = new Set<string>();
-    setUserExpanded(next);
-    persistExpanded(next);
-  };
+  const allTiers = useMemo(() => groupByTier(sections), [sections]);
+  const hasTiers = allTiers.length > 1;
 
   // ── Filtering ────────────────────────────────────────────────
-  const filteredSections = useMemo(() => {
+  const visibleTiers = useMemo(() => {
     const q = query.toLowerCase();
-
-    return sections
+    const filtered = sections
       .filter((s) => !tierFilter || s.tier.slug === tierFilter)
-      .map((section) => {
-        const concepts = section.concepts.filter((c) => {
-          if (q) {
-            const haystack = `${c.name} ${c.subtitle} ${c.section.name}`.toLowerCase();
-            if (!haystack.includes(q)) return false;
-          }
-          return true;
-        });
-        return { ...section, concepts };
-      })
+      .map((section) => ({
+        ...section,
+        concepts: section.concepts.filter(
+          (c) => !q || `${c.name} ${c.subtitle} ${c.section.name}`.toLowerCase().includes(q),
+        ),
+      }))
       .filter((s) => s.concepts.length > 0);
+    return groupByTier(filtered);
   }, [sections, query, tierFilter]);
 
-  const totalVisible = filteredSections.reduce((acc, s) => acc + s.concepts.length, 0);
+  const totalVisible = visibleTiers.reduce((acc, t) => acc + t.conceptCount, 0);
 
-  // ── Effective expand set ─────────────────────────────────────
-  // While searching, auto-expand all matched sections so results are visible.
-  const isSearching = query.length > 0;
-  const displayExpanded = useMemo(() => {
-    if (isSearching) return new Set(filteredSections.map((s) => s.id));
-    return userExpanded;
-  }, [isSearching, filteredSections, userExpanded]);
-  const allCollapsed = displayExpanded.size === 0;
+  // ── Tier tabs ────────────────────────────────────────────────
+  // Hidden while searching: a search runs across every tier.
+  const tabs: FilterTabItem<string>[] = [
+    { key: "all", label: "All", count: allTiers.reduce((acc, t) => acc + t.conceptCount, 0) },
+    ...allTiers.map((t) => ({ key: t.slug, label: t.name, count: t.conceptCount })),
+  ];
+  const showTierTabs = hasTiers && !query;
 
-  // ── Page header copy reflects filters ───────────────────────
-  const header = (() => {
-    if (tierFilter && TIER_COPY[tierFilter]) {
-      return {
-        title: TIER_COPY[tierFilter].title,
-        subtitle: TIER_COPY[tierFilter].subtitle,
-      };
-    }
-    if (query) {
-      return {
-        title: "Search results",
-        subtitle: `${totalVisible} concept${totalVisible === 1 ? "" : "s"} match "${query}"`,
-      };
-    }
-    return {
-      title: "Browse",
-      subtitle:
-        "Explore the curriculum at your own pace. Click any section to see what's inside.",
-    };
-  })();
-
-  const isFiltered = tierFilter !== null;
-
-  // Difficulty-tier filter: replaces the old sidebar tier rows. Shown only where
-  // the track actually has tiers (AI today) and on the default browse view.
-  const availableTiers = useMemo(
-    () => TIER_ORDER.filter((slug) => sections.some((s) => s.tier.slug === slug)),
-    [sections],
-  );
-  const showTierFilter =
-    activeTrackSlug === "ai" && availableTiers.length > 1 && !query;
+  // The filter only narrows data already on the page, so it rewrites the URL in
+  // place instead of asking the server for the same page again. Next keeps
+  // useSearchParams in sync with replaceState.
+  const setTier = (key: string) => {
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
+    if (key === "all") params.delete("tier");
+    else params.set("tier", key);
+    const qs = params.toString();
+    window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+  };
 
   return (
-    <div style={{ padding: "32px var(--pad-browse-x) 80px" }}>
-      <div style={{ maxWidth: 1040, margin: "0 auto" }}>
+    <div data-surface="editorial" style={{ backgroundColor: "var(--color-bg)", minHeight: "100%" }}>
+      <div
+        style={{
+          maxWidth: 1160,
+          margin: "0 auto",
+          padding: "var(--pad-page-y) var(--pad-wide-x) 96px",
+        }}
+      >
         {/* ── Track switcher ──────────────────────────────────── */}
         {tracks.length > 1 && (
           <TrackSwitcher
@@ -170,356 +120,196 @@ export function BrowseClient({
         )}
 
         {/* ── Page header ─────────────────────────────────────── */}
-        <div style={{ marginBottom: "var(--space-6)" }}>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "var(--text-2xl)",
-              fontWeight: 600,
-              letterSpacing: "-0.02em",
-              color: "var(--color-text)",
-              lineHeight: 1.15,
-            }}
-          >
-            {header.title}
-          </h1>
+        <SectionEyebrow>{query ? "Search" : (activeTrack?.name ?? "Curriculum")}</SectionEyebrow>
+        <h1
+          style={{
+            margin: 0,
+            fontSize: "clamp(40px, 5vw, 56px)",
+            fontWeight: 600,
+            letterSpacing: "-0.03em",
+            lineHeight: 1.02,
+            color: "var(--color-text)",
+          }}
+        >
+          {query ? "Search results" : "Browse"}
+        </h1>
+        {query && (
           <p
             style={{
-              margin: "8px 0 0 0",
-              fontSize: "var(--text-base)",
-              color: "var(--color-text-2)",
+              margin: "14px 0 0",
+              fontSize: "var(--text-md)",
               lineHeight: 1.55,
-              maxWidth: 680,
+              color: "var(--color-text)",
             }}
           >
-            {header.subtitle}
+            {plural(totalVisible, "concept")} match{totalVisible === 1 ? "es" : ""} &ldquo;{query}&rdquo;
           </p>
-
-          {isFiltered && (
-            <Link
-              href="/browse"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "var(--space-2)",
-                marginTop: "var(--space-3)",
-                fontSize: "var(--text-sm)",
-                fontWeight: 500,
-                color: "var(--color-text-2)",
-                textDecoration: "none",
-                transition: "color 120ms ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--color-text)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--color-text-2)";
-              }}
-            >
-              <Icon name="x" size={12} strokeWidth={2.25} />
-              Clear filter
-            </Link>
-          )}
-        </div>
-
-        {showTierFilter && (
-          <TierFilter tiers={availableTiers} activeTier={tierFilter} />
         )}
 
-        {/* ── Expand / collapse toolbar ───────────────────────── */}
-        {filteredSections.length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              marginBottom: "var(--space-2)",
-              minHeight: 24,
-            }}
-          >
-            <button
-              type="button"
-              onClick={() =>
-                allCollapsed
-                  ? expandAll(filteredSections.map((s) => s.id))
-                  : collapseAll()
-              }
-              disabled={isSearching}
-              style={{
-                background: "none",
-                border: "none",
-                padding: "4px 8px",
-                fontSize: "var(--text-sm)",
-                fontFamily: "inherit",
-                color: "var(--color-text-2)",
-                cursor: isSearching ? "default" : "pointer",
-                opacity: isSearching ? 0.4 : 1,
-                transition: "color 120ms ease",
-              }}
-              onMouseEnter={(e) => {
-                if (!isSearching) e.currentTarget.style.color = "var(--color-accent)";
-              }}
-              onMouseLeave={(e) => {
-                if (!isSearching) e.currentTarget.style.color = "var(--color-text-2)";
-              }}
-            >
-              {allCollapsed ? "Expand all" : "Collapse all"}
-            </button>
-          </div>
+        {showTierTabs && (
+          <FilterTabs<string>
+            tabs={tabs}
+            active={tierFilter ?? "all"}
+            onChange={setTier}
+            style={{ marginTop: "var(--space-6)", flexWrap: "wrap" }}
+          />
         )}
 
-        {/* ── Sections / empty state ──────────────────────────── */}
+        {/* ── Index / empty states ────────────────────────────── */}
         {trackIsEmpty ? (
-          <TrackEmptyState track={activeTrack} />
-        ) : filteredSections.length === 0 ? (
-          <EmptyState query={query} />
-        ) : (
-          <div className="browse-sections">
-            {filteredSections.map((section) => (
-              <SectionRow
-                key={section.id}
-                section={section}
-                expanded={displayExpanded.has(section.id)}
-                onToggleExpanded={() => toggleSection(section.id)}
-              />
-            ))}
+          <div style={{ marginTop: "var(--space-6)" }}>
+            <TrackEmptyState track={activeTrack} />
           </div>
+        ) : visibleTiers.length === 0 ? (
+          <div style={{ marginTop: "var(--space-6)" }}>
+            <EmptyState query={query} />
+          </div>
+        ) : (
+          visibleTiers.map((tier, i) => (
+            <TierBlock key={tier.slug} tier={tier} showHeading={hasTiers} first={i === 0} />
+          ))
         )}
       </div>
     </div>
+  );
+}
+
+// ── Tier ─────────────────────────────────────────────────────────────────────
+//
+// One chapter of the index: a ruled heading, then its sections. A track with a
+// single tier skips the heading and keeps only the rule.
+
+function TierBlock({
+  tier,
+  showHeading,
+  first,
+}: {
+  tier: TierGroup;
+  showHeading: boolean;
+  first: boolean;
+}) {
+  return (
+    <section style={{ marginTop: first ? "40px" : "56px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "var(--space-1) var(--space-5)",
+          paddingBottom: showHeading ? "var(--space-4)" : 0,
+          borderBottom: "1px solid var(--color-text)",
+        }}
+      >
+        {showHeading && (
+          <>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: "var(--text-3xl)",
+                fontWeight: 600,
+                letterSpacing: "-0.025em",
+                lineHeight: 1.1,
+                color: "var(--color-text)",
+              }}
+            >
+              {tier.name}
+            </h2>
+            <span
+              style={{
+                fontSize: "var(--text-sm)",
+                fontWeight: 500,
+                color: "var(--color-text)",
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              {plural(tier.sections.length, "section")} · {plural(tier.conceptCount, "concept")}
+            </span>
+          </>
+        )}
+      </div>
+
+      {tier.sections.map((section) => (
+        <SectionRow key={section.id} section={section} />
+      ))}
+    </section>
   );
 }
 
 // ── Section Row ──────────────────────────────────────────────────────────────
 //
-// Tile-as-left-rail layout: a 4px vertical color bar (matching the section's
-// tile-fg color) runs down the row's full height. No outer border or card
-// fill — the rail + typography carry the grouping.
+// Section identity on the left, every concept in it on the right. Nothing to
+// expand: the page is the index. Layout and hover live in globals.css
+// (.browse-section, .browse-concepts, .browse-concept).
 
-function SectionRow({
-  section,
-  expanded,
-  onToggleExpanded,
-}: {
-  section: SectionGroup;
-  expanded: boolean;
-  onToggleExpanded: () => void;
-}) {
-  const [hovered, setHovered] = useState(false);
+function SectionRow({ section }: { section: SectionGroup }) {
   const visual = getSectionVisual(section.slug);
-  const preview = section.concepts.map((c) => c.name).join(" · ");
-  const railColor = `var(--tile-${visual.color}-fg)`;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "stretch",
-        gap: "var(--space-4)",
-      }}
-    >
-      {/* Left color rail — continuous from header through expanded concepts */}
-      <div
-        aria-hidden
-        style={{
-          width: 3,
-          flexShrink: 0,
-          backgroundColor: railColor,
-          borderRadius: 2,
-        }}
-      />
-
-      <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Clickable section header */}
-        <button
-          type="button"
-          onClick={onToggleExpanded}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          aria-expanded={expanded}
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "var(--space-4)",
-            width: "100%",
-            backgroundColor: "transparent",
-            border: "none",
-            padding: "8px 4px 8px 0",
-            cursor: "pointer",
-            fontFamily: "inherit",
-            textAlign: "left",
-            color: "inherit",
-          }}
-        >
-          <IconTile icon={visual.icon} color={visual.color} size="md" />
-
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "baseline",
-                gap: "var(--space-3)",
-                flexWrap: "wrap",
-              }}
-            >
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: "var(--text-lg)",
-                  fontWeight: 600,
-                  color: hovered ? railColor : "var(--color-text)",
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1.2,
-                  transition: "color 140ms ease",
-                }}
-              >
-                {section.name}
-              </h2>
-              <span
-                style={{
-                  fontSize: "var(--text-sm)",
-                  color: "var(--color-text-3)",
-                  fontWeight: 500,
-                }}
-              >
-                {section.concepts.length} concept{section.concepts.length === 1 ? "" : "s"}
-              </span>
-            </div>
-            {section.description && (
-              <p
-                style={{
-                  margin: "6px 0 0 0",
-                  fontSize: "var(--text-sm)",
-                  color: "var(--color-text-2)",
-                  lineHeight: 1.55,
-                }}
-              >
-                {section.description}
-              </p>
-            )}
-            {preview && !expanded && (
-              <p
-                style={{
-                  margin: "8px 0 0 0",
-                  fontSize: "var(--text-sm)",
-                  color: "var(--color-text-3)",
-                  lineHeight: 1.4,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-                title={preview}
-              >
-                {preview}
-              </p>
-            )}
-          </div>
-
-          <span
-            aria-hidden
+    <div className="browse-section">
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-4)" }}>
+        <IconTile icon={visual.icon} color={visual.color} size="md" />
+        <div style={{ minWidth: 0 }}>
+          <h3
             style={{
-              display: "flex",
-              color: hovered ? railColor : "var(--color-text-3)",
-              transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
-              transition: "transform 220ms cubic-bezier(0.2, 0, 0, 1), color 140ms ease",
-              marginTop: "var(--space-4)",
-              flexShrink: 0,
+              margin: 0,
+              fontSize: "var(--text-lg)",
+              fontWeight: 600,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.25,
+              color: "var(--color-text)",
             }}
           >
-            <Icon name="chevron-right" size={16} strokeWidth={2} />
-          </span>
-        </button>
-
-        {/* Expandable concept list */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateRows: expanded ? "1fr" : "0fr",
-            transition: "grid-template-rows 260ms cubic-bezier(0.2, 0, 0, 1)",
-          }}
-        >
-          <div style={{ overflow: "hidden", minHeight: 0 }}>
-            <div
-              className="browse-grid"
+            {section.name}
+          </h3>
+          {section.description && (
+            <p
               style={{
-                paddingTop: "var(--space-2)",
-                opacity: expanded ? 1 : 0,
-                transform: expanded ? "translateY(0)" : "translateY(-4px)",
-                transition: "opacity 220ms ease-out, transform 220ms ease-out",
-                transitionDelay: expanded ? "60ms" : "0ms",
+                margin: "6px 0 0",
+                fontSize: "var(--text-sm)",
+                lineHeight: 1.5,
+                color: "var(--color-text-2)",
               }}
-              inert={!expanded}
             >
-              {section.concepts.map((concept) => (
-                <ConceptRow key={concept.id} concept={concept} />
-              ))}
-            </div>
+              {section.description}
+            </p>
+          )}
+          <div
+            style={{
+              marginTop: "var(--space-3)",
+              fontSize: "var(--text-xs)",
+              fontWeight: 600,
+              color: `var(--tile-${visual.color}-fg)`,
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {plural(section.concepts.length, "concept")}
           </div>
         </div>
+      </div>
+
+      <div className="browse-concepts">
+        {section.concepts.map((concept) => (
+          <ConceptRow key={concept.id} concept={concept} />
+        ))}
       </div>
     </div>
   );
 }
 
-// ── Concept Row (inline editorial, used only inside browse) ─────────────────
+// ── Concept Row ──────────────────────────────────────────────────────────────
 
 function ConceptRow({ concept }: { concept: ConceptData }) {
-  const [hovered, setHovered] = useState(false);
-  const visual = getConceptVisual(concept.slug, concept.section.slug);
-
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        position: "relative",
-        borderTop: "1px solid var(--color-border)",
-      }}
-    >
-      <Link
-        href={`/concepts/${concept.slug}`}
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          gap: "var(--space-3)",
-          padding: "12px 4px",
-          textDecoration: "none",
-          color: "inherit",
-        }}
-      >
-        <IconTile icon={visual.icon} color={visual.color} size="sm" />
-
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h3
-            style={{
-              margin: 0,
-              fontSize: "var(--text-base)",
-              fontWeight: 550,
-              color: hovered ? "var(--color-accent)" : "var(--color-text)",
-              lineHeight: 1.3,
-              letterSpacing: "-0.01em",
-              transition: "color 140ms ease",
-            }}
-          >
-            {concept.name}
-          </h3>
-          <p
-            style={{
-              margin: "4px 0 0 0",
-              fontSize: "var(--text-sm)",
-              color: "var(--color-text-2)",
-              lineHeight: 1.5,
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical" as const,
-              overflow: "hidden",
-            }}
-          >
-            {concept.subtitle}
-          </p>
-        </div>
-      </Link>
-    </div>
+    <Link href={`/concepts/${concept.slug}`} className="browse-concept">
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span className="browse-concept-name">{concept.name}</span>
+        <span className="browse-concept-sub">{concept.subtitle}</span>
+      </span>
+      <span className="browse-concept-arrow" aria-hidden>
+        <ArrowRight />
+      </span>
+    </Link>
   );
 }
 
@@ -615,78 +405,6 @@ function TrackSwitcher({
           >
             {t.name}
           </button>
-        );
-      })}
-    </div>
-  );
-}
-
-// ── Tier Filter ──────────────────────────────────────────────────────────────
-// Pill row that sets ?tier=… on the Browse page — the on-page replacement for the
-// old sidebar Fundamentals/Intermediate/Advanced rows. "All" clears to /browse.
-
-function TierFilter({
-  tiers,
-  activeTier,
-}: {
-  tiers: string[];
-  activeTier: string | null;
-}) {
-  const options: { slug: string | null; label: string; href: string }[] = [
-    { slug: null, label: "All", href: "/browse" },
-    ...tiers.map((slug) => ({
-      slug,
-      label: TIER_COPY[slug]?.title ?? slug,
-      href: `/browse?tier=${slug}`,
-    })),
-  ];
-  return (
-    <div
-      role="tablist"
-      aria-label="Difficulty"
-      style={{
-        display: "flex",
-        gap: "var(--space-2)",
-        flexWrap: "wrap",
-        marginBottom: "var(--space-5)",
-      }}
-    >
-      {options.map((opt) => {
-        const active = opt.slug === activeTier;
-        return (
-          <Link
-            key={opt.label}
-            href={opt.href}
-            role="tab"
-            aria-selected={active}
-            style={{
-              padding: "6px 14px",
-              borderRadius: 999,
-              fontSize: "var(--text-sm)",
-              fontWeight: 600,
-              textDecoration: "none",
-              cursor: active ? "default" : "pointer",
-              border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border)"}`,
-              backgroundColor: active ? "var(--color-accent)" : "transparent",
-              color: active ? "#fff" : "var(--color-text-2)",
-              transition:
-                "background-color 120ms ease, color 120ms ease, border-color 120ms ease",
-            }}
-            onMouseEnter={(e) => {
-              if (!active) {
-                e.currentTarget.style.backgroundColor = "var(--color-surface-2)";
-                e.currentTarget.style.color = "var(--color-text)";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!active) {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "var(--color-text-2)";
-              }
-            }}
-          >
-            {opt.label}
-          </Link>
         );
       })}
     </div>
