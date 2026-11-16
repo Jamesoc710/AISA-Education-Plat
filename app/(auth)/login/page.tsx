@@ -8,7 +8,7 @@ import { safeNextPath } from "@/lib/safe-redirect";
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Sign in to your TCO account.",
+  description: "Sign in to your AISA Atlas account.",
 };
 
 type Params = Promise<{ [key: string]: string | string[] | undefined }>;

@@ -100,7 +100,7 @@ export function getDigestContentWeekOf(now: Date = new Date()): Date {
 
 // NOTE: deliberately dash-free. Models mirror prompt style, and the digest's
 // style rule bans em and en dashes in output.
-const SYSTEM_PROMPT_BASE = `You are curating "This Week in Tech", a weekly news digest for TCO (Tech Collective Org), a university tech club. Members come from mixed, often non-technical backgrounds: assume no prior knowledge, and gloss any jargon in plain English. No hype, no clickbait.
+const SYSTEM_PROMPT_BASE = `You are curating "This Week in Tech", a weekly news digest for AISA, a university tech club. Members come from mixed, often non-technical backgrounds: assume no prior knowledge, and gloss any jargon in plain English. No hype, no clickbait.
 
 Use web search to find what ACTUALLY happened in the last 7 days. Cover a mix across three areas: AI (2-3 items), broader tech (1-2 items), and capital markets / venture capital (1-2 items).
 

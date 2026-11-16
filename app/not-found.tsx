@@ -17,8 +17,8 @@ export default function NotFound() {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/assets/tco-logo.png"
-        alt="TCO"
+        src="/assets/aisa-logo.png"
+        alt="AISA"
         style={{ width: "48px", height: "48px", marginBottom: "24px", opacity: 0.5 }}
       />
 

@@ -223,7 +223,7 @@ export function CalendarClient({ events, lastSyncedAt }: CalendarClientProps) {
             >
               {termIsOver
                 ? `${term} (past term). This term's schedule is not synced yet.`
-                : `${term}, synced from the TCO Master Calendar`}
+                : `${term}, synced from the club master calendar`}
             </p>
           </div>
         </div>
@@ -705,7 +705,7 @@ function EmptyState({ lastSyncedAt }: { lastSyncedAt: string | null }) {
         No events yet
       </h1>
       <p style={{ fontSize: "var(--text-base)", color: "var(--color-text-2)", margin: 0 }}>
-        The calendar syncs from the TCO Master Calendar every 30 minutes.{" "}
+        The calendar syncs from the club master calendar once a day.{" "}
         {lastSyncedAt && `Last synced ${relativeTime(lastSyncedAt)}.`}
       </p>
     </div>

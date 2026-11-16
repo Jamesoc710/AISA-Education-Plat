@@ -75,7 +75,7 @@ export function AdminCalendarSync({ lastSyncedAt, eventCount }: AdminCalendarSyn
             marginBottom: "var(--space-1)",
           }}
         >
-          TCO Master Calendar
+          Master calendar
         </div>
         <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
           {eventCount} events ·{" "}

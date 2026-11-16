@@ -3,7 +3,7 @@ import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 
 export const metadata: Metadata = {
   title: "Choose a new password",
-  description: "Set a new password for your TCO account.",
+  description: "Set a new password for your AISA Atlas account.",
 };
 
 export default function ResetPasswordPage() {

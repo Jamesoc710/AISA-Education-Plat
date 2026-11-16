@@ -10,7 +10,7 @@ All variables are listed in `.env.example`. They are set in Vercel (Project Sett
 
 | Route | Schedule | What it does |
 | --- | --- | --- |
-| `/api/cron/sync-schedule` | daily 06:00 UTC | Syncs the TCO Master Calendar sheet into `schedule_events` |
+| `/api/cron/sync-schedule` | daily 06:00 UTC | Syncs the master calendar sheet into `schedule_events` |
 | `/api/cron/sync-digest` | Mondays 13:00 UTC | Drafts the weekly digest (an admin publishes it from `/admin`) |
 
 ## Schema changes in production

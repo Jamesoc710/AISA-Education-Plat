@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Calendar",
-  description: "The TCO club calendar: meetings, workshops and events.",
+  description: "The AISA calendar: meetings, workshops and events.",
 };
 
 

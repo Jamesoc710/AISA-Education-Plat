@@ -1,6 +1,6 @@
-# AISA Atlas (TCO)
+# AISA Atlas
 
-Study platform for TCO members: learn concepts, practice them, track progress, and keep up with the club calendar and the weekly tech digest.
+Study platform for AISA members: learn concepts, practice them, track progress, and keep up with the club calendar and the weekly tech digest.
 
 ## Stack
 

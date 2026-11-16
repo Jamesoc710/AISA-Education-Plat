@@ -34,7 +34,7 @@ const COLOR_TO_TYPE: Record<string, string> = {
   "000000": "GENERAL",
 };
 
-// Theme colors fall back to these. The TCO sheet uses theme:4 for Exec red.
+// Theme colors fall back to these. The sheet uses theme:4 for Exec red.
 const THEME_TO_TYPE: Record<number, string> = {
   4: "EXEC",
 };

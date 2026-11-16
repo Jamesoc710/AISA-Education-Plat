@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { ShellUser } from "@/components/main-shell";
 import type { TeamLink } from "@/lib/teams";
 import { CALENDAR_CLOSED } from "@/lib/config";
+import { BrandMark } from "@/components/ui/brand-mark";
 
 /**
  * Global top navigation: wordmark on the left, the primary links and a
@@ -58,26 +59,9 @@ export function TopNav({ user, teams }: { user: ShellUser | null; teams: TeamLin
         borderBottom: "1px solid var(--color-border)",
       }}
     >
-      <Link
-        href="/home"
-        aria-label="TCO home"
-        style={{
-          justifySelf: "start",
-          display: "block",
-          width: 71,
-          height: 26,
-          overflow: "hidden",
-        }}
-      >
-        {/* The source PNG is mostly padding; crop to the wordmark. */}
-        <img
-          src="/assets/tco-logo.png"
-          alt="TCO"
-          width={101}
-          height={101}
-          style={{ display: "block", maxWidth: "none", margin: "-34px 0 0 -15px" }}
-        />
-      </Link>
+      <div style={{ justifySelf: "start", display: "flex" }}>
+        <BrandMark href="/home" />
+      </div>
 
       <nav
         aria-label="Primary"

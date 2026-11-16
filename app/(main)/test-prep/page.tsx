@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Test prep",
-  description: "What the TCO tech team test covers, what to study first, and last year's test.",
+  description: "What the AISA tech team test covers, what to study first, and last year's test.",
 };
 
 export default async function TestPrepPage() {
@@ -20,7 +20,7 @@ export default async function TestPrepPage() {
         icon="list-checks"
         tileColor="indigo"
         title="Sign in to see test prep"
-        body="What the test covers, what to study first, and last year's test. For TCO members."
+        body="What the test covers, what to study first, and last year's test. For AISA members."
         nextPath="/test-prep"
       />
     );

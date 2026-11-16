@@ -37,7 +37,7 @@ export function Welcome() {
           padding: "var(--pad-page-y) var(--pad-wide-x) 96px",
         }}
       >
-        <SectionEyebrow>TCO Education</SectionEyebrow>
+        <SectionEyebrow>AISA Atlas</SectionEyebrow>
         <h1
           style={{
             margin: 0,
@@ -60,7 +60,7 @@ export function Welcome() {
             color: "var(--color-text-2)",
           }}
         >
-          The study platform for TCO members. Read each concept, practice until it sticks, and
+          The study platform for AISA members. Read each concept, practice until it sticks, and
           keep up with the week in tech. An account saves your progress.
         </p>
 

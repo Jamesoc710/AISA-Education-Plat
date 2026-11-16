@@ -47,7 +47,7 @@ export function authErrorMessage(error: AuthErrorLike, context: AuthContext): st
     return "New accounts are closed right now.";
   }
   if (code === "user_banned") {
-    return "This account has been disabled. Contact a TCO lead.";
+    return "This account has been disabled. Contact an AISA lead.";
   }
   if (code === "otp_expired" || code === "flow_state_expired" || code === "flow_state_not_found") {
     return "This link has expired or was already used.";

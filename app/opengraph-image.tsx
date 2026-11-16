@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
+import { APP_NAME } from "@/lib/brand";
 
 // Link preview shown when the site is shared in Slack, iMessage and the like.
-export const alt = "TCO: learn how modern AI actually works";
+export const alt = `${APP_NAME}: learn how modern AI actually works`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -23,7 +24,7 @@ export default function OpengraphImage() {
         }}
       >
         <div style={{ display: "flex", fontSize: "44px", fontWeight: 800, letterSpacing: "-0.04em" }}>
-          TCO
+          {APP_NAME}
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div

@@ -608,21 +608,6 @@ input:focus:not(:focus-visible) {
   overflow: hidden;
 }
 
-/* The wordmark PNG is black on transparent with wide padding: crop, then invert. */
-.auth-logo {
-  display: block;
-  width: 86px;
-  height: 32px;
-  overflow: hidden;
-  border-radius: var(--radius-1);
-}
-.auth-logo img {
-  display: block;
-  max-width: none;
-  margin: -41px 0 0 -18px;
-}
-.auth-brand .auth-logo img { filter: invert(1); }
-
 .auth-brand-title {
   margin: 0 0 var(--space-4);
   max-width: 13em;

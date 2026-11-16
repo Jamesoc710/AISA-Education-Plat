@@ -98,7 +98,7 @@ export function LoginForm({
   return (
     <div className={exiting ? "login-exit" : undefined}>
       <h1 className="auth-title">Welcome back</h1>
-      <p className="auth-sub">Sign in to your TCO account.</p>
+      <p className="auth-sub">Sign in to your AISA Atlas account.</p>
 
       {googleEnabled && (
         <>
@@ -158,7 +158,7 @@ export function LoginForm({
       </form>
 
       <p className="auth-foot">
-        New to TCO?{" "}
+        New to AISA Atlas?{" "}
         <Link href={withNext("/signup", next)} className="auth-link">
           Create an account
         </Link>

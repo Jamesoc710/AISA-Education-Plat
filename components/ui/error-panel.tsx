@@ -70,7 +70,7 @@ export function ErrorPanel({
           }}
         >
           This page didn&apos;t load. It&apos;s on our side, not yours. Try again, and if it keeps
-          happening let a TCO lead know.
+          happening let an AISA lead know.
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
           <Button variant="primary" size="md" onClick={() => retry()} fullWidth>

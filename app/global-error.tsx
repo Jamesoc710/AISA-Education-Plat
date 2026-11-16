@@ -24,7 +24,7 @@ export default function GlobalError({
           textAlign: "center",
         }}
       >
-        <title>Something went wrong | TCO</title>
+        <title>Something went wrong | AISA Atlas</title>
         <div style={{ maxWidth: 420 }}>
           <h1 style={{ margin: "0 0 8px", fontSize: "20px", fontWeight: 600 }}>Something went wrong</h1>
           <p style={{ margin: "0 0 24px", fontSize: "14px", lineHeight: 1.55, color: "#6B6B73" }}>

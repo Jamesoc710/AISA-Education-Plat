@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Browse",
-  description: "Every concept in the TCO curriculum, from the fundamentals to the frontier.",
+  description: "Every concept in the AISA curriculum, from the fundamentals to the frontier.",
 };
 
 async function getConcepts(trackSlug: string): Promise<SectionGroup[]> {

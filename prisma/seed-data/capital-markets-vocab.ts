@@ -1,5 +1,5 @@
 /**
- * Capital Markets & Venture Capital vocabulary pack (TCO Capital Markets track).
+ * Capital Markets & Venture Capital vocabulary pack (Capital Markets track).
  *
  * One record per term, organized into four sections. Each record carries the
  * five fields requested for the learning app, mapped onto the `Concept` model:

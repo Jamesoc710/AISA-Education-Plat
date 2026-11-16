@@ -151,7 +151,7 @@ export function DigestClient({
               bottom={24}
             />
             <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>
-              Curated weekly for TCO members. Every link goes to the original source.
+              Curated weekly for AISA members. Every link goes to the original source.
             </div>
           </>
         )}

@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 
 /**
- * Track resolution for the TCO multi-track pivot.
+ * Track resolution for the multi-track pivot.
  *
  * The active track is held in a cookie (set via POST /api/track) and read
  * server-side on every track-scoped surface. Defaults to the AI flagship.

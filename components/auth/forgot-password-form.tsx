@@ -45,7 +45,7 @@ export function ForgotPasswordForm() {
   if (sentTo) {
     return (
       <CheckEmail email={sentTo} resend={() => send(sentTo)} onBack={() => setSentTo(null)}>
-        If <strong>{sentTo}</strong> has a TCO account, a link to choose a new password is on
+        If <strong>{sentTo}</strong> has an AISA Atlas account, a link to choose a new password is on
         its way. The link works once and expires after an hour.
       </CheckEmail>
     );

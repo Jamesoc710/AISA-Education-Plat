@@ -1,8 +1,12 @@
 /**
- * Builds the browser-tab and home-screen icons from the TCO logo: the duck
- * loop, white on the app background.
+ * Builds the browser-tab and home-screen icons from the AISA logo, centered
+ * on a white tile.
  * Usage: node scripts/generate-icons.mjs
  * Writes app/favicon.ico (16/32/48), app/icon.png (192), app/apple-icon.png (180).
+ *
+ * The source logo is only 128px, so the 180 and 192 icons are slightly
+ * upscaled. Swap in a larger public/assets/aisa-logo.png and re-run for
+ * crisper home-screen icons.
  */
 import sharp from "sharp";
 import path from "path";
@@ -11,31 +15,15 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
-const input = path.join(root, "public/assets/tco-logo.png");
-const BG = "#0e0e10"; // --color-bg
+const input = path.join(root, "public/assets/aisa-logo.png");
+const BG = "#ffffff";
 
-// The duck loop of the 800x800 logo, cropped at the point where it crosses the C.
-const DUCK = { left: 484, top: 250, width: 206, height: 235 };
-
-async function whiteMark() {
-  const { data, info } = await sharp(input)
-    .ensureAlpha()
-    .extract(DUCK)
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-
-  // Black ink on transparent/white -> white ink, alpha from darkness
-  for (let i = 0; i < data.length; i += 4) {
-    const lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
-    data[i + 3] = Math.round((data[i + 3] * (255 - lum)) / 255);
-    data[i] = data[i + 1] = data[i + 2] = 255;
-  }
-
-  return sharp(data, { raw: info }).trim({ threshold: 1 }).png().toBuffer();
+async function logoMark() {
+  return sharp(input).ensureAlpha().trim({ threshold: 1 }).png().toBuffer();
 }
 
 async function tile(mark, size, { rounded }) {
-  const inner = Math.round(size * 0.76);
+  const inner = Math.round(size * 0.84);
   const art = await sharp(mark)
     .resize(inner, inner, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .toBuffer();
@@ -68,7 +56,7 @@ function ico(frames) {
 }
 
 async function generate() {
-  const mark = await whiteMark();
+  const mark = await logoMark();
 
   const frames = [];
   for (const size of [16, 32, 48]) frames.push({ size, png: await tile(mark, size, { rounded: true }) });

@@ -85,8 +85,8 @@ export function ConfirmLink({
       <h1 className="auth-title">{recovery ? "Reset your password" : "Confirm your email"}</h1>
       <p className="auth-sub">
         {recovery
-          ? "Continue to choose a new password for your TCO account."
-          : "One more step: confirm your email to finish creating your TCO account."}
+          ? "Continue to choose a new password for your AISA Atlas account."
+          : "One more step: confirm your email to finish creating your AISA Atlas account."}
       </p>
       <button
         type="button"

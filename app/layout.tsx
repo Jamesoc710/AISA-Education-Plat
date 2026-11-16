@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Geist, Geist_Mono, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
+import { APP_NAME, ORG_NAME, SITE_URL } from "@/lib/brand";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -16,22 +17,21 @@ const hanken = Hanken_Grotesk({
   weight: ["400", "500", "600", "700"],
 });
 
-const DESCRIPTION =
-  "The TCO study platform. Learn how modern AI works, practice until it sticks, and keep up with the week in tech.";
+const DESCRIPTION = `The ${ORG_NAME} study platform. Learn how modern AI works, practice until it sticks, and keep up with the week in tech.`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tcoeducation.com"),
-  title: { default: "TCO", template: "%s | TCO" },
+  metadataBase: new URL(SITE_URL),
+  title: { default: APP_NAME, template: `%s | ${APP_NAME}` },
   description: DESCRIPTION,
-  applicationName: "TCO",
+  applicationName: APP_NAME,
   openGraph: {
     type: "website",
-    siteName: "TCO",
-    title: "TCO",
+    siteName: APP_NAME,
+    title: APP_NAME,
     description: DESCRIPTION,
     url: "/",
   },
-  twitter: { card: "summary_large_image", title: "TCO", description: DESCRIPTION },
+  twitter: { card: "summary_large_image", title: APP_NAME, description: DESCRIPTION },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
