@@ -3,6 +3,7 @@ import { getAuthUser } from "@/lib/supabase/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveTrackSlug } from "@/lib/track";
 import { FlashcardPlayer } from "@/components/flashcard-player";
+import { getTestPrepArea, TEST_PREP_DECK_PREFIX } from "@/lib/test-prep";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -14,9 +15,16 @@ const DECK_LABELS: Record<string, string> = {
   due: "Due for review",
 };
 
+/** A Test prep study area's deck: /flashcards/prep-<area slug>. */
+function prepArea(deck: string) {
+  return deck.startsWith(TEST_PREP_DECK_PREFIX)
+    ? getTestPrepArea(deck.slice(TEST_PREP_DECK_PREFIX.length))
+    : undefined;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { deck } = await params;
-  const label = DECK_LABELS[deck];
+  const label = DECK_LABELS[deck] ?? prepArea(deck)?.title;
   return {
     title: label ? `${label} flashcards` : "Flashcards",
   };
@@ -25,7 +33,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function FlashcardPlayerPage({ params }: Props) {
   const { deck } = await params;
 
-  if (!DECK_LABELS[deck]) notFound();
+  const area = prepArea(deck);
+  if (!DECK_LABELS[deck] && !area) notFound();
 
   const authUser = await getAuthUser();
 
@@ -35,8 +44,9 @@ export default async function FlashcardPlayerPage({ params }: Props) {
 
   // The due deck spans tracks, like the review queue it comes from.
   const concepts = await prisma.concept.findMany({
-    where:
-      deck === "due"
+    where: area
+      ? { slug: { in: area.conceptSlugs } }
+      : deck === "due"
         ? { reviewItems: { some: { userId: authUser.id, dueAt: { lte: new Date() } } } }
         : { section: { tier: { track: { slug: trackSlug } } } },
     select: {
@@ -70,8 +80,8 @@ export default async function FlashcardPlayerPage({ params }: Props) {
 
   return (
     <FlashcardPlayer
-      deck={deck as "all" | "due"}
-      deckLabel={DECK_LABELS[deck]}
+      deck={area ? "all" : (deck as "all" | "due")}
+      deckLabel={area ? area.title : DECK_LABELS[deck]}
       cards={cards}
     />
   );

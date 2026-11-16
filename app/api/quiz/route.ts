@@ -2,14 +2,16 @@ import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveTrackSlug } from "@/lib/track";
 import { getDueConceptIds } from "@/lib/review";
+import { getTestPrepArea } from "@/lib/test-prep";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const MODES = ["concept", "section", "tier", "mixed", "review"] as const;
+const MODES = ["concept", "section", "tier", "mixed", "review", "topic"] as const;
 type Mode = (typeof MODES)[number];
 const REVIEW_SIZE = 10;
 const MIXED_SIZE = 10;
+const TOPIC_SIZE = 12;
 
 /**
  * GET /api/quiz?mode=concept&id=<conceptId>
@@ -17,6 +19,7 @@ const MIXED_SIZE = 10;
  * GET /api/quiz?mode=tier&id=<tierId>
  * GET /api/quiz?mode=mixed
  * GET /api/quiz?mode=review          (signed in: one question per due concept)
+ * GET /api/quiz?mode=topic&id=<area> (a Test prep study area, see lib/test-prep.ts)
  *
  * Returns a randomized set of questions for the requested scope. Answer keys
  * and explanations are NOT sent; POST /api/quiz/answer grades each answer.
@@ -28,9 +31,14 @@ export async function GET(req: NextRequest) {
 
   if (!mode || !MODES.includes(mode)) {
     return NextResponse.json(
-      { error: "Invalid mode. Use concept, section, tier, mixed, or review." },
+      { error: "Invalid mode. Use concept, section, tier, mixed, review, or topic." },
       { status: 400 },
     );
+  }
+
+  const topic = mode === "topic" ? getTestPrepArea(id) : undefined;
+  if (mode === "topic" && !topic) {
+    return NextResponse.json({ error: "Unknown study area." }, { status: 400 });
   }
 
   if ((mode === "concept" || mode === "section" || mode === "tier") && !id) {
@@ -41,11 +49,11 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Browse-style scopes follow the member's active track. A single concept
-    // and the review queue are explicit, so they work from any track.
+    // Browse-style scopes follow the member's active track. A single concept,
+    // the review queue and a study area are explicit, so they work from any track.
     const trackSlug = await getActiveTrackSlug();
     const trackWhere =
-      mode === "concept" || mode === "review"
+      mode === "concept" || mode === "review" || mode === "topic"
         ? {}
         : { concept: { section: { tier: { track: { slug: trackSlug } } } } };
 
@@ -61,6 +69,7 @@ export async function GET(req: NextRequest) {
     if (mode === "concept") scopeWhere = { ...scopeWhere, conceptId: id! };
     else if (mode === "section") scopeWhere = { ...scopeWhere, concept: { sectionId: id! } };
     else if (mode === "tier") scopeWhere = { ...scopeWhere, concept: { section: { tierId: id! } } };
+    else if (topic) scopeWhere = { ...scopeWhere, concept: { slug: { in: topic.conceptSlugs } } };
     else if (mode === "review") {
       if (!user) {
         return NextResponse.json({ error: "Sign in to review." }, { status: 401 });
@@ -94,6 +103,8 @@ export async function GET(req: NextRequest) {
     let picked = questions;
     if (mode === "mixed") {
       picked = questions.slice(0, MIXED_SIZE);
+    } else if (mode === "topic") {
+      picked = questions.slice(0, TOPIC_SIZE);
     } else if (mode === "review" && reviewUserId) {
       picked = await onePerConcept(questions, reviewUserId);
     }

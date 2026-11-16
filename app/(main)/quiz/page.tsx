@@ -19,7 +19,7 @@ type ResumePick = {
   attemptedAt: string;
 };
 
-const DEEP_LINK_MODES: QuizMode[] = ["concept", "section", "tier", "mixed", "review"];
+const DEEP_LINK_MODES: QuizMode[] = ["concept", "section", "tier", "mixed", "review", "topic"];
 
 export default async function QuizPage({
   searchParams,
@@ -29,7 +29,7 @@ export default async function QuizPage({
   const params = await searchParams;
   const mode = typeof params.mode === "string" ? (params.mode as QuizMode) : null;
   const id = typeof params.id === "string" ? params.id : null;
-  const needsId = mode === "concept" || mode === "section" || mode === "tier";
+  const needsId = mode === "concept" || mode === "section" || mode === "tier" || mode === "topic";
   const initial =
     mode && DEEP_LINK_MODES.includes(mode) && (!needsId || id) ? { mode, id } : null;
 

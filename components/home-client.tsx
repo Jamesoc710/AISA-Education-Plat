@@ -141,6 +141,42 @@ export function HomeClient(props: HomeClientProps) {
 
         <HairRule top={40} bottom={40} />
 
+        {/* ── Test prep pointer ───────────────────────────────────── */}
+        <div>
+          <SectionEyebrow>Test prep</SectionEyebrow>
+          <p
+            style={{
+              margin: 0,
+              maxWidth: 640,
+              fontSize: "var(--text-md)",
+              lineHeight: 1.55,
+              color: "var(--color-text-2)",
+            }}
+          >
+            What the tech team test covers, what to study first, and last year&apos;s test.
+          </p>
+          <div style={{ marginTop: "var(--space-3)" }}>
+            <Link
+              href="/test-prep"
+              className="editorial-link"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "var(--space-2)",
+                fontSize: "var(--text-base)",
+                fontWeight: 500,
+                color: "var(--color-accent)",
+                textDecoration: "none",
+              }}
+            >
+              See what to study
+              <ArrowRight />
+            </Link>
+          </div>
+        </div>
+
+        <HairRule top={40} bottom={40} />
+
         {/* ── This Week in Tech teaser ────────────────────────────── */}
         {digestTeaser && (
           <>

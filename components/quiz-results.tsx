@@ -49,7 +49,7 @@ function tally(questions: QuizQuestion[], results: ResultMap) {
   return { correct, partial, scored };
 }
 
-type QuizMode = "concept" | "section" | "tier" | "mixed" | "review";
+type QuizMode = "concept" | "section" | "tier" | "mixed" | "review" | "topic";
 
 // ── Main Results Component ────────────────────────────────────────────────────
 
@@ -246,7 +246,11 @@ export function QuizResults({
           Retake quiz
         </Button>
         <Button variant="primary" size="md" onClick={onNewQuiz} fullWidth>
-          {mode === "review" ? "Back to practice" : "Choose another quiz"}
+          {mode === "review"
+            ? "Back to practice"
+            : mode === "topic"
+              ? "Back to test prep"
+              : "Choose another quiz"}
         </Button>
       </div>
       <div

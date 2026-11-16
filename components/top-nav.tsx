@@ -24,6 +24,7 @@ const PRIMARY: { href: string; label: string; also?: string[] }[] = [
   { href: "/browse", label: "Browse", also: ["/concepts"] },
   { href: "/practice", label: "Practice", also: ["/quiz", "/flashcards"] },
   { href: "/dashboard", label: "Progress" },
+  { href: "/test-prep", label: "Test prep" },
   { href: "/digest", label: "This week" },
 ];
 

@@ -34,7 +34,7 @@ type TierOption = {
   sections: SectionOption[];
 };
 
-export type QuizMode = "concept" | "section" | "tier" | "mixed" | "review";
+export type QuizMode = "concept" | "section" | "tier" | "mixed" | "review" | "topic";
 type Phase = "select-mode" | "select-target" | "loading" | "quiz" | "summary";
 
 export type QuizResumePick = {
@@ -116,7 +116,9 @@ export function QuizClient({
     setPhase("loading");
     setError(null);
     const fallbackPhase: Phase =
-      quizMode === "mixed" || quizMode === "review" ? "select-mode" : "select-target";
+      quizMode === "mixed" || quizMode === "review" || quizMode === "topic"
+        ? "select-mode"
+        : "select-target";
 
     try {
       const params = new URLSearchParams({ mode: quizMode });
@@ -273,7 +275,13 @@ export function QuizClient({
           mode={mode!}
           signedIn={signedIn}
           onRetake={retakeQuiz}
-          onNewQuiz={mode === "review" ? () => router.push("/practice") : resetQuiz}
+          onNewQuiz={
+            mode === "review"
+              ? () => router.push("/practice")
+              : mode === "topic"
+                ? () => router.push("/test-prep")
+                : resetQuiz
+          }
         />
       )}
     </PageFrame>
