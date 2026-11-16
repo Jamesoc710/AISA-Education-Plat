@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 import { FilterTabs, type FilterTabItem } from "@/components/ui/filter-tabs";
-import { SectionEyebrow, ArrowRight } from "@/components/ui/editorial";
+import { ArrowRight } from "@/components/ui/editorial";
+import { masteryLevel, type ConceptScore, type MasteryLevel } from "@/lib/mastery";
 import type { TrackSummary } from "@/lib/track";
 import type { SectionGroup, ConceptData } from "@/lib/types";
 
@@ -31,6 +32,15 @@ function groupByTier(sections: SectionGroup[]): TierGroup[] {
   return groups;
 }
 
+/**
+ * Quiz scores keyed by concept id. Null when nobody is signed in.
+ *
+ * Scores drive the only colour on this page: a square per concept, coloured by
+ * how well the member knows it. The same square appears beside the concept,
+ * collected into a strip beside its section, and in the legend.
+ */
+type Scores = Record<string, ConceptScore> | null;
+
 function plural(n: number, word: string) {
   return `${n} ${word}${n === 1 ? "" : "s"}`;
 }
@@ -39,10 +49,13 @@ export function BrowseClient({
   sections,
   tracks = [],
   activeTrackSlug = "ai",
+  scores = null,
 }: {
   sections: SectionGroup[];
   tracks?: TrackSummary[];
   activeTrackSlug?: string;
+  /** The signed-in member's quiz score per concept id. Omit when signed out. */
+  scores?: Scores;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -118,11 +131,6 @@ export function BrowseClient({
         )}
 
         {/* ── Page header ─────────────────────────────────────── */}
-        <SectionEyebrow>
-          {query
-            ? "Search"
-            : `Your map of ${activeTrack?.name ?? "the curriculum"}, from the fundamentals to the frontier`}
-        </SectionEyebrow>
         <h1
           style={{
             margin: 0,
@@ -149,12 +157,26 @@ export function BrowseClient({
         )}
 
         {showTierTabs && (
-          <FilterTabs<string>
-            tabs={tabs}
-            active={tierFilter ?? "all"}
-            onChange={setTier}
-            style={{ marginTop: "var(--space-6)", flexWrap: "wrap" }}
-          />
+          // The row owns the rule so it runs under the legend too.
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "var(--space-1) var(--space-5)",
+              marginTop: "var(--space-6)",
+              borderBottom: "1px solid var(--color-border)",
+            }}
+          >
+            <FilterTabs<string>
+              tabs={tabs}
+              active={tierFilter ?? "all"}
+              onChange={setTier}
+              style={{ borderBottom: "none", flexWrap: "wrap" }}
+            />
+            {scores && <MasteryLegend />}
+          </div>
         )}
 
         {/* ── Index / empty states ────────────────────────────── */}
@@ -168,7 +190,13 @@ export function BrowseClient({
           </div>
         ) : (
           visibleTiers.map((tier, i) => (
-            <TierBlock key={tier.slug} tier={tier} showHeading={hasTiers} first={i === 0} />
+            <TierBlock
+              key={tier.slug}
+              tier={tier}
+              scores={scores}
+              showHeading={hasTiers}
+              first={i === 0}
+            />
           ))
         )}
       </div>
@@ -185,10 +213,12 @@ export function BrowseClient({
 
 function TierBlock({
   tier,
+  scores,
   showHeading,
   first,
 }: {
   tier: TierGroup;
+  scores: Scores;
   showHeading: boolean;
   first: boolean;
 }) {
@@ -237,7 +267,7 @@ function TierBlock({
       )}
 
       {tier.sections.map((section) => (
-        <SectionRow key={section.id} section={section} />
+        <SectionRow key={section.id} section={section} scores={scores} />
       ))}
     </section>
   );
@@ -251,7 +281,10 @@ function TierBlock({
 // concepts the rows. Layout and hover live in globals.css (.browse-section,
 // .browse-concepts, .browse-concept).
 
-function SectionRow({ section }: { section: SectionGroup }) {
+function SectionRow({ section, scores }: { section: SectionGroup; scores: Scores }) {
+  const total = section.concepts.length;
+  const quizzed = scores ? section.concepts.filter((c) => scores[c.id]).length : 0;
+
   return (
     <div className="browse-section">
       <div style={{ minWidth: 0 }}>
@@ -281,22 +314,43 @@ function SectionRow({ section }: { section: SectionGroup }) {
         )}
         <div
           style={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "var(--space-2) var(--space-3)",
             marginTop: "var(--space-3)",
-            fontSize: "var(--text-xs)",
-            fontWeight: 600,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "var(--color-text)",
-            fontVariantNumeric: "tabular-nums",
           }}
         >
-          {plural(section.concepts.length, "concept")}
+          {/* One square per concept, in order, coloured by its quiz score. */}
+          {scores && (
+            <span aria-hidden style={{ display: "flex", gap: "3px" }}>
+              {section.concepts.map((c) => (
+                <span
+                  key={c.id}
+                  className="browse-mark"
+                  data-level={scores[c.id] ? masteryLevel(scores[c.id].pct) : undefined}
+                />
+              ))}
+            </span>
+          )}
+          <span
+            style={{
+              fontSize: "var(--text-xs)",
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--color-text)",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {scores ? `${quizzed} of ${total} quizzed` : plural(total, "concept")}
+          </span>
         </div>
       </div>
 
       <div className="browse-concepts">
         {section.concepts.map((concept) => (
-          <ConceptRow key={concept.id} concept={concept} />
+          <ConceptRow key={concept.id} concept={concept} score={scores?.[concept.id]} />
         ))}
       </div>
     </div>
@@ -305,17 +359,67 @@ function SectionRow({ section }: { section: SectionGroup }) {
 
 // ── Concept Row ──────────────────────────────────────────────────────────────
 
-function ConceptRow({ concept }: { concept: ConceptData }) {
+function ConceptRow({ concept, score }: { concept: ConceptData; score?: ConceptScore }) {
   return (
     <Link href={`/concepts/${concept.slug}`} className="browse-concept">
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span className="browse-concept-name">{concept.name}</span>
+        <span className="browse-concept-head">
+          <span className="browse-concept-name">{concept.name}</span>
+          {score && (
+            <span
+              className="browse-concept-score"
+              title={`${score.correct} of ${score.total} quiz answers correct`}
+            >
+              <span aria-hidden className="browse-mark" data-level={masteryLevel(score.pct)} />
+              {score.pct}%
+            </span>
+          )}
+        </span>
         <span className="browse-concept-sub">{concept.subtitle}</span>
       </span>
       <span className="browse-concept-arrow" aria-hidden>
         <ArrowRight />
       </span>
     </Link>
+  );
+}
+
+// ── Mastery Legend ───────────────────────────────────────────────────────────
+// Same bands as the Progress page's completion map, so a colour means the same
+// thing on both pages.
+
+function MasteryLegend() {
+  const items: { level?: MasteryLevel; label: string }[] = [
+    { level: "strong", label: "80%+" },
+    { level: "mid", label: "50-79%" },
+    { level: "weak", label: "Under 50%" },
+    { label: "Not quizzed" },
+  ];
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: "var(--space-1) var(--space-4)",
+        paddingBottom: "var(--space-3)",
+        fontSize: "var(--text-xs)",
+        color: "var(--color-text)",
+      }}
+    >
+      <span style={{ fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+        Quiz accuracy
+      </span>
+      {items.map((item) => (
+        <span
+          key={item.label}
+          style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontWeight: 500 }}
+        >
+          <span aria-hidden className="browse-mark" data-level={item.level} />
+          {item.label}
+        </span>
+      ))}
+    </div>
   );
 }
 

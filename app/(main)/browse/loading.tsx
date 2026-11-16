@@ -1,11 +1,10 @@
 import { LoadingShell, Skeleton } from "@/components/ui/skeleton";
 
-/** Mirrors BrowseClient: eyebrow, headline, tier tabs, then one tier of the index. */
+/** Mirrors BrowseClient: headline, tier tabs, then one tier of the index. */
 export default function BrowseLoading() {
   return (
     <LoadingShell>
       <div style={{ maxWidth: 1160, margin: "0 auto", padding: "var(--pad-page-y) var(--pad-wide-x) 96px" }}>
-        <Skeleton width={460} height={12} style={{ marginBottom: "var(--space-4)" }} />
         <Skeleton width={210} height="clamp(40px, 5vw, 56px)" radius="var(--radius-2)" />
 
         <div
