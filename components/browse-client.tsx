@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type CSSProperties } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 import { FilterTabs, type FilterTabItem } from "@/components/ui/filter-tabs";
 import { ArrowRight } from "@/components/ui/editorial";
-import { masteryLevel, type ConceptScore, type MasteryLevel } from "@/lib/mastery";
+import { getSectionVisual } from "@/lib/section-icons";
 import type { TrackSummary } from "@/lib/track";
 import type { SectionGroup, ConceptData } from "@/lib/types";
 
@@ -32,30 +32,38 @@ function groupByTier(sections: SectionGroup[]): TierGroup[] {
   return groups;
 }
 
-/**
- * Quiz scores keyed by concept id. Null when nobody is signed in.
- *
- * Scores drive the only colour on this page: a square per concept, coloured by
- * how well the member knows it. The same square appears beside the concept,
- * collected into a strip beside its section, and in the legend.
- */
-type Scores = Record<string, ConceptScore> | null;
-
 function plural(n: number, word: string) {
   return `${n} ${word}${n === 1 ? "" : "s"}`;
 }
+
+/**
+ * TEMPORARY while the scheme is being chosen: what colour means on this page.
+ * The rules for each live in globals.css under [data-browse-color].
+ *
+ * - section:      every section has its own ink, on its name and its hover state
+ * - section-full: the same, and the section's concept names take the ink too
+ * - level:        one spot colour marks section names, so colour says "section"
+ * - tier:         one colour per difficulty tier, the ones tier labels already use
+ */
+export type BrowseColor = "section" | "section-full" | "level" | "tier";
+
+// Same tokens as components/ui/tier-badge.tsx.
+const TIER_INK: Record<string, string> = {
+  fundamentals: "var(--color-gold)",
+  intermediate: "var(--color-blue)",
+  advanced: "var(--color-slate)",
+};
 
 export function BrowseClient({
   sections,
   tracks = [],
   activeTrackSlug = "ai",
-  scores = null,
+  colorBy = "section",
 }: {
   sections: SectionGroup[];
   tracks?: TrackSummary[];
   activeTrackSlug?: string;
-  /** The signed-in member's quiz score per concept id. Omit when signed out. */
-  scores?: Scores;
+  colorBy?: BrowseColor;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -106,7 +114,11 @@ export function BrowseClient({
   };
 
   return (
-    <div data-surface="editorial" style={{ backgroundColor: "var(--color-bg)", minHeight: "100%" }}>
+    <div
+      data-surface="editorial"
+      data-browse-color={colorBy}
+      style={{ backgroundColor: "var(--color-bg)", minHeight: "100%" }}
+    >
       <div
         style={{
           maxWidth: 1160,
@@ -157,26 +169,12 @@ export function BrowseClient({
         )}
 
         {showTierTabs && (
-          // The row owns the rule so it runs under the legend too.
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: "var(--space-1) var(--space-5)",
-              marginTop: "var(--space-6)",
-              borderBottom: "1px solid var(--color-border)",
-            }}
-          >
-            <FilterTabs<string>
-              tabs={tabs}
-              active={tierFilter ?? "all"}
-              onChange={setTier}
-              style={{ borderBottom: "none", flexWrap: "wrap" }}
-            />
-            {scores && <MasteryLegend />}
-          </div>
+          <FilterTabs<string>
+            tabs={tabs}
+            active={tierFilter ?? "all"}
+            onChange={setTier}
+            style={{ marginTop: "var(--space-6)", flexWrap: "wrap" }}
+          />
         )}
 
         {/* ── Index / empty states ────────────────────────────── */}
@@ -190,13 +188,7 @@ export function BrowseClient({
           </div>
         ) : (
           visibleTiers.map((tier, i) => (
-            <TierBlock
-              key={tier.slug}
-              tier={tier}
-              scores={scores}
-              showHeading={hasTiers}
-              first={i === 0}
-            />
+            <TierBlock key={tier.slug} tier={tier} showHeading={hasTiers} first={i === 0} />
           ))
         )}
       </div>
@@ -213,21 +205,27 @@ export function BrowseClient({
 
 function TierBlock({
   tier,
-  scores,
   showHeading,
   first,
 }: {
   tier: TierGroup;
-  scores: Scores;
   showHeading: boolean;
   first: boolean;
 }) {
   return (
-    <section style={{ marginTop: first ? "24px" : "40px" }}>
+    <section
+      style={
+        {
+          marginTop: first ? "24px" : "40px",
+          "--tier-ink": TIER_INK[tier.slug] ?? "var(--color-text)",
+        } as CSSProperties
+      }
+    >
       {showHeading ? (
         // Bleeds 12px each side so it also covers a hovered row passing beneath.
         <div className="browse-tier-head">
           <div
+            className="browse-tier-rule"
             style={{
               display: "flex",
               alignItems: "baseline",
@@ -235,17 +233,16 @@ function TierBlock({
               flexWrap: "wrap",
               gap: "var(--space-1) var(--space-5)",
               paddingBottom: "var(--space-4)",
-              borderBottom: "1px solid var(--color-text)",
             }}
           >
             <h2
+              className="browse-tier-name"
               style={{
                 margin: 0,
                 fontSize: "var(--text-3xl)",
                 fontWeight: 600,
                 letterSpacing: "-0.025em",
                 lineHeight: 1.1,
-                color: "var(--color-text)",
               }}
             >
               {tier.name}
@@ -263,11 +260,11 @@ function TierBlock({
           </div>
         </div>
       ) : (
-        <div aria-hidden style={{ marginTop: "var(--space-4)", borderBottom: "1px solid var(--color-text)" }} />
+        <div aria-hidden className="browse-tier-rule" style={{ marginTop: "var(--space-4)" }} />
       )}
 
       {tier.sections.map((section) => (
-        <SectionRow key={section.id} section={section} scores={scores} />
+        <SectionRow key={section.id} section={section} />
       ))}
     </section>
   );
@@ -276,26 +273,32 @@ function TierBlock({
 // ── Section Row ──────────────────────────────────────────────────────────────
 //
 // Section identity on the left, every concept in it on the right. Nothing to
-// expand: the page is the index. The three levels are told apart by type and
-// rules alone: tiers get the large ruled heading, sections the left column,
-// concepts the rows. Layout and hover live in globals.css (.browse-section,
-// .browse-concepts, .browse-concept).
+// expand: the page is the index. Size and rules separate the three levels
+// (large ruled tier heading, section in the left column, concepts as rows);
+// colour is applied in globals.css from the inks set here.
 
-function SectionRow({ section, scores }: { section: SectionGroup; scores: Scores }) {
-  const total = section.concepts.length;
-  const quizzed = scores ? section.concepts.filter((c) => scores[c.id]).length : 0;
+function SectionRow({ section }: { section: SectionGroup }) {
+  const visual = getSectionVisual(section.slug);
 
   return (
-    <div className="browse-section">
+    <div
+      className="browse-section"
+      style={
+        {
+          "--section-ink": `var(--tile-${visual.color}-fg)`,
+          "--section-tint": `var(--tile-${visual.color}-bg)`,
+        } as CSSProperties
+      }
+    >
       <div style={{ minWidth: 0 }}>
         <h3
+          className="browse-section-name"
           style={{
             margin: 0,
             fontSize: "var(--text-lg)",
             fontWeight: 600,
             letterSpacing: "-0.02em",
             lineHeight: 1.25,
-            color: "var(--color-text)",
           }}
         >
           {section.name}
@@ -313,44 +316,23 @@ function SectionRow({ section, scores }: { section: SectionGroup; scores: Scores
           </p>
         )}
         <div
+          className="browse-section-count"
           style={{
-            display: "flex",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: "var(--space-2) var(--space-3)",
             marginTop: "var(--space-3)",
+            fontSize: "var(--text-xs)",
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            fontVariantNumeric: "tabular-nums",
           }}
         >
-          {/* One square per concept, in order, coloured by its quiz score. */}
-          {scores && (
-            <span aria-hidden style={{ display: "flex", gap: "3px" }}>
-              {section.concepts.map((c) => (
-                <span
-                  key={c.id}
-                  className="browse-mark"
-                  data-level={scores[c.id] ? masteryLevel(scores[c.id].pct) : undefined}
-                />
-              ))}
-            </span>
-          )}
-          <span
-            style={{
-              fontSize: "var(--text-xs)",
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "var(--color-text)",
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            {scores ? `${quizzed} of ${total} quizzed` : plural(total, "concept")}
-          </span>
+          {plural(section.concepts.length, "concept")}
         </div>
       </div>
 
       <div className="browse-concepts">
         {section.concepts.map((concept) => (
-          <ConceptRow key={concept.id} concept={concept} score={scores?.[concept.id]} />
+          <ConceptRow key={concept.id} concept={concept} />
         ))}
       </div>
     </div>
@@ -359,67 +341,17 @@ function SectionRow({ section, scores }: { section: SectionGroup; scores: Scores
 
 // ── Concept Row ──────────────────────────────────────────────────────────────
 
-function ConceptRow({ concept, score }: { concept: ConceptData; score?: ConceptScore }) {
+function ConceptRow({ concept }: { concept: ConceptData }) {
   return (
     <Link href={`/concepts/${concept.slug}`} className="browse-concept">
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span className="browse-concept-head">
-          <span className="browse-concept-name">{concept.name}</span>
-          {score && (
-            <span
-              className="browse-concept-score"
-              title={`${score.correct} of ${score.total} quiz answers correct`}
-            >
-              <span aria-hidden className="browse-mark" data-level={masteryLevel(score.pct)} />
-              {score.pct}%
-            </span>
-          )}
-        </span>
+        <span className="browse-concept-name">{concept.name}</span>
         <span className="browse-concept-sub">{concept.subtitle}</span>
       </span>
       <span className="browse-concept-arrow" aria-hidden>
         <ArrowRight />
       </span>
     </Link>
-  );
-}
-
-// ── Mastery Legend ───────────────────────────────────────────────────────────
-// Same bands as the Progress page's completion map, so a colour means the same
-// thing on both pages.
-
-function MasteryLegend() {
-  const items: { level?: MasteryLevel; label: string }[] = [
-    { level: "strong", label: "80%+" },
-    { level: "mid", label: "50-79%" },
-    { level: "weak", label: "Under 50%" },
-    { label: "Not quizzed" },
-  ];
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        flexWrap: "wrap",
-        gap: "var(--space-1) var(--space-4)",
-        paddingBottom: "var(--space-3)",
-        fontSize: "var(--text-xs)",
-        color: "var(--color-text)",
-      }}
-    >
-      <span style={{ fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-        Quiz accuracy
-      </span>
-      {items.map((item) => (
-        <span
-          key={item.label}
-          style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontWeight: 500 }}
-        >
-          <span aria-hidden className="browse-mark" data-level={item.level} />
-          {item.label}
-        </span>
-      ))}
-    </div>
   );
 }
 

@@ -333,6 +333,35 @@ input:focus:not(:focus-visible) {
   background-color: var(--color-bg);
 }
 
+.browse-tier-rule { border-bottom: 1px solid var(--browse-tier-ink, var(--color-text)); }
+.browse-tier-name { color: var(--browse-tier-ink, var(--color-text)); }
+
+/* Colour. Each section carries one ink (--browse-ink) for its name and count,
+   and one for its concepts' hover state. Which ink that is depends on the
+   scheme set on the page root. TEMPORARY: only one scheme survives. */
+.browse-section {
+  --browse-ink: var(--color-text);
+  --browse-hover-ink: var(--color-accent);
+  --browse-hover-bg: var(--color-surface);
+  --browse-rule: var(--color-border);
+}
+[data-browse-color="section"] .browse-section,
+[data-browse-color="section-full"] .browse-section {
+  --browse-ink: var(--section-ink);
+  --browse-hover-ink: var(--section-ink);
+  --browse-hover-bg: var(--section-tint);
+  --browse-rule: color-mix(in srgb, var(--section-ink) 22%, transparent);
+}
+[data-browse-color="section-full"] .browse-concept-name { color: var(--section-ink); }
+[data-browse-color="level"] .browse-section { --browse-ink: var(--tile-coral-fg); }
+[data-browse-color="tier"] section { --browse-tier-ink: var(--tier-ink); }
+[data-browse-color="tier"] .browse-section {
+  --browse-ink: var(--tier-ink);
+  --browse-hover-ink: var(--tier-ink);
+}
+.browse-section-name,
+.browse-section-count { color: var(--browse-ink); }
+
 /* Index layout: section identity on the left, its concepts on the right. */
 .browse-section {
   display: grid;
@@ -375,7 +404,7 @@ input:focus:not(:focus-visible) {
   bottom: 0;
   left: 12px;
   height: 1px;
-  background-color: var(--color-border);
+  background-color: var(--browse-rule);
   transition: opacity 120ms ease;
 }
 /* No hairline under the last row of the two-column grid. */
@@ -383,31 +412,10 @@ input:focus:not(:focus-visible) {
 .browse-concept:nth-last-child(2):nth-child(odd)::after { display: none; }
 
 .browse-concept:hover {
-  background-color: var(--color-surface);
+  background-color: var(--browse-hover-bg);
   box-shadow: var(--shadow-card-hover);
 }
 .browse-concept:hover::after { opacity: 0; }
-
-/* Name on the left, the member's quiz score (when there is one) on the right. */
-.browse-concept-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.browse-concept-score {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 6px;
-  /* Wide enough for "100%", so the squares line up down the column. */
-  min-width: 46px;
-  font-size: var(--text-xs);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text);
-}
 
 .browse-concept-name {
   display: block;
@@ -417,7 +425,7 @@ input:focus:not(:focus-visible) {
   letter-spacing: -0.01em;
   transition: color 120ms ease;
 }
-.browse-concept:hover .browse-concept-name { color: var(--color-accent); }
+.browse-concept:hover .browse-concept-name { color: var(--browse-hover-ink); }
 
 .browse-concept-sub {
   display: -webkit-box;
@@ -434,7 +442,7 @@ input:focus:not(:focus-visible) {
   display: flex;
   flex-shrink: 0;
   align-self: center;
-  color: var(--color-accent);
+  color: var(--browse-hover-ink);
   opacity: 0;
   transform: translateX(-4px);
   transition: opacity 120ms ease, transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -444,19 +452,6 @@ input:focus:not(:focus-visible) {
   opacity: 1;
   transform: none;
 }
-
-/* Mastery square: one per concept beside a section, and the legend swatches.
-   Uncoloured means no quiz answers yet. */
-.browse-mark {
-  flex-shrink: 0;
-  width: 12px;
-  height: 12px;
-  background-color: var(--color-surface-3);
-  border-radius: 3px;
-}
-.browse-mark[data-level="strong"] { background-color: var(--color-correct); }
-.browse-mark[data-level="mid"] { background-color: var(--color-gold); }
-.browse-mark[data-level="weak"] { background-color: var(--color-incorrect); }
 
 @media (max-width: 900px) {
   .browse-section { grid-template-columns: minmax(0, 1fr); }
